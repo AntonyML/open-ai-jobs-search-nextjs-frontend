@@ -11,6 +11,8 @@ export default function Providers() {
   const [provider, setProvider] = useState('openai')
   const [form, setForm] = useState({ api_key: '', api_base: '', model: '' })
   const [msg, setMsg] = useState('')
+  const [models, setModels] = useState<any[]>([])
+  const [testing, setTesting] = useState(false)
   const router = useRouter()
 
   function loadMyProviders() {
@@ -28,6 +30,12 @@ export default function Providers() {
       .catch(() => {})
     loadMyProviders()
   }, [])
+
+  useEffect(() => {
+    apiFetch<any>(`/api/v1/providers/${provider}/models`)
+      .then(x => setModels(x.models || []))
+      .catch(() => setModels([]))
+  }, [provider])
 
   async function add(e: React.FormEvent) {
     e.preventDefault()
@@ -65,6 +73,14 @@ export default function Providers() {
               <option key={x}>{x}</option>
             ))}
           </select>
+          {models.length > 0 && <select
+            className="field"
+            value={form.model}
+            onChange={(e) => setForm({ ...form, model: e.target.value })}
+          >
+            <option value="">Choose model</option>
+            {models.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
+          </select>}
           <input
             className="field"
             placeholder="API key"
@@ -84,6 +100,12 @@ export default function Providers() {
             onChange={(e) => setForm({ ...form, model: e.target.value })}
           />
           <button className="btn-primary w-full">Save provider</button>
+          <button type="button" className="btn-secondary w-full" disabled={testing} onClick={async () => {
+            setTesting(true)
+            try { const x = await apiFetch<any>('/api/v1/providers/test', { method: 'POST' }); setMsg(`Test OK: ${x.provider} / ${x.model}`) }
+            catch (e) { setMsg(e instanceof Error ? `Test failed: ${e.message}` : 'Test failed') }
+            finally { setTesting(false) }
+          }}>{testing ? 'Testing…' : 'Test active provider'}</button>
           {msg && <p className="text-sm text-emerald-400">{msg}</p>}
         </form>
 
