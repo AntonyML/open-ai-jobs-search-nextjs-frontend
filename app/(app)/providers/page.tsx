@@ -48,7 +48,8 @@ export default function Providers() {
     }
     setLoadingModels(true)
     try {
-      const x = await apiFetch<any>(`/api/v1/providers/${provider}/models`, { method: 'POST', body: JSON.stringify({ provider, ...form }) })
+      const modelPayload = Object.fromEntries(Object.entries({ provider, ...form }).filter(([, value]) => value.trim() !== ''))
+      const x = await apiFetch<any>(`/api/v1/providers/${provider}/models`, { method: 'POST', body: JSON.stringify(modelPayload) })
       setModels(x.models || [])
       setTested(false)
       setMsg(`${(x.models || []).length} models loaded`)
@@ -145,7 +146,10 @@ export default function Providers() {
           </select>}
           {form.model && <button type="button" className="btn-secondary w-full" disabled={testing} onClick={async () => {
             setTesting(true)
-            try { const x = await apiFetch<any>('/api/v1/providers/test', { method: 'POST', body: JSON.stringify({ provider, ...form }) }); setTested(true); setMsg(`Test OK: ${x.provider} / ${x.model}`) }
+            try {
+              const testPayload = Object.fromEntries(Object.entries({ provider, ...form }).filter(([, value]) => value.trim() !== ''))
+              const x = await apiFetch<any>('/api/v1/providers/test', { method: 'POST', body: JSON.stringify(testPayload) }); setTested(true); setMsg(`Test OK: ${x.provider} / ${x.model}`)
+            }
             catch (e) { setTested(false); setMsg(e instanceof Error ? `Test failed: ${e.message}` : 'Test failed') }
             finally { setTesting(false) }
           }}>{testing ? 'Testing…' : 'Test active provider'}</button>}
