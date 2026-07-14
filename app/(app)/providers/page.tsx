@@ -1,2 +1,105 @@
-'use client'; import { useEffect,useState } from 'react'; import { apiFetch } from '@/lib/api'; import { useRouter } from 'next/navigation'
-export default function Providers(){const [catalog,setCatalog]=useState<any[]>([]),[active,setActive]=useState<any>(null),[provider,setProvider]=useState('openai'),[form,setForm]=useState({api_key:'',api_base:'',model:''}),[msg,setMsg]=useState(''),router=useRouter();useEffect(()=>{apiFetch<any>('/api/v1/providers/').then(x=>setCatalog(Array.isArray(x)?x:x.providers||[])).catch(()=>{});apiFetch<any>('/api/v1/providers/me/active').then(setActive).catch(()=>{})},[]);async function add(e:any){e.preventDefault();await apiFetch('/api/v1/providers/',{method:'POST',body:JSON.stringify(Object.fromEntries(Object.entries({provider,...form}).filter(([,v])=>v!==''&&v!==null&&v!==undefined)))});setMsg('Provider saved')}async function activate(){await apiFetch('/api/v1/providers/active',{method:'PUT',body:JSON.stringify({provider})});localStorage.setItem('completed_steps','[0]');router.push('/setup')}const isConfigured=catalog.some(c=>(c.provider??c.name??c)===provider);return <section className="mx-auto max-w-5xl"><p className="eyebrow">01 / CONFIGURE</p><h2 className="title">Choose your AI provider</h2><div className="mt-8 grid gap-6 lg:grid-cols-2"><form onSubmit={add} className="card space-y-4"><select className="field" value={provider} onChange={e=>setProvider(e.target.value)}>{['anthropic','openai','nvidia_nim','lm_studio','ollama'].map(x=><option key={x}>{x}</option>)}</select><input className="field" placeholder="API key" value={form.api_key} onChange={e=>setForm({...form,api_key:e.target.value})}/><input className="field" placeholder="API base (optional)" value={form.api_base} onChange={e=>setForm({...form,api_base:e.target.value})}/><input className="field" placeholder="Model (optional)" value={form.model} onChange={e=>setForm({...form,model:e.target.value})}/><button className="btn-primary w-full">Save provider</button>{msg&&<p className="text-sm text-emerald-400">{msg}</p>}</form><div className="space-y-4"><div className="card"><p className="text-sm text-slate-400">Active provider</p><p className="mt-2 text-xl font-bold text-white">{active?.provider||'Not configured'}</p>{isConfigured&&<button onClick={activate} className="btn-secondary mt-4">Set {provider} as active</button>}</div><div className="card"><p className="mb-3 text-sm text-slate-400">Available catalog</p>{catalog.map((x,i)=><div key={i} className="border-b border-slate-800 py-2 text-sm text-slate-300">{x.name||x.provider||x}</div>)}</div></div></div></section>}
+'use client'
+
+import { useEffect, useState } from 'react'
+import { apiFetch } from '@/lib/api'
+import { useRouter } from 'next/navigation'
+
+export default function Providers() {
+  const [catalog, setCatalog] = useState<any[]>([])
+  const [active, setActive] = useState<any>(null)
+  const [provider, setProvider] = useState('openai')
+  const [form, setForm] = useState({ api_key: '', api_base: '', model: '' })
+  const [msg, setMsg] = useState('')
+  const router = useRouter()
+
+  useEffect(() => {
+    apiFetch<any>('/api/v1/providers/')
+      .then((x) => setCatalog(Array.isArray(x) ? x : x.providers || []))
+      .catch(() => {})
+    apiFetch<any>('/api/v1/providers/me/active')
+      .then(setActive)
+      .catch(() => {})
+  }, [])
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault()
+    const payload = Object.fromEntries(
+      Object.entries({ provider, ...form }).filter(([, v]) => v !== '' && v !== null && v !== undefined)
+    )
+    await apiFetch('/api/v1/providers/', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    setMsg('Provider saved')
+  }
+
+  async function activate() {
+    await apiFetch('/api/v1/providers/active', {
+      method: 'PUT',
+      body: JSON.stringify({ provider }),
+    })
+    localStorage.setItem('completed_steps', '[0]')
+    router.push('/setup')
+  }
+
+  const isConfigured = catalog.some((c) => (c.provider ?? c.name ?? c) === provider)
+
+  return (
+    <section className="mx-auto max-w-5xl">
+      <p className="eyebrow">01 / CONFIGURE</p>
+      <h2 className="title">Choose your AI provider</h2>
+      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+        <form onSubmit={add} className="card space-y-4">
+          <select className="field" value={provider} onChange={(e) => setProvider(e.target.value)}>
+            {['anthropic', 'openai', 'nvidia_nim', 'lm_studio', 'ollama'].map((x) => (
+              <option key={x}>{x}</option>
+            ))}
+          </select>
+          <input
+            className="field"
+            placeholder="API key"
+            value={form.api_key}
+            onChange={(e) => setForm({ ...form, api_key: e.target.value })}
+          />
+          <input
+            className="field"
+            placeholder="API base (optional)"
+            value={form.api_base}
+            onChange={(e) => setForm({ ...form, api_base: e.target.value })}
+          />
+          <input
+            className="field"
+            placeholder="Model (optional)"
+            value={form.model}
+            onChange={(e) => setForm({ ...form, model: e.target.value })}
+          />
+          <button className="btn-primary w-full">Save provider</button>
+          {msg && <p className="text-sm text-emerald-400">{msg}</p>}
+        </form>
+
+        <div className="space-y-4">
+          <div className="card">
+            <p className="text-sm text-slate-400">Active provider</p>
+            <p className="mt-2 text-xl font-bold text-white">
+              {active?.provider || 'Not configured'}
+            </p>
+            {isConfigured && (
+              <button onClick={activate} className="btn-secondary mt-4">
+                Set {provider} as active
+              </button>
+            )}
+          </div>
+
+          <div className="card">
+            <p className="mb-3 text-sm text-slate-400">Available catalog</p>
+            {catalog.map((x, i) => (
+              <div key={i} className="border-b border-slate-800 py-2 text-sm text-slate-300">
+                {x.name || x.provider || x}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
