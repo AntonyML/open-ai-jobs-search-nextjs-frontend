@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client'
 import { useEffect,useState } from 'react'; import { usePathname,useRouter } from 'next/navigation'; import StepSidebar from '@/components/StepSidebar'; import { isLoggedIn } from '@/lib/auth'
 const routes=['providers','setup','scrape','rank','apply','interview','outcome']

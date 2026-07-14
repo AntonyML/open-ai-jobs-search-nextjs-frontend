@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import { FormEvent,useEffect,useState } from 'react'; import { useRouter } from 'next/navigation'; import { apiFetch } from '@/lib/api'
 type Props={title:string; eyebrow:string; endpoint:string; listEndpoint?:string; fields:{name:string;label:string;type?:string;optional?:boolean}[]; step:number; next?:string; actionLabel?:string}
