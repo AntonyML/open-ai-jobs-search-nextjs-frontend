@@ -14,6 +14,7 @@ export default function Providers() {
   const [models, setModels] = useState<any[]>([])
   const [testing, setTesting] = useState(false)
   const [loadingModels, setLoadingModels] = useState(false)
+  const [tested, setTested] = useState(false)
   const router = useRouter()
 
   function loadMyProviders() {
@@ -37,10 +38,19 @@ export default function Providers() {
   }, [provider])
 
   async function loadModels() {
+    if (!form.api_key.trim() && provider !== 'lm_studio' && provider !== 'ollama') {
+      setMsg('API key is required before loading models')
+      return
+    }
+    if (!form.api_base.trim() && (provider === 'lm_studio' || provider === 'ollama')) {
+      setMsg('API base is required before loading models')
+      return
+    }
     setLoadingModels(true)
     try {
-      const x = await apiFetch<any>(`/api/v1/providers/${provider}/models`)
+      const x = await apiFetch<any>(`/api/v1/providers/${provider}/models`, { method: 'POST', body: JSON.stringify({ provider, ...form }) })
       setModels(x.models || [])
+      setTested(false)
       setMsg(`${(x.models || []).length} models loaded`)
     } catch (e) {
       setModels([])
@@ -124,27 +134,22 @@ export default function Providers() {
               {loadingModels ? 'Loading…' : 'Load models'}
             </button>
           </div>
-          {models.length > 0 && <select
-            className="field"
-            value={form.model}
-            onChange={(e) => setForm({ ...form, model: e.target.value })}
-          >
-            <option value="">Choose model</option>
-            {models.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
-          </select>}
           <input
             className="field"
             placeholder="API base (optional)"
             value={form.api_base}
             onChange={(e) => setForm({ ...form, api_base: e.target.value })}
           />
-          <button className="btn-primary w-full">Save provider</button>
-          <button type="button" className="btn-secondary w-full" disabled={testing} onClick={async () => {
+          {models.length > 0 && <select className="field" value={form.model} onChange={(e) => { setForm({ ...form, model: e.target.value }); setTested(false) }}>
+            <option value="">Choose model</option>{models.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
+          </select>}
+          {form.model && <button type="button" className="btn-secondary w-full" disabled={testing} onClick={async () => {
             setTesting(true)
-            try { const x = await apiFetch<any>('/api/v1/providers/test', { method: 'POST' }); setMsg(`Test OK: ${x.provider} / ${x.model}`) }
-            catch (e) { setMsg(e instanceof Error ? `Test failed: ${e.message}` : 'Test failed') }
+            try { const x = await apiFetch<any>('/api/v1/providers/test', { method: 'POST', body: JSON.stringify({ provider, ...form }) }); setTested(true); setMsg(`Test OK: ${x.provider} / ${x.model}`) }
+            catch (e) { setTested(false); setMsg(e instanceof Error ? `Test failed: ${e.message}` : 'Test failed') }
             finally { setTesting(false) }
-          }}>{testing ? 'Testing…' : 'Test active provider'}</button>
+          }}>{testing ? 'Testing…' : 'Test active provider'}</button>}
+          {tested && <button className="btn-primary w-full">Save provider</button>}
           {msg && <p className="text-sm text-emerald-400">{msg}</p>}
         </form>
 
