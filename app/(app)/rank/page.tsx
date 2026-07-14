@@ -60,7 +60,14 @@ export default function Rank() {
       const fa = customFocus.trim() || focusArea
       if (fa) body.focus_area = fa
       const data = await apiFetch<any>('/api/v1/rank/', { method: 'POST', body: JSON.stringify(body) })
-      setResult(data)
+      localStorage.setItem('ranking_job_id', data.job_id)
+      let completed: any = null
+      do {
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        completed = await apiFetch<any>(`/api/v1/rank/status/${data.job_id}`)
+      } while (completed.status === 'running')
+      if (completed.status === 'failed') throw new Error(completed.error || 'Ranking failed')
+      setResult(completed.result)
       const x = await apiFetch<any>('/api/v1/rank/jobs')
       setItems(Array.isArray(x) ? x : (x.items || x.jobs || []))
     } catch (x) {
