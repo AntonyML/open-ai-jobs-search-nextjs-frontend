@@ -148,9 +148,11 @@ export default function Providers() {
             setTesting(true)
             try {
               const testPayload = Object.fromEntries(Object.entries({ provider, ...form }).filter(([, value]) => value.trim() !== ''))
-              const x = await apiFetch<any>('/api/v1/providers/test', { method: 'POST', body: JSON.stringify(testPayload) }); setTested(true); setMsg(`Test OK: ${x.provider} / ${x.model}`)
+              const controller = new AbortController()
+              const timeout = window.setTimeout(() => controller.abort(), 35000)
+              const x = await apiFetch<any>('/api/v1/providers/test', { method: 'POST', body: JSON.stringify(testPayload), signal: controller.signal }); window.clearTimeout(timeout); setTested(true); setMsg(`Test OK: ${x.provider} / ${x.model}`)
             }
-            catch (e) { setTested(false); setMsg(e instanceof Error ? `Test failed: ${e.message}` : 'Test failed') }
+            catch (e) { setTested(false); setMsg(e instanceof DOMException && e.name === 'AbortError' ? 'Test failed: provider timeout (35s)' : e instanceof Error ? `Test failed: ${e.message}` : 'Test failed') }
             finally { setTesting(false) }
           }}>{testing ? 'Testing…' : 'Test active provider'}</button>}
           {tested && <button className="btn-primary w-full">Save provider</button>}
@@ -211,7 +213,7 @@ export default function Providers() {
             </button>
           )}
 
-          {active?.provider && (
+          {active?.has_credential && (
             <button onClick={() => router.push('/setup')} className="btn-primary w-full">
               Continue to Setup →
             </button>
