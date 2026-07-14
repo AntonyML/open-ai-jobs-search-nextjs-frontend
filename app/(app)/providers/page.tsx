@@ -46,7 +46,12 @@ export default function Providers() {
       method: 'POST',
       body: JSON.stringify(payload),
     })
-    setMsg('Provider saved')
+    const updated = await apiFetch<any>('/api/v1/providers/active', {
+      method: 'PUT',
+      body: JSON.stringify({ provider }),
+    })
+    setActive(updated)
+    setMsg(`Provider saved and active: ${updated.provider} / ${updated.model}`)
     loadMyProviders()
   }
 
@@ -92,12 +97,6 @@ export default function Providers() {
             placeholder="API base (optional)"
             value={form.api_base}
             onChange={(e) => setForm({ ...form, api_base: e.target.value })}
-          />
-          <input
-            className="field"
-            placeholder="Model (optional)"
-            value={form.model}
-            onChange={(e) => setForm({ ...form, model: e.target.value })}
           />
           <button className="btn-primary w-full">Save provider</button>
           <button type="button" className="btn-secondary w-full" disabled={testing} onClick={async () => {
