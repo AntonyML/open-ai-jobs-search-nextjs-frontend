@@ -13,6 +13,7 @@ export default function Providers() {
   const [msg, setMsg] = useState('')
   const [models, setModels] = useState<any[]>([])
   const [testing, setTesting] = useState(false)
+  const [loadingModels, setLoadingModels] = useState(false)
   const router = useRouter()
 
   function loadMyProviders() {
@@ -32,10 +33,22 @@ export default function Providers() {
   }, [])
 
   useEffect(() => {
-    apiFetch<any>(`/api/v1/providers/${provider}/models`)
-      .then(x => setModels(x.models || []))
-      .catch(() => setModels([]))
+    setModels([])
   }, [provider])
+
+  async function loadModels() {
+    setLoadingModels(true)
+    try {
+      const x = await apiFetch<any>(`/api/v1/providers/${provider}/models`)
+      setModels(x.models || [])
+      setMsg(`${(x.models || []).length} models loaded`)
+    } catch (e) {
+      setModels([])
+      setMsg(e instanceof Error ? `Could not load models: ${e.message}` : 'Could not load models')
+    } finally {
+      setLoadingModels(false)
+    }
+  }
 
   async function add(e: React.FormEvent) {
     e.preventDefault()
@@ -86,12 +99,17 @@ export default function Providers() {
             <option value="">Choose model</option>
             {models.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
           </select>}
-          <input
-            className="field"
-            placeholder="API key"
-            value={form.api_key}
-            onChange={(e) => setForm({ ...form, api_key: e.target.value })}
-          />
+          <div className="flex gap-2">
+            <input
+              className="field flex-1"
+              placeholder="API key"
+              value={form.api_key}
+              onChange={(e) => setForm({ ...form, api_key: e.target.value })}
+            />
+            <button type="button" className="btn-secondary shrink-0" onClick={loadModels} disabled={loadingModels}>
+              {loadingModels ? 'Loading…' : 'Load models'}
+            </button>
+          </div>
           <input
             className="field"
             placeholder="API base (optional)"
