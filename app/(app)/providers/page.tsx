@@ -91,14 +91,6 @@ export default function Providers() {
               <option key={x}>{x}</option>
             ))}
           </select>
-          {models.length > 0 && <select
-            className="field"
-            value={form.model}
-            onChange={(e) => setForm({ ...form, model: e.target.value })}
-          >
-            <option value="">Choose model</option>
-            {models.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
-          </select>}
           <div className="flex gap-2">
             <input
               className="field flex-1"
@@ -110,6 +102,14 @@ export default function Providers() {
               {loadingModels ? 'Loading…' : 'Load models'}
             </button>
           </div>
+          {models.length > 0 && <select
+            className="field"
+            value={form.model}
+            onChange={(e) => setForm({ ...form, model: e.target.value })}
+          >
+            <option value="">Choose model</option>
+            {models.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
+          </select>}
           <input
             className="field"
             placeholder="API base (optional)"
