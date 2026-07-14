@@ -1,0 +1,1 @@
+import PipelinePage from '@/components/PipelinePage'; export default function Interview(){return <PipelinePage title="Walk into the interview prepared" eyebrow="06 / PREP" endpoint="/api/v1/interview/" fields={[{name:'application_id',label:'Application ID'}]} step={5} next="/outcome" actionLabel="Generate prep"/>}

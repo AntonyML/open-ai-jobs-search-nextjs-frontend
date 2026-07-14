@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@layer components { .field { @apply w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-400; } .btn-primary { @apply rounded-xl bg-cyan-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50; } .btn-secondary { @apply rounded-xl border border-slate-700 px-4 py-3 text-sm font-semibold text-slate-200 hover:border-cyan-400; } }
+@layer components { .field { @apply w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-400; } .btn-primary { @apply rounded-xl bg-cyan-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50; } .btn-secondary { @apply rounded-xl border border-slate-700 px-4 py-3 text-sm font-semibold text-slate-200 hover:border-cyan-400; } .card { @apply rounded-3xl border border-slate-800 bg-slate-900 p-6; } .eyebrow { @apply text-xs font-bold uppercase tracking-[.25em] text-cyan-400; } .title { @apply mt-2 text-4xl font-bold tracking-tight text-white; } }
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 

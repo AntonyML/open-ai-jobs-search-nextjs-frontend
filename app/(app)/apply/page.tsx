@@ -1,0 +1,1 @@
+import PipelinePage from '@/components/PipelinePage'; export default function Apply(){return <PipelinePage title="Turn a strong fit into an application" eyebrow="05 / APPLY" endpoint="/api/v1/apply/" listEndpoint="/api/v1/apply/" fields={[{name:'job_posting_id',label:'Selected job posting ID'}]} step={4} next="/interview" actionLabel="Generate CV + cover letter"/>}
