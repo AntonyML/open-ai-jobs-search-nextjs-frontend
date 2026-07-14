@@ -23,6 +23,8 @@ export default function Rank() {
   const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [elapsed, setElapsed] = useState(0)
+  const [progressMessage, setProgressMessage] = useState('Preparing the evaluation')
   const router = useRouter()
 
   useEffect(() => {
@@ -30,6 +32,17 @@ export default function Rank() {
       .then(x => setItems(Array.isArray(x) ? x : (x.items || x.jobs || [])))
       .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (!loading) return
+    const started = Date.now()
+    const messages = ['Preparing the evaluation', 'Reading your candidate profile', 'Comparing jobs against your experience', 'Calculating fit scores', 'Saving the ranking results']
+    const timer = window.setInterval(() => {
+      setElapsed(Math.floor((Date.now() - started) / 1000))
+      setProgressMessage(messages[Math.floor((Date.now() - started) / 7000) % messages.length])
+    }, 1000)
+    return () => window.clearInterval(timer)
+  }, [loading])
 
   const toggleTag = (tag: string) => {
     setFocusArea(prev => prev === tag ? '' : tag)
@@ -39,6 +52,8 @@ export default function Rank() {
   async function submit(e: FormEvent) {
     e.preventDefault()
     setLoading(true)
+    setElapsed(0)
+    setProgressMessage('Preparing the evaluation')
     setError('')
     try {
       const body: any = { top_n: topN, re_rank: reRank }
@@ -139,8 +154,18 @@ export default function Rank() {
           </div>
 
           <button disabled={loading} className="btn-primary w-full">
-            {loading ? 'Evaluating…' : 'Rank jobs'}
+            {loading ? 'Working…' : 'Rank jobs'}
           </button>
+          {loading && (
+            <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-4" role="status" aria-live="polite">
+              <div className="flex items-center gap-3 text-sm text-cyan-200">
+                <span className="h-3 w-3 animate-pulse rounded-full bg-cyan-400" />
+                <span>{progressMessage}<span className="inline-block w-6 text-left animate-pulse">...</span></span>
+              </div>
+              <p className="mt-2 text-xs text-slate-500">Elapsed time: {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}</p>
+              <p className="mt-1 text-xs text-slate-600">The model is working through the selected jobs. You can leave this tab open.</p>
+            </div>
+          )}
           {error && <p className="text-sm text-rose-400">{error}</p>}
         </form>
 
