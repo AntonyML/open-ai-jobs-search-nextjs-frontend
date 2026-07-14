@@ -8,5 +8,6 @@ export async function apiFetch<T = unknown>(path: string, init?: RequestInit): P
     try { const j = JSON.parse(text); msg = j.message || j.detail || text } catch {}
     throw new Error(msg)
   }
+  if (res.status === 204) return undefined as T
   return res.json() as Promise<T>
 }

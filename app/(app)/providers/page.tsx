@@ -52,9 +52,22 @@ export default function Providers() {
 
   async function add(e: React.FormEvent) {
     e.preventDefault()
+    if (!form.model.trim()) {
+      setMsg('Choose or enter a model before saving')
+      return
+    }
+    if ((provider === 'lm_studio' || provider === 'ollama') && !form.api_base.trim()) {
+      setMsg('API base is required for this provider')
+      return
+    }
     const payload = Object.fromEntries(
       Object.entries({ provider, ...form }).filter(([, v]) => v !== '' && v !== null && v !== undefined)
     )
+    setMsg('Testing provider…')
+    await apiFetch('/api/v1/providers/test', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
     await apiFetch('/api/v1/providers/', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -76,6 +89,15 @@ export default function Providers() {
     const updated = await apiFetch<any>('/api/v1/providers/me/active')
     setActive(updated)
     localStorage.setItem('completed_steps', '[0]')
+  }
+
+  async function remove(p: string) {
+    await apiFetch(`/api/v1/providers/${p}`, { method: 'DELETE' })
+    if (active?.provider === p) {
+      setActive(null)
+    }
+    setMsg(`Provider deleted: ${p}`)
+    loadMyProviders()
   }
 
   const isConfigured = (p: string) => myProviders.some((c) => c.provider === p)
@@ -145,14 +167,22 @@ export default function Providers() {
                   {p.provider}
                   {p.is_active && <span className="ml-2 text-xs text-emerald-400">(active)</span>}
                 </span>
-                {!p.is_active && (
+                <div className="flex gap-2">
+                  {!p.is_active && (
+                    <button
+                      onClick={() => activate(p.provider)}
+                      className="btn-secondary text-xs py-1 px-3"
+                    >
+                      Set active
+                    </button>
+                  )}
                   <button
-                    onClick={() => activate(p.provider)}
-                    className="btn-secondary text-xs py-1 px-3"
+                    onClick={() => remove(p.provider)}
+                    className="btn-secondary text-xs py-1 px-3 text-rose-400"
                   >
-                    Set active
+                    Delete
                   </button>
-                )}
+                </div>
               </div>
             ))}
           </div>
