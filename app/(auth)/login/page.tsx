@@ -15,12 +15,12 @@ export default function Login() {
     e.preventDefault()
     setError('')
     try {
-      const body = new URLSearchParams({ username: email, password })
+      const body = JSON.stringify({ email, password })
       const r = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/api/v1/auth/login`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: { 'Content-Type': 'application/json' },
           body,
         }
       )
