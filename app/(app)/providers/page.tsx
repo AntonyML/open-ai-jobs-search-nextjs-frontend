@@ -6,11 +6,18 @@ import { useRouter } from 'next/navigation'
 
 export default function Providers() {
   const [catalog, setCatalog] = useState<any[]>([])
+  const [myProviders, setMyProviders] = useState<any[]>([])
   const [active, setActive] = useState<any>(null)
   const [provider, setProvider] = useState('openai')
   const [form, setForm] = useState({ api_key: '', api_base: '', model: '' })
   const [msg, setMsg] = useState('')
   const router = useRouter()
+
+  function loadMyProviders() {
+    apiFetch<any[]>('/api/v1/providers/me')
+      .then((x) => setMyProviders(Array.isArray(x) ? x : []))
+      .catch(() => {})
+  }
 
   useEffect(() => {
     apiFetch<any>('/api/v1/providers/')
@@ -19,6 +26,7 @@ export default function Providers() {
     apiFetch<any>('/api/v1/providers/me/active')
       .then(setActive)
       .catch(() => {})
+    loadMyProviders()
   }, [])
 
   async function add(e: React.FormEvent) {
@@ -31,18 +39,20 @@ export default function Providers() {
       body: JSON.stringify(payload),
     })
     setMsg('Provider saved')
+    loadMyProviders()
   }
 
-  async function activate() {
+  async function activate(p: string) {
     await apiFetch('/api/v1/providers/active', {
       method: 'PUT',
-      body: JSON.stringify({ provider }),
+      body: JSON.stringify({ provider: p }),
     })
+    const updated = await apiFetch<any>('/api/v1/providers/me/active')
+    setActive(updated)
     localStorage.setItem('completed_steps', '[0]')
-    router.push('/setup')
   }
 
-  const isConfigured = catalog.some((c) => (c.provider ?? c.name ?? c) === provider)
+  const isConfigured = (p: string) => myProviders.some((c) => c.provider === p)
 
   return (
     <section className="mx-auto max-w-5xl">
@@ -83,11 +93,29 @@ export default function Providers() {
             <p className="mt-2 text-xl font-bold text-white">
               {active?.provider || 'Not configured'}
             </p>
-            {isConfigured && (
-              <button onClick={activate} className="btn-secondary mt-4">
-                Set {provider} as active
-              </button>
+          </div>
+
+          <div className="card">
+            <p className="mb-3 text-sm text-slate-400">Your configured providers</p>
+            {myProviders.length === 0 && (
+              <p className="text-sm text-slate-500">None saved yet</p>
             )}
+            {myProviders.map((p, i) => (
+              <div key={i} className="flex items-center justify-between border-b border-slate-800 py-2">
+                <span className="text-sm text-slate-300">
+                  {p.provider}
+                  {p.is_active && <span className="ml-2 text-xs text-emerald-400">(active)</span>}
+                </span>
+                {!p.is_active && (
+                  <button
+                    onClick={() => activate(p.provider)}
+                    className="btn-secondary text-xs py-1 px-3"
+                  >
+                    Set active
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
 
           <div className="card">
@@ -98,6 +126,18 @@ export default function Providers() {
               </div>
             ))}
           </div>
+
+          {isConfigured(provider) && active?.provider !== provider && (
+            <button onClick={() => activate(provider)} className="btn-secondary w-full">
+              Set {provider} as active
+            </button>
+          )}
+
+          {active?.provider && (
+            <button onClick={() => router.push('/setup')} className="btn-primary w-full">
+              Continue to Setup →
+            </button>
+          )}
         </div>
       </div>
     </section>
