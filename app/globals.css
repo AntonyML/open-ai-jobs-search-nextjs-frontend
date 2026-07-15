@@ -2,7 +2,10 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* ── Design Tokens (Apple-inspired) ──────────────────────────────── */
+
 :root {
+  /* Colors */
   --color-apple-blue: #0071e3;
   --color-link-blue: #0066cc;
   --color-signal-blue: #2997ff;
@@ -13,11 +16,28 @@
   --color-graphite: #474747;
   --color-ash: #707070;
   --color-mist: #858585;
+  --color-onyx: #000000;
   --color-pebble: #e2e2e5;
+
   --background: var(--color-frost);
   --foreground: var(--color-carbon);
   --border: #d2d2d7;
   --radius: 8px;
+
+  /* Typography Scale — will be multiplied by --access-font-size */
+  --text-caption: 12px;
+  --text-body-sm: 14px;
+  --text-body: 17px;
+  --text-subheading: 21px;
+  --text-heading-sm: 28px;
+  --text-heading: 40px;
+  --text-heading-lg: 44px;
+  --text-display: 56px;
+
+  /* ── Accessibility CSS Variables (set by AccessibilityProvider) ── */
+  --access-font-size: 1;
+  --access-line-height: 1.6;
+  --access-letter-spacing: 0em;
 }
 
 @theme inline {
@@ -32,18 +52,106 @@
   --radius-3xl: 8px;
 }
 
-* { box-sizing: border-box; border-color: var(--border); }
-html { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-body { margin: 0; background: var(--color-frost); color: var(--color-carbon); font-size: 17px; letter-spacing: -0.016em; }
-button, input, textarea, select { font: inherit; }
+/* ── Base Reset with Accessibility Scaling ───────────────────────── */
 
-/* ── LLM Control Center scrollbar ───────────────────────────────── */
+* { box-sizing: border-box; border-color: var(--border); }
+
+html {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  scroll-behavior: smooth;
+  /* Accessibility: font size scales from here */
+  font-size: calc(16px * var(--access-font-size, 1));
+}
+
+body {
+  margin: 0;
+  background: var(--color-frost);
+  color: var(--color-carbon);
+  font-size: calc(17px * var(--access-font-size, 1));
+  line-height: var(--access-line-height, 1.6);
+  letter-spacing: calc(-0.016em + var(--access-letter-spacing, 0em));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: line-height 0.25s ease, letter-spacing 0.25s ease;
+}
+
+button, input, textarea, select { font: inherit; }
+::selection { background: var(--color-apple-blue); color: white; }
+
+/* ── Accessibility: High Contrast Mode ───────────────────────────── */
+
+html.access-high-contrast {
+  --color-carbon: #000000;
+  --color-frost: #ffffff;
+  --color-smoke: #1a1a1a;
+  --color-graphite: #222222;
+  --color-ash: #333333;
+  --color-mist: #444444;
+  --color-pebble: #cccccc;
+  --border: #666666;
+  --color-ice: #e6f0fa;
+}
+
+html.access-high-contrast .card {
+  border-width: 1.5px;
+}
+
+html.access-high-contrast hr {
+  height: 1.5px;
+}
+
+html.access-high-contrast a,
+html.access-high-contrast [class*="text-\\[#0066cc\\]"] {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── Accessibility: Reduced Motion ───────────────────────────────── */
+
+html.access-reduced-motion *,
+html.access-reduced-motion *::before,
+html.access-reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* ── Accessibility: Dyslexia-friendly Font ───────────────────────── */
+
+html.access-dyslexia-font {
+  font-family: 'OpenDyslexic', 'Lexend', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+html.access-dyslexia-font {
+  font-family: 'OpenDyslexic', 'Lexend', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+html.access-dyslexia-font body {
+  letter-spacing: calc(-0.016em + 0.035em + var(--access-letter-spacing, 0em));
+}
+
+/* ── Accessibility: Font Family Overrides ────────────────────────── */
+
+html.access-font-serif {
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+html.access-font-sans-serif {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────── */
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d2d2d7; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #b0b0b0; }
+
 .llm-control-scroll::-webkit-scrollbar { width: 3px; }
-.llm-control-scroll::-webkit-scrollbar-track { background: transparent; }
 .llm-control-scroll::-webkit-scrollbar-thumb { background: #d2d2d7; border-radius: 999px; }
 .llm-control-scroll::-webkit-scrollbar-thumb:hover { background: #b0b0b0; }
 
-/* ── Pulse animation for active jobs ────────────────────────────── */
+/* ── Animations ──────────────────────────────────────────────────── */
+
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
@@ -52,21 +160,67 @@ button, input, textarea, select { font: inherit; }
   animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out;
+}
 
+/* ── Utilities ───────────────────────────────────────────────────── */
 
 @layer utilities {
   .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #d2d2d7 transparent; }
+  .text-balance { text-wrap: balance; }
 }
 
+/* ── Components ──────────────────────────────────────────────────── */
+
 @layer components {
-  .field { @apply w-full rounded-lg border bg-white px-4 py-3 text-sm text-[#1d1d1f] outline-none placeholder:text-[#858585] transition; border-color: #d2d2d7; }
-  .field:focus { border-color: var(--color-apple-blue); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-apple-blue) 25%, transparent); }
-  .btn-primary { @apply rounded-full px-5 py-3 text-sm font-normal text-white transition; background: var(--color-apple-blue); }
+  /* Form fields — Apple-inspired */
+  .field {
+    @apply w-full rounded-lg border bg-white px-4 py-3 text-sm text-[#1d1d1f] outline-none placeholder:text-[#858585] transition-all;
+    border-color: #d2d2d7;
+  }
+  .field:focus {
+    border-color: var(--color-apple-blue);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-apple-blue) 20%, transparent);
+  }
+
+  /* Primary filled pill button */
+  .btn-primary {
+    @apply rounded-full px-5 py-3 text-sm font-normal text-white transition-all;
+    background: var(--color-apple-blue);
+  }
   .btn-primary:hover { background: #0068d2; }
   .btn-primary:disabled { @apply cursor-not-allowed opacity-50; }
-  .btn-secondary { @apply rounded-full border bg-transparent px-5 py-3 text-sm font-normal transition; color: var(--color-link-blue); border-color: var(--color-link-blue); }
+
+  /* Secondary outlined pill button */
+  .btn-secondary {
+    @apply rounded-full border bg-transparent px-5 py-3 text-sm font-normal transition-all;
+    color: var(--color-link-blue);
+    border-color: var(--color-link-blue);
+  }
   .btn-secondary:hover { background: var(--color-ice); }
-  .card { @apply rounded-lg border bg-white p-6; border-color: #d2d2d7; }
-  .eyebrow { @apply text-xs font-semibold uppercase tracking-[.18em]; color: var(--color-ash); }
-  .title { @apply mt-2 font-normal tracking-tight; font-size: clamp(32px, 4vw, 48px); line-height: 1.1; color: var(--color-carbon); }
+
+  /* Card container */
+  .card {
+    @apply rounded-xl border bg-white p-6;
+    border-color: #d2d2d7;
+  }
+
+  /* Eyebrow text */
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[.18em];
+    color: var(--color-ash);
+  }
+
+  /* Section title */
+  .title {
+    @apply mt-2 font-normal tracking-tight;
+    font-size: clamp(32px, 4vw, 48px);
+    line-height: 1.1;
+    color: var(--color-carbon);
+  }
 }
