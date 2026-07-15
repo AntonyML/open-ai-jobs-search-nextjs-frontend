@@ -32,10 +32,10 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 overflow-hidden transition-all duration-300 ${
         scrolled
           ? 'bg-white/80 backdrop-blur-xl border-b border-[#d2d2d7]/60'
-          : 'bg-transparent'
+          : 'bg-white/60 backdrop-blur-md border-b border-[#d2d2d7]/40'
       }`}
     >
       <div className="mx-auto flex h-12 max-w-[1440px] items-center justify-between px-5 md:px-8">
