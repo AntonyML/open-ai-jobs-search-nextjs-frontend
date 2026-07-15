@@ -341,6 +341,7 @@ export default function LLMControlCenter() {
     loading,
     error,
     providerErrors,
+    wsConnected,
     pauseQueue,
     resumeQueue,
     cancelJob,
@@ -423,13 +424,35 @@ export default function LLMControlCenter() {
                 <p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#0071e3]">
                   LLM Control
                 </p>
-                <button
-                  onClick={refresh}
-                  className="rounded-full p-1 text-[#858585] hover:bg-[#f5f5f7] hover:text-[#1d1d1f] transition-colors"
-                  title="Refresh"
-                >
-                  <IconRefresh />
-                </button>
+                <div className="flex items-center gap-1">
+                  {/* WebSocket connection status */}
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 transition-all ${
+                      wsConnected
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : 'bg-amber-50 text-amber-600'
+                    }`}
+                    title={wsConnected ? 'Real-time connection active' : 'Falling back to polling'}
+                  >
+                    <span
+                      className={`inline-block h-1.5 w-1.5 rounded-full ${
+                        wsConnected
+                          ? 'bg-emerald-400'
+                          : 'bg-amber-400 animate-pulse'
+                      }`}
+                    />
+                    <span className="text-[8px] font-medium leading-none">
+                      {wsConnected ? 'Live' : 'Polling…'}
+                    </span>
+                  </span>
+                  <button
+                    onClick={refresh}
+                    className="rounded-full p-1 text-[#858585] hover:bg-[#f5f5f7] hover:text-[#1d1d1f] transition-colors"
+                    title="Refresh providers"
+                  >
+                    <IconRefresh />
+                  </button>
+                </div>
               </div>
 
               {/* Main status */}
