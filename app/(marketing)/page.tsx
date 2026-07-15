@@ -55,6 +55,16 @@ function IconShield() {
   )
 }
 
+// ── Check icon for pricing features ────────────────────────────────
+
+const Check = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34c759" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
+
+// ── Data ───────────────────────────────────────────────────────────
+
 const FEATURES = [
   {
     icon: <IconBrain />,
@@ -79,7 +89,7 @@ const FEATURES = [
   {
     icon: <IconShield />,
     title: 'Privacy First',
-    description: 'Your data stays yours. API keys are encrypted at rest. No training on your profile or job matches.',
+    description: 'Your data is encrypted at rest. Never used for training. Enterprise-grade security.',
   },
   {
     icon: <IconSparkles />,
@@ -98,6 +108,82 @@ const PIPELINE_STEPS = [
   { num: '07', label: 'Track', desc: 'Monitor outcomes and iterate', color: 'from-amber-400 to-rose-300' },
 ]
 
+// ── Pricing Plans (USD) ───────────────────────────────────────────
+// Based on market research: Simplify $15/mo, Teal $29/mo, Jobscan $50/mo
+// Cost structure: ~$3-5/mo per active user in OpenRouter API costs
+// Pricing positioned competitively in the $19-$49 range
+
+const PLANS = [
+  {
+    name: 'Free',
+    price: '$0',
+    period: '/mo',
+    description: 'Try the platform and see if it fits your workflow.',
+    cta: 'Get started',
+    highlighted: false,
+    features: [
+      '5 job evaluations per month',
+      '1 provider connection',
+      'Basic CV generation',
+      'Pipeline tracking',
+      'Community support',
+    ],
+  },
+  {
+    name: 'Starter',
+    price: '$19',
+    period: '/mo',
+    description: 'For active job seekers who want AI-powered results.',
+    cta: 'Start free trial',
+    highlighted: false,
+    popular: true,
+    features: [
+      '100 job evaluations per month',
+      'Multi-provider failover',
+      'Unlimited CV generation',
+      'Cover letter generation',
+      'Interview prep',
+      'Outcome tracking',
+      'Email support',
+    ],
+  },
+  {
+    name: 'Professional',
+    price: '$39',
+    period: '/mo',
+    description: 'For power users who want the full pipeline automated.',
+    cta: 'Start free trial',
+    highlighted: true,
+    features: [
+      '500 job evaluations per month',
+      'Priority provider access',
+      'Auto-apply pipeline',
+      'Advanced scoring analytics',
+      'Bulk job discovery',
+      'Priority support',
+      'All Starter features',
+    ],
+  },
+  {
+    name: 'Enterprise',
+    price: '$99',
+    period: '/mo',
+    description: 'For teams and career coaches managing multiple candidates.',
+    cta: 'Contact sales',
+    highlighted: false,
+    features: [
+      'Unlimited evaluations',
+      'Dedicated AI models via OpenRouter',
+      'Team accounts (up to 5)',
+      'Custom scoring weights',
+      'API access',
+      'SSO & audit logs',
+      'Dedicated support',
+      'All Professional features',
+    ],
+  },
+]
+
 export default function HomePage() {
   const router = useRouter()
   const [loggedIn, setLoggedIn] = useState(false)
@@ -109,13 +195,11 @@ export default function HomePage() {
       {/* ── Hero Section ─────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-[#f5f5f7]">
         <div className="mx-auto max-w-[1440px] px-5 md:px-8 pt-20 pb-24 md:pt-28 md:pb-32 text-center">
-          {/* Badge */}
           <div className="inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] bg-white/60 px-3 py-1 text-[11px] font-medium text-[#707070] mb-6">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
             Now with multi-provider failover
           </div>
 
-          {/* Headline */}
           <h1 className="text-[44px] md:text-[56px] font-semibold tracking-tight text-[#1d1d1f] leading-[1.07] max-w-4xl mx-auto">
             Your AI-powered
             <br />
@@ -128,26 +212,24 @@ export default function HomePage() {
             No rate limits. No downtime. Just results.
           </p>
 
-          {/* CTA Buttons */}
           <div className="mt-10 flex items-center justify-center gap-3">
             <Link
               href={loggedIn ? '/providers' : '/register'}
               className="inline-flex items-center rounded-full bg-[#0071e3] px-6 py-3 text-[15px] font-medium text-white hover:bg-[#0068d2] transition-all shadow-sm"
             >
-              {loggedIn ? 'Go to Dashboard' : 'Start for free'}
+              {loggedIn ? 'Go to Dashboard' : 'Try it free'}
               <svg className="ml-1.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
               </svg>
             </Link>
             <Link
-              href="/#features"
+              href="/#pricing"
               className="inline-flex items-center rounded-full border border-[#0066cc] px-6 py-3 text-[15px] font-medium text-[#0066cc] hover:bg-[#f4f8fb] transition-all"
             >
-              Learn more
+              View pricing
             </Link>
           </div>
 
-          {/* Hero visual - decorative gradient */}
           <div className="mt-16 mx-auto max-w-4xl rounded-2xl bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe] border border-[#d2d2d7]/60 p-8 md:p-12">
             <div className="grid grid-cols-3 md:grid-cols-7 gap-3">
               {PIPELINE_STEPS.slice(0, 7).map((step, i) => (
@@ -194,8 +276,76 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Pricing Section ──────────────────────────────────────── */}
+      <section id="pricing" className="bg-[#f5f5f7] border-t border-[#d2d2d7]">
+        <div className="mx-auto max-w-[1440px] px-5 md:px-8 py-20 md:py-28">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#0071e3] mb-3">Pricing</p>
+            <h2 className="text-[36px] md:text-[48px] font-semibold tracking-tight text-[#1d1d1f] leading-[1.07]">
+              Simple, transparent pricing
+            </h2>
+            <p className="mt-4 text-[17px] text-[#707070] font-light">
+              No hidden fees. No long-term contracts. Cancel anytime.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
+            {PLANS.map(plan => (
+              <div
+                key={plan.name}
+                className={`rounded-2xl border p-6 flex flex-col transition-all duration-300 ${
+                  plan.highlighted
+                    ? 'border-[#0071e3] bg-white shadow-md relative'
+                    : 'border-[#d2d2d7] bg-white hover:border-[#0071e3]/30'
+                }`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#0071e3] px-3 py-0.5 text-[10px] font-semibold text-white uppercase tracking-wider">
+                    Most popular
+                  </div>
+                )}
+
+                <div className="mb-5">
+                  <h3 className="text-[17px] font-semibold text-[#1d1d1f]">{plan.name}</h3>
+                  <div className="mt-2 flex items-baseline gap-0.5">
+                    <span className="text-[32px] font-bold text-[#1d1d1f]">{plan.price}</span>
+                    <span className="text-[13px] text-[#858585]">{plan.period}</span>
+                  </div>
+                  <p className="mt-1 text-[12px] text-[#707070]">{plan.description}</p>
+                </div>
+
+                <ul className="space-y-2 flex-1 mb-6">
+                  {plan.features.map(f => (
+                    <li key={f} className="flex items-start gap-2 text-[12px] text-[#474747]">
+                      <span className="mt-0.5 shrink-0"><Check /></span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  href={plan.name === 'Enterprise' ? '#' : loggedIn ? '/providers' : '/register'}
+                  className={`block text-center rounded-full px-4 py-2.5 text-[13px] font-medium transition-all ${
+                    plan.highlighted
+                      ? 'bg-[#0071e3] text-white hover:bg-[#0068d2]'
+                      : 'border border-[#0066cc] text-[#0066cc] hover:bg-[#f4f8fb]'
+                  }`}
+                >
+                  {plan.cta}
+                </Link>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-6 text-center text-[12px] text-[#858585]">
+            All plans include encrypted data storage and multi-provider AI orchestration.
+            Billing features coming soon — currently in early access.
+          </p>
+        </div>
+      </section>
+
       {/* ── Pipeline Section ─────────────────────────────────────── */}
-      <section id="pipeline" className="bg-[#f5f5f7] border-t border-[#d2d2d7]">
+      <section id="pipeline" className="bg-white border-t border-[#d2d2d7]">
         <div className="mx-auto max-w-[1440px] px-5 md:px-8 py-20 md:py-28">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-[#0071e3] mb-3">Pipeline</p>
@@ -236,14 +386,14 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA Section ──────────────────────────────────────────── */}
-      <section className="bg-white border-t border-[#d2d2d7]">
+      <section className="bg-[#f5f5f7] border-t border-[#d2d2d7]">
         <div className="mx-auto max-w-[1440px] px-5 md:px-8 py-20 md:py-28 text-center">
           <div className="max-w-2xl mx-auto">
             <h2 className="text-[36px] md:text-[48px] font-semibold tracking-tight text-[#1d1d1f] leading-[1.07]">
               Ready to accelerate your career?
             </h2>
             <p className="mt-4 text-[17px] text-[#707070] font-light">
-              Join the waitlist or start ranking jobs in minutes. No credit card required.
+              Start free. Upgrade when you need more power. No credit card required.
             </p>
             <div className="mt-10 flex items-center justify-center gap-3">
               <Link
@@ -256,10 +406,10 @@ export default function HomePage() {
                 </svg>
               </Link>
               <Link
-                href="/about"
+                href="/#pricing"
                 className="inline-flex items-center rounded-full border border-[#0066cc] px-7 py-3.5 text-[15px] font-medium text-[#0066cc] hover:bg-[#f4f8fb] transition-all"
               >
-                About the project
+                See plans
               </Link>
             </div>
           </div>

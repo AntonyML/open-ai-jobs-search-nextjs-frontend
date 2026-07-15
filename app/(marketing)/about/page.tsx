@@ -1,6 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { isLoggedIn } from '@/lib/auth'
+import { useEffect, useState } from 'react'
 
 const TECH_STACK = [
   { category: 'Frontend', items: ['Next.js 15', 'React 19', 'TypeScript', 'Tailwind CSS', 'shadcn/ui'] },
@@ -10,6 +13,10 @@ const TECH_STACK = [
 ]
 
 export default function AboutPage() {
+  const router = useRouter()
+  const [loggedIn, setLoggedIn] = useState(false)
+  useEffect(() => { setLoggedIn(isLoggedIn()) }, [])
+
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────────── */}
@@ -17,10 +24,11 @@ export default function AboutPage() {
         <div className="mx-auto max-w-[1440px] px-5 md:px-8 py-16 md:py-24 text-center">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-[#0071e3] mb-3">About</p>
           <h1 className="text-[40px] md:text-[52px] font-semibold tracking-tight text-[#1d1d1f] leading-[1.07] max-w-3xl mx-auto">
-            Built for job seekers who refuse to settle
+            Enterprise-grade AI for your job search
           </h1>
           <p className="mt-4 text-[17px] md:text-[20px] text-[#707070] font-light max-w-2xl mx-auto">
-            Career OS is an open-source AI pipeline that automates the tedious parts of job searching.
+            Career OS is a premium AI orchestration platform that automates your entire job search pipeline
+            with multi-provider failover, deterministic scoring, and zero downtime.
           </p>
         </div>
       </section>
@@ -38,8 +46,8 @@ export default function AboutPage() {
               even land an interview.
             </p>
             <p className="text-[17px] text-[#707070] leading-relaxed">
-              Most AI job tools are closed-source, expensive, and lock you into a single provider.
-              If their model goes down or hits a rate limit, your job search stops.
+              Most AI job tools rely on a single provider. When that provider hits a rate limit or goes
+              down, your job search stops. And free tools? Your data trains their models.
             </p>
 
             <h2 className="text-[28px] md:text-[36px] font-semibold tracking-tight text-[#1d1d1f] pt-6">
@@ -53,6 +61,7 @@ export default function AboutPage() {
             <p className="text-[17px] text-[#707070] leading-relaxed">
               We use deterministic algorithms for what computers do best (keyword matching, scoring,
               filtering) and reserve AI for what it does best (writing, reasoning, qualitative assessment).
+              Your data is encrypted at rest and never used for training.
             </p>
           </div>
         </div>
@@ -96,24 +105,24 @@ export default function AboutPage() {
         <div className="mx-auto max-w-[1440px] px-5 md:px-8 py-16 md:py-24 text-center">
           <div className="max-w-2xl mx-auto">
             <h2 className="text-[28px] md:text-[36px] font-semibold tracking-tight text-[#1d1d1f]">
-              Want to contribute?
+              Ready to transform your job search?
             </h2>
             <p className="mt-4 text-[17px] text-[#707070] font-light">
-              Career OS is open source. Star it on GitHub, open an issue, or submit a PR.
+              Start with a free account. No credit card required. Premium plans start at $19/mo.
             </p>
             <div className="mt-8 flex items-center justify-center gap-3">
               <Link
-                href="/register"
+                href={loggedIn ? '/providers' : '/register'}
                 className="inline-flex items-center rounded-full bg-[#0071e3] px-6 py-3 text-[15px] font-medium text-white hover:bg-[#0068d2] transition-all"
               >
-                Get started
+                {loggedIn ? 'Go to Dashboard' : 'Get started free'}
               </Link>
-              <a
-                href="#"
+              <Link
+                href={loggedIn ? '/providers' : '/register'}
                 className="inline-flex items-center rounded-full border border-[#0066cc] px-6 py-3 text-[15px] font-medium text-[#0066cc] hover:bg-[#f4f8fb] transition-all"
               >
-                View on GitHub
-              </a>
+                View pricing
+              </Link>
             </div>
           </div>
         </div>

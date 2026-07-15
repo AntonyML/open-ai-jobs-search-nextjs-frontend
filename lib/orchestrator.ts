@@ -8,6 +8,13 @@
  * - useOrchestrator(): main hook returning full state + action functions
  * - Types mirror backend schemas (QueueStatusOut, ProviderHealthOut, etc.)
  * - Adaptive polling intervals: running=2s, queued=4s, idle=15s, error=8s
+ *
+ * 422 Error Fix:
+ * The backend ``get_current_user`` dependency used ``Header(...)`` (required),
+ * which caused FastAPI to return 422 when the auth header was missing (e.g.
+ * during initial page load before ``localStorage`` is populated).
+ * The backend was fixed to use ``Header(None)`` and return 401 instead.
+ * The frontend catches 401 errors gracefully and returns null/empty state.
  */
 
 'use client'
@@ -276,6 +283,13 @@ export function useOrchestrator() {
     await fetchAll()
   }, [fetchAll])
 
+  const resetPipeline = useCallback(async () => {
+    const res = await apiFetch<{ status: string; total_deleted: number; message: string }>('/api/v1/pipeline-reset/', {
+      method: 'DELETE',
+    })
+    return res
+  }, [])
+
   return {
     ...state,
     pauseQueue,
@@ -283,6 +297,7 @@ export function useOrchestrator() {
     cancelJob,
     cancelAll,
     retryFailed,
+    resetPipeline,
     refresh: fetchAll,
   }
 }

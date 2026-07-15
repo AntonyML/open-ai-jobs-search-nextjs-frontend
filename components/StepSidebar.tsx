@@ -2,6 +2,8 @@
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useState } from 'react'
+import { apiFetch } from '@/lib/api'
+import { showSuccess, showError } from '@/lib/toasts'
 
 const steps = [
   ['Providers', 'AI provider', '/providers'],
@@ -23,8 +25,18 @@ export default function StepSidebar({
   const router = useRouter()
   const [showResetConfirm, setShowResetConfirm] = useState(false)
 
-  const handleReset = () => {
-    // Clear pipeline progress, but keep auth + accessibility settings
+  const handleReset = async () => {
+    try {
+      // Call backend API to delete all tracked pipeline data
+      const res = await apiFetch<{ status: string; total_deleted: number; message: string }>('/api/v1/pipeline-reset/', {
+        method: 'DELETE',
+      })
+      showSuccess(res.message || `Pipeline reset — ${res.total_deleted} records deleted`)
+    } catch (err) {
+      showError(err instanceof Error ? err.message : 'Failed to reset pipeline data')
+    }
+
+    // Clear frontend-local progress (keeps auth + accessibility settings)
     localStorage.removeItem('completed_steps')
     localStorage.removeItem('ranking_job_id')
     setShowResetConfirm(false)
