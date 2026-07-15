@@ -2,9 +2,11 @@
 
 > **Career OS** es una estación de trabajo para automatizar tu búsqueda de empleo de principio a fin: desde conectar tu proveedor de IA hasta generar CV/cover letter optimizados para ATS, preparar entrevistas y trackear resultados.
 
-Este repositorio es **el frontend** (Next.js 15 + React 19 + Tailwind CSS v4). Toda la lógica de negocio vive en un backend FastAPI separado al que este cliente llama vía REST.
+Este repositorio es **el frontend** (Next.js 15 + React 19 + Tailwind CSS v4). Toda la lógica de negocio vive en un backend FastAPI separado al que este cliente llama vía REST y WebSocket.
 
 **Diseño:** Inspirado en Apple — blanco, tipografía SF Pro, azul `#0071e3` como único color de acción, sin sombras, con superficies diferenciadas por color en vez de elevación.
+
+**i18n:** Soporte completo multi-idioma (inglés y español) con detección automática, routing basado en locale (`/[locale]/...`), y 492 claves de traducción por idioma.
 
 ---
 
@@ -12,7 +14,11 @@ Este repositorio es **el frontend** (Next.js 15 + React 19 + Tailwind CSS v4). T
 
 - [¿Qué es Career OS?](#qué-es-career-os)
 - [Nuevas secciones](#nuevas-secciones)
+- [i18n — Internacionalización](#i18n--internacionalización)
+- [Sistema de notificaciones](#sistema-de-notificaciones)
+- [Accesibilidad](#accesibilidad)
 - [LLM Control Center](#llm-control-center)
+- [Dashboard y Analytics](#dashboard-y-analytics)
 - [Flujo del usuario](#flujo-del-usuario)
 - [Estructura del proyecto](#estructura-del-proyecto)
 - [Stack técnico](#stack-técnico)
