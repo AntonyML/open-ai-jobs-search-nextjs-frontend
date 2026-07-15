@@ -76,7 +76,9 @@ interface UpskillSummary {
 
 // ── Priority badge colors ──────────────────────────────────────────
 
-const priorityColors: Record<string, { bg: string; text: string; label: string }> = {
+const priorityColors: Record<string, { bg: string; text: string; label: string }> & {
+  [key: string]: { bg: string; text: string; label: string }
+} = {
   Critical: { bg: 'bg-rose-50', text: 'text-rose-600', label: 'Critical' },
   High: { bg: 'bg-amber-50', text: 'text-amber-600', label: 'High' },
   Medium: { bg: 'bg-sky-50', text: 'text-sky-600', label: 'Medium' },
@@ -165,10 +167,9 @@ export default function UpskillPage() {
 
   // ── Priority count for summary ──────────────────────────────────
 
-  const priorityCounts = current?.gap_heatmap?.reduce<Record<string, number>>((acc, g) => {
-    acc[g.priority] = (acc[g.priority] || 0) + 1
-    return acc
-  }, {}) || {}
+  function getGapCount(prio: string): number {
+    return (current?.gap_heatmap?.filter(g => g.priority === prio) ?? []).length
+  }
 
   return (
     <section className="mx-auto max-w-5xl">
@@ -224,14 +225,15 @@ export default function UpskillPage() {
               </div>
 
               {/* Priority distribution */}
-              {Object.keys(priorityCounts).length > 0 && (
+              {['Critical', 'High', 'Medium', 'Low'].some(p => getGapCount(p) > 0) && (
                 <div className="rounded-2xl border border-[#d2d2d7] bg-white p-5">
                   <h3 className="text-[13px] font-semibold text-[#1d1d1f] mb-3">Priority distribution</h3>
                   <div className="space-y-2">
                     {(['Critical', 'High', 'Medium', 'Low'] as const).map(p => {
-                      if (!priorityCounts[p]) return null
+                      const count = getGapCount(p)
+                      if (count === 0) return null
                       const total = current.gap_heatmap.length
-                      const pct = Math.round((priorityCounts[p] / total) * 100)
+                      const pct = Math.round((count / total) * 100)
                       const color = priorityColors[p]
                       return (
                         <div key={p} className="flex items-center gap-3">
@@ -246,7 +248,7 @@ export default function UpskillPage() {
                               }}
                             />
                           </div>
-                          <span className="text-[11px] text-[#858585] w-8 text-right">{priorityCounts[p]}</span>
+                          <span className="text-[11px] text-[#858585] w-8 text-right">{count}</span>
                         </div>
                       )
                     })}
@@ -314,8 +316,8 @@ export default function UpskillPage() {
                     <div className="space-y-2">
                       {current.gap_heatmap
                         .sort((a, b) => {
-                          const order = { Critical: 0, High: 1, Medium: 2, Low: 3 }
-                          return (order[a.priority] || 99) - (order[b.priority] || 99)
+                          const order: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 }
+                          return (a.priority in order ? order[a.priority] : 99) - (b.priority in order ? order[b.priority] : 99)
                         })
                         .map((item, i) => {
                           const pc = priorityColors[item.priority] || priorityColors.Low

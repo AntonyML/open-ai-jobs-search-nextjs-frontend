@@ -461,11 +461,17 @@ export default function Setup() {
                 <div className="grid grid-cols-2 gap-3">
                   <label className="block text-sm text-[#1d1d1f]">
                     Works with
-                    <input className="field mt-2" placeholder="Delegators, Mentors..." value={(bp.management_preferences?.works_with || []).join(', ')} onChange={e => setBp(prev => ({ ...prev, management_preferences: { ...prev.management_preferences, works_with: e.target.value.split(',').map(s => s.trim()).filter(Boolean) } }))} />
+                    <input className="field mt-2" placeholder="Delegators, Mentors..." value={(bp.management_preferences?.works_with || []).join(', ')} onChange={e => setBp(prev => {
+                      const mp = prev.management_preferences || { works_with: [], doesnt_work: [] }
+                      return { ...prev, management_preferences: { ...mp, works_with: e.target.value.split(',').map(s => s.trim()).filter(Boolean) } }
+                    })} />
                   </label>
                   <label className="block text-sm text-[#1d1d1f]">
                     Doesn't work
-                    <input className="field mt-2" placeholder="Micromanagers..." value={(bp.management_preferences?.doesnt_work || []).join(', ')} onChange={e => setBp(prev => ({ ...prev, management_preferences: { ...prev.management_preferences, doesnt_work: e.target.value.split(',').map(s => s.trim()).filter(Boolean) } }))} />
+                    <input className="field mt-2" placeholder="Micromanagers..." value={(bp.management_preferences?.doesnt_work || []).join(', ')} onChange={e => setBp(prev => {
+                      const mp = prev.management_preferences || { works_with: [], doesnt_work: [] }
+                      return { ...prev, management_preferences: { ...mp, doesnt_work: e.target.value.split(',').map(s => s.trim()).filter(Boolean) } }
+                    })} />
                   </label>
                 </div>
 

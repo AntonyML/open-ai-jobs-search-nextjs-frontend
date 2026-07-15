@@ -139,8 +139,6 @@ export default function StepSidebar({
         })}
       </nav>
 
-      <div className="mt-6">
-
       {/* ── Reset Pipeline ──────────────────────────────────────── */}
       <div className="mt-6 pt-4 border-t border-[#e2e2e5]">
         {showResetConfirm ? (
