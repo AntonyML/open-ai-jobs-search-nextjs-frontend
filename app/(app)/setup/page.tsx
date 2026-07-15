@@ -565,10 +565,13 @@ export default function Setup() {
                     className="animate-fade-in-up rounded-xl border border-[#e2e2e5] bg-white overflow-hidden"
                   >
                     {/* Clickable header — toggles collapse */}
-                    <button
-                      type="button"
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={isOpen}
                       onClick={() => toggleExpCard(exp._id)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-[#fafafa] transition-colors"
+                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpCard(exp._id) } }}
+                      className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-[#fafafa] transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-semibold text-emerald-700">
@@ -603,7 +606,7 @@ export default function Setup() {
                           </svg>
                         </button>
                       </div>
-                    </button>
+                    </div>
 
                     {/* Collapsible body */}
                     {isOpen && (
@@ -722,10 +725,13 @@ export default function Setup() {
                     className="animate-fade-in-up rounded-xl border border-[#e2e2e5] bg-white overflow-hidden"
                   >
                     {/* Clickable header — toggles collapse */}
-                    <button
-                      type="button"
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={isOpen}
                       onClick={() => toggleEduCard(edu._id)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-[#fafafa] transition-colors"
+                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleEduCard(edu._id) } }}
+                      className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-[#fafafa] transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-100 text-[10px] font-semibold text-violet-700">
@@ -760,7 +766,7 @@ export default function Setup() {
                           </svg>
                         </button>
                       </div>
-                    </button>
+                    </div>
 
                     {/* Collapsible body */}
                     {isOpen && (
@@ -860,10 +866,13 @@ export default function Setup() {
                     key={proj._id}
                     className="animate-fade-in-up rounded-xl border border-[#e2e2e5] bg-white overflow-hidden"
                   >
-                    <button
-                      type="button"
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={isOpen}
                       onClick={() => toggleProjectCard(proj._id)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-[#fafafa] transition-colors"
+                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleProjectCard(proj._id) } }}
+                      className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-[#fafafa] transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-100 text-[10px] font-semibold text-sky-700">
@@ -895,7 +904,7 @@ export default function Setup() {
                           </svg>
                         </button>
                       </div>
-                    </button>
+                    </div>
 
                     {isOpen && (
                       <div className="border-t border-[#e2e2e5] p-4 space-y-3 animate-fade-in-up">

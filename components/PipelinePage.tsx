@@ -7,6 +7,7 @@ import { showSuccess, showError } from '@/lib/toasts'
 type Props = {
   title: string
   eyebrow: string
+  subtitle?: string
   endpoint: string
   listEndpoint?: string
   fields: { name: string; label: string; type?: string; optional?: boolean }[]
@@ -18,6 +19,7 @@ type Props = {
 export default function PipelinePage({
   title,
   eyebrow,
+  subtitle,
   endpoint,
   listEndpoint,
   fields,
@@ -73,60 +75,108 @@ export default function PipelinePage({
 
   return (
     <section className="mx-auto max-w-5xl">
-      <p className="eyebrow">{eyebrow}</p>
-      <h2 className="title">{title}</h2>
-      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_1fr]">
+      {/* ── Header ─────────────────────────────────────────────── */}
+      <div className="mb-8">
+        <p className="eyebrow">{eyebrow}</p>
+        <h2 className="title">{title}</h2>
+        {subtitle && (
+          <p className="mt-2 text-sm text-[#858585]">{subtitle}</p>
+        )}
+      </div>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_1fr]">
+        {/* ═══════════════════════════════════════════════════════════
+            LEFT: Form
+        ═══════════════════════════════════════════════════════════ */}
         <form onSubmit={submit} className="card space-y-5">
           <div className="space-y-4">
             {fields.map((f) => (
-              <label key={f.name} className="block text-sm text-[#333]">
+              <label key={f.name} className="block text-sm text-[#1d1d1f]">
                 {f.label}
-                {f.optional && <span className="ml-2 text-[#858585]">optional</span>}
+                {f.optional && <span className="ml-2 text-[#b0b0b0]">optional</span>}
                 <input
                   required={!f.optional}
                   type={f.type || 'text'}
                   value={form[f.name] || ''}
                   onChange={(e) => setForm({ ...form, [f.name]: e.target.value })}
-                  className="field mt-2"
+                  className="field mt-1.5"
                 />
               </label>
             ))}
             <button disabled={loading} className="btn-primary w-full">
               {loading ? 'Working…' : actionLabel}
             </button>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+
+            {error && (
+              <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+                {error}
+              </div>
+            )}
           </div>
         </form>
+
+        {/* ═══════════════════════════════════════════════════════════
+            RIGHT: Results
+        ═══════════════════════════════════════════════════════════ */}
         <div className="space-y-3">
-          {items.length
-            ? items.map((x, i) => (
-                <article key={i} className="border-b border-[#d2d2d7] py-4">
-                  <h3 className="font-semibold text-[#1d1d1f]">
+          {/* Items list */}
+          {items.length > 0 ? (
+            <div className="space-y-3 max-h-[480px] overflow-y-auto scrollbar-thin pr-1">
+              {items.map((x, i) => (
+                <article key={i} className="card hover:border-[#d2d2d7]/80 transition-colors">
+                  <h3 className="text-sm font-semibold text-[#1d1d1f] truncate">
                     {x.title || x.job_title || x.name || `Item ${i + 1}`}
                   </h3>
-                  <p className="mt-1 text-sm text-[#707070]">
+                  <p className="mt-0.5 text-[12px] text-[#707070]">
                     {x.company || x.location || x.status || x.rank_verdict || ''}
                   </p>
                   {x.rank_score != null && (
-                    <div className="mt-3 h-1 rounded-full bg-[#e2e2e5]">
+                    <div className="mt-2 h-1.5 rounded-full bg-[#e2e2e5]">
                       <div
-                        className="h-1 rounded-full bg-[#2997ff]"
+                        className="h-1.5 rounded-full bg-[#2997ff]"
                         style={{ width: `${x.rank_score}%` }}
                       />
                     </div>
                   )}
                 </article>
-              ))
-            : (
-              <div className="border-y border-dashed border-[#d2d2d7] p-8 text-sm text-[#858585]">
-                Results will appear here.
+              ))}
+            </div>
+          ) : (
+            <div className="card border-dashed text-center">
+              <div className="flex items-center justify-center gap-3 py-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f0f0f2]">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#858585]">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <line x1="12" y1="8" x2="12" y2="16" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-[#707070]">No items yet</p>
+                  <p className="text-xs text-[#b0b0b0] mt-0.5">Results will appear here after running.</p>
+                </div>
               </div>
-            )}
-          {result && (
-            <pre className="max-h-72 overflow-auto rounded-lg bg-[#1d1d1f] p-4 text-xs text-white">
-              {JSON.stringify(result, null, 2)}
-            </pre>
+            </div>
           )}
+
+          {/* Raw result */}
+          {result && (
+            <details className="card">
+              <summary className="cursor-pointer text-[11px] font-semibold uppercase tracking-widest text-[#858585] hover:text-[#707070] transition-colors">
+                Raw response
+              </summary>
+              <pre className="mt-3 max-h-64 overflow-auto rounded-lg bg-[#f5f5f7] border border-[#e2e2e5] p-4 text-[11px] text-[#474747]">
+                {JSON.stringify(result, null, 2)}
+              </pre>
+            </details>
+          )}
+
+          {/* Continue button */}
           <div className="flex gap-3">
             <button
               type="button"
