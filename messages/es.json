@@ -17,7 +17,11 @@
     "optional": "opcional",
     "all": "Todos",
     "none": "Ninguno",
-    "or": "o"
+    "or": "o",
+    "done": "Completado",
+    "error": "Error",
+    "refresh": "Actualizar",
+    "retry": "Reintentar"
   },
   "nav": {
     "dashboard": "Panel",
@@ -47,7 +51,23 @@
     "hasAccount": "¿Ya tienes cuenta?",
     "loginError": "Correo o contraseña inválidos",
     "registerError": "Error al registrarse",
-    "logoutSuccess": "Sesión cerrada correctamente"
+    "logoutSuccess": "Sesión cerrada correctamente",
+    "backToHome": "Volver al inicio",
+    "back": "Atrás",
+    "enterPassword": "Ingresa tu contraseña",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
+    "createOne": "Crear una",
+    "signInLink": "Iniciar sesión",
+    "termsAgree": "Al crear una cuenta, aceptas nuestros",
+    "termsOfService": "Términos de Servicio",
+    "privacyPolicy": "Política de Privacidad",
+    "brandTitle": "Tu acelerador profesional con IA",
+    "brandSubtitle": "Inicia sesión para continuar tu búsqueda de empleo. Orquestación multi-proveedor con IA, failover automático y cero tiempo de inactividad.",
+    "brandRegisterTitle": "Comienza tu viaje en segundos",
+    "brandRegisterSubtitle": "Sin tarjeta de crédito. Conecta tu proveedor IA preferido y empieza a rankear empleos inmediatamente.",
+    "loginSubtitleAlt": "Inicia sesión para continuar tu búsqueda de empleo.",
+    "registerSubtitleAlt": "Comienza tu búsqueda de empleo con IA."
   },
   "marketing": {
     "heroTitle": "Tu buscador de empleo con IA",
@@ -98,7 +118,23 @@
     "healthy": "Saludable",
     "degraded": "Degradado",
     "cooldown": "Enfriando",
-    "disabled": "Deshabilitado"
+    "disabled": "Deshabilitado",
+    "loadModels": "Cargar modelos",
+    "loadingModels": "Cargando…",
+    "apiBase": "API base (opcional)",
+    "chooseModel": "Elegir modelo",
+    "testProvider": "Probar proveedor activo",
+    "testing": "Probando…",
+    "saveProvider": "Guardar proveedor",
+    "activeProvider": "Proveedor activo",
+    "notConfigured": "No configurado",
+    "yourProviders": "Tus proveedores configurados",
+    "noneSaved": "Aún no hay proveedores guardados",
+    "availableCatalog": "Catálogo disponible",
+    "setActive": "Activar",
+    "delete": "Eliminar",
+    "continueSetup": "Continuar a Setup →",
+    "setProviderActive": "Activar {provider}"
   },
   "setup": {
     "title": "Construye tu perfil de candidato",
@@ -204,11 +240,15 @@
     "questionsToAsk": "Preguntas para hacer ({count})",
     "consistencyBrief": "Resumen de consistencia — afirmaciones a vigilar",
     "logistics": "Logística",
+    "recentNews": "Noticias recientes",
     "noPrepSelected": "Genera un paquete de preparación o selecciona uno del historial."
   },
   "outcome": {
     "title": "Sigue tu progreso",
-    "subtitle": "Monitorea tus postulaciones y resultados de entrevistas."
+    "subtitle": "Monitorea tus postulaciones y resultados de entrevistas.",
+    "dashboardTab": "Panel",
+    "historyTab": "Historial",
+    "calibrationTab": "Calibración"
   },
   "expand": {
     "title": "Expande tu perfil",
@@ -261,7 +301,17 @@
     "pausedHint": "Cola pausada. Reanuda para continuar procesando.",
     "live": "En vivo",
     "polling": "Sondeando…",
-    "loading": "Cargando…"
+    "loading": "Cargando…",
+    "idle": "Inactivo",
+    "providers": "Proveedores",
+    "models": "Modelos",
+    "activeWorkers": "Trabajadores activos",
+    "rateLimitCount": "Conteo 429",
+    "cancel": "Cancelar",
+    "retry": "Reintentar",
+    "recent": "Completados recientes",
+    "running": "Ejecutando",
+    "queued": "En cola"
   },
   "accessibility": {
     "title": "Accesibilidad",

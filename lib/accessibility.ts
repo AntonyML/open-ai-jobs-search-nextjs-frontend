@@ -86,22 +86,22 @@ export function applySettings(settings: AccessibilitySettings): void {
  * Size labels for the UI slider.
  */
 export const FONT_SIZE_LABELS = [
-  { value: 0.875, label: 'Pequeño' },
+  { value: 0.875, label: 'Small' },
   { value: 1, label: 'Normal' },
-  { value: 1.125, label: 'Grande' },
-  { value: 1.25, label: 'Extra grande' },
+  { value: 1.125, label: 'Large' },
+  { value: 1.25, label: 'Extra large' },
 ] as const
 
 export const LINE_HEIGHT_LABELS = [
-  { value: 1.4, label: 'Compacto' },
+  { value: 1.4, label: 'Compact' },
   { value: 1.6, label: 'Normal' },
-  { value: 1.8, label: 'Relajado' },
-  { value: 2.0, label: 'Amplio' },
+  { value: 1.8, label: 'Relaxed' },
+  { value: 2.0, label: 'Wide' },
 ] as const
 
 export const LETTER_SPACING_LABELS = [
   { value: 0, label: 'Normal' },
-  { value: 0.03, label: 'Ligero' },
-  { value: 0.06, label: 'Medio' },
-  { value: 0.1, label: 'Amplio' },
+  { value: 0.03, label: 'Light' },
+  { value: 0.06, label: 'Medium' },
+  { value: 0.1, label: 'Wide' },
 ] as const

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { showSuccess, showError } from '@/lib/toasts'
@@ -10,6 +11,8 @@ import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 const PORTALS = ['linkedin', 'freehire', 'jobbank', 'jobdanmark', 'jobindex', 'jobnet']
 
 export default function Scrape() {
+  const t = useTranslations('scrape')
+  const tc = useTranslations('common')
   const router = useRouter()
   const [focus_area, setFocusArea] = useState('')
   const [broad, setBroad] = useState(false)
@@ -82,9 +85,9 @@ export default function Scrape() {
       {/* ── Header ─────────────────────────────────────────────── */}
       <div className="mb-8">
         <p className="eyebrow">03 / DISCOVER</p>
-        <h2 className="title">Find your next opportunity</h2>
+        <h2 className="title">{t('title')}</h2>
         <p className="mt-2 text-sm text-[#858585]">
-          Scrape job portals to discover openings matching your focus area.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -97,7 +100,7 @@ export default function Scrape() {
           {/* Portals */}
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-[#858585] mb-3">
-              Portals <span className="text-[#b0b0b0] font-normal normal-case">(leave empty = all)</span>
+              Portals <span className="text-[#b0b0b0] font-normal normal-case">({t('portalsHint')})</span>
             </p>
             <div className="flex flex-wrap gap-2">
               {PORTALS.map(p => (
@@ -119,10 +122,10 @@ export default function Scrape() {
 
           {/* Focus area */}
           <label className="block text-sm text-[#1d1d1f]">
-            Focus area <span className="text-[#b0b0b0] font-normal">optional</span>
+            Focus area <span className="text-[#b0b0b0] font-normal">{tc('optional')}</span>
             <input
               className="field mt-1.5"
-              placeholder="e.g. data science, backend, devops…"
+              placeholder={t('focusAreaPlaceholder')}
               value={focus_area}
               onChange={e => setFocusArea(e.target.value)}
             />
@@ -177,8 +180,8 @@ export default function Scrape() {
           {/* Broad mode */}
           <div className="flex items-center justify-between rounded-xl border border-[#d2d2d7] bg-white px-4 py-3">
             <div>
-              <p className="text-sm text-[#1d1d1f] font-medium">Broad mode</p>
-              <p className="text-xs text-[#858585] mt-0.5">Search all categories, not just top 3</p>
+              <p className="text-sm text-[#1d1d1f] font-medium">{t('broadMode')}</p>
+              <p className="text-xs text-[#858585] mt-0.5">{t('broadModeDesc')}</p>
             </div>
             <button
               type="button"
@@ -196,7 +199,7 @@ export default function Scrape() {
           </div>
 
           <button disabled={loading} className="btn-primary w-full">
-            {loading ? 'Scraping…' : 'Start scraping'}
+            {loading ? t('scraping') : t('startScraping')}
           </button>
 
           {error && (
@@ -286,9 +289,9 @@ export default function Scrape() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[#707070]">No jobs scraped yet</p>
+                  <p className="text-sm font-medium text-[#707070]">{t('noJobsYet')}</p>
                   <p className="text-xs text-[#b0b0b0] mt-0.5">
-                    Configure your search and hit <span className="text-[#707070]">Start scraping</span>.
+                    {t('noJobsHint')}
                   </p>
                 </div>
               </div>

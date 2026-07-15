@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
@@ -65,6 +66,8 @@ interface Application {
 // ── Component ───────────────────────────────────────────────────────
 
 export default function InterviewPage() {
+  const t = useTranslations('interview')
+  const tc = useTranslations('common')
   // State
   const [preps, setPreps] = useState<InterviewPrepSummary[]>([])
   const [applications, setApplications] = useState<Application[]>([])
@@ -222,10 +225,10 @@ export default function InterviewPage() {
     return (
       <section className="mx-auto max-w-5xl">
         <p className="eyebrow">06 / PREP</p>
-        <h2 className="title">Walk into the interview prepared</h2>
+        <h2 className="title">{t('title')}</h2>
         <div className="mt-10 flex items-center justify-center py-20">
           <span className="h-2 w-2 animate-pulse rounded-full bg-[#0071e3]" />
-          <span className="ml-3 text-sm text-[#707070]">Loading…</span>
+          <span className="ml-3 text-sm text-[#707070]">{tc('loading')}</span>
         </div>
       </section>
     )
@@ -242,11 +245,8 @@ export default function InterviewPage() {
   return (
     <section className="mx-auto max-w-5xl">
       <p className="eyebrow">06 / PREP</p>
-      <h2 className="title">Walk into the interview prepared</h2>
-      <p className="mt-2 text-sm text-[#707070] max-w-2xl">
-        Generate a preparation pack for each interview stage, practice with mock
-        interviews, and get honest feedback on your answers.
-      </p>
+      <h2 className="title">{t('title')}</h2>
+      <p className="mt-2 text-sm text-[#707070] max-w-2xl">{t('subtitle')}</p>
 
       {/* ── Tabs ────────────────────────────────────────────── */}
       <div className="mt-8 flex gap-1 rounded-full bg-[#e2e2e5] p-0.5 w-fit">
@@ -260,7 +260,7 @@ export default function InterviewPage() {
                 : 'text-[#707070] hover:text-[#1d1d1f]'
             }`}
           >
-            {tab === 'prep' ? 'Prep Pack' : tab === 'mock' ? 'Mock Interview' : 'History'}
+            {tab === 'prep' ? t('prepPack') : tab === 'mock' ? t('mockInterview') : t('history')}
           </button>
         ))}
       </div>
@@ -271,7 +271,7 @@ export default function InterviewPage() {
           {/* Generate form */}
           {activeTab !== 'mock' && (
             <div className="rounded-2xl border border-[#d2d2d7] bg-white p-6">
-              <h3 className="text-sm font-semibold text-[#1d1d1f] mb-4">Generate prep pack</h3>
+              <h3 className="text-sm font-semibold text-[#1d1d1f] mb-4">{t('generatePrep')}</h3>
               <form onSubmit={generatePrep} className="space-y-4">
                 <label className="block">
                   <span className="text-[12px] font-medium text-[#1d1d1f]">Application</span>
@@ -346,7 +346,7 @@ export default function InterviewPage() {
                   disabled={generating}
                   className="btn-primary w-full"
                 >
-                  {generating ? 'Generating (8 LLM calls)…' : 'Generate prep pack'}
+                  {generating ? t('generating') : t('generatePrep')}
                 </button>
               </form>
             </div>
@@ -358,7 +358,7 @@ export default function InterviewPage() {
               {/* Company research */}
               {selectedPrep.company_research && (
                 <div className="rounded-2xl border border-[#d2d2d7] bg-white p-5">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#858585] mb-3">Company Research</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#858585] mb-3">{t('companyResearch')}</h3>
                   {selectedPrep.company_research.mission && (
                     <p className="text-sm text-[#1d1d1f] mb-2">{selectedPrep.company_research.mission}</p>
                   )}
@@ -371,7 +371,7 @@ export default function InterviewPage() {
                   )}
                   {selectedPrep.company_research.recent_news.length > 0 && (
                     <div className="mt-2 space-y-1">
-                      <p className="text-[11px] font-medium text-[#707070]">Recent news</p>
+                      <p className="text-[11px] font-medium text-[#707070]">{t('recentNews')}</p>
                       {selectedPrep.company_research.recent_news.map((n, i) => (
                         <p key={i} className="text-[12px] text-[#1d1d1f]">• {n.title}</p>
                       ))}
@@ -384,7 +384,7 @@ export default function InterviewPage() {
               {selectedPrep.likely_questions.length > 0 && (
                 <div className="rounded-2xl border border-[#d2d2d7] bg-white p-5">
                   <h3 className="text-xs font-bold uppercase tracking-widest text-[#858585] mb-3">
-                    Likely Questions ({selectedPrep.likely_questions.length})
+                    {t('likelyQuestions', { count: selectedPrep.likely_questions.length })}
                   </h3>
                   <div className="space-y-2">
                     {selectedPrep.likely_questions.map((q, i) => (
@@ -406,7 +406,7 @@ export default function InterviewPage() {
               {selectedPrep.tough_questions.length > 0 && (
                 <details className="group rounded-2xl border border-[#d2d2d7] bg-white">
                   <summary className="cursor-pointer p-5 text-sm font-semibold text-[#1d1d1f] hover:bg-[#f5f5f7] transition-colors rounded-2xl">
-                    Tough questions ({selectedPrep.tough_questions.length})
+                    {t('toughQuestions', { count: selectedPrep.tough_questions.length })}
                   </summary>
                   <div className="px-5 pb-5 space-y-4">
                     {selectedPrep.tough_questions.map((q, i) => (
@@ -423,7 +423,7 @@ export default function InterviewPage() {
               {selectedPrep.star_mapping.length > 0 && (
                 <details className="group rounded-2xl border border-[#d2d2d7] bg-white">
                   <summary className="cursor-pointer p-5 text-sm font-semibold text-[#1d1d1f] hover:bg-[#f5f5f7] transition-colors rounded-2xl">
-                    STAR examples ({selectedPrep.star_mapping.length})
+                    {t('starExamples', { count: selectedPrep.star_mapping.length })}
                   </summary>
                   <div className="px-5 pb-5 space-y-3">
                     {selectedPrep.star_mapping.map((m, i) => (
@@ -440,7 +440,7 @@ export default function InterviewPage() {
               {selectedPrep.questions_to_ask.length > 0 && (
                 <details className="group rounded-2xl border border-[#d2d2d7] bg-white">
                   <summary className="cursor-pointer p-5 text-sm font-semibold text-[#1d1d1f] hover:bg-[#f5f5f7] transition-colors rounded-2xl">
-                    Questions to ask ({selectedPrep.questions_to_ask.length})
+                    {t('questionsToAsk', { count: selectedPrep.questions_to_ask.length })}
                   </summary>
                   <div className="px-5 pb-5 space-y-3">
                     {selectedPrep.questions_to_ask.map((q, i) => (
@@ -460,7 +460,7 @@ export default function InterviewPage() {
               {selectedPrep.consistency_brief.length > 0 && (
                 <details className="group rounded-2xl border border-[#d2d2d7] bg-white">
                   <summary className="cursor-pointer p-5 text-sm font-semibold text-[#1d1d1f] hover:bg-[#f5f5f7] transition-colors rounded-2xl">
-                    Consistency brief — claims to watch
+                    {t('consistencyBrief')}
                   </summary>
                   <div className="px-5 pb-5 space-y-3">
                     {selectedPrep.consistency_brief.map((c, i) => (
@@ -476,7 +476,7 @@ export default function InterviewPage() {
               {/* Logistics */}
               {selectedPrep.logistics && (
                 <div className="rounded-2xl border border-[#d2d2d7] bg-white p-5">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#858585] mb-3">Logistics</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#858585] mb-3">{t('logistics')}</h3>
                   {selectedPrep.logistics.phone_video_tips.length > 0 && (
                     <ul className="space-y-1">
                       {selectedPrep.logistics.phone_video_tips.map((tip, i) => (
@@ -492,16 +492,14 @@ export default function InterviewPage() {
                 onClick={startMock}
                 disabled={mockLoading}
                 className="btn-primary w-full"
-              >
-                {mockLoading ? 'Starting…' : 'Start mock interview'}
+              >                  {mockLoading ? t('starting') : t('startMock')}
               </button>
             </div>
           )}
 
           {/* No prep selected */}
           {!selectedPrep && activeTab === 'prep' && (
-            <div className="rounded-2xl border border-dashed border-[#d2d2d7] p-8 text-center text-sm text-[#858585]">
-              Generate a prep pack or select one from the history to get started.
+            <div className="rounded-2xl border border-dashed border-[#d2d2d7] p-8 text-center text-sm text-[#858585]">                  {t('noPrepSelected')}
             </div>
           )}
         </div>
@@ -515,7 +513,7 @@ export default function InterviewPage() {
               <div className="border-b border-[#d2d2d7] bg-[#fafafa] px-5 py-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-semibold text-[#1d1d1f]">Mock Interview</h3>
+                    <h3 className="text-sm font-semibold text-[#1d1d1f]">{t('mockInterview')}</h3>
                     {mockState && (
                       <p className="text-[11px] text-[#707070]">
                         Question {mockState.question_number} of {mockState.total_questions}
@@ -528,7 +526,7 @@ export default function InterviewPage() {
                       onClick={() => { setMockActive(false); setMockState(null); setActiveTab('prep') }}
                       className="text-[11px] text-[#707070] hover:text-[#1d1d1f] transition-colors"
                     >
-                      End session
+                      {t('endSession')}
                     </button>
                   )}
                 </div>
@@ -538,11 +536,11 @@ export default function InterviewPage() {
               <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[400px]">
                 {!mockState ? (
                   <div className="flex items-center justify-center h-full text-sm text-[#858585]">
-                    Start a mock interview to practice.
+                    {t('startMock')}
                   </div>
                 ) : mockState.transcript.length === 0 ? (
                   <div className="flex items-center justify-center h-full text-sm text-[#858585]">
-                    Loading first question…
+                    {tc('loading')}
                   </div>
                 ) : (
                   <>
@@ -594,7 +592,7 @@ export default function InterviewPage() {
                       disabled={mockLoading || !mockAnswer.trim()}
                       className="rounded-full bg-[#0071e3] px-5 py-1.5 text-[12px] font-medium text-white hover:bg-[#0068d2] transition-colors disabled:opacity-40"
                     >
-                      {mockLoading ? 'Submitting…' : 'Submit answer'}
+                      {mockLoading ? t('submitting') : t('submitAnswer')}
                     </button>
                   </div>
                 </form>
@@ -603,15 +601,15 @@ export default function InterviewPage() {
               {/* Complete state */}
               {mockState?.is_complete && (
                 <div className="border-t border-[#d2d2d7] p-6 text-center">
-                  <p className="text-sm font-semibold text-emerald-600">Mock interview complete!</p>
+                  <p className="text-sm font-semibold text-emerald-600">{t('mockComplete')}</p>
                   <p className="mt-1 text-[12px] text-[#707070]">
-                    Your transcript has been saved. Review your answers in the prep pack.
+                    {t('mockCompleteDesc')}
                   </p>
                   <button
                     onClick={() => { setMockActive(false); setMockState(null); setActiveTab('prep') }}
                     className="mt-3 rounded-full border border-[#0066cc] px-4 py-1.5 text-[12px] font-medium text-[#0066cc] hover:bg-[#f4f8fb] transition-colors"
                   >
-                    Back to prep pack
+                    {t('backToPrep')}
                   </button>
                 </div>
               )}
@@ -625,7 +623,7 @@ export default function InterviewPage() {
 
               {preps.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-[#d2d2d7] p-6 text-center text-sm text-[#858585]">
-                  No prep packs yet.
+                  {t('noPreps')}
                 </div>
               ) : (
                 preps.map(prep => (

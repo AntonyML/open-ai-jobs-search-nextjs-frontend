@@ -1,5 +1,6 @@
 'use client'
 import { FormEvent, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
@@ -7,12 +8,13 @@ import { setToken } from '@/lib/auth'
 import { showError } from '@/lib/toasts'
 
 export default function Login() {
+  const t = useTranslations('auth')
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const router = useRouter()
 
   async function submit(e: FormEvent) {
     e.preventDefault()
@@ -42,7 +44,7 @@ export default function Login() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
-            <span className="text-sm font-medium">Back to home</span>
+            <span className="text-sm font-medium">{t('backToHome')}</span>
           </Link>
 
           <div className="h-12 w-12 rounded-xl bg-[#0071e3] flex items-center justify-center mb-6">
@@ -52,11 +54,10 @@ export default function Login() {
           </div>
 
           <h2 className="text-[32px] font-semibold text-white tracking-tight leading-tight">
-            Your AI-powered career accelerator
+            {t('brandTitle')}
           </h2>
           <p className="mt-4 text-[17px] text-[#a0a0a0] font-light leading-relaxed">
-            Sign in to continue your job search. Multi-provider AI orchestration,
-            automatic failover, and zero downtime.
+            {t('brandSubtitle')}
           </p>
         </div>
       </div>
@@ -69,16 +70,16 @@ export default function Login() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
               </svg>
-              <span className="text-sm">Back</span>
+              <span className="text-sm">{t('back')}</span>
             </Link>
           </div>
 
-          <h1 className="text-[28px] font-semibold tracking-tight text-[#1d1d1f]">Welcome back</h1>
-          <p className="mt-2 text-[14px] text-[#707070]">Sign in to continue your job search.</p>
+          <h1 className="text-[28px] font-semibold tracking-tight text-[#1d1d1f]">{t('loginTitle')}</h1>
+          <p className="mt-2 text-[14px] text-[#707070]">{t('loginSubtitleAlt')}</p>
 
           <form onSubmit={submit} className="mt-8 space-y-5">
             <div>
-              <label className="block text-[12px] font-medium text-[#474747] mb-1.5">Email</label>
+              <label className="block text-[12px] font-medium text-[#474747] mb-1.5">{t('email')}</label>
               <input
                 required
                 type="email"
@@ -90,12 +91,12 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-[12px] font-medium text-[#474747] mb-1.5">Password</label>
+              <label className="block text-[12px] font-medium text-[#474747] mb-1.5">{t('password')}</label>
               <div className="relative">
                 <input
                   required
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
+                  placeholder={t('enterPassword')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full rounded-lg border border-[#d2d2d7] bg-white px-4 py-3 pr-12 text-[14px] text-[#1d1d1f] placeholder:text-[#858585] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
@@ -104,7 +105,7 @@ export default function Login() {
                   type="button"
                   onClick={() => setShowPassword(s => !s)}
                   className="absolute inset-y-0 right-0 flex items-center px-4 text-[#858585] hover:text-[#474747] transition-colors"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                 >
                   {showPassword ? (
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
@@ -131,14 +132,14 @@ export default function Login() {
               disabled={loading}
               className="w-full rounded-full bg-[#0071e3] px-5 py-3 text-[14px] font-medium text-white hover:bg-[#0068d2] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
             >
-              {loading ? 'Signing in…' : 'Sign in'}
+              {loading ? t('loggingIn') : t('loginButton')}
             </button>
           </form>
 
           <p className="mt-6 text-center text-[13px] text-[#858585]">
-            No account yet?{' '}
+            {t('noAccount')}{' '}
             <Link className="text-[#0066cc] hover:underline font-medium" href="/register">
-              Create one
+              {t('createOne')}
             </Link>
           </p>
         </div>

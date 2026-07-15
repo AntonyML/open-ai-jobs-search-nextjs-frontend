@@ -17,6 +17,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   ExecutionJob,
   formatDate,
@@ -229,6 +230,7 @@ function JobRow({
   onCancel: (id: string) => void
   onRetry: (id: string) => void
 }) {
+  const t = useTranslations('llmControl')
   const isRunning = job.status === 'running' || job.status === 'Running'
   const isFailed = job.status === 'failed' || job.status === 'Failed'
   const isRetrying = job.status === 'retrying' || job.status === 'Retrying'
@@ -281,16 +283,15 @@ function JobRow({
             <button
               onClick={() => onCancel(job.id)}
               className="inline-flex items-center gap-1 rounded-full border border-[#d2d2d7] bg-white px-2 py-0.5 text-[9px] font-medium text-[#707070] hover:border-rose-300 hover:text-rose-500 transition-colors"
-            >
-              <IconX /> Cancel
-            </button>
-          )}
-          {isFailed && (
-            <button
-              onClick={() => onRetry(job.id)}
-              className="inline-flex items-center gap-1 rounded-full border border-[#d2d2d7] bg-white px-2 py-0.5 text-[9px] font-medium text-[#707070] hover:border-[#0071e3]/30 hover:text-[#0071e3] transition-colors"
-            >
-              <IconRefresh /> Retry
+            >                              <IconX /> {t('cancel')}
+                            </button>
+                          )}
+                          {isFailed && (
+                            <button
+                              onClick={() => onRetry(job.id)}
+                              className="inline-flex items-center gap-1 rounded-full border border-[#d2d2d7] bg-white px-2 py-0.5 text-[9px] font-medium text-[#707070] hover:border-[#0071e3]/30 hover:text-[#0071e3] transition-colors"
+                            >
+                              <IconRefresh /> {t('retry')}
             </button>
           )}
         </div>
@@ -332,6 +333,8 @@ function MetricCard({
 // ── Main Component ─────────────────────────────────────────────────
 
 export default function LLMControlCenter() {
+  const t = useTranslations('llmControl')
+  const tc = useTranslations('common')
   const {
     queue,
     providers,
@@ -359,13 +362,13 @@ export default function LLMControlCenter() {
 
   // Friendly top-level status message
   const topStatus = (() => {
-    if (loading) return { text: 'Loading…', accent: 'text-[#858585]' as const }
-    if (error) return { text: 'Connection error', accent: 'text-rose-500' as const }
-    if (isWorking) return { text: `Running · ${queue?.running_jobs.length ?? 0} job${(queue?.running_jobs.length ?? 0) !== 1 ? 's' : ''}`, accent: 'text-cyan-500' as const }
-    if (queue?.paused) return { text: 'Paused', accent: 'text-amber-500' as const }
-    if (isCooldown) return { text: 'Cooling down', accent: 'text-blue-500' as const }
-    if (queue?.pending_jobs.length) return { text: `${queue.pending_jobs.length} queued`, accent: 'text-[#707070]' as const }
-    return { text: 'Idle', accent: 'text-[#707070]' as const }
+    if (loading) return { text: t('loading'), accent: 'text-[#858585]' as const }
+    if (error) return { text: tc('error'), accent: 'text-rose-500' as const }
+    if (isWorking) return { text: `${t('status')} · ${queue?.running_jobs.length ?? 0}`, accent: 'text-cyan-500' as const }
+    if (queue?.paused) return { text: t('pause'), accent: 'text-amber-500' as const }
+    if (isCooldown) return { text: t('loading'), accent: 'text-blue-500' as const }
+    if (queue?.pending_jobs.length) return { text: `${queue.pending_jobs.length} ${t('queued').toLowerCase()}`, accent: 'text-[#707070]' as const }
+    return { text: t('idle'), accent: 'text-[#707070]' as const }
   })()
 
   const totalEnqueued = queue
@@ -422,7 +425,7 @@ export default function LLMControlCenter() {
             <div className="mb-3">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#0071e3]">
-                  LLM Control
+                  {t('title')}
                 </p>
                 <div className="flex items-center gap-1">
                   {/* WebSocket connection status */}
@@ -432,7 +435,7 @@ export default function LLMControlCenter() {
                         ? 'bg-emerald-50 text-emerald-600'
                         : 'bg-amber-50 text-amber-600'
                     }`}
-                    title={wsConnected ? 'Real-time connection active' : 'Falling back to polling'}
+                    title={wsConnected ? t('live') : t('polling')}
                   >
                     <span
                       className={`inline-block h-1.5 w-1.5 rounded-full ${
@@ -442,13 +445,13 @@ export default function LLMControlCenter() {
                       }`}
                     />
                     <span className="text-[8px] font-medium leading-none">
-                      {wsConnected ? 'Live' : 'Polling…'}
+                      {wsConnected ? t('live') : t('polling')}
                     </span>
                   </span>
                   <button
                     onClick={refresh}
                     className="rounded-full p-1 text-[#858585] hover:bg-[#f5f5f7] hover:text-[#1d1d1f] transition-colors"
-                    title="Refresh providers"
+                    title={tc('refresh')}
                   >
                     <IconRefresh />
                   </button>
@@ -489,7 +492,7 @@ export default function LLMControlCenter() {
                     : 'text-[#858585] hover:text-[#474747]'
                 }`}
               >
-                Status
+                {t('status')}
               </button>
               <button
                 onClick={() => setActiveTab('queue')}
@@ -499,7 +502,7 @@ export default function LLMControlCenter() {
                     : 'text-[#858585] hover:text-[#474747]'
                 }`}
               >
-                Queue
+                {t('queue')}
                 {queue && (queue.running_jobs.length + queue.pending_jobs.length) > 0 && (
                   <span className="ml-1 inline-flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-[#0071e3] px-1 text-[8px] font-bold text-white">
                     {queue.running_jobs.length + queue.pending_jobs.length}
@@ -514,24 +517,24 @@ export default function LLMControlCenter() {
                 {/* Metrics grid */}
                 <div className="grid grid-cols-2 gap-1.5 mb-3">
                   <MetricCard
-                    label="Completed"
+                    label={tc('done')}
                     value={queue?.total_completed ?? 0}
                     sub={totalEnqueued > 0 ? `${completionRate}% rate` : undefined}
                     accent="emerald"
                   />
                   <MetricCard
-                    label="Failed"
+                    label={tc('error')}
                     value={queue?.total_failed ?? 0}
                     accent={((queue?.total_failed ?? 0) > 0) ? 'rose' : undefined}
                   />
                   <MetricCard
-                    label="Active workers"
+                    label={t('activeWorkers')}
                     value={queue?.active_workers ?? 0}
                     sub={`of ${queue?.max_concurrency ?? 4}`}
                     accent={(queue?.active_workers ?? 0) > 0 ? 'cyan' : undefined}
                   />
                   <MetricCard
-                    label="429 count"
+                    label={t('rateLimitCount')}
                     value={providers.reduce((s, p) => s + p.rate_limit_count, 0)}
                     accent="amber"
                   />
@@ -553,9 +556,9 @@ export default function LLMControlCenter() {
                 )}
 
                 {/* Providers section */}
-                <Section title="Providers" count={providers.length}>
+                <Section title={t('providers')} count={providers.length}>
                   {providers.length === 0 ? (
-                    <p className="text-[10px] text-[#858585] italic">No providers configured</p>
+                    <p className="text-[10px] text-[#858585] italic">{tc('noResults')}</p>
                   ) : (
                     providers.map(p => (
                       <ProviderCard key={p.provider} provider={p} allProviders={providers} />
@@ -564,9 +567,9 @@ export default function LLMControlCenter() {
                 </Section>
 
                 {/* Models section (collapsed by default) */}
-                <Section title="Models" count={models.length} defaultOpen={false}>
+                <Section title={t('models')} count={models.length} defaultOpen={false}>
                   {models.length === 0 ? (
-                    <p className="text-[10px] text-[#858585] italic">No model data</p>
+                    <p className="text-[10px] text-[#858585] italic">{tc('noResults')}</p>
                   ) : (
                     models.slice(0, 8).map(m => (
                       <div
@@ -600,7 +603,7 @@ export default function LLMControlCenter() {
                       onClick={resumeQueue}
                       className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-[10px] font-medium text-emerald-600 hover:bg-emerald-100 transition-colors"
                     >
-                      <IconPlay /> Resume
+                      <IconPlay /> {t('resume')}
                     </button>
                   ) : (
                     <button
@@ -608,7 +611,7 @@ export default function LLMControlCenter() {
                       className="inline-flex items-center gap-1 rounded-full border border-[#d2d2d7] bg-white px-2.5 py-1 text-[10px] font-medium text-[#707070] hover:border-amber-300 hover:bg-amber-50 hover:text-amber-600 transition-colors"
                       disabled={!isWorking && queue?.pending_jobs.length === 0}
                     >
-                      <IconPause /> Pause
+                      <IconPause /> {t('pause')}
                     </button>
                   )}
                   <button
@@ -616,14 +619,14 @@ export default function LLMControlCenter() {
                     className="inline-flex items-center gap-1 rounded-full border border-[#d2d2d7] bg-white px-2.5 py-1 text-[10px] font-medium text-[#707070] hover:border-rose-300 hover:bg-rose-50 hover:text-rose-500 transition-colors"
                     disabled={!isWorking && queue?.pending_jobs.length === 0}
                   >
-                    <IconX /> Cancel all
+                    <IconX /> {t('cancelAll')}
                   </button>
                   {(queue?.total_failed ?? 0) > 0 && (
                     <button
                       onClick={() => retryFailed()}
                       className="inline-flex items-center gap-1 rounded-full border border-[#0071e3]/30 bg-[#f4f8fb] px-2.5 py-1 text-[10px] font-medium text-[#0071e3] hover:bg-[#e8f0fe] transition-colors"
                     >
-                      <IconRefresh /> Retry failed
+                      <IconRefresh /> {t('retry')}
                     </button>
                   )}
                 </div>
@@ -632,7 +635,7 @@ export default function LLMControlCenter() {
                 {queue?.paused && (
                   <div className="mb-2 flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5">
                     <span className="text-amber-500"><IconAlertCircle /></span>
-                    <p className="text-[10px] text-amber-700">Queue paused. Resume to continue processing.</p>
+                    <p className="text-[10px] text-amber-700">{t('pausedHint')}</p>
                   </div>
                 )}
 
@@ -640,7 +643,7 @@ export default function LLMControlCenter() {
                 {(queue?.running_jobs ?? []).length > 0 && (
                   <div className="mb-2">
                     <p className="text-[10px] font-semibold text-[#474747] mb-1">
-                      Running
+                      {t('running')}
                     </p>
                     {queue!.running_jobs.map(job => (
                       <JobRow key={job.id} job={job} onCancel={cancelJob} onRetry={retryFailed} />
@@ -652,7 +655,7 @@ export default function LLMControlCenter() {
                 {(queue?.pending_jobs ?? []).length > 0 && (
                   <div className="mb-2">
                     <p className="text-[10px] font-semibold text-[#474747] mb-1">
-                      Queued · {queue!.pending_jobs.length}
+                      {t('queued')} · {queue!.pending_jobs.length}
                     </p>
                     {queue!.pending_jobs.slice(0, 10).map(job => (
                       <JobRow key={job.id} job={job} onCancel={cancelJob} onRetry={retryFailed} />
@@ -662,7 +665,7 @@ export default function LLMControlCenter() {
 
                 {/* Recent completed */}
                 {(queue?.recent_completed ?? []).length > 0 && (
-                  <Section title="Recent completed" count={queue?.recent_completed.length} defaultOpen={false}>
+                  <Section title={t('recent')} count={queue?.recent_completed.length} defaultOpen={false}>
                     {queue!.recent_completed.slice(0, 5).map(job => (
                       <div
                         key={job.id}
@@ -687,15 +690,15 @@ export default function LLMControlCenter() {
                 {/* Empty state */}
                 {(!queue || (queue.running_jobs.length === 0 && queue.pending_jobs.length === 0 && queue.recent_completed.length === 0)) && (
                   <div className="rounded-lg border border-dashed border-[#d2d2d7] p-4 text-center">
-                    <p className="text-[10px] text-[#858585]">No jobs in queue</p>
-                    <p className="text-[9px] text-[#b0b0b0] mt-0.5">Start a ranking to see progress here.</p>
+                    <p className="text-[10px] text-[#858585]">{t('noJobs')}</p>
+                    <p className="text-[9px] text-[#b0b0b0] mt-0.5">{t('startHint')}</p>
                   </div>
                 )}
 
                 {/* Queue summary */}
                 {queue && (
                   <div className="mt-2 flex items-center justify-between text-[9px] text-[#858585] border-t border-[#e2e2e5] pt-2">
-                    <span>Total: {queue.total_enqueued}</span>
+                    <span>{tc('all')}: {queue.total_enqueued}</span>
                     <span>{queue.total_completed} ✓</span>
                     <span>{queue.total_failed} ✗</span>
                     <span>{queue.total_cancelled} ⊘</span>
@@ -709,8 +712,8 @@ export default function LLMControlCenter() {
               <div className="mt-3 flex items-start gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-2">
                 <span className="mt-0.5 shrink-0 text-rose-400"><IconAlertCircle /></span>
                 <div>
-                  <p className="text-[10px] font-medium text-rose-600">Connection error</p>
-                  <p className="text-[9px] text-rose-500 mt-0.5">Retrying automatically…</p>
+                  <p className="text-[10px] font-medium text-rose-600">{tc('error')}</p>
+                  <p className="text-[9px] text-rose-500 mt-0.5">{t('retry')}</p>
                 </div>
               </div>
             )}

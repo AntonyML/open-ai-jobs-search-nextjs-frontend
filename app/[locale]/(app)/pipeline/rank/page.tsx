@@ -1,5 +1,6 @@
 'use client'
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
 import { useOrchestrator } from '@/lib/orchestrator'
@@ -21,6 +22,8 @@ const FOCUS_TAGS = [
 const ITEMS_PER_PAGE = 10
 
 export default function Rank() {
+  const t = useTranslations('rank')
+  const tc = useTranslations('common')
   const [focusArea, setFocusArea] = useState('')
   const [customFocus, setCustomFocus] = useState('')
   const [topN, setTopN] = useState(5)
@@ -301,9 +304,9 @@ export default function Rank() {
       {/* ── Header ─────────────────────────────────────────────── */}
       <div className="mb-8">
         <p className="eyebrow">04 / EVALUATE</p>
-        <h2 className="title">Prioritize the best fits</h2>
+        <h2 className="title">{t('title')}</h2>
         <p className="mt-2 text-sm text-[#858585]">
-          Rank scraped jobs by how well they match your profile.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -314,7 +317,7 @@ export default function Rank() {
         {/* Focus area tags */}
         <div>
           <p className="text-xs font-bold uppercase tracking-widest text-[#858585] mb-3">
-            Focus area <span className="text-[#b0b0b0] font-normal normal-case">optional</span>
+            Focus area <span className="text-[#b0b0b0] font-normal normal-case">{tc('optional')}</span>
           </p>
           <div className="flex flex-wrap gap-2">
             {FOCUS_TAGS.map(tag => (
@@ -344,7 +347,7 @@ export default function Rank() {
         {/* Top N slider */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-[#1d1d1f] font-medium">Top results</p>
+            <p className="text-sm text-[#1d1d1f] font-medium">{t('topResults')}</p>
             <span className="text-sm font-bold text-[#0071e3]">{topN}</span>
           </div>
           <input
@@ -362,8 +365,8 @@ export default function Rank() {
         <div className="flex items-center gap-4">
           <div className="flex items-center justify-between rounded-xl border border-[#d2d2d7] bg-white px-4 py-3 flex-1">
             <div>
-              <p className="text-sm text-[#1d1d1f] font-medium">Re-rank already evaluated jobs</p>
-              <p className="text-xs text-[#858585] mt-0.5">Useful after updating your profile</p>
+              <p className="text-sm text-[#1d1d1f] font-medium">{t('reRank')}</p>
+              <p className="text-xs text-[#858585] mt-0.5">{t('reRankDesc')}</p>
             </div>
             <button
               type="button"
@@ -380,7 +383,7 @@ export default function Rank() {
             </button>
           </div>
           <button disabled={loading} className="btn-primary shrink-0">
-            {loading ? 'Ranking…' : 'Rank jobs'}
+            {loading ? t('ranking') : t('rankJobs')}
           </button>
         </div>
 
@@ -395,7 +398,7 @@ export default function Rank() {
                   <span className="relative inline-flex h-3 w-3 rounded-full bg-[#0071e3]" />
                 </span>
                 <span className="font-medium">
-                  {runningJob?.description || 'Evaluating jobs'}
+                  {runningJob?.description || t('evaluating')}
                 </span>
               </div>
               <span className="text-xs font-semibold text-[#0071e3]">
@@ -415,29 +418,29 @@ export default function Rank() {
             <div className="grid grid-cols-3 gap-4 text-center">
               <div className="rounded-lg bg-[#f5f5f7] px-3 py-2">
                 <p className="text-lg font-bold text-[#0071e3]">{rankedCount}</p>
-                <p className="text-[10px] text-[#858585]">Ranked</p>
+                <p className="text-[10px] text-[#858585]">{t('ranked')}</p>
               </div>
               <div className="rounded-lg bg-[#f5f5f7] px-3 py-2">
                 <p className="text-lg font-bold text-[#474747]">{remaining}</p>
-                <p className="text-[10px] text-[#858585]">Remaining</p>
+                <p className="text-[10px] text-[#858585]">{t('remaining')}</p>
               </div>
               <div className="rounded-lg bg-[#f5f5f7] px-3 py-2">
                 <p className="text-lg font-bold text-[#474747]">{totalCount}</p>
-                <p className="text-[10px] text-[#858585]">Total jobs</p>
+                <p className="text-[10px] text-[#858585]">{t('totalJobs')}</p>
               </div>
             </div>
 
             {/* ── Info row: elapsed + ETA ──────────────────────── */}
             <div className="flex items-center justify-between text-[11px]">
               <span className="text-[#858585]">
-                Elapsed:{' '}
+                {t('elapsed')}:{' '}
                 <strong className="text-[#474747]">
                   {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}
                 </strong>
               </span>
               {etaSeconds != null && (
                 <span className="text-[#858585]">
-                  ETA:{' '}
+                  {t('eta')}:{' '}
                   <strong className="text-[#474747]">
                     ~{Math.floor(etaSeconds / 60)}:{String(etaSeconds % 60).padStart(2, '0')}
                   </strong>
@@ -470,7 +473,7 @@ export default function Rank() {
               <div className="border-t border-[#e2e2e5] pt-3 space-y-2">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-medium text-[#858585]">
-                    Recent evaluations
+                    {t('recentEvals')}
                   </p>
                   <span className="text-[9px] text-[#b0b0b0]">
                     Last {Math.min(5, items.filter(x => x.rank_score != null).length)}
@@ -702,9 +705,9 @@ export default function Rank() {
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-medium text-[#707070]">No jobs ranked yet</p>
+                <p className="text-sm font-medium text-[#707070]">{t('noJobsRanked')}</p>
                 <p className="text-xs text-[#b0b0b0] mt-0.5">
-                  Ranked jobs will appear here after evaluation.
+                  {t('noJobsHint')}
                 </p>
               </div>
             </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { showSuccess, showError } from '@/lib/toasts'
@@ -79,6 +80,8 @@ function generateId() {
 // ═══════════════════════════════════════════════════════════════════
 
 export default function Setup() {
+  const t = useTranslations('setup')
+  const tc = useTranslations('common')
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -358,7 +361,7 @@ export default function Setup() {
     }
   }
 
-  // ── Save behavioral profile ───────────────────────────────────
+  // ──                Save behavioral profile ───────────────────────────────────
   async function saveBehavioralProfile() {
     if (bpSaving) return
     setBpSaving(true)
@@ -431,7 +434,7 @@ export default function Setup() {
   if (loading) return (
     <section className="mx-auto max-w-5xl">
       <p className="eyebrow">02 / PROFILE</p>
-      <h2 className="title">Build your candidate profile</h2>
+      <h2 className="title">{t('title')}</h2>
       <div className="mt-8 space-y-4 animate-pulse">
         <div className="h-8 w-48 bg-[#e2e2e5] rounded-lg" />
         <div className="h-64 bg-[#e2e2e5] rounded-2xl" />
@@ -445,9 +448,9 @@ export default function Setup() {
       {/* ── Header ─────────────────────────────────────────────── */}
       <div className="mb-8">
         <p className="eyebrow">02 / PROFILE</p>
-        <h2 className="title">Build your candidate profile</h2>
+        <h2 className="title">{t('title')}</h2>
         <p className="mt-2 text-sm text-[#858585]">
-          Fill in your details so the AI can tailor applications to each job.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -473,7 +476,7 @@ export default function Setup() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block text-sm text-[#1d1d1f]">
-                Full name <span className="text-rose-400">*</span>
+                {t('fullName')} <span className="text-rose-400">*</span>
                 <input
                   required
                   className="field mt-1.5"
@@ -503,7 +506,7 @@ export default function Setup() {
                 />
               </label>
               <label className="block text-sm text-[#1d1d1f]">
-                Location <span className="text-[#b0b0b0]">optional</span>
+                {t('location')} <span className="text-[#b0b0b0]">{tc('optional')}</span>
                 <input
                   className="field mt-1.5"
                   placeholder="Copenhagen, Denmark"
@@ -525,8 +528,8 @@ export default function Setup() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">Work Experience</p>
-                  <p className="text-[11px] text-[#b0b0b0]">{experiences.filter(e => e.title.trim()).length} position(s) added</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">{t('experience')}</p>
+                <p className="text-[11px] text-[#b0b0b0]">{experiences.filter(e => e.title.trim()).length} position(s) added</p>
                 </div>
               </div>
               <button
@@ -538,7 +541,7 @@ export default function Setup() {
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
-                Add experience
+                {t('addExperience')}
               </button>
             </div>
 
@@ -551,7 +554,7 @@ export default function Setup() {
                   onClick={addExperience}
                   className="mt-2 text-[13px] font-medium text-[#0066cc] hover:underline"
                 >
-                  + Add your first position
+                  + {t('addExperience')}
                 </button>
               </div>
             )}
@@ -686,7 +689,7 @@ export default function Setup() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">Education</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">{t('education')}</p>
                   <p className="text-[11px] text-[#b0b0b0]">{educations.filter(e => e.degree.trim()).length} degree(s) added</p>
                 </div>
               </div>
@@ -699,7 +702,7 @@ export default function Setup() {
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
-                Add education
+                {t('addEducation')}
               </button>
             </div>
 
@@ -711,7 +714,7 @@ export default function Setup() {
                   onClick={addEducation}
                   className="mt-2 text-[13px] font-medium text-[#0066cc] hover:underline"
                 >
-                  + Add your first degree
+                  + {t('addEducation')}
                 </button>
               </div>
             )}
@@ -828,8 +831,8 @@ export default function Setup() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">Projects</p>
-                  <p className="text-[11px] text-[#b0b0b0]">{projects.filter(p => p.name.trim()).length} project(s) added</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">{t('projects')}</p>
+                <p className="text-[11px] text-[#b0b0b0]">{projects.filter(p => p.name.trim()).length} project(s) added</p>
                 </div>
               </div>
               <button
@@ -841,7 +844,7 @@ export default function Setup() {
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
-                Add project
+                {t('addProject')}
               </button>
             </div>
 
@@ -853,7 +856,7 @@ export default function Setup() {
                   onClick={addProject}
                   className="mt-2 text-[13px] font-medium text-[#0066cc] hover:underline"
                 >
-                  + Add your first project
+                  + {t('addProject')}
                 </button>
               </div>
             )}
@@ -943,12 +946,12 @@ export default function Setup() {
                 </svg>
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">Skills & Summary</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">{t('skills')} &amp; {t('profileStatement')}</p>
                 <p className="text-[11px] text-[#b0b0b0]">Technical skills and professional summary</p>
               </div>
             </div>
             <label className="block text-sm text-[#1d1d1f]">
-              Skills <span className="text-[#b0b0b0]">comma separated</span>
+              {t('skills')} <span className="text-[#b0b0b0]">comma separated</span>
               <input
                 className="field mt-1.5"
                 placeholder="Python, FastAPI, React, PostgreSQL, Docker…"
@@ -969,8 +972,7 @@ export default function Setup() {
                 ))}
               </div>
             )}
-            <label className="block text-sm text-[#1d1d1f]">
-              Profile summary <span className="text-[#b0b0b0]">optional — 2-3 sentences</span>
+            <label className="block text-sm text-[#1d1d1f]">                  {t('profileStatement')} <span className="text-[#b0b0b0]">{tc('optional')} — 2-3 sentences</span>
               <textarea
                 className="field mt-1.5 h-24 resize-none"
                 placeholder="ML engineer with 5+ years building production systems at scale. Passionate about turning complex problems into elegant solutions."
@@ -996,7 +998,7 @@ export default function Setup() {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
             )}
-            {saving ? 'Saving…' : exists ? 'Update profile' : 'Save profile'}
+            {saving ? t('saving') : exists ? tc('edit') : t('saveProfile')}
           </button>
           {error && (
             <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
@@ -1024,7 +1026,7 @@ export default function Setup() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-emerald-700">Profile saved</p>
+                  <p className="text-sm font-semibold text-emerald-700">{t('saved')}</p>
                   <p className="text-[11px] text-[#858585]">Your data is stored and ready</p>
                 </div>
               </div>
@@ -1032,7 +1034,7 @@ export default function Setup() {
                 onClick={() => router.push('/scrape')}
                 className="btn-primary w-full"
               >
-                Continue to Scrape →
+                {tc('continue')} to Scrape →
               </button>
             </div>
           ) : (
@@ -1073,7 +1075,7 @@ export default function Setup() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">Behavioral Profile</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">{t('behavioralProfile')}</p>
                   <p className="text-[11px] text-[#b0b0b0] mt-0.5">
                     {bp.profile_type || bp.drives?.length ? 'Profile defined' : 'DISC, strengths, work preferences'}
                   </p>
@@ -1198,7 +1200,7 @@ export default function Setup() {
                 </div>
 
                 <button onClick={saveBehavioralProfile} disabled={bpSaving} className="btn-secondary w-full disabled:opacity-40">
-                  {bpSaving ? 'Saving…' : 'Save behavioral profile'}
+                  {bpSaving ? tc('loading') : `${tc('save')} ${t('behavioralProfile').toLowerCase()}`}
                 </button>
               </div>
             )}

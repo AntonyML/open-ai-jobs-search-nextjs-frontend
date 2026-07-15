@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
@@ -110,6 +111,8 @@ function resourceIcon(format: string) {
 // ═══════════════════════════════════════════════════════════════════
 
 export default function UpskillPage() {
+  const t = useTranslations('upskill')
+  const tc = useTranslations('common')
   const [running, setRunning] = useState(false)
   const [pollId, setPollId] = useState<string | null>(null)
   const [current, setCurrent] = useState<UpskillResult | null>(null)
@@ -190,11 +193,8 @@ export default function UpskillPage() {
   return (
     <section className="mx-auto max-w-5xl">
       <p className="eyebrow">EXTRAS</p>
-      <h2 className="title">Skill gap analysis</h2>
-      <p className="mt-2 text-sm text-[#707070] max-w-2xl">
-        Compare your skills against ranked job postings to identify gaps and
-        get a personalized learning plan with curated resources.
-      </p>
+      <h2 className="title">{t('title')}</h2>
+      <p className="mt-2 text-sm text-[#707070] max-w-2xl">{t('subtitle')}</p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_1fr]">
         {/* ── Left: trigger + results ──────────────────────────────── */}
@@ -206,13 +206,13 @@ export default function UpskillPage() {
               disabled={running}
               className="btn-primary w-full"
             >
-              {running ? 'Analyzing…' : 'Analyze skill gaps'}
+              {running ? t('analyzing') : t('analyzeButton')}
             </button>
 
             {running && (
               <div className="mt-4 flex items-center gap-2 text-sm text-[#0066cc]">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-[#0071e3]" />
-                Running 4-pass analysis — hard gaps → synthesis → heatmap → learning plan…
+                {t('analyzingHint')}
               </div>
             )}
 
@@ -226,24 +226,24 @@ export default function UpskillPage() {
               <div className="grid grid-cols-3 gap-3">
                 <div className="rounded-xl border border-[#e2e2e5] bg-white p-4 text-center">
                   <p className="text-2xl font-semibold text-[#1d1d1f]">{current.gap_heatmap.length}</p>
-                  <p className="text-[11px] text-[#858585] mt-0.5">Gaps found</p>
+                  <p className="text-[11px] text-[#858585] mt-0.5">{t('gapsFound')}</p>
                 </div>
                 <div className="rounded-xl border border-[#e2e2e5] bg-white p-4 text-center">
                   <p className="text-2xl font-semibold text-[#1d1d1f]">{current.learning_plan.length}</p>
-                  <p className="text-[11px] text-[#858585] mt-0.5">Plan items</p>
+                  <p className="text-[11px] text-[#858585] mt-0.5">{t('planItems')}</p>
                 </div>
                 <div className="rounded-xl border border-[#e2e2e5] bg-white p-4 text-center">
                   <p className="text-2xl font-semibold text-[#1d1d1f]">
                     {current.learning_plan.reduce((t, i) => t + i.estimated_weeks, 0)}
                   </p>
-                  <p className="text-[11px] text-[#858585] mt-0.5">Est. weeks</p>
+                  <p className="text-[11px] text-[#858585] mt-0.5">{t('estWeeks')}</p>
                 </div>
               </div>
 
               {/* Priority distribution */}
               {['Critical', 'High', 'Medium', 'Low'].some(p => getGapCount(p) > 0) && (
                 <div className="rounded-2xl border border-[#d2d2d7] bg-white p-5">
-                  <h3 className="text-[13px] font-semibold text-[#1d1d1f] mb-3">Priority distribution</h3>
+                  <h3 className="text-[13px] font-semibold text-[#1d1d1f] mb-3">{t('priorityDistribution')}</h3>
                   <div className="space-y-2">
                     {(['Critical', 'High', 'Medium', 'Low'] as const).map(p => {
                       const count = getGapCount(p)
@@ -286,9 +286,9 @@ export default function UpskillPage() {
                           : 'text-[#858585] hover:text-[#1d1d1f]'
                       }`}
                     >
-                      {tab === 'gaps' ? `Hard gaps (${current.hard_skill_gaps.length})` :
-                       tab === 'heatmap' ? `Heatmap (${current.gap_heatmap.length})` :
-                       `Learning plan (${current.learning_plan.length})`}
+                      {tab === 'gaps' ? t('hardGaps', { count: current.hard_skill_gaps.length }) :
+                       tab === 'heatmap' ? t('heatmap', { count: current.gap_heatmap.length }) :
+                       t('learningPlan', { count: current.learning_plan.length })}
                     </button>
                   ))}
                 </div>
@@ -444,25 +444,25 @@ export default function UpskillPage() {
           {/* No results */}
           {current?.status === 'completed' && current.gap_heatmap.length === 0 && (
             <div className="rounded-2xl border border-[#d2d2d7] bg-white p-6 text-center">
-              <p className="text-sm text-[#707070]">No skill gaps found. Your profile matches all ranked job requirements.</p>
+              <p className="text-sm text-[#707070]">{t('noGapsFound')}</p>
             </div>
           )}
 
           {/* Failed */}
           {current?.status === 'failed' && (
             <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-600">
-              {current.error_message || 'Analysis failed'}
+              {current.error_message || t('failed')}
             </div>
           )}
         </div>
 
         {/* ── Right: history ──────────────────────────────────────── */}
         <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-[#858585]">History</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-[#858585]">{t('history')}</h3>
 
           {history.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#d2d2d7] p-8 text-center text-sm text-[#858585]">
-              No analyses yet. Click &quot;Analyze skill gaps&quot; to start.
+              {t('noHistory')}
             </div>
           ) : (
             <div className="space-y-2">

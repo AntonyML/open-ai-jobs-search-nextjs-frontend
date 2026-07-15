@@ -1,11 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { showSuccess, showError } from '@/lib/toasts'
 
 export default function Providers() {
+  const t = useTranslations('providers')
+  const tc = useTranslations('common')
   const [catalog, setCatalog] = useState<any[]>([])
   const [myProviders, setMyProviders] = useState<any[]>([])
   const [active, setActive] = useState<any>(null)
@@ -117,7 +120,7 @@ export default function Providers() {
   return (
     <section className="mx-auto max-w-5xl">
       <p className="eyebrow">01 / CONFIGURE</p>
-      <h2 className="title">Choose your AI provider</h2>
+      <h2 className="title">{t('title')}</h2>
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <form onSubmit={add} className="card space-y-4">
           <select className="field" value={provider} onChange={(e) => setProvider(e.target.value)}>
@@ -128,22 +131,22 @@ export default function Providers() {
           <div className="flex gap-2">
             <input
               className="field flex-1"
-              placeholder="API key"
+              placeholder={t('apiKey')}
               value={form.api_key}
               onChange={(e) => setForm({ ...form, api_key: e.target.value })}
             />
             <button type="button" className="btn-secondary shrink-0" onClick={loadModels} disabled={loadingModels}>
-              {loadingModels ? 'Loading…' : 'Load models'}
+              {loadingModels ? t('loadingModels') : t('loadModels')}
             </button>
           </div>
           <input
             className="field"
-            placeholder="API base (optional)"
+            placeholder={t('apiBase')}
             value={form.api_base}
             onChange={(e) => setForm({ ...form, api_base: e.target.value })}
           />
           {models.length > 0 && <select className="field" value={form.model} onChange={(e) => { setForm({ ...form, model: e.target.value }); setTested(false) }}>
-            <option value="">Choose model</option>{models.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
+            <option value="">{t('chooseModel')}</option>{models.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
           </select>}
           {form.model && <button type="button" className="btn-secondary w-full" disabled={testing} onClick={async () => {
             setTesting(true)
@@ -155,23 +158,23 @@ export default function Providers() {
             }
             catch (e) { setTested(false); const msg = e instanceof DOMException && e.name === 'AbortError' ? 'Provider timeout (35s)' : e instanceof Error ? e.message : 'Test failed'; showError(msg) }
             finally { setTesting(false) }
-          }}>{testing ? 'Testing…' : 'Test active provider'}</button>}
-          {tested && <button className="btn-primary w-full">Save provider</button>}
+          }}>{testing ? t('testing') : t('testProvider')}</button>}
+          {tested && <button className="btn-primary w-full">{t('saveProvider')}</button>}
           {/* Messages now use toast notifications */}
         </form>
 
         <div className="space-y-4">
           <div className="card">
-            <p className="text-sm text-slate-400">Active provider</p>
+            <p className="text-sm text-slate-400">{t('activeProvider')}</p>
             <p className="mt-2 text-xl font-bold text-white">
-              {active?.provider || 'Not configured'}
+              {active?.provider || t('notConfigured')}
             </p>
           </div>
 
           <div className="card">
-            <p className="mb-3 text-sm text-slate-400">Your configured providers</p>
+            <p className="mb-3 text-sm text-slate-400">{t('yourProviders')}</p>
             {myProviders.length === 0 && (
-              <p className="text-sm text-slate-500">None saved yet</p>
+              <p className="text-sm text-slate-500">{t('noneSaved')}</p>
             )}
             {myProviders.map((p, i) => (
               <div key={i} className="flex items-center justify-between border-b border-slate-800 py-2">
@@ -185,14 +188,14 @@ export default function Providers() {
                       onClick={() => activate(p.provider)}
                       className="btn-secondary text-xs py-1 px-3"
                     >
-                      Set active
+                      {t('setActive')}
                     </button>
                   )}
                   <button
                     onClick={() => remove(p.provider)}
                     className="btn-secondary text-xs py-1 px-3 text-rose-400"
                   >
-                    Delete
+                    {t('delete')}
                   </button>
                 </div>
               </div>
@@ -200,7 +203,7 @@ export default function Providers() {
           </div>
 
           <div className="card">
-            <p className="mb-3 text-sm text-slate-400">Available catalog</p>
+            <p className="mb-3 text-sm text-slate-400">{t('availableCatalog')}</p>
             {catalog.map((x, i) => (
               <div key={i} className="border-b border-slate-800 py-2 text-sm text-slate-300">
                 {x.name || x.provider || x}
@@ -210,13 +213,13 @@ export default function Providers() {
 
           {isConfigured(provider) && active?.provider !== provider && (
             <button onClick={() => activate(provider)} className="btn-secondary w-full">
-              Set {provider} as active
+              {t('setProviderActive', { provider })}
             </button>
           )}
 
           {active?.has_credential && (
             <button onClick={() => router.push('/setup')} className="btn-primary w-full">
-              Continue to Setup →
+              {t('continueSetup')}
             </button>
           )}
         </div>

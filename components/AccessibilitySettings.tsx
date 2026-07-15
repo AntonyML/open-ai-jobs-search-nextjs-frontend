@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   AccessibilitySettings as AccessibilitySettingsType,
   DEFAULT_SETTINGS,
@@ -85,7 +86,7 @@ function SliderSelect<T extends string | number>({
           )}
         </div>
         <span className="text-[13px] font-semibold text-[#0071e3] min-w-[80px] text-right">
-          {options[selectedIndex]?.label || 'Normal'}
+          {options[selectedIndex]?.label || ''}
         </span>
       </div>
       <div className="flex gap-1">
@@ -151,6 +152,7 @@ const IconSound = () => (
 // ── Main Component ─────────────────────────────────────────────────
 
 export default function AccessibilitySettings() {
+  const t = useTranslations('accessibility')
   const [settings, setSettings] = useState<AccessibilitySettingsType>(DEFAULT_SETTINGS)
   const [expanded, setExpanded] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
@@ -196,8 +198,8 @@ export default function AccessibilitySettings() {
             <IconTextSize />
           </div>
           <div>
-            <h3 className="text-[14px] font-semibold text-[#1d1d1f]">Accesibilidad</h3>
-            <p className="text-[12px] text-[#858585]">Ajusta el tamaño de letra, contraste y más</p>
+            <h3 className="text-[14px] font-semibold text-[#1d1d1f]">{t('title')}</h3>
+            <p className="text-[12px] text-[#858585]">{t('description')}</p>
           </div>
         </div>
         <svg
@@ -213,8 +215,8 @@ export default function AccessibilitySettings() {
         <div className="px-5 pb-5 border-t border-[#e2e2e5]">
           {/* Font size */}
           <SliderSelect
-            label="Tamaño de letra"
-            description="Aumenta o reduce el tamaño del texto en toda la aplicación"
+            label={t('fontSize')}
+            description={t('fontSizeDesc')}
             options={FONT_SIZE_LABELS}
             value={settings.fontSize}
             onChange={v => update('fontSize', v)}
@@ -222,8 +224,8 @@ export default function AccessibilitySettings() {
 
           {/* Line height */}
           <SliderSelect
-            label="Espaciado entre líneas"
-            description="Más espacio facilita la lectura"
+            label={t('lineHeight')}
+            description={t('lineHeightDesc')}
             options={LINE_HEIGHT_LABELS}
             value={settings.lineHeight}
             onChange={v => update('lineHeight', v)}
@@ -231,8 +233,8 @@ export default function AccessibilitySettings() {
 
           {/* Letter spacing */}
           <SliderSelect
-            label="Espaciado entre letras"
-            description="Útil para personas con dislexia"
+            label={t('letterSpacing')}
+            description={t('letterSpacingDesc')}
             options={LETTER_SPACING_LABELS}
             value={settings.letterSpacing}
             onChange={v => update('letterSpacing', v)}
@@ -242,15 +244,15 @@ export default function AccessibilitySettings() {
           <div className="py-3 border-b border-[#e2e2e5] last:border-0">
             <div className="flex items-center justify-between mb-2">
               <div>
-                <p className="text-[14px] font-medium text-[#1d1d1f]">Tipografía</p>
-                <p className="text-[12px] text-[#858585]">Cambia la familia tipográfica</p>
+                <p className="text-[14px] font-medium text-[#1d1d1f]">{t('fontFamily')}</p>
+                <p className="text-[12px] text-[#858585]">{t('fontFamilyDesc')}</p>
               </div>
             </div>
             <div className="flex gap-1">
               {[
-                { value: 'system' as const, label: 'Sistema' },
-                { value: 'sans-serif' as const, label: 'Sans-serif' },
-                { value: 'serif' as const, label: 'Serif' },
+                { value: 'system' as const, label: t('system') },
+                { value: 'sans-serif' as const, label: t('sansSerif') },
+                { value: 'serif' as const, label: t('serif') },
               ].map(opt => (
                 <button
                   key={opt.value}
@@ -270,8 +272,8 @@ export default function AccessibilitySettings() {
 
           {/* High contrast */}
           <Toggle
-            label="Alto contraste"
-            description="Aumenta el contraste de colores para mejorar la legibilidad"
+            label={t('highContrast')}
+            description={t('highContrastDesc')}
             enabled={settings.highContrast}
             onChange={v => update('highContrast', v)}
             icon={<IconContrast />}
@@ -279,8 +281,8 @@ export default function AccessibilitySettings() {
 
           {/* Reduced motion */}
           <Toggle
-            label="Reducir movimiento"
-            description="Desactiva animaciones y transiciones"
+            label={t('reducedMotion')}
+            description={t('reducedMotionDesc')}
             enabled={settings.reducedMotion}
             onChange={v => update('reducedMotion', v)}
             icon={<IconMotion />}
@@ -288,8 +290,8 @@ export default function AccessibilitySettings() {
 
           {/* Sound effects */}
           <Toggle
-            label="Sonidos"
-            description="Reproducir sonidos al completar procesos (ranking, scrape, etc.)"
+            label={t('soundEnabled')}
+            description={t('soundEnabledDesc')}
             enabled={settings.soundEnabled}
             onChange={v => update('soundEnabled', v)}
             icon={<IconSound />}
@@ -297,8 +299,8 @@ export default function AccessibilitySettings() {
 
           {/* Dyslexia font */}
           <Toggle
-            label="Fuente para dislexia"
-            description="Usa una fuente diseñada para facilitar la lectura a personas con dislexia"
+            label={t('dyslexiaFont')}
+            description={t('dyslexiaFontDesc')}
             enabled={settings.dyslexiaFont}
             onChange={v => update('dyslexiaFont', v)}
             icon={<IconFont />}
@@ -308,18 +310,18 @@ export default function AccessibilitySettings() {
           <div className="pt-3">
             {showResetConfirm ? (
               <div className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3">
-                <p className="text-[12px] text-rose-600 flex-1">¿Restaurar valores predeterminados?</p>
+                <p className="text-[12px] text-rose-600 flex-1">{t('resetConfirm')}</p>
                 <button
                   onClick={resetAll}
                   className="rounded-full bg-rose-500 px-3 py-1 text-[11px] font-medium text-white hover:bg-rose-600 transition-colors"
                 >
-                  Sí, restaurar
+                  {t('resetYes')}
                 </button>
                 <button
                   onClick={() => setShowResetConfirm(false)}
                   className="rounded-full border border-[#d2d2d7] bg-white px-3 py-1 text-[11px] font-medium text-[#707070] hover:bg-[#f5f5f7] transition-colors"
                 >
-                  Cancelar
+                  {t('resetCancel')}
                 </button>
               </div>
             ) : (
@@ -327,7 +329,7 @@ export default function AccessibilitySettings() {
                 onClick={() => setShowResetConfirm(true)}
                 className="w-full rounded-lg border border-[#e2e2e5] py-2.5 text-[12px] font-medium text-[#858585] hover:bg-[#f5f5f7] hover:text-rose-500 transition-all"
               >
-                Restaurar valores predeterminados
+                {t('reset')}
               </button>
             )}
           </div>

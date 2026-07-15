@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 
@@ -106,6 +107,8 @@ const IMPACT_COLORS: Record<string, string> = {
 // ── Component ───────────────────────────────────────────────────────
 
 export default function OutcomePage() {
+  const t = useTranslations('outcome')
+  const tc = useTranslations('common')
   const [loading, setLoading] = useState(true)
   const [report, setReport] = useState<CalibrationReport | null>(null)
   const [outcomes, setOutcomes] = useState<OutcomeSummary[]>([])
@@ -174,8 +177,7 @@ export default function OutcomePage() {
         method: 'POST',
         body: JSON.stringify(payload),
       })
-
-      showSuccess('Outcome recorded!')
+      showSuccess(t('saved', { default: 'Outcome recorded!' }))
       setShowModal(false)
       setForm({
         application_id: '', status: 'interview_invited', date_resolved: '',
@@ -192,7 +194,7 @@ export default function OutcomePage() {
       if (r) setReport(r)
       if (Array.isArray(o)) setOutcomes(o)
     } catch (x) {
-      showError(x instanceof Error ? x.message : 'Failed to save outcome')
+      showError(x instanceof Error ? x.message : t('failed', { default: 'Failed to save outcome' }))
     } finally {
       setSaving(false)
     }
@@ -234,10 +236,10 @@ export default function OutcomePage() {
     return (
       <section className="mx-auto max-w-5xl">
         <p className="eyebrow">07 / TRACK</p>
-        <h2 className="title">Keep momentum after every application</h2>
+        <h2 className="title">{t('title')}</h2>
         <div className="mt-10 flex items-center justify-center py-20">
           <span className="h-2 w-2 animate-pulse rounded-full bg-[#0071e3]" />
-          <span className="ml-3 text-sm text-[#707070]">Loading outcomes…</span>
+          <span className="ml-3 text-sm text-[#707070]">{tc('loading')}</span>
         </div>
       </section>
     )
@@ -251,11 +253,8 @@ export default function OutcomePage() {
   return (
     <section className="mx-auto max-w-5xl">
       <p className="eyebrow">07 / TRACK</p>
-      <h2 className="title">Keep momentum after every application</h2>
-      <p className="mt-2 text-sm text-[#707070] max-w-2xl">
-        Record outcomes as they come in. The system learns which skills and
-        patterns lead to interviews and offers.
-      </p>
+      <h2 className="title">{t('title')}</h2>
+      <p className="mt-2 text-sm text-[#707070] max-w-2xl">{t('subtitle')}</p>
 
       {/* ── Tabs ────────────────────────────────────────────── */}
       <div className="mt-8 flex gap-1 rounded-full bg-[#e2e2e5] p-0.5 w-fit">
@@ -269,7 +268,7 @@ export default function OutcomePage() {
                 : 'text-[#707070] hover:text-[#1d1d1f]'
             }`}
           >
-            {tab === 'dashboard' ? 'Dashboard' : tab === 'history' ? 'History' : 'Calibration'}
+            {tab === 'dashboard' ? t('dashboardTab') : tab === 'history' ? t('historyTab') : t('calibrationTab')}
           </button>
         ))}
       </div>
@@ -362,7 +361,7 @@ export default function OutcomePage() {
             onClick={() => setShowModal(true)}
             className="btn-primary w-full"
           >
-            Record outcome
+            {tc('save')}
           </button>
         </div>
       )}
@@ -373,13 +372,13 @@ export default function OutcomePage() {
           <div className="flex items-center justify-between">
             <p className="text-sm text-[#707070]">{outcomes.length} outcomes recorded</p>
             <button onClick={() => setShowModal(true)} className="rounded-full bg-[#0071e3] px-4 py-1.5 text-[12px] font-medium text-white hover:bg-[#0068d2] transition-colors">
-              + New outcome
+              + {tc('save')}
             </button>
           </div>
 
           {outcomes.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#d2d2d7] p-12 text-center">
-              <p className="text-sm text-[#858585]">No outcomes recorded yet.</p>
+              <p className="text-sm text-[#858585]">{t('noData', { default: 'No outcomes recorded yet.' })}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -446,7 +445,7 @@ export default function OutcomePage() {
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-[#d2d2d7] p-8 text-center text-sm text-[#858585]">
-              Not enough data for calibration insights. Record at least 5 outcomes.
+              {t('noData', { default: 'Not enough data for calibration insights. Record at least 5 outcomes.' })}
             </div>
           )}
 
@@ -651,7 +650,7 @@ export default function OutcomePage() {
                   onClick={() => setShowModal(false)}
                   className="flex-1 rounded-full border border-[#d2d2d7] px-4 py-2.5 text-[12px] font-medium text-[#1d1d1f] hover:bg-[#f5f5f7] transition-colors"
                 >
-                  Cancel
+                  {tc('cancel')}
                 </button>
                 <button
                   type="submit"

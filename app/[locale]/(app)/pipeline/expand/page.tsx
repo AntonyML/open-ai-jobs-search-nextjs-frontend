@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
@@ -26,6 +27,8 @@ interface ExpansionSummary {
 }
 
 export default function ExpandPage() {
+  const t = useTranslations('expand')
+  const tc = useTranslations('common')
   const [running, setRunning] = useState(false)
   const [pollId, setPollId] = useState<string | null>(null)
   const [current, setCurrent] = useState<Expansion | null>(null)
@@ -183,11 +186,8 @@ export default function ExpandPage() {
   return (
     <section className="mx-auto max-w-5xl">
       <p className="eyebrow">EXTRAS</p>
-      <h2 className="title">Expand your profile</h2>
-      <p className="mt-2 text-sm text-[#707070] max-w-2xl">
-        Scan your documents, GitHub profile, and public URLs to discover hidden
-        competencies and propose additions to your profile.
-      </p>
+      <h2 className="title">{t('title')}</h2>
+      <p className="mt-2 text-sm text-[#707070] max-w-2xl">{t('subtitle')}</p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_1fr]">
         {/* Left: trigger + info */}
@@ -199,13 +199,13 @@ export default function ExpandPage() {
               disabled={running}
               className="btn-primary w-full"
             >
-              {running ? 'Scanning…' : 'Expandir perfil'}
+              {running ? t('expanding') : t('expandButton')}
             </button>
 
             {running && (
               <div className="mt-4 flex items-center gap-2 text-sm text-[#0066cc]">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-[#0071e3]" />
-                Scanning public sources for skills…
+                {t('expandingHint')}
               </div>
             )}
 
@@ -219,14 +219,14 @@ export default function ExpandPage() {
             <div className="rounded-2xl border border-[#d2d2d7] bg-white p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-[#1d1d1f]">
-                  Discovered skills ({current.proposed_additions.length})
+                  {t('discoveredSkills', { count: current.proposed_additions.length })}
                 </h3>
                 <button
                   onClick={applyAccepted}
                   disabled={accepted.size === 0}
                   className="rounded-full bg-[#0071e3] px-4 py-1.5 text-[12px] font-medium text-white hover:bg-[#0068d2] transition-colors disabled:opacity-40"
                 >
-                  Apply selected ({accepted.size})
+                  {t('applySelected', { count: accepted.size })}
                 </button>
               </div>
 
@@ -268,7 +268,7 @@ export default function ExpandPage() {
                                 ? 'bg-[#0071e3] text-white'
                                 : 'text-[#858585] hover:text-[#2997ff] hover:bg-[#f4f8fb]'
                             }`}
-                            title="Accept"
+                            title={t('accept')}
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                               <polyline points="20 6 9 17 4 12" />
@@ -281,7 +281,7 @@ export default function ExpandPage() {
                                 ? 'bg-rose-400 text-white'
                                 : 'text-[#858585] hover:text-rose-400 hover:bg-rose-50'
                             }`}
-                            title="Reject"
+                            title={t('reject')}
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                               <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -299,25 +299,25 @@ export default function ExpandPage() {
           {/* No results message */}
           {current?.status === 'completed' && current.proposed_additions.length === 0 && (
             <div className="rounded-2xl border border-[#d2d2d7] bg-white p-6 text-center">
-              <p className="text-sm text-[#707070]">No new skills discovered. Try updating your profile or adding more sources.</p>
+              <p className="text-sm text-[#707070]">{t('noSkillsFound')}</p>
             </div>
           )}
 
           {/* Failed */}
           {current?.status === 'failed' && (
             <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-600">
-              {current.error_message || 'Expansion failed'}
+              {current.error_message || t('failed')}
             </div>
           )}
         </div>
 
         {/* Right: history */}
         <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-[#858585]">History</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-[#858585]">{t('history')}</h3>
 
           {history.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#d2d2d7] p-8 text-center text-sm text-[#858585]">
-              No expansions yet. Click "Expandir perfil" to discover hidden skills.
+              {t('noHistory')}
             </div>
           ) : (
             history.map(exp => (

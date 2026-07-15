@@ -17,7 +17,11 @@
     "optional": "optional",
     "all": "All",
     "none": "None",
-    "or": "or"
+    "or": "or",
+    "done": "Done",
+    "error": "Error",
+    "refresh": "Refresh",
+    "retry": "Retry"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -47,7 +51,23 @@
     "hasAccount": "Already have an account?",
     "loginError": "Invalid email or password",
     "registerError": "Registration failed",
-    "logoutSuccess": "Signed out successfully"
+    "logoutSuccess": "Signed out successfully",
+    "backToHome": "Back to home",
+    "back": "Back",
+    "enterPassword": "Enter your password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "createOne": "Create one",
+    "signInLink": "Sign in",
+    "termsAgree": "By creating an account, you agree to our",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "brandTitle": "Your AI-powered career accelerator",
+    "brandSubtitle": "Sign in to continue your job search. Multi-provider AI orchestration, automatic failover, and zero downtime.",
+    "brandRegisterTitle": "Start your journey in seconds",
+    "brandRegisterSubtitle": "No credit card required. Connect your preferred AI provider and start ranking jobs immediately.",
+    "loginSubtitleAlt": "Sign in to continue your job search.",
+    "registerSubtitleAlt": "Start your AI-powered job search."
   },
   "marketing": {
     "heroTitle": "Your AI-powered job search companion",
@@ -98,7 +118,23 @@
     "healthy": "Healthy",
     "degraded": "Degraded",
     "cooldown": "Cooling down",
-    "disabled": "Disabled"
+    "disabled": "Disabled",
+    "loadModels": "Load models",
+    "loadingModels": "Loading…",
+    "apiBase": "API base (optional)",
+    "chooseModel": "Choose model",
+    "testProvider": "Test active provider",
+    "testing": "Testing…",
+    "saveProvider": "Save provider",
+    "activeProvider": "Active provider",
+    "notConfigured": "Not configured",
+    "yourProviders": "Your configured providers",
+    "noneSaved": "None saved yet",
+    "availableCatalog": "Available catalog",
+    "setActive": "Set active",
+    "delete": "Delete",
+    "continueSetup": "Continue to Setup →",
+    "setProviderActive": "Set {provider} as active"
   },
   "setup": {
     "title": "Build your candidate profile",
@@ -204,11 +240,15 @@
     "questionsToAsk": "Questions to ask ({count})",
     "consistencyBrief": "Consistency brief — claims to watch",
     "logistics": "Logistics",
+    "recentNews": "Recent news",
     "noPrepSelected": "Generate a prep pack or select one from the history to get started."
   },
   "outcome": {
     "title": "Track your progress",
-    "subtitle": "Monitor your applications and interview outcomes."
+    "subtitle": "Monitor your applications and interview outcomes.",
+    "dashboardTab": "Dashboard",
+    "historyTab": "History",
+    "calibrationTab": "Calibration"
   },
   "expand": {
     "title": "Expand your profile",
@@ -261,7 +301,17 @@
     "pausedHint": "Queue paused. Resume to continue processing.",
     "live": "Live",
     "polling": "Polling…",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "idle": "Idle",
+    "providers": "Providers",
+    "models": "Models",
+    "activeWorkers": "Active workers",
+    "rateLimitCount": "429 count",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "recent": "Recent completed",
+    "running": "Running",
+    "queued": "Queued"
   },
   "accessibility": {
     "title": "Accessibility",
