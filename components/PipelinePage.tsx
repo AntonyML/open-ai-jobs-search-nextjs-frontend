@@ -5,6 +5,13 @@ import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
 import { playPipelineSound, playErrorSound } from '@/lib/sounds'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 type Props = {
   title: string
@@ -56,6 +63,11 @@ export default function PipelinePage({
 
   async function submit(e: FormEvent) {
     e.preventDefault()
+    const missing = fields.find((f) => !f.optional && !form[f.name])
+    if (missing) {
+      setError(`${missing.label} is required`)
+      return
+    }
     setLoading(true)
     setError('')
     try {
@@ -106,13 +118,37 @@ export default function PipelinePage({
               <label key={f.name} className="block text-sm text-[#1d1d1f]">
                 {f.label}
                 {f.optional && <span className="ml-2 text-[#b0b0b0]">optional</span>}
-                <input
-                  required={!f.optional}
-                  type={f.type || 'text'}
-                  value={form[f.name] || ''}
-                  onChange={(e) => setForm({ ...form, [f.name]: e.target.value })}
-                  className="field mt-1.5"
-                />
+                {f.type === 'select' ? (
+                  <Select
+                    value={form[f.name] || ''}
+                    onValueChange={(value) => setForm({ ...form, [f.name]: value ?? '' })}
+                  >
+                    <SelectTrigger className="field mt-1.5 h-10 w-full bg-white text-left">
+                      <SelectValue placeholder="Choose a job" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {items.map((x, i) => {
+                        const id = String(x.id || x.job_posting_id || x.uuid || '')
+                        const title = x.title || x.job_title || x.name || `Item ${i + 1}`
+                        const company = x.company || x.company_name || x.location
+                        return id ? (
+                          <SelectItem key={id} value={id}>
+                            <span className="truncate">{title}</span>
+                            {company && <span className="text-muted-foreground"> · {company}</span>}
+                          </SelectItem>
+                        ) : null
+                      })}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <input
+                    required={!f.optional}
+                    type={f.type || 'text'}
+                    value={form[f.name] || ''}
+                    onChange={(e) => setForm({ ...form, [f.name]: e.target.value })}
+                    className="field mt-1.5"
+                  />
+                )}
               </label>
             ))}
             <button disabled={loading} className="btn-primary w-full">

@@ -12,7 +12,7 @@ export default function Apply() {
       eyebrow="05 / APPLY"
       endpoint="/api/v1/apply/"
       listEndpoint="/api/v1/apply/"
-      fields={[{ name: 'job_posting_id', label: t('selectJob') }]}
+      fields={[{ name: 'job_posting_id', label: t('selectJob'), type: 'select' }]}
       step={4}
       next="/interview"
       actionLabel={t('generate')}
