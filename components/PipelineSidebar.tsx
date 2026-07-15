@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import {
   Sidebar,
   SidebarContent,
@@ -33,19 +34,19 @@ import {
   Circle,
 } from 'lucide-react'
 
-const PIPELINE_STEPS = [
-  { label: 'Providers', sub: 'AI provider', href: '/pipeline/providers', icon: User },
-  { label: 'Setup', sub: 'Your profile', href: '/pipeline/setup', icon: FileText },
-  { label: 'Scrape', sub: 'Find jobs', href: '/pipeline/scrape', icon: Globe },
-  { label: 'Rank', sub: 'Evaluate fit', href: '/pipeline/rank', icon: BarChart3 },
-  { label: 'Apply', sub: 'CV + letter', href: '/pipeline/apply', icon: Search },
-  { label: 'Interview', sub: 'Prepare', href: '/pipeline/interview', icon: Mic },
-  { label: 'Outcome', sub: 'Track progress', href: '/pipeline/outcome', icon: TrendingUp },
+const steps = [
+  { labelKey: 'providers', subKey: 'providersDesc', href: '/pipeline/providers', icon: User },
+  { labelKey: 'setup', subKey: 'setupDesc', href: '/pipeline/setup', icon: FileText },
+  { labelKey: 'scrape', subKey: 'scrapeDesc', href: '/pipeline/scrape', icon: Globe },
+  { labelKey: 'rank', subKey: 'rankDesc', href: '/pipeline/rank', icon: BarChart3 },
+  { labelKey: 'apply', subKey: 'applyDesc', href: '/pipeline/apply', icon: Search },
+  { labelKey: 'interview', subKey: 'interviewDesc', href: '/pipeline/interview', icon: Mic },
+  { labelKey: 'outcome', subKey: 'outcomeDesc', href: '/pipeline/outcome', icon: TrendingUp },
 ]
 
-const EXTRA_STEPS = [
-  { label: 'Expand', sub: 'Discover skills', href: '/pipeline/expand', icon: Plus },
-  { label: 'Upskill', sub: 'Skill gaps', href: '/pipeline/upskill', icon: ArrowLeftRight },
+const extraSteps = [
+  { labelKey: 'extras.expand', subKey: 'extras.expandDesc', href: '/pipeline/expand', icon: Plus },
+  { labelKey: 'extras.upskill', subKey: 'extras.upskillDesc', href: '/pipeline/upskill', icon: ArrowLeftRight },
 ]
 
 export default function PipelineSidebar({
@@ -57,6 +58,7 @@ export default function PipelineSidebar({
 }) {
   const router = useRouter()
   const pathname = usePathname()
+  const t = useTranslations('pipeline')
   const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   const handleReset = async () => {
@@ -65,9 +67,9 @@ export default function PipelineSidebar({
         '/api/v1/pipeline-reset/',
         { method: 'DELETE' }
       )
-      showSuccess(res.message || `Pipeline reset — ${res.total_deleted} records deleted`)
+      showSuccess(res.message || t('reset'))
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to reset pipeline data')
+      showError(err instanceof Error ? err.message : t('reset'))
     }
     localStorage.removeItem('completed_steps')
     localStorage.removeItem('ranking_job_id')
@@ -86,10 +88,10 @@ export default function PipelineSidebar({
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Pipeline</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('title')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {PIPELINE_STEPS.map((step, i) => {
+              {steps.map((step, i) => {
                 const isActive = i === currentStep
                 const isDone = completedSteps.includes(i)
                 const Icon = step.icon
@@ -98,7 +100,7 @@ export default function PipelineSidebar({
                     <SidebarMenuButton
                       render={<Link href={step.href} />}
                       isActive={isActive}
-                      tooltip={step.label}
+                      tooltip={t(`steps.${step.labelKey}`)}
                     >
                       <div className="flex items-center gap-2">
                         {isDone ? (
@@ -109,8 +111,8 @@ export default function PipelineSidebar({
                           <Circle className="size-4 text-[#b0b0b0]" />
                         )}
                         <div className="flex flex-col leading-tight">
-                          <span className="text-sm font-medium">{step.label}</span>
-                          <span className="text-[10px] text-muted-foreground">{step.sub}</span>
+                          <span className="text-sm font-medium">{t(`steps.${step.labelKey}`)}</span>
+                          <span className="text-[10px] text-muted-foreground">{t(`steps.${step.subKey}`)}</span>
                         </div>
                       </div>
                     </SidebarMenuButton>
@@ -124,10 +126,10 @@ export default function PipelineSidebar({
         <SidebarSeparator />
 
         <SidebarGroup>
-          <SidebarGroupLabel>Extras</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('extras.expand')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {EXTRA_STEPS.map((step) => {
+              {extraSteps.map((step) => {
                 const isActive = pathname === step.href
                 const Icon = step.icon
                 return (
@@ -135,10 +137,10 @@ export default function PipelineSidebar({
                     <SidebarMenuButton
                       render={<Link href={step.href} />}
                       isActive={isActive}
-                      tooltip={step.label}
+                      tooltip={t(step.labelKey)}
                     >
                       <Icon className="size-4" />
-                      <span className="text-sm">{step.label}</span>
+                      <span className="text-sm">{t(step.labelKey)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )
@@ -152,31 +154,31 @@ export default function PipelineSidebar({
         {showResetConfirm ? (
           <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 space-y-2">
             <p className="text-[11px] text-rose-700 leading-snug">
-              ¿Estás seguro? Se borrará todo el progreso del pipeline.
+              {t('resetConfirm')}
             </p>
             <div className="flex gap-2">
               <button
                 onClick={handleReset}
                 className="flex-1 rounded-full bg-rose-500 px-2 py-1 text-[10px] font-medium text-white hover:bg-rose-600 transition-colors"
               >
-                Sí, reiniciar
+                {t('resetYes')}
               </button>
               <button
                 onClick={() => setShowResetConfirm(false)}
                 className="flex-1 rounded-full border border-[#d2d2d7] bg-white px-2 py-1 text-[10px] font-medium text-[#707070] hover:bg-[#f5f5f7] transition-colors"
               >
-                Cancelar
+                {t('resetNo')}
               </button>
             </div>
           </div>
         ) : (
           <SidebarMenuButton
             onClick={() => setShowResetConfirm(true)}
-            tooltip="Reset pipeline"
+            tooltip={t('reset')}
             className="text-[#858585] hover:text-rose-500"
           >
             <RotateCcw className="size-4" />
-            <span className="text-xs">Reset pipeline</span>
+            <span className="text-xs">{t('reset')}</span>
           </SidebarMenuButton>
         )}
       </SidebarFooter>

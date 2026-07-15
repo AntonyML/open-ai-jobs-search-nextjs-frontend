@@ -3,18 +3,14 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { isLoggedIn, clearToken } from '@/lib/auth'
 import NotificationBell from '@/components/NotificationBell'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 
-const NAV_LINKS = [
-  { label: 'Features', href: '/#features' },
-  { label: 'Pipeline', href: '/#pipeline' },
-  { label: 'About', href: '/about' },
-]
-
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const t = useTranslations()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [loggedIn, setLoggedIn] = useState(false)
   const pathname = usePathname()
@@ -52,10 +48,13 @@ export default function Navbar() {
           Career OS
         </Link>
 
-        {/* Center: Nav links (marketing pages only) */}
-        {isMarketing && (
+        {/* Center: Nav links (marketing pages only) */}          {isMarketing && (
           <nav className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map(link => (
+            {[
+              { label: t('footer.features'), href: '/#features' },
+              { label: t('footer.pipeline'), href: '/#pipeline' },
+              { label: t('footer.about'), href: '/about' },
+            ].map(link => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -77,13 +76,13 @@ export default function Navbar() {
                 href="/dashboard"
                 className="hidden md:inline-flex items-center rounded-full px-3 py-1.5 text-[12px] font-medium text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7] transition-all"
               >
-                Dashboard
+                {t('nav.dashboard')}
               </Link>
               <Link
                 href="/pipeline/providers"
                 className="hidden md:inline-flex items-center rounded-full px-3 py-1.5 text-[12px] font-medium text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7] transition-all"
               >
-                Job Pipeline
+                {t('nav.pipeline')}
               </Link>
               <Link
                 href="/profile"
@@ -92,14 +91,14 @@ export default function Navbar() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
                 </svg>
-                Profile
+                {t('nav.profile')}
               </Link>
               <button
                 onClick={() => { clearToken(); router.push('/') }}
                 data-cuelume-press
                 className="rounded-full px-3 py-1.5 text-[12px] font-medium text-[#858585] hover:text-rose-500 hover:bg-rose-50 transition-all"
               >
-                Sign out
+                {t('nav.signOut')}
               </button>
             </>
           ) : (
@@ -108,14 +107,14 @@ export default function Navbar() {
                 href="/login"
                 className="hidden md:inline-flex rounded-full px-3 py-1.5 text-[12px] font-medium text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7] transition-all"
               >
-                Sign in
+                {t('nav.signIn')}
               </Link>
               <Link
                 href="/register"
                 data-cuelume-press
                 className="inline-flex items-center rounded-full bg-[#0071e3] px-4 py-1.5 text-[12px] font-medium text-white hover:bg-[#0068d2] transition-all"
               >
-                Get started
+                {t('nav.getStarted')}
               </Link>
             </>
           )}
@@ -139,7 +138,11 @@ export default function Navbar() {
       {mobileOpen && (
         <div className="md:hidden border-t border-[#d2d2d7]/60 bg-white/95 backdrop-blur-xl">
           <div className="px-5 py-3 space-y-1">
-            {isMarketing && NAV_LINKS.map(link => (
+            {isMarketing && [
+              { label: t('footer.features'), href: '/#features' },
+              { label: t('footer.pipeline'), href: '/#pipeline' },
+              { label: t('footer.about'), href: '/about' },
+            ].map(link => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -150,14 +153,14 @@ export default function Navbar() {
             ))}
             {loggedIn ? (
               <>
-                <Link href="/dashboard" className="block rounded-lg px-3 py-2 text-sm text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]">Dashboard</Link>
-                <Link href="/pipeline/providers" className="block rounded-lg px-3 py-2 text-sm text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]">Job Pipeline</Link>
-                <button onClick={() => { clearToken(); router.push('/') }} className="block w-full text-left rounded-lg px-3 py-2 text-sm text-rose-500 hover:bg-rose-50">Sign out</button>
+                <Link href="/dashboard" className="block rounded-lg px-3 py-2 text-sm text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]">{t('nav.dashboard')}</Link>
+                <Link href="/pipeline/providers" className="block rounded-lg px-3 py-2 text-sm text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]">{t('nav.pipeline')}</Link>
+                <button onClick={() => { clearToken(); router.push('/') }} className="block w-full text-left rounded-lg px-3 py-2 text-sm text-rose-500 hover:bg-rose-50">{t('nav.signOut')}</button>
               </>
             ) : (
               <>
-                <Link href="/login" className="block rounded-lg px-3 py-2 text-sm text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]">Sign in</Link>
-                <Link href="/register" className="block rounded-lg px-3 py-2 text-sm text-[#0071e3] font-medium hover:bg-[#f4f8fb]">Get started</Link>
+                <Link href="/login" className="block rounded-lg px-3 py-2 text-sm text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]">{t('nav.signIn')}</Link>
+                <Link href="/register" className="block rounded-lg px-3 py-2 text-sm text-[#0071e3] font-medium hover:bg-[#f4f8fb]">{t('nav.getStarted')}</Link>
               </>
             )}
           </div>
