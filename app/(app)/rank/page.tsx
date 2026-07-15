@@ -1,5 +1,5 @@
 'use client'
-import { FormEvent, useEffect, useRef, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
 import { useOrchestrator } from '@/lib/orchestrator'
@@ -26,6 +26,8 @@ export default function Rank() {
   const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [totalJobs, setTotalJobs] = useState(0)
+  const [rankCounts, setRankCounts] = useState<{ total: number; ranked: number; unranked: number } | null>(null)
   const [elapsed, setElapsed] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const router = useRouter()
@@ -156,6 +158,9 @@ export default function Rank() {
       if (fa) body.focus_area = fa
       const data = await apiFetch<any>('/api/v1/rank/', { method: 'POST', body: JSON.stringify(body) })
       jobIdRef.current = data.job_id
+      if (data.total_jobs != null) {
+        setTotalJobs(data.total_jobs)
+      }
 
       // Wait for completion via WebSocket-driven queue updates
       // The useEffect above watches queue and resolves this Promise
@@ -225,6 +230,38 @@ export default function Rank() {
 
   const scoreTextColor = (s: number) =>
     s >= 75 ? 'text-emerald-700 bg-emerald-100' : s >= 50 ? 'text-[#0066cc] bg-[#f4f8fb]' : s >= 25 ? 'text-amber-700 bg-amber-100' : 'text-rose-700 bg-rose-100'
+
+  // ── Poll job counts during ranking ──────────────────────────
+  const fetchCounts = useCallback(async () => {
+    if (!loading) return
+    try {
+      const counts = await apiFetch<{ total: number; ranked: number; unranked: number }>('/api/v1/rank/jobs/count')
+      if (mountedRef.current) {
+        setRankCounts(counts)
+        if (totalJobs === 0 && counts.total > 0) {
+          setTotalJobs(counts.total)
+        }
+      }
+    } catch {
+      // Silently ignore
+    }
+  }, [loading, totalJobs])
+
+  useEffect(() => {
+    if (!loading) return
+    fetchCounts()
+    const timer = setInterval(fetchCounts, 4000)
+    return () => clearInterval(timer)
+  }, [loading, fetchCounts])
+
+  // ── Derived progress values ──────────────────────────────────
+  const rankedCount = rankCounts?.ranked ?? items.filter(x => x.rank_score != null).length
+  const totalCount = totalJobs || rankCounts?.total || items.length || 0
+  const progressPct = totalCount > 0 ? Math.min(100, Math.round((rankedCount / totalCount) * 100)) : 0
+  const remaining = Math.max(0, totalCount - rankedCount)
+  const etaSeconds = progressPct > 5
+    ? Math.round((elapsed / progressPct) * (100 - progressPct))
+    : null
 
   const runningJob = queue?.running_jobs[0]
   const activeProvider = providers.find(p => p.provider === runningJob?.provider)
@@ -319,54 +356,110 @@ export default function Rank() {
 
         {/* Progress display */}
         {loading && (
-          <div className="rounded-xl border border-[#d2d2d7] bg-white p-5 space-y-3">
+          <div className="rounded-xl border border-[#d2d2d7] bg-white p-5 space-y-4">
+            {/* ── Progress header ───────────────────────────────── */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 text-sm text-[#1d1d1f]">
+                <span className="relative flex h-3 w-3">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#0071e3]/40" />
+                  <span className="relative inline-flex h-3 w-3 rounded-full bg-[#0071e3]" />
+                </span>
+                <span className="font-medium">
+                  {runningJob?.description || 'Evaluating jobs'}
+                </span>
+              </div>
+              <span className="text-xs font-semibold text-[#0071e3]">
+                {progressPct}%
+              </span>
+            </div>
+
+            {/* ── Progress bar ─────────────────────────────────── */}
+            <div className="h-2 rounded-full bg-[#e2e2e5] overflow-hidden">
+              <div
+                className="h-full rounded-full bg-[#0071e3] transition-all duration-500 ease-out"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+
+            {/* ── Stats row ────────────────────────────────────── */}
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="rounded-lg bg-[#f5f5f7] px-3 py-2">
+                <p className="text-lg font-bold text-[#0071e3]">{rankedCount}</p>
+                <p className="text-[10px] text-[#858585]">Ranked</p>
+              </div>
+              <div className="rounded-lg bg-[#f5f5f7] px-3 py-2">
+                <p className="text-lg font-bold text-[#474747]">{remaining}</p>
+                <p className="text-[10px] text-[#858585]">Remaining</p>
+              </div>
+              <div className="rounded-lg bg-[#f5f5f7] px-3 py-2">
+                <p className="text-lg font-bold text-[#474747]">{totalCount}</p>
+                <p className="text-[10px] text-[#858585]">Total jobs</p>
+              </div>
+            </div>
+
+            {/* ── Info row: elapsed + ETA ──────────────────────── */}
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="text-[#858585]">
+                Elapsed:{' '}
+                <strong className="text-[#474747]">
+                  {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}
+                </strong>
+              </span>
+              {etaSeconds != null && (
+                <span className="text-[#858585]">
+                  ETA:{' '}
+                  <strong className="text-[#474747]">
+                    ~{Math.floor(etaSeconds / 60)}:{String(etaSeconds % 60).padStart(2, '0')}
+                  </strong>
+                </span>
+              )}
+            </div>
+
+            {/* ── Provider info ────────────────────────────────── */}
             {runningJob && runningJob.provider && (
-              <div className="flex items-center gap-2 text-[11px] text-[#0066cc]">
-                <span className="h-2 w-2 rounded-full bg-[#0071e3] animate-pulse" />
+              <div className="flex items-center gap-2 text-[11px] text-[#0066cc] border-t border-[#e2e2e5] pt-3">
+                <span className="h-2 w-2 rounded-full bg-[#0071e3]" />
                 <span className="font-medium">{runningJob.provider}</span>
                 <span className="text-[#b0b0b0]">·</span>
                 <span className="text-[#707070]">{runningJob.model || 'processing'}</span>
+                <span className="text-[#b0b0b0]">·</span>
+                <span className="text-[#707070]">~{rankedCount > 0 ? Math.round(elapsed / rankedCount) : '—'}s/job avg</span>
               </div>
             )}
-            <div className="flex items-center gap-3 text-sm text-[#1d1d1f]">
-              <span className="h-3 w-3 animate-pulse rounded-full bg-[#0071e3]" />
-              <span>
-                {runningJob?.description || 'Evaluating jobs'}
-                <span className="inline-block w-6 text-left animate-pulse">...</span>
-              </span>
-            </div>
-            <p className="text-xs text-[#858585]">
-              Elapsed: {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}
-            </p>
-            {queue && (
-              <div className="flex gap-3 text-[10px] text-[#b0b0b0]">
-                <span>{queue.running_jobs.length} running</span>
-                <span>{queue.pending_jobs.length} queued</span>
-                <span>{queue.total_completed} completed</span>
-                <span>{queue.total_failed} failed</span>
-              </div>
-            )}
+
+            {/* ── Provider health warning ──────────────────────── */}
             {activeProvider && activeProvider.health_score < 0.8 && (
               <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-700">
                 {activeProvider.provider} health: {Math.round(activeProvider.health_score * 100)}%
                 {activeProvider.last_error_code === 'rate_limit' && ' · Rate limited, switching model'}
               </div>
             )}
+
+            {/* ── Recent evaluations ───────────────────────────── */}
             {items.filter(x => x.rank_score != null).length > 0 && (
-              <div className="border-t border-[#e2e2e5] pt-3 space-y-1.5">
-                <p className="text-[10px] font-medium text-[#858585]">
-                  {items.filter(x => x.rank_score != null).length} jobs evaluated so far:
-                </p>
-                <div className="space-y-1 max-h-32 overflow-y-auto scrollbar-thin">
+              <div className="border-t border-[#e2e2e5] pt-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-medium text-[#858585]">
+                    Recent evaluations
+                  </p>
+                  <span className="text-[9px] text-[#b0b0b0]">
+                    Last {Math.min(5, items.filter(x => x.rank_score != null).length)}
+                  </span>
+                </div>
+                <div className="space-y-1 max-h-28 overflow-y-auto scrollbar-thin">
                   {items
                     .filter(x => x.rank_score != null)
                     .slice(-5)
                     .reverse()
                     .map((x, i) => (
-                      <div key={i} className="flex items-center gap-2 text-[11px] text-[#707070]">
+                      <div key={i} className="flex items-center gap-2 text-[11px] text-[#707070] group hover:bg-[#f5f5f7] rounded-md px-1.5 py-1 -mx-1.5 transition-colors">
                         <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${scoreColor(x.rank_score)}`} />
-                        <span className="truncate">{x.title || x.job_title}</span>
-                        <span className="shrink-0 font-semibold text-[#474747]">{x.rank_score}</span>
+                        <span className="truncate flex-1">{x.title || x.job_title}</span>
+                        <span className="shrink-0">
+                          <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${scoreTextColor(x.rank_score)}`}>
+                            {x.rank_score}
+                          </span>
+                        </span>
                       </div>
                     ))}
                 </div>
