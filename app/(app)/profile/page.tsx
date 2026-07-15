@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { clearToken } from '@/lib/auth'
+import { showError } from '@/lib/toasts'
 import AccessibilitySettings from '@/components/AccessibilitySettings'
 
 export default function ProfilePage() {
@@ -30,6 +31,7 @@ export default function ProfilePage() {
       })
       .catch(() => {
         setError('Could not load profile')
+        showError('Could not load profile')
         setLoading(false)
       })
   }, [])

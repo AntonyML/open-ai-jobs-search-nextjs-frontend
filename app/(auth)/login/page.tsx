@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
 import { setToken } from '@/lib/auth'
+import { showError } from '@/lib/toasts'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -23,9 +24,10 @@ export default function Login() {
         body: JSON.stringify({ email, password }),
       })
       setToken(data.access_token)
-      router.push('/providers')
-    } catch (x) {
-      setError(x instanceof Error ? x.message : 'Unable to sign in')
+      router.push('/providers')      } catch (x) {
+      const msg = x instanceof Error ? x.message : 'Unable to sign in'
+      setError(msg)
+      showError(msg)
     } finally {
       setLoading(false)
     }

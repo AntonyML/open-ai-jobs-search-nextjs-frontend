@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
+import { showSuccess, showError } from '@/lib/toasts'
 
 export default function Setup() {
   const router = useRouter()
@@ -115,9 +116,16 @@ export default function Setup() {
       setExists(true)
       setSaved(true)
       const steps = JSON.parse(localStorage.getItem('completed_steps') || '[]')
-      if (!steps.includes(1)) localStorage.setItem('completed_steps', JSON.stringify([...steps, 1]))
+      if (!steps.includes(1)) {
+        localStorage.setItem('completed_steps', JSON.stringify([...steps, 1]))
+        showSuccess('Profile saved! Step 2 completed.')
+      } else {
+        showSuccess('Profile updated successfully')
+      }
     } catch (x) {
-      setError(x instanceof Error ? x.message : 'Request failed')
+      const msg = x instanceof Error ? x.message : 'Request failed'
+      setError(msg)
+      showError(msg)
     } finally {
       setSaving(false)
     }

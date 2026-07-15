@@ -3,6 +3,7 @@ import { FormEvent, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
+import { showSuccess, showError } from '@/lib/toasts'
 
 export default function Register() {
   const [form, setForm] = useState({ full_name: '', email: '', password: '' })
@@ -22,9 +23,10 @@ export default function Register() {
         method: 'POST',
         body: JSON.stringify(form),
       })
+      showSuccess('Account created! Sign in to continue.')
       router.push('/login')
     } catch (x) {
-      setError(x instanceof Error ? x.message : 'Registration failed')
+      const msg = x instanceof Error ? x.message : 'Registration failed'; setError(msg); showError(msg)
     } finally {
       setLoading(false)
     }

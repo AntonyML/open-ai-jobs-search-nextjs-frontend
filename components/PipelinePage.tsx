@@ -2,12 +2,145 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
-type Props = { title: string; eyebrow: string; endpoint: string; listEndpoint?: string; fields: { name: string; label: string; type?: string; optional?: boolean }[]; step: number; next?: string; actionLabel?: string }
-export default function PipelinePage({ title, eyebrow, endpoint, listEndpoint, fields, step, next, actionLabel = 'Run' }: Props) {
-  const [form, setForm] = useState<Record<string, string>>({}), [items, setItems] = useState<any[]>([]), [result, setResult] = useState<any>(null), [loading, setLoading] = useState(false), [error, setError] = useState(''), router = useRouter()
-  const normalize = (x: any) => Array.isArray(x) ? x : (x.items || x.jobs || x.applications || x.rows || [])
-  useEffect(() => { if (listEndpoint) apiFetch<any>(listEndpoint).then(x => setItems(normalize(x))).catch(() => {}) }, [listEndpoint])
-  const complete = () => { const a = JSON.parse(localStorage.getItem('completed_steps') || '[]'); if (!a.includes(step)) localStorage.setItem('completed_steps', JSON.stringify([...a, step])) }
-  async function submit(e: FormEvent) { e.preventDefault(); setLoading(true); setError(''); try { const data = await apiFetch<any>(endpoint, { method: 'POST', body: JSON.stringify(form) }); setResult(data); if (listEndpoint) setItems(normalize(await apiFetch<any>(listEndpoint))) } catch (x) { setError(x instanceof Error ? x.message : 'Request failed') } finally { setLoading(false) } }
-  return <section className="mx-auto max-w-5xl"><p className="eyebrow">{eyebrow}</p><h2 className="title">{title}</h2><div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_1fr]"><form onSubmit={submit} className="card space-y-5"><div className="space-y-4">{fields.map(f => <label key={f.name} className="block text-sm text-[#333]">{f.label}{f.optional && <span className="ml-2 text-[#858585]">optional</span>}<input required={!f.optional} type={f.type || 'text'} value={form[f.name] || ''} onChange={e => setForm({ ...form, [f.name]: e.target.value })} className="field mt-2" /></label>)}<button disabled={loading} className="btn-primary w-full">{loading ? 'Working…' : actionLabel}</button>{error && <p className="text-sm text-red-600">{error}</p>}</div></form><div className="space-y-3">{items.length ? items.map((x, i) => <article key={i} className="border-b border-[#d2d2d7] py-4"><h3 className="font-semibold text-[#1d1d1f]">{x.title || x.job_title || x.name || `Item ${i + 1}`}</h3><p className="mt-1 text-sm text-[#707070]">{x.company || x.location || x.status || x.rank_verdict || ''}</p>{x.rank_score != null && <div className="mt-3 h-1 rounded-full bg-[#e2e2e5]"><div className="h-1 rounded-full bg-[#2997ff]" style={{ width: `${x.rank_score}%` }} /></div>}</article>) : <div className="border-y border-dashed border-[#d2d2d7] p-8 text-sm text-[#858585]">Results will appear here.</div>}{result && <pre className="max-h-72 overflow-auto rounded-lg bg-[#1d1d1f] p-4 text-xs text-white">{JSON.stringify(result, null, 2)}</pre>}<div className="flex gap-3"><button type="button" onClick={() => { complete(); if (next) router.push(next) }} className="btn-secondary">{next ? 'Continue' : 'Mark as complete'}</button></div></div></div></section>
+import { showSuccess, showError } from '@/lib/toasts'
+
+type Props = {
+  title: string
+  eyebrow: string
+  endpoint: string
+  listEndpoint?: string
+  fields: { name: string; label: string; type?: string; optional?: boolean }[]
+  step: number
+  next?: string
+  actionLabel?: string
+}
+
+export default function PipelinePage({
+  title,
+  eyebrow,
+  endpoint,
+  listEndpoint,
+  fields,
+  step,
+  next,
+  actionLabel = 'Run',
+}: Props) {
+  const [form, setForm] = useState<Record<string, string>>({})
+  const [items, setItems] = useState<any[]>([])
+  const [result, setResult] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const router = useRouter()
+
+  const normalize = (x: any) =>
+    Array.isArray(x) ? x : x.items || x.jobs || x.applications || x.rows || []
+
+  useEffect(() => {
+    if (listEndpoint)
+      apiFetch<any>(listEndpoint)
+        .then((x) => setItems(normalize(x)))
+        .catch(() => {})
+  }, [listEndpoint])
+
+  const complete = () => {
+    const a = JSON.parse(localStorage.getItem('completed_steps') || '[]')
+    if (!a.includes(step)) {
+      localStorage.setItem('completed_steps', JSON.stringify([...a, step]))
+      showSuccess('Step completed!')
+    }
+  }
+
+  async function submit(e: FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const data = await apiFetch<any>(endpoint, {
+        method: 'POST',
+        body: JSON.stringify(form),
+      })
+      setResult(data)
+      if (listEndpoint)
+        setItems(normalize(await apiFetch<any>(listEndpoint)))
+    } catch (x) {
+      const msg = x instanceof Error ? x.message : 'Request failed'
+      setError(msg)
+      showError(msg)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <section className="mx-auto max-w-5xl">
+      <p className="eyebrow">{eyebrow}</p>
+      <h2 className="title">{title}</h2>
+      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_1fr]">
+        <form onSubmit={submit} className="card space-y-5">
+          <div className="space-y-4">
+            {fields.map((f) => (
+              <label key={f.name} className="block text-sm text-[#333]">
+                {f.label}
+                {f.optional && <span className="ml-2 text-[#858585]">optional</span>}
+                <input
+                  required={!f.optional}
+                  type={f.type || 'text'}
+                  value={form[f.name] || ''}
+                  onChange={(e) => setForm({ ...form, [f.name]: e.target.value })}
+                  className="field mt-2"
+                />
+              </label>
+            ))}
+            <button disabled={loading} className="btn-primary w-full">
+              {loading ? 'Working…' : actionLabel}
+            </button>
+            {error && <p className="text-sm text-red-600">{error}</p>}
+          </div>
+        </form>
+        <div className="space-y-3">
+          {items.length
+            ? items.map((x, i) => (
+                <article key={i} className="border-b border-[#d2d2d7] py-4">
+                  <h3 className="font-semibold text-[#1d1d1f]">
+                    {x.title || x.job_title || x.name || `Item ${i + 1}`}
+                  </h3>
+                  <p className="mt-1 text-sm text-[#707070]">
+                    {x.company || x.location || x.status || x.rank_verdict || ''}
+                  </p>
+                  {x.rank_score != null && (
+                    <div className="mt-3 h-1 rounded-full bg-[#e2e2e5]">
+                      <div
+                        className="h-1 rounded-full bg-[#2997ff]"
+                        style={{ width: `${x.rank_score}%` }}
+                      />
+                    </div>
+                  )}
+                </article>
+              ))
+            : (
+              <div className="border-y border-dashed border-[#d2d2d7] p-8 text-sm text-[#858585]">
+                Results will appear here.
+              </div>
+            )}
+          {result && (
+            <pre className="max-h-72 overflow-auto rounded-lg bg-[#1d1d1f] p-4 text-xs text-white">
+              {JSON.stringify(result, null, 2)}
+            </pre>
+          )}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                complete()
+                if (next) router.push(next)
+              }}
+              className="btn-secondary"
+            >
+              {next ? 'Continue' : 'Mark as complete'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
 }

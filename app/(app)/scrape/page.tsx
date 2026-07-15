@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
+import { showSuccess, showError } from '@/lib/toasts'
 
 const PORTALS = ['linkedin', 'freehire', 'jobbank', 'jobdanmark', 'jobindex', 'jobnet']
 
@@ -52,9 +53,12 @@ export default function Scrape() {
       setResult(data)
       loadJobs()
       const steps = JSON.parse(localStorage.getItem('completed_steps') || '[]')
-      if (!steps.includes(2)) localStorage.setItem('completed_steps', JSON.stringify([...steps, 2]))
+      if (!steps.includes(2)) {
+        localStorage.setItem('completed_steps', JSON.stringify([...steps, 2]))
+        showSuccess(`${data.jobs_found ?? 0} jobs found! Step 3 completed.`)
+      }
     } catch (x) {
-      setError(x instanceof Error ? x.message : 'Scrape failed')
+      const msg = x instanceof Error ? x.message : 'Scrape failed'; setError(msg); showError(msg)
     } finally {
       setLoading(false)
     }

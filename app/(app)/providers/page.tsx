@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
+import { showSuccess, showError } from '@/lib/toasts'
 
 export default function Providers() {
   const [catalog, setCatalog] = useState<any[]>([])
@@ -10,7 +11,7 @@ export default function Providers() {
   const [active, setActive] = useState<any>(null)
   const [provider, setProvider] = useState('openai')
   const [form, setForm] = useState({ api_key: '', api_base: '', model: '' })
-  const [msg, setMsg] = useState('')
+  // msg state replaced by toast notifications
   const [models, setModels] = useState<any[]>([])
   const [testing, setTesting] = useState(false)
   const [loadingModels, setLoadingModels] = useState(false)
@@ -39,11 +40,11 @@ export default function Providers() {
 
   async function loadModels() {
     if (!form.api_key.trim() && provider !== 'lm_studio' && provider !== 'ollama') {
-      setMsg('API key is required before loading models')
+      showError('API key is required before loading models')
       return
     }
     if (!form.api_base.trim() && (provider === 'lm_studio' || provider === 'ollama')) {
-      setMsg('API base is required before loading models')
+      showError('API base is required before loading models')
       return
     }
     setLoadingModels(true)
@@ -52,10 +53,11 @@ export default function Providers() {
       const x = await apiFetch<any>(`/api/v1/providers/${provider}/models`, { method: 'POST', body: JSON.stringify(modelPayload) })
       setModels(x.models || [])
       setTested(false)
-      setMsg(`${(x.models || []).length} models loaded`)
+      showSuccess(`${(x.models || []).length} models loaded`)
     } catch (e) {
       setModels([])
-      setMsg(e instanceof Error ? `Could not load models: ${e.message}` : 'Could not load models')
+      const msg = e instanceof Error ? e.message : 'Could not load models'
+      showError(msg)
     } finally {
       setLoadingModels(false)
     }
@@ -64,17 +66,16 @@ export default function Providers() {
   async function add(e: React.FormEvent) {
     e.preventDefault()
     if (!form.model.trim()) {
-      setMsg('Choose or enter a model before saving')
+      showError('Choose or enter a model before saving')
       return
     }
     if ((provider === 'lm_studio' || provider === 'ollama') && !form.api_base.trim()) {
-      setMsg('API base is required for this provider')
+      showError('API base is required for this provider')
       return
     }
     const payload = Object.fromEntries(
       Object.entries({ provider, ...form }).filter(([, v]) => v !== '' && v !== null && v !== undefined)
     )
-    setMsg('Testing provider…')
     await apiFetch('/api/v1/providers/test', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -88,7 +89,7 @@ export default function Providers() {
       body: JSON.stringify({ provider }),
     })
     setActive(updated)
-    setMsg(`Provider saved and active: ${updated.provider} / ${updated.model}`)
+    showSuccess(`Provider saved: ${updated.provider} / ${updated.model}`)
     loadMyProviders()
   }
 
@@ -107,7 +108,7 @@ export default function Providers() {
     if (active?.provider === p) {
       setActive(null)
     }
-    setMsg(`Provider deleted: ${p}`)
+    showSuccess(`Provider deleted: ${p}`)
     loadMyProviders()
   }
 
@@ -150,13 +151,13 @@ export default function Providers() {
               const testPayload = Object.fromEntries(Object.entries({ provider, ...form }).filter(([, value]) => value.trim() !== ''))
               const controller = new AbortController()
               const timeout = window.setTimeout(() => controller.abort(), 35000)
-              const x = await apiFetch<any>('/api/v1/providers/test', { method: 'POST', body: JSON.stringify(testPayload), signal: controller.signal }); window.clearTimeout(timeout); setTested(true); setMsg(`Test OK: ${x.provider} / ${x.model}`)
+              const x = await apiFetch<any>('/api/v1/providers/test', { method: 'POST', body: JSON.stringify(testPayload), signal: controller.signal }); window.clearTimeout(timeout); setTested(true); showSuccess(`Test OK: ${x.provider} / ${x.model}`)
             }
-            catch (e) { setTested(false); setMsg(e instanceof DOMException && e.name === 'AbortError' ? 'Test failed: provider timeout (35s)' : e instanceof Error ? `Test failed: ${e.message}` : 'Test failed') }
+            catch (e) { setTested(false); const msg = e instanceof DOMException && e.name === 'AbortError' ? 'Provider timeout (35s)' : e instanceof Error ? e.message : 'Test failed'; showError(msg) }
             finally { setTesting(false) }
           }}>{testing ? 'Testing…' : 'Test active provider'}</button>}
           {tested && <button className="btn-primary w-full">Save provider</button>}
-          {msg && <p className="text-sm text-emerald-400">{msg}</p>}
+          {/* Messages now use toast notifications */}
         </form>
 
         <div className="space-y-4">
