@@ -43,7 +43,7 @@ export default function Navbar() {
       <div className="mx-auto flex h-12 max-w-[1440px] items-center justify-between px-5 md:px-8">
         {/* Left: Logo */}
         <Link
-          href={loggedIn ? '/providers' : '/'}
+          href={loggedIn ? '/dashboard' : '/'}
           className="flex items-center gap-2 text-[13px] font-semibold tracking-tight text-[#1d1d1f] hover:opacity-70 transition-opacity"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0071e3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -74,10 +74,16 @@ export default function Navbar() {
             <>
               <NotificationBell />
               <Link
-                href="/providers"
+                href="/dashboard"
                 className="hidden md:inline-flex items-center rounded-full px-3 py-1.5 text-[12px] font-medium text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7] transition-all"
               >
                 Dashboard
+              </Link>
+              <Link
+                href="/pipeline/providers"
+                className="hidden md:inline-flex items-center rounded-full px-3 py-1.5 text-[12px] font-medium text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7] transition-all"
+              >
+                Job Pipeline
               </Link>
               <Link
                 href="/profile"
@@ -144,7 +150,8 @@ export default function Navbar() {
             ))}
             {loggedIn ? (
               <>
-                <Link href="/providers" className="block rounded-lg px-3 py-2 text-sm text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]">Dashboard</Link>
+                <Link href="/dashboard" className="block rounded-lg px-3 py-2 text-sm text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]">Dashboard</Link>
+                <Link href="/pipeline/providers" className="block rounded-lg px-3 py-2 text-sm text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]">Job Pipeline</Link>
                 <button onClick={() => { clearToken(); router.push('/') }} className="block w-full text-left rounded-lg px-3 py-2 text-sm text-rose-500 hover:bg-rose-50">Sign out</button>
               </>
             ) : (

@@ -2,9 +2,13 @@
 import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Navbar from '@/components/Navbar'
-import StepSidebar from '@/components/StepSidebar'
+import PipelineSidebar from '@/components/PipelineSidebar'
 import { isLoggedIn } from '@/lib/auth'
 import LLMControlCenter from '@/components/LLMControlCenter'
+import {
+  SidebarProvider,
+  SidebarInset,
+} from '@/components/ui/sidebar'
 
 const routes = ['providers', 'setup', 'scrape', 'rank', 'apply', 'interview', 'outcome']
 
@@ -16,13 +20,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#f5f5f7]">
       <Navbar />
-      <div className="pt-12 md:flex">
-        <StepSidebar currentStep={step} completedSteps={done} />
-        <main className="min-w-0 flex-1 px-5 py-8 md:px-12 md:py-14">
-          {children}
-        </main>
-        <LLMControlCenter />
-      </div>
+      <SidebarProvider defaultOpen={true}>
+        <div className="pt-12 md:flex">
+          <PipelineSidebar currentStep={step} completedSteps={done} />
+          <SidebarInset className="min-w-0 flex-1 px-5 py-8 md:px-12 md:py-14">
+            {children}
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+      <LLMControlCenter />
     </div>
   )
 }
