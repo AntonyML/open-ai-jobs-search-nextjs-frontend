@@ -3,6 +3,9 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
 import { useOrchestrator } from '@/lib/orchestrator'
+import { playCompletionSound, playErrorSound } from '@/lib/sounds'
+import { showSuccess, showError } from '@/lib/toasts'
+import { addNotification } from '@/lib/notifications'
 
 const FOCUS_TAGS = [
   'AI Engineering',
@@ -180,11 +183,34 @@ export default function Rank() {
       if (!mountedRef.current) return
 
       if (completed?.status === 'failed') {
-        throw new Error(completed.error || 'Ranking failed')
+        playErrorSound()
+        const errMsg = completed.error || 'Ranking failed'
+        showError('Ranking failed: ' + errMsg)
+        addNotification({ pipeline: 'rank', description: errMsg, status: 'error' })
+        setError(errMsg)
+        return
       }
 
+      playCompletionSound()
       const rankData = completed?.result || completed
       setResult(rankData)
+
+      // Show success toast
+      const rankedCount = rankData?.ranked_count
+      showSuccess(
+        rankedCount != null
+          ? `Ranking complete! ${rankedCount} jobs evaluated`
+          : 'Ranking complete!'
+      )
+
+      // Persist notification
+      addNotification({
+        pipeline: 'rank',
+        description: rankedCount != null
+          ? `Evaluated ${rankedCount} jobs · focus=${focusArea || customFocus || 'all'}`
+          : 'Ranking completed',
+        status: 'success',
+      })
 
       const x = await apiFetch<any>('/api/v1/rank/jobs')
       const freshItems = Array.isArray(x) ? x : (x.items || x.jobs || [])
@@ -210,7 +236,11 @@ export default function Rank() {
 
     } catch (x) {
       if (!mountedRef.current) return
-      setError(x instanceof Error ? x.message : 'Request failed')
+      playErrorSound()
+      const msg = x instanceof Error ? x.message : 'Request failed'
+      showError(msg)
+      addNotification({ pipeline: 'rank', description: msg, status: 'error' })
+      setError(msg)
     } finally {
       if (mountedRef.current) {
         setLoading(false)

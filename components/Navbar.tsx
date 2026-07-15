@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { isLoggedIn, clearToken } from '@/lib/auth'
+import NotificationBell from '@/components/NotificationBell'
 
 const NAV_LINKS = [
   { label: 'Features', href: '/#features' },
@@ -66,9 +67,10 @@ export default function Navbar() {
         )}
 
         {/* Right: Auth / Profile */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {loggedIn ? (
             <>
+              <NotificationBell />
               <Link
                 href="/providers"
                 className="hidden md:inline-flex items-center rounded-full px-3 py-1.5 text-[12px] font-medium text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7] transition-all"

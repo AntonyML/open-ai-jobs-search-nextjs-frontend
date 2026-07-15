@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
+import { addNotification } from '@/lib/notifications'
+import { playCompletionSound, playErrorSound } from '@/lib/sounds'
 
 interface Expansion {
   id: string
@@ -53,9 +55,19 @@ export default function ExpandPage() {
           const h = await apiFetch<any>('/api/v1/expand/')
           setHistory(Array.isArray(h) ? h : [])
           if (exp.status === 'completed') {
-            showSuccess(`Expansion complete — ${exp.proposed_additions.length} skills discovered`)
+            playCompletionSound()
+            const count = exp.proposed_additions.length
+            showSuccess(`Expansion complete — ${count} skills discovered`)
+            addNotification({
+              pipeline: 'expand',
+              description: `Discovered ${count} skills across ${exp.enriched_competencies.length} competencies`,
+              status: 'success',
+            })
           } else {
-            showError(exp.error_message || 'Expansion failed')
+            playErrorSound()
+            const errMsg = exp.error_message || 'Expansion failed'
+            showError(errMsg)
+            addNotification({ pipeline: 'expand', description: errMsg, status: 'error' })
           }
         }
       } catch {
@@ -87,8 +99,11 @@ export default function ExpandPage() {
       setPollId(exp.id)
     } catch (x) {
       setRunning(false)
-      setError(x instanceof Error ? x.message : 'Request failed')
-      showError(x instanceof Error ? x.message : 'Request failed')
+      const msg = x instanceof Error ? x.message : 'Request failed'
+      playErrorSound()
+      showError(msg)
+      addNotification({ pipeline: 'expand', description: msg, status: 'error' })
+      setError(msg)
     }
   }
 

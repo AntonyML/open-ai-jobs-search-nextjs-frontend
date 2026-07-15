@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { showSuccess, showError } from '@/lib/toasts'
+import { addNotification } from '@/lib/notifications'
+import { playCompletionSound, playErrorSound } from '@/lib/sounds'
 
 const PORTALS = ['linkedin', 'freehire', 'jobbank', 'jobdanmark', 'jobindex', 'jobnet']
 
@@ -55,10 +57,21 @@ export default function Scrape() {
       const steps = JSON.parse(localStorage.getItem('completed_steps') || '[]')
       if (!steps.includes(2)) {
         localStorage.setItem('completed_steps', JSON.stringify([...steps, 2]))
-        showSuccess(`${data.jobs_found ?? 0} jobs found! Step 3 completed.`)
       }
+      playCompletionSound()
+      const jobCount = data.jobs_found ?? 0
+      showSuccess(`${jobCount} jobs found! Step 3 completed.`)
+      addNotification({
+        pipeline: 'scrape',
+        description: `Found ${jobCount} jobs · focus=${focus_area || 'all'} · portals=${selectedPortals.length || 'all'}`,
+        status: 'success',
+      })
     } catch (x) {
-      const msg = x instanceof Error ? x.message : 'Scrape failed'; setError(msg); showError(msg)
+      const msg = x instanceof Error ? x.message : 'Scrape failed'
+      playErrorSound()
+      showError(msg)
+      addNotification({ pipeline: 'scrape', description: msg, status: 'error' })
+      setError(msg)
     } finally {
       setLoading(false)
     }

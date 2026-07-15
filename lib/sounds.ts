@@ -12,7 +12,7 @@
 
 'use client'
 
-import { bind, setEnabled } from 'cuelume'
+import { bind, play, setEnabled } from 'cuelume'
 import { loadSettings } from '@/lib/accessibility'
 
 /**
@@ -45,4 +45,30 @@ export function initSounds(): () => void {
   return () => {
     window.removeEventListener('accessibility-change', handleAccessibilityChange)
   }
+}
+
+/**
+ * Play a pleasant three-note confirmation chime — ideal for long-running
+ * process completion (ranking, scraping, expanding).
+ *
+ * Automatically respects the accessibility `reducedMotion` setting.
+ * Silent when sounds are disabled. Safe to call from any component
+ * (lazily initializes the Web Audio context).
+ */
+export function playCompletionSound(): void {
+  const settings = loadSettings()
+  if (settings.reducedMotion) return
+  play('success')
+}
+
+/**
+ * Play a gentle error sound — for when a process fails.
+ *
+ * Uses the warm 'droplet' glide (a falling tone) rather than a harsh
+ * alarm, keeping the UX pleasant.
+ */
+export function playErrorSound(): void {
+  const settings = loadSettings()
+  if (settings.reducedMotion) return
+  play('droplet')
 }

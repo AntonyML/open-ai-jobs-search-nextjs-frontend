@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
+import { addNotification } from '@/lib/notifications'
+import { playCompletionSound, playErrorSound } from '@/lib/sounds'
 
 interface HardSkillGap {
   skill: string
@@ -135,9 +137,20 @@ export default function UpskillPage() {
           const h = await apiFetch<UpskillSummary[]>('/api/v1/upskill/')
           setHistory(Array.isArray(h) ? h : [])
           if (result.status === 'completed') {
-            showSuccess(`Upskill complete — ${result.gap_heatmap.length} gaps identified, ${result.learning_plan.length} learning items`)
+            playCompletionSound()
+            const gaps = result.gap_heatmap.length
+            const planItems = result.learning_plan.length
+            showSuccess(`Upskill complete — ${gaps} gaps identified, ${planItems} learning items`)
+            addNotification({
+              pipeline: 'upskill',
+              description: `Identified ${gaps} skill gaps with ${planItems} learning plan items`,
+              status: 'success',
+            })
           } else {
-            showError(result.error_message || 'Upskill analysis failed')
+            playErrorSound()
+            const errMsg = result.error_message || 'Upskill analysis failed'
+            showError(errMsg)
+            addNotification({ pipeline: 'upskill', description: errMsg, status: 'error' })
           }
         }
       } catch {
@@ -160,8 +173,11 @@ export default function UpskillPage() {
       setPollId(result.id)
     } catch (x) {
       setRunning(false)
-      setError(x instanceof Error ? x.message : 'Request failed')
-      showError(x instanceof Error ? x.message : 'Request failed')
+      const msg = x instanceof Error ? x.message : 'Request failed'
+      playErrorSound()
+      showError(msg)
+      addNotification({ pipeline: 'upskill', description: msg, status: 'error' })
+      setError(msg)
     }
   }
 
