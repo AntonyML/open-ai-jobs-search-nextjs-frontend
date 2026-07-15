@@ -1,7 +1,8 @@
 'use client'
-import { FormEvent, useEffect, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
+import { useOrchestrator } from '@/lib/orchestrator'
 
 const FOCUS_TAGS = [
   'AI Engineering',
@@ -24,22 +25,37 @@ export default function Rank() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [elapsed, setElapsed] = useState(0)
-  const [progressMessage, setProgressMessage] = useState('Preparing the evaluation')
   const router = useRouter()
 
+  // Orchestrator hook for real-time progress
+  const { queue, isWorking, providers } = useOrchestrator()
+  const jobIdRef = useRef<string | null>(null)
+
+  // Load existing jobs on mount
   useEffect(() => {
     apiFetch<any>('/api/v1/rank/jobs')
       .then(x => setItems(Array.isArray(x) ? x : (x.items || x.jobs || [])))
       .catch(() => {})
   }, [])
 
+  // Re-fetch ranked jobs whenever the orchestrator completes a job
+  useEffect(() => {
+    if (!jobIdRef.current || !queue) return
+    // Check if our job is in completed list
+    const isDone = queue.recent_completed.some(j => j.id === jobIdRef.current || j.group_id === jobIdRef.current)
+    if (!isDone && queue.running_jobs.length > 0) return
+    // Refresh results
+    apiFetch<any>('/api/v1/rank/jobs')
+      .then(x => setItems(Array.isArray(x) ? x : (x.items || x.jobs || [])))
+      .catch(() => {})
+  }, [queue])
+
+  // Elapsed timer
   useEffect(() => {
     if (!loading) return
     const started = Date.now()
-    const messages = ['Preparing the evaluation', 'Reading your candidate profile', 'Comparing jobs against your experience', 'Calculating fit scores', 'Saving the ranking results']
     const timer = window.setInterval(() => {
       setElapsed(Math.floor((Date.now() - started) / 1000))
-      setProgressMessage(messages[Math.floor((Date.now() - started) / 7000) % messages.length])
     }, 1000)
     return () => window.clearInterval(timer)
   }, [loading])
@@ -49,31 +65,60 @@ export default function Rank() {
     setCustomFocus('')
   }
 
+  // Mounted ref for cleanup
+  const mountedRef = useRef(true)
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
+
   async function submit(e: FormEvent) {
     e.preventDefault()
     setLoading(true)
     setElapsed(0)
-    setProgressMessage('Preparing the evaluation')
     setError('')
+    setResult(null)
     try {
       const body: any = { top_n: topN, re_rank: reRank }
       const fa = customFocus.trim() || focusArea
       if (fa) body.focus_area = fa
       const data = await apiFetch<any>('/api/v1/rank/', { method: 'POST', body: JSON.stringify(body) })
-      localStorage.setItem('ranking_job_id', data.job_id)
+      jobIdRef.current = data.job_id
+
+      // Wait for the job to complete using adaptive polling
+      // Stops polling immediately if component unmounts
       let completed: any = null
       do {
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        if (!mountedRef.current) return
+        await new Promise(resolve => {
+          const timer = setTimeout(resolve, 2000)
+          // If component unmounts while waiting, clean up
+          if (!mountedRef.current) { clearTimeout(timer); resolve(undefined) }
+        })
+        if (!mountedRef.current) return
         completed = await apiFetch<any>(`/api/v1/rank/status/${data.job_id}`)
-      } while (completed.status === 'running')
-      if (completed.status === 'failed') throw new Error(completed.error || 'Ranking failed')
-      setResult(completed.result)
+      } while (completed?.status === 'running' || completed?.status === 'pending' && mountedRef.current)
+
+      if (!mountedRef.current) return
+
+      if (completed?.status === 'failed') {
+        throw new Error(completed.error || 'Ranking failed')
+      }
+
+      setResult(completed?.result || completed)
+
+      // Refresh jobs list
       const x = await apiFetch<any>('/api/v1/rank/jobs')
       setItems(Array.isArray(x) ? x : (x.items || x.jobs || []))
+
     } catch (x) {
+      if (!mountedRef.current) return
       setError(x instanceof Error ? x.message : 'Request failed')
     } finally {
-      setLoading(false)
+      if (mountedRef.current) {
+        setLoading(false)
+      }
+      jobIdRef.current = null
     }
   }
 
@@ -85,14 +130,18 @@ export default function Rank() {
   const scoreColor = (s: number) =>
     s >= 75 ? 'bg-emerald-400' : s >= 50 ? 'bg-cyan-400' : s >= 25 ? 'bg-amber-400' : 'bg-rose-400'
 
+  // Determine what's happening for the progress display
+  const runningJob = queue?.running_jobs[0]
+  const activeProvider = providers.find(p => p.provider === runningJob?.provider)
+
   return (
     <section className="mx-auto max-w-5xl">
-      <p className="text-xs font-bold uppercase tracking-[.25em] text-cyan-400">04 / EVALUATE</p>
-      <h2 className="mt-2 text-4xl font-bold tracking-tight text-white">Prioritize the best fits</h2>
+      <p className="eyebrow">04 / EVALUATE</p>
+      <h2 className="title">Prioritize the best fits</h2>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_1fr]">
         {/* Form */}
-        <form onSubmit={submit} className="rounded-3xl border border-slate-800 bg-slate-900 p-6 space-y-6">
+        <form onSubmit={submit} className="card space-y-6">
 
           {/* Focus area tags */}
           <div>
@@ -161,18 +210,78 @@ export default function Rank() {
           </div>
 
           <button disabled={loading} className="btn-primary w-full">
-            {loading ? 'Working…' : 'Rank jobs'}
+            {loading ? 'Ranking…' : 'Rank jobs'}
           </button>
+
+          {/* Progressive progress display with real orchestrator info */}
           {loading && (
             <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-4" role="status" aria-live="polite">
+              {/* Active provider & model */}
+              {runningJob && runningJob.provider && (
+                <div className="mb-2 flex items-center gap-2 text-[11px] text-cyan-200">
+                  <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+                  <span className="font-medium">{runningJob.provider}</span>
+                  <span className="text-cyan-300/60">·</span>
+                  <span>{runningJob.model || 'processing'}</span>
+                </div>
+              )}
+
+              {/* Progress message */}
               <div className="flex items-center gap-3 text-sm text-cyan-200">
                 <span className="h-3 w-3 animate-pulse rounded-full bg-cyan-400" />
-                <span>{progressMessage}<span className="inline-block w-6 text-left animate-pulse">...</span></span>
+                <span>
+                  {runningJob?.description || 'Evaluating jobs'}
+                  <span className="inline-block w-6 text-left animate-pulse">...</span>
+                </span>
               </div>
-              <p className="mt-2 text-xs text-slate-500">Elapsed time: {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}</p>
-              <p className="mt-1 text-xs text-slate-600">The model is working through the selected jobs. You can leave this tab open.</p>
+
+              {/* Elapsed time */}
+              <p className="mt-2 text-xs text-slate-500">
+                Elapsed: {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}
+              </p>
+
+              {/* Queue stats from orchestrator */}
+              {queue && (
+                <div className="mt-2 flex gap-3 text-[10px] text-slate-500">
+                  <span>{queue.running_jobs.length} running</span>
+                  <span>{queue.pending_jobs.length} queued</span>
+                  <span>{queue.total_completed} completed</span>
+                  <span>{queue.total_failed} failed</span>
+                </div>
+              )}
+
+              {/* Active provider health */}
+              {activeProvider && activeProvider.health_score < 0.8 && (
+                <div className="mt-2 rounded-lg border border-amber-400/20 bg-amber-400/5 px-2.5 py-1.5 text-[10px] text-amber-300">
+                  {activeProvider.provider} health: {Math.round(activeProvider.health_score * 100)}%
+                  {activeProvider.last_error_code === 'rate_limit' && ' · Rate limited, switching model'}
+                </div>
+              )}
+
+              {/* Live-updating results that appear progressively */}
+              {items.filter(x => x.rank_score != null).length > 0 && (
+                <div className="mt-3 border-t border-cyan-400/10 pt-2">
+                  <p className="text-[10px] text-slate-500 mb-1">
+                    {items.filter(x => x.rank_score != null).length} jobs evaluated so far:
+                  </p>
+                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                    {items
+                      .filter(x => x.rank_score != null)
+                      .slice(-5)
+                      .reverse()
+                      .map((x, i) => (
+                        <div key={i} className="flex items-center gap-2 text-[10px] text-slate-400">
+                          <span className={`h-1.5 w-1.5 rounded-full ${scoreColor(x.rank_score)}`} />
+                          <span className="truncate">{x.title || x.job_title}</span>
+                          <span className="shrink-0 font-medium text-slate-300">{x.rank_score}</span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
+
           {error && <p className="text-sm text-rose-400">{error}</p>}
         </form>
 
