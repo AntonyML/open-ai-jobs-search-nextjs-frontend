@@ -2,19 +2,17 @@
  * Orchestrator API client & hooks
  *
  * Synchronizes the frontend with the backend LLMOrchestrator.
- * Provides adaptive polling — fast during active jobs, slow when idle.
+ * Uses WebSocket for real-time queue status updates — no polling.
  *
  * Architecture:
  * - useOrchestrator(): main hook returning full state + action functions
+ *   - Connects to ws://<api>/api/v1/orchestrator/ws?token=<jwt>
+ *   - Receives QueueStatus JSON whenever the execution queue state changes
+ *   - Falls back to polling if WebSocket fails to connect
  * - Types mirror backend schemas (QueueStatusOut, ProviderHealthOut, etc.)
- * - Adaptive polling intervals: running=2s, queued=4s, idle=15s, error=8s
  *
- * 422 Error Fix:
- * The backend ``get_current_user`` dependency used ``Header(...)`` (required),
- * which caused FastAPI to return 422 when the auth header was missing (e.g.
- * during initial page load before ``localStorage`` is populated).
- * The backend was fixed to use ``Header(None)`` and return 401 instead.
- * The frontend catches 401 errors gracefully and returns null/empty state.
+ * Provider/model health is still fetched via HTTP on mount (it changes
+ * infrequently and doesn't warrant a separate WebSocket channel).
  */
 
 'use client'
@@ -91,9 +89,9 @@ export interface QueueStatus {
 }
 
 export interface OrchestratorState {
-  /** Queue status (fetched from /queue) */
+  /** Queue status (pushed via WebSocket) */
   queue: QueueStatus | null
-  /** Provider health (fetched from /providers) */
+  /** Provider health (fetched via HTTP on mount) */
   providers: ProviderHealth[]
   /** Model health aggregated from all providers */
   models: ModelHealth[]
@@ -107,6 +105,8 @@ export interface OrchestratorState {
   error: string | null
   /** Last error per provider for friendly messages */
   providerErrors: Record<string, string>
+  /** WebSocket connection state */
+  wsConnected: boolean
 }
 
 // ── Friendly error messages ────────────────────────────────────────
@@ -123,30 +123,29 @@ function friendlyError(provider: string, code: string | null, message: string | 
   return `${provider}: ${clean}`
 }
 
-// ── Adaptive polling hook ──────────────────────────────────────────
+// ── WebSocket URL helper ───────────────────────────────────────────
 
-const POLL_INTERVALS = {
-  running: 2000,   // 2s — actively processing
-  queued: 4000,    // 4s — jobs waiting
-  idle: 15000,     // 15s — nothing happening
-  error: 8000,     // 8s — after an error
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+
+function wsUrl(): string {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
+  if (!token) return ''
+  const base = API_BASE.replace(/^http/, 'ws')
+  return `${base}/api/v1/orchestrator/ws?token=${encodeURIComponent(token)}`
 }
 
-/**
- * Determine the current polling interval based on queue state.
- */
-function getPollInterval(queue: QueueStatus | null): number {
-  if (!queue) return POLL_INTERVALS.idle
-  if (queue.running_jobs.length > 0) return POLL_INTERVALS.running
-  if (queue.pending_jobs.length > 0 && !queue.paused) return POLL_INTERVALS.queued
-  return POLL_INTERVALS.idle
-}
+// ── WebSocket reconnection settings ────────────────────────────────
+
+const WS_RECONNECT_DELAY_MS = 3000
+const POLL_FALLBACK_MS = 5000
 
 /**
  * Main orchestrator hook.
  *
+ * Connects to the backend via WebSocket for real-time queue status updates.
+ * Falls back to HTTP polling if the WebSocket connection fails.
+ *
  * Returns the full orchestrator state and action functions.
- * Adaptively polls the backend: faster when jobs are running, slower when idle.
  */
 export function useOrchestrator() {
   const [state, setState] = useState<OrchestratorState>({
@@ -158,21 +157,22 @@ export function useOrchestrator() {
     loading: true,
     error: null,
     providerErrors: {},
+    wsConnected: false,
   })
   const mountedRef = useRef(true)
+  const wsRef = useRef<WebSocket | null>(null)
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // ── Fetch all orchestrator data ──────────────────────────────────
+  // ── Fetch providers / models (HTTP — infrequent data) ──────────
 
-  const fetchAll = useCallback(async () => {
+  const fetchProviders = useCallback(async () => {
     try {
-      const [queueRes, providersRes] = await Promise.all([
-        apiFetch<QueueStatus>('/api/v1/orchestrator/queue').catch(() => null),
+      const [providersRes] = await Promise.all([
         apiFetch<{ providers: ProviderHealth[] }>('/api/v1/orchestrator/providers').catch(() => ({ providers: [] })),
       ])
 
       if (!mountedRef.current) return
 
-      // Fetch models for each provider that has health data
       const modelPromises = (providersRes?.providers ?? []).map(p =>
         apiFetch<{ provider: string; models: ModelHealth[] }>(`/api/v1/orchestrator/models?provider=${p.provider}`)
           .catch(() => ({ provider: p.provider, models: [] }))
@@ -180,7 +180,8 @@ export function useOrchestrator() {
       const modelResults = await Promise.all(modelPromises)
       const allModels = modelResults.flatMap(r => r.models ?? [])
 
-      // Build friendly provider errors
+      const isCooldown = (providersRes?.providers ?? []).some(p => p.status === 'cooldown')
+
       const providerErrors: Record<string, string> = {}
       for (const p of providersRes?.providers ?? []) {
         if (p.last_error || p.status === 'cooldown') {
@@ -188,58 +189,145 @@ export function useOrchestrator() {
         }
       }
 
-      const isWorking = (queueRes?.running_jobs.length ?? 0) > 0
-      const isCooldown = (providersRes?.providers ?? []).some(p => p.status === 'cooldown')
-
-      setState({
-        queue: queueRes,
+      setState(prev => ({
+        ...prev,
         providers: providersRes?.providers ?? [],
         models: allModels,
-        isWorking,
         isCooldown,
-        loading: false,
-        error: null,
         providerErrors,
-      })
+      }))
     } catch (err) {
       if (!mountedRef.current) return
       setState(prev => ({
         ...prev,
-        loading: false,
-        error: err instanceof Error ? err.message : 'Failed to fetch orchestrator status',
+        error: err instanceof Error ? err.message : 'Failed to fetch provider status',
       }))
     }
   }, [])
 
-  // ── Adaptive polling loop ────────────────────────────────────────
-  // Uses a single setTimeout chain that re-evaluates the delay after each fetch.
-  // This avoids multiple intervals coexisting and stale closure issues.
-  // Initial fetch is chained with .then() to prevent race with first poll timeout.
+  // ── WebSocket connection management ────────────────────────────
 
-  const stateRef = useRef(state)
-  stateRef.current = state
+  const connectWs = useCallback(() => {
+    if (!mountedRef.current) return
+    if (wsRef.current?.readyState === WebSocket.OPEN) return
+
+    const url = wsUrl()
+    if (!url) return // No token yet
+
+    try {
+      const ws = new WebSocket(url)
+      wsRef.current = ws
+
+      ws.onopen = () => {
+        if (!mountedRef.current) { ws.close(); return }
+        setState(prev => ({ ...prev, wsConnected: true, loading: false, error: null }))
+      }
+
+      ws.onmessage = (event) => {
+        if (!mountedRef.current) return
+        try {
+          const queue: QueueStatus = JSON.parse(event.data)
+          const isWorking = queue.running_jobs.length > 0
+          setState(prev => ({
+            ...prev,
+            queue,
+            isWorking,
+            loading: false,
+            error: null,
+          }))
+        } catch {
+          // Ignore malformed messages
+        }
+      }
+
+      ws.onerror = () => {
+        // onclose will fire after onerror, so we handle reconnection there
+      }
+
+      ws.onclose = () => {
+        wsRef.current = null
+        if (!mountedRef.current) return
+        setState(prev => ({ ...prev, wsConnected: false }))
+
+        // Schedule reconnection
+        if (!reconnectTimerRef.current) {
+          reconnectTimerRef.current = setTimeout(() => {
+            reconnectTimerRef.current = null
+            connectWs()
+          }, WS_RECONNECT_DELAY_MS)
+        }
+      }
+    } catch {
+      // WebSocket constructor can throw if the URL is invalid
+      if (!mountedRef.current) return
+      setState(prev => ({ ...prev, wsConnected: false }))
+
+      // Fall back to polling
+      if (!reconnectTimerRef.current) {
+        reconnectTimerRef.current = setTimeout(() => {
+          reconnectTimerRef.current = null
+          connectWs()
+        }, WS_RECONNECT_DELAY_MS)
+      }
+    }
+  }, [])
+
+  // ── Initial fetch + WebSocket connection ───────────────────────
 
   useEffect(() => {
     mountedRef.current = true
-    let timeoutId: ReturnType<typeof setTimeout> | null = null
 
-    const poll = async () => {
-      await fetchAll()
-      if (!mountedRef.current) return
-      const nextDelay = getPollInterval(stateRef.current.queue)
-      timeoutId = setTimeout(poll, nextDelay)
-    }
+    // Fetch providers/models once on mount
+    fetchProviders()
 
-    // Chain initial fetch so the first poll doesn't race with it
-    fetchAll().then(() => {
-      timeoutId = setTimeout(poll, getPollInterval(stateRef.current.queue))
-    })
+    // Connect WebSocket
+    const timer = setTimeout(connectWs, 100) // Small delay to ensure token is ready
 
     return () => {
       mountedRef.current = false
-      if (timeoutId) clearTimeout(timeoutId)
+      clearTimeout(timer)
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current)
+        reconnectTimerRef.current = null
+      }
+      if (wsRef.current) {
+        wsRef.current.onclose = null // Prevent reconnect on intentional close
+        wsRef.current.close()
+        wsRef.current = null
+      }
     }
-  }, [fetchAll])
+  }, [connectWs, fetchProviders])
+
+  // ── Polling fallback (when WebSocket is disconnected) ──────────
+
+  useEffect(() => {
+    if (state.wsConnected) return // Don't poll when WS is active
+
+    const poll = async () => {
+      try {
+        const data = await apiFetch<QueueStatus>('/api/v1/orchestrator/queue')
+        if (!mountedRef.current) return
+        const isWorking = data.running_jobs.length > 0
+        setState(prev => ({
+          ...prev,
+          queue: data,
+          isWorking,
+          loading: false,
+          error: null,
+        }))
+      } catch {
+        // Silently ignore — WS will reconnect
+      }
+    }
+
+    // Initial poll if no data yet
+    if (!state.queue) {
+      poll()
+    }
+
+    const timer = setInterval(poll, POLL_FALLBACK_MS)
+    return () => clearInterval(timer)
+  }, [state.wsConnected, state.queue])
 
   // ── Action functions ─────────────────────────────────────────────
 
@@ -248,40 +336,36 @@ export function useOrchestrator() {
       method: 'POST',
       body: JSON.stringify({ action: 'pause' }),
     })
-    await fetchAll()
-  }, [fetchAll])
+    // The WebSocket will push the updated state
+  }, [])
 
   const resumeQueue = useCallback(async () => {
     await apiFetch('/api/v1/orchestrator/queue/control', {
       method: 'POST',
       body: JSON.stringify({ action: 'resume' }),
     })
-    await fetchAll()
-  }, [fetchAll])
+  }, [])
 
   const cancelJob = useCallback(async (jobId: string) => {
     await apiFetch('/api/v1/orchestrator/queue/control', {
       method: 'POST',
       body: JSON.stringify({ action: 'cancel', job_id: jobId }),
     })
-    await fetchAll()
-  }, [fetchAll])
+  }, [])
 
   const cancelAll = useCallback(async () => {
     await apiFetch('/api/v1/orchestrator/queue/control', {
       method: 'POST',
       body: JSON.stringify({ action: 'cancel' }),
     })
-    await fetchAll()
-  }, [fetchAll])
+  }, [])
 
   const retryFailed = useCallback(async (jobId?: string) => {
     await apiFetch('/api/v1/orchestrator/queue/control', {
       method: 'POST',
       body: JSON.stringify({ action: 'retry_failed', job_id: jobId }),
     })
-    await fetchAll()
-  }, [fetchAll])
+  }, [])
 
   const resetPipeline = useCallback(async () => {
     const res = await apiFetch<{ status: string; total_deleted: number; message: string }>('/api/v1/pipeline-reset/', {
@@ -298,42 +382,17 @@ export function useOrchestrator() {
     cancelAll,
     retryFailed,
     resetPipeline,
-    refresh: fetchAll,
+    refresh: fetchProviders,
   }
 }
 
 /**
- * Lightweight hook that only fetches the queue status on a fixed interval.
- * Less data than useOrchestrator — ideal for pages that just need job progress.
- * Does NOT poll providers or models, so it's cheaper on the backend.
+ * Lightweight hook that uses the same QueueStatus but doesn't fetch
+ * providers/models — ideal for pages that just need job progress.
  */
 export function useQueueStatus(pollMs: number = 2000) {
-  const [queue, setQueue] = useState<QueueStatus | null>(null)
-  const [loading, setLoading] = useState(true)
-  const mountedRef = useRef(true)
-
-  useEffect(() => {
-    mountedRef.current = true
-    const poll = async () => {
-      try {
-        const data = await apiFetch<QueueStatus>('/api/v1/orchestrator/queue')
-        if (mountedRef.current) {
-          setQueue(data)
-          setLoading(false)
-        }
-      } catch {
-        if (mountedRef.current) setLoading(false)
-      }
-    }
-    poll()
-    const timer = setInterval(poll, pollMs)
-    return () => {
-      mountedRef.current = false
-      clearInterval(timer)
-    }
-  }, [pollMs])
-
-  return { queue, loading }
+  const { queue, loading, wsConnected } = useOrchestrator()
+  return { queue, loading, wsConnected }
 }
 
 // ── Helpers for status display ─────────────────────────────────────

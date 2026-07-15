@@ -33,6 +33,9 @@ export default function Rank() {
   // Orchestrator hook for real-time progress
   const { queue, providers } = useOrchestrator()
   const jobIdRef = useRef<string | null>(null)
+  /** Resolve/reject for the Promise that waits for job completion via WebSocket */
+  const resolveJobRef = useRef<((status: any) => void) | null>(null)
+  const rejectJobRef = useRef<((err: Error) => void) | null>(null)
 
   // Load existing jobs on mount
   useEffect(() => {
@@ -41,14 +44,37 @@ export default function Rank() {
       .catch(() => {})
   }, [])
 
-  // Re-fetch ranked jobs whenever the orchestrator completes a job
+  // Re-fetch ranked jobs & resolve the submit Promise when job completes
+  // (triggered by WebSocket queue updates — no polling needed)
   useEffect(() => {
     if (!jobIdRef.current || !queue) return
-    const isDone = queue.recent_completed.some(j => j.id === jobIdRef.current || j.group_id === jobIdRef.current)
-    if (!isDone && queue.running_jobs.length > 0) return
-    apiFetch<any>('/api/v1/rank/jobs')
-      .then(x => setItems(Array.isArray(x) ? x : (x.items || x.jobs || [])))
-      .catch(() => {})
+
+    const completedJob = queue.recent_completed.find(j => j.id === jobIdRef.current)
+    if (completedJob) {
+      const resolve = resolveJobRef.current
+      resolveJobRef.current = null
+      if (resolve) {
+        fetch(`/api/v1/rank/status/${jobIdRef.current}`)
+          .then(r => r.json())
+          .then(resolve)
+          .catch(() => {
+            apiFetch<any>('/api/v1/rank/jobs').then(x => {
+              const items = Array.isArray(x) ? x : (x.items || x.jobs || [])
+              resolve({ status: 'completed', result: { ranked_count: items.filter((i: any) => i.rank_score != null).length } })
+            }).catch(() => resolve({ status: 'completed' }))
+          })
+      }
+      return
+    }
+
+    // Check if job failed
+    const failedJob = [...queue.recent_completed, ...queue.pending_jobs]
+      .find(j => j.id === jobIdRef.current && j.status === 'failed')
+    if (failedJob) {
+      const reject = rejectJobRef.current
+      rejectJobRef.current = null
+      if (reject) reject(new Error(failedJob.last_error || 'Ranking failed'))
+    }
   }, [queue])
 
   // Merge salary data from result.shortlist into items
@@ -89,10 +115,19 @@ export default function Rank() {
     setCustomFocus('')
   }
 
+  const submittingRef = useRef(false)
   const mountedRef = useRef(true)
   useEffect(() => {
     mountedRef.current = true
-    return () => { mountedRef.current = false }
+    return () => {
+      mountedRef.current = false
+      // Reject any pending job completion Promise
+      if (rejectJobRef.current) {
+        rejectJobRef.current(new Error('Component unmounted'))
+        resolveJobRef.current = null
+        rejectJobRef.current = null
+      }
+    }
   }, [])
 
   // ── Pagination ─────────────────────────────────────────────────
@@ -109,6 +144,8 @@ export default function Rank() {
 
   async function submit(e: FormEvent) {
     e.preventDefault()
+    if (submittingRef.current) return // Guard against double-submit
+    submittingRef.current = true
     setLoading(true)
     setElapsed(0)
     setError('')
@@ -120,16 +157,20 @@ export default function Rank() {
       const data = await apiFetch<any>('/api/v1/rank/', { method: 'POST', body: JSON.stringify(body) })
       jobIdRef.current = data.job_id
 
-      let completed: any = null
-      do {
-        if (!mountedRef.current) return
-        await new Promise(resolve => {
-          const timer = setTimeout(resolve, 2000)
-          if (!mountedRef.current) { clearTimeout(timer); resolve(undefined) }
-        })
-        if (!mountedRef.current) return
-        completed = await apiFetch<any>(`/api/v1/rank/status/${data.job_id}`)
-      } while (completed?.status === 'running' || completed?.status === 'pending' && mountedRef.current)
+      // Wait for completion via WebSocket-driven queue updates
+      // The useEffect above watches queue and resolves this Promise
+      const completed = await new Promise<any>((resolve, reject) => {
+        resolveJobRef.current = resolve
+        rejectJobRef.current = reject
+        // Safety timeout
+        setTimeout(() => {
+          if (resolveJobRef.current) {
+            resolveJobRef.current = null
+            rejectJobRef.current = null
+            reject(new Error('Ranking timed out'))
+          }
+        }, 10 * 60 * 1000)
+      })
 
       if (!mountedRef.current) return
 
@@ -170,6 +211,7 @@ export default function Rank() {
         setLoading(false)
       }
       jobIdRef.current = null
+      submittingRef.current = false
     }
   }
 
