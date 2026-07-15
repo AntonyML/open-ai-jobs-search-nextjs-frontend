@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
-import { playCompletionSound, playErrorSound } from '@/lib/sounds'
+import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 
 interface Expansion {
   id: string
@@ -55,7 +55,7 @@ export default function ExpandPage() {
           const h = await apiFetch<any>('/api/v1/expand/')
           setHistory(Array.isArray(h) ? h : [])
           if (exp.status === 'completed') {
-            playCompletionSound()
+            playPipelineSound('expand')
             const count = exp.proposed_additions.length
             showSuccess(`Expansion complete — ${count} skills discovered`)
             addNotification({

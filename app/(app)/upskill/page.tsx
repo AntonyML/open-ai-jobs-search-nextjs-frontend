@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
-import { playCompletionSound, playErrorSound } from '@/lib/sounds'
+import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 
 interface HardSkillGap {
   skill: string
@@ -137,7 +137,7 @@ export default function UpskillPage() {
           const h = await apiFetch<UpskillSummary[]>('/api/v1/upskill/')
           setHistory(Array.isArray(h) ? h : [])
           if (result.status === 'completed') {
-            playCompletionSound()
+            playPipelineSound('upskill')
             const gaps = result.gap_heatmap.length
             const planItems = result.learning_plan.length
             showSuccess(`Upskill complete — ${gaps} gaps identified, ${planItems} learning items`)

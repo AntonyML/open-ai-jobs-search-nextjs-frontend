@@ -3,6 +3,8 @@ import { FormEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
+import { addNotification } from '@/lib/notifications'
+import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 
 type Props = {
   title: string
@@ -64,10 +66,20 @@ export default function PipelinePage({
       setResult(data)
       if (listEndpoint)
         setItems(normalize(await apiFetch<any>(listEndpoint)))
+      const pipeline = endpoint.replace('/api/v1/', '').replace('/', '')
+      playPipelineSound(pipeline)
+      addNotification({
+        pipeline,
+        description: `${title} completed`,
+        status: 'success',
+      })
     } catch (x) {
       const msg = x instanceof Error ? x.message : 'Request failed'
       setError(msg)
+      playErrorSound()
       showError(msg)
+      const pipeline = endpoint.replace('/api/v1/', '').replace('/', '')
+      addNotification({ pipeline, description: msg, status: 'error' })
     } finally {
       setLoading(false)
     }

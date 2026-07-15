@@ -47,18 +47,42 @@ export function initSounds(): () => void {
   }
 }
 
+/** Map of pipeline names to distinct cuelume sound recipes.
+ *
+ * Each pipeline gets its own sonic identity so users can tell
+ * which process completed without looking at the screen.
+ */
+const PIPELINE_SOUNDS: Record<string, 'sparkle' | 'success' | 'bloom' | 'chime' | 'toggle'> = {
+  scrape: 'sparkle',    // bright ascending twinkle — discovery
+  rank: 'success',      // warm three-note confirmation — evaluation done
+  expand: 'bloom',      // warm swelling pad — skills growing
+  upskill: 'chime',     // soft two-note bell — clean learning
+  apply: 'toggle',      // mechanical click-clack — action dispatched
+  interview: 'sparkle', // bright ascending twinkle — preparation complete
+}
+
 /**
- * Play a pleasant three-note confirmation chime — ideal for long-running
- * process completion (ranking, scraping, expanding).
+ * Play a pipeline-specific completion sound.
+ *
+ * Each pipeline (scrape, rank, expand, upskill, apply, interview)
+ * has its own distinct sonic identity. Falls back to `'success'`
+ * for unknown pipelines.
  *
  * Automatically respects the accessibility `reducedMotion` setting.
- * Silent when sounds are disabled. Safe to call from any component
- * (lazily initializes the Web Audio context).
  */
-export function playCompletionSound(): void {
+function areSoundsEnabled(): boolean {
   const settings = loadSettings()
-  if (settings.reducedMotion) return
-  play('success')
+  return !settings.reducedMotion && settings.soundEnabled
+}
+
+export function playPipelineSound(pipeline: string): void {
+  if (!areSoundsEnabled()) return
+  play(PIPELINE_SOUNDS[pipeline] || 'success')
+}
+
+/** @deprecated Use `playPipelineSound(pipeline)` instead. */
+export function playCompletionSound(): void {
+  playPipelineSound('rank')
 }
 
 /**
@@ -68,7 +92,6 @@ export function playCompletionSound(): void {
  * alarm, keeping the UX pleasant.
  */
 export function playErrorSound(): void {
-  const settings = loadSettings()
-  if (settings.reducedMotion) return
+  if (!areSoundsEnabled()) return
   play('droplet')
 }

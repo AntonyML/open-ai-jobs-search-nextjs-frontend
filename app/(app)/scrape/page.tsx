@@ -5,7 +5,7 @@ import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
-import { playCompletionSound, playErrorSound } from '@/lib/sounds'
+import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 
 const PORTALS = ['linkedin', 'freehire', 'jobbank', 'jobdanmark', 'jobindex', 'jobnet']
 
@@ -58,7 +58,7 @@ export default function Scrape() {
       if (!steps.includes(2)) {
         localStorage.setItem('completed_steps', JSON.stringify([...steps, 2]))
       }
-      playCompletionSound()
+      playPipelineSound('scrape')
       const jobCount = data.jobs_found ?? 0
       showSuccess(`${jobCount} jobs found! Step 3 completed.`)
       addNotification({

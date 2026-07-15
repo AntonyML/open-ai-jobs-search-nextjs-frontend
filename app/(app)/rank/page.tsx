@@ -3,7 +3,7 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
 import { useOrchestrator } from '@/lib/orchestrator'
-import { playCompletionSound, playErrorSound } from '@/lib/sounds'
+import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
 
@@ -191,7 +191,7 @@ export default function Rank() {
         return
       }
 
-      playCompletionSound()
+      playPipelineSound('rank')
       const rankData = completed?.result || completed
       setResult(rankData)
 

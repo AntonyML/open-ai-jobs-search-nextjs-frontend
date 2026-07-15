@@ -140,6 +140,14 @@ const IconFont = () => (
   </svg>
 )
 
+const IconSound = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+  </svg>
+)
+
 // ── Main Component ─────────────────────────────────────────────────
 
 export default function AccessibilitySettings() {
@@ -276,6 +284,15 @@ export default function AccessibilitySettings() {
             enabled={settings.reducedMotion}
             onChange={v => update('reducedMotion', v)}
             icon={<IconMotion />}
+          />
+
+          {/* Sound effects */}
+          <Toggle
+            label="Sonidos"
+            description="Reproducir sonidos al completar procesos (ranking, scrape, etc.)"
+            enabled={settings.soundEnabled}
+            onChange={v => update('soundEnabled', v)}
+            icon={<IconSound />}
           />
 
           {/* Dyslexia font */}

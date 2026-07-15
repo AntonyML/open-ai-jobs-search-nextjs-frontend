@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
+import { addNotification } from '@/lib/notifications'
+import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 
 // ── Types ───────────────────────────────────────────────────────────
 
@@ -129,9 +131,18 @@ export default function InterviewPage() {
       const p = await apiFetch<InterviewPrepSummary[]>('/api/v1/interview/').catch(() => [])
       if (Array.isArray(p)) setPreps(p)
 
+      playPipelineSound('interview')
       showSuccess('Interview prep generated!')
+      addNotification({
+        pipeline: 'interview',
+        description: `Prep pack generated for ${form.stage} stage`,
+        status: 'success',
+      })
     } catch (x) {
-      showError(x instanceof Error ? x.message : 'Failed to generate prep')
+      const msg = x instanceof Error ? x.message : 'Failed to generate prep'
+      playErrorSound()
+      addNotification({ pipeline: 'interview', description: msg, status: 'error' })
+      showError(msg)
     } finally {
       setGenerating(false)
     }
@@ -180,10 +191,22 @@ export default function InterviewPage() {
           body: JSON.stringify({ user_answer: mockAnswer }),
         }
       )
+      // If this was the last question, notify
+      if (result.is_complete) {
+        playPipelineSound('interview')
+        addNotification({
+          pipeline: 'interview',
+          description: `Mock interview complete — ${result.total_questions} questions answered`,
+          status: 'success',
+        })
+      }
       setMockState(result)
       setMockAnswer('')
     } catch (x) {
-      showError(x instanceof Error ? x.message : 'Failed to submit answer')
+      const msg = x instanceof Error ? x.message : 'Failed to submit answer'
+      playErrorSound()
+      addNotification({ pipeline: 'interview', description: msg, status: 'error' })
+      showError(msg)
     } finally {
       setMockLoading(false)
     }

@@ -7,6 +7,7 @@
  * - letterSpacing: additional tracking in em (0 = normal, 0.05 = relaxed, 0.1 = wide)
  * - highContrast: increase contrast ratio for readability
  * - reducedMotion: disable animations and transitions
+ * - soundEnabled: enable/disable sound effects (separate from reducedMotion)
  * - dyslexiaFont: use OpenDyslexic-style font family
  * - fontFamily: override font family (system, serif, sans-serif)
  */
@@ -17,6 +18,7 @@ export interface AccessibilitySettings {
   letterSpacing: number // 0 | 0.03 | 0.06 | 0.1
   highContrast: boolean
   reducedMotion: boolean
+  soundEnabled: boolean
   dyslexiaFont: boolean
   fontFamily: 'system' | 'serif' | 'sans-serif'
 }
@@ -29,6 +31,7 @@ export const DEFAULT_SETTINGS: AccessibilitySettings = {
   letterSpacing: 0,
   highContrast: false,
   reducedMotion: false,
+  soundEnabled: true,
   dyslexiaFont: false,
   fontFamily: 'system',
 }
