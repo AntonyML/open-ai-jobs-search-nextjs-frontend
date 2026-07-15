@@ -7,6 +7,12 @@ import { showSuccess, showError } from '@/lib/toasts'
 
 // ── Types ──────────────────────────────────────────────────────────
 
+interface ProjectEntry {
+  _id: string
+  name: string
+  description: string
+}
+
 interface EducationEntry {
   _id: string
   degree: string
@@ -52,6 +58,10 @@ interface BehavioralProfile {
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
+function emptyProject(): ProjectEntry {
+  return { _id: generateId(), name: '', description: '' }
+}
+
 function emptyEducation(): EducationEntry {
   return { _id: generateId(), degree: '', institution: '', period: '', key_topics: '' }
 }
@@ -86,6 +96,9 @@ export default function Setup() {
     profile_statement: '',
   })
 
+  // ── Project entries (dynamic array) ──────────────────────────
+  const [projects, setProjects] = useState<ProjectEntry[]>([emptyProject()])
+
   // ── Education entries (dynamic array) ─────────────────────────
   const [educations, setEducations] = useState<EducationEntry[]>([emptyEducation()])
 
@@ -110,6 +123,30 @@ export default function Setup() {
     use_for: '',
   })
 
+  // ── Projects collapse state ──────────────────────────────────
+  const [openProjectCards, setOpenProjectCards] = useState<Set<string>>(new Set())
+
+  function toggleProjectCard(id: string) {
+    setOpenProjectCards(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  // ── Experience collapse state ────────────────────────────────
+  const [openExpCards, setOpenExpCards] = useState<Set<string>>(new Set())
+
+  function toggleExpCard(id: string) {
+    setOpenExpCards(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
   // ── Education collapse state (track open card IDs) ───────────
   const [openEduCards, setOpenEduCards] = useState<Set<string>>(new Set())
 
@@ -120,6 +157,19 @@ export default function Setup() {
       else next.add(id)
       return next
     })
+  }
+
+  // ── Projects helpers ─────────────────────────────────────────
+  function updateProject(id: string, key: keyof ProjectEntry, value: string) {
+    setProjects(prev => prev.map(p => (p._id === id ? { ...p, [key]: value } : p)))
+  }
+
+  function addProject() {
+    setProjects(prev => [...prev, emptyProject()])
+  }
+
+  function removeProject(id: string) {
+    setProjects(prev => prev.filter(p => p._id !== id))
   }
 
   // ── Education helpers ─────────────────────────────────────────
@@ -189,6 +239,19 @@ export default function Setup() {
             profile_statement: profile.profile_statement ?? '',
           })
 
+          // Load all project entries
+          if (profile.projects?.length) {
+            setProjects(
+              profile.projects.map((p: any) => ({
+                _id: generateId(),
+                name: p.name ?? '',
+                description: p.description ?? '',
+              }))
+            )
+          } else {
+            setProjects([emptyProject()])
+          }
+
           // Load all education entries
           if (profile.education?.length) {
             setEducations(
@@ -247,6 +310,14 @@ export default function Setup() {
     if (form.phone) payload.phone = form.phone
     if (form.location) payload.location = form.location
     if (experiencePayload.length) payload.experience = experiencePayload
+    const projectPayload = projects
+      .filter(p => p.name.trim())
+      .map(p => ({
+        name: p.name.trim(),
+        description: p.description.trim() || undefined,
+      }))
+    if (projectPayload.length) payload.projects = projectPayload
+
     const educationPayload = educations
       .filter(e => e.degree.trim())
       .map(e => ({
@@ -372,22 +443,12 @@ export default function Setup() {
   return (
     <section className="mx-auto max-w-5xl">
       {/* ── Header ─────────────────────────────────────────────── */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <p className="eyebrow">02 / PROFILE</p>
-          <h2 className="title">Build your candidate profile</h2>
-          <p className="mt-2 text-sm text-[#858585]">
-            Fill in your details so the AI can tailor applications to each job.
-          </p>
-        </div>
-        {saved && (
-          <button
-            onClick={() => router.push('/scrape')}
-            className="btn-primary shrink-0"
-          >
-            Continue to Scrape →
-          </button>
-        )}
+      <div className="mb-8">
+        <p className="eyebrow">02 / PROFILE</p>
+        <h2 className="title">Build your candidate profile</h2>
+        <p className="mt-2 text-sm text-[#858585]">
+          Fill in your details so the AI can tailor applications to each job.
+        </p>
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
@@ -496,98 +557,118 @@ export default function Setup() {
             )}
 
             <div className="space-y-4">
-              {experiences.map((exp, idx) => (
-                <div
-                  key={exp._id}
-                  className="animate-fade-in-up rounded-xl border border-[#e2e2e5] bg-[#fafafa] overflow-hidden"
-                >
-                  {/* Card header */}
-                  <div className="flex items-center justify-between border-b border-[#e2e2e5] bg-white px-4 py-2.5">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-semibold text-emerald-700">
-                        {idx + 1}
-                      </span>
-                      <span className="text-[13px] font-medium text-[#474747]">
-                        {exp.title || `Position ${idx + 1}`}
-                      </span>
-                      {!exp.title.trim() && (
-                        <span className="text-[11px] text-[#b0b0b0]">— not filled</span>
-                      )}
-                    </div>
+              {experiences.map((exp, idx) => {
+                const isOpen = openExpCards.has(exp._id)
+                return (
+                  <div
+                    key={exp._id}
+                    className="animate-fade-in-up rounded-xl border border-[#e2e2e5] bg-white overflow-hidden"
+                  >
+                    {/* Clickable header — toggles collapse */}
                     <button
                       type="button"
-                      onClick={() => removeExperience(exp._id)}
-                      className="flex h-6 w-6 items-center justify-center rounded-full text-[#b0b0b0] hover:bg-rose-50 hover:text-rose-400 transition-all"
-                      title="Remove"
+                      onClick={() => toggleExpCard(exp._id)}
+                      className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-[#fafafa] transition-colors"
                     >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-semibold text-emerald-700">
+                          {idx + 1}
+                        </span>
+                        <span className="text-[13px] font-medium text-[#474747]">
+                          {exp.title || `Position ${idx + 1}`}
+                        </span>
+                        {!exp.title.trim() && (
+                          <span className="text-[11px] text-[#b0b0b0]">— not filled</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <svg
+                          className={`w-3.5 h-3.5 text-[#858585] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                        <button
+                          type="button"
+                          onClick={e => { e.stopPropagation(); removeExperience(exp._id) }}
+                          className="flex h-6 w-6 items-center justify-center rounded-full text-[#b0b0b0] hover:bg-rose-50 hover:text-rose-400 transition-all"
+                          title="Remove"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        </button>
+                      </div>
                     </button>
-                  </div>
 
-                  {/* Card body */}
-                  <div className="p-4 space-y-3">
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <label className="block text-sm text-[#1d1d1f]">
-                        Job title
-                        <input
-                          className="field mt-1.5"
-                          placeholder="Senior Software Engineer"
-                          value={exp.title}
-                          onChange={e => updateExp(exp._id, 'title', e.target.value)}
-                        />
-                      </label>
-                      <label className="block text-sm text-[#1d1d1f]">
-                        Company
-                        <input
-                          className="field mt-1.5"
-                          placeholder="Acme Corp"
-                          value={exp.company}
-                          onChange={e => updateExp(exp._id, 'company', e.target.value)}
-                        />
-                      </label>
-                      <label className="block text-sm text-[#1d1d1f]">
-                        Start date <span className="text-[#b0b0b0]">YYYY-MM</span>
-                        <input
-                          className="field mt-1.5"
-                          placeholder="2022-03"
-                          value={exp.start_date}
-                          onChange={e => updateExp(exp._id, 'start_date', e.target.value)}
-                        />
-                      </label>
-                      <label className="block text-sm text-[#1d1d1f]">
-                        End date <span className="text-[#b0b0b0]">or present</span>
-                        <input
-                          className="field mt-1.5"
-                          placeholder="2024-01"
-                          value={exp.end_date}
-                          onChange={e => updateExp(exp._id, 'end_date', e.target.value)}
-                        />
-                      </label>
-                      <label className="block text-sm text-[#1d1d1f] sm:col-span-2">
-                        Location <span className="text-[#b0b0b0]">optional</span>
-                        <input
-                          className="field mt-1.5"
-                          placeholder="San Francisco, CA"
-                          value={exp.location}
-                          onChange={e => updateExp(exp._id, 'location', e.target.value)}
-                        />
-                      </label>
-                    </div>
-                    <label className="block text-sm text-[#1d1d1f]">
-                      Achievements <span className="text-[#b0b0b0]">one per line</span>
-                      <textarea
-                        className="field mt-1.5 h-20 resize-none"
-                        placeholder="Built X that reduced Y by Z%&#10;Led team of N to deliver Q&#10;Implemented feature resulting in W"
-                        value={exp.bullets.join('\n')}
-                        onChange={e => updateBullets(exp._id, e.target.value)}
-                      />
-                    </label>
+                    {/* Collapsible body */}
+                    {isOpen && (
+                      <div className="border-t border-[#e2e2e5] p-4 space-y-3 animate-fade-in-up">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <label className="block text-sm text-[#1d1d1f]">
+                            Job title
+                            <input
+                              className="field mt-1.5"
+                              placeholder="Senior Software Engineer"
+                              value={exp.title}
+                              onChange={e => updateExp(exp._id, 'title', e.target.value)}
+                            />
+                          </label>
+                          <label className="block text-sm text-[#1d1d1f]">
+                            Company
+                            <input
+                              className="field mt-1.5"
+                              placeholder="Acme Corp"
+                              value={exp.company}
+                              onChange={e => updateExp(exp._id, 'company', e.target.value)}
+                            />
+                          </label>
+                          <label className="block text-sm text-[#1d1d1f]">
+                            Start date <span className="text-[#b0b0b0]">YYYY-MM</span>
+                            <input
+                              className="field mt-1.5"
+                              placeholder="2022-03"
+                              value={exp.start_date}
+                              onChange={e => updateExp(exp._id, 'start_date', e.target.value)}
+                            />
+                          </label>
+                          <label className="block text-sm text-[#1d1d1f]">
+                            End date <span className="text-[#b0b0b0]">or present</span>
+                            <input
+                              className="field mt-1.5"
+                              placeholder="2024-01"
+                              value={exp.end_date}
+                              onChange={e => updateExp(exp._id, 'end_date', e.target.value)}
+                            />
+                          </label>
+                          <label className="block text-sm text-[#1d1d1f] sm:col-span-2">
+                            Location <span className="text-[#b0b0b0]">optional</span>
+                            <input
+                              className="field mt-1.5"
+                              placeholder="San Francisco, CA"
+                              value={exp.location}
+                              onChange={e => updateExp(exp._id, 'location', e.target.value)}
+                            />
+                          </label>
+                        </div>
+                        <label className="block text-sm text-[#1d1d1f]">
+                          Achievements <span className="text-[#b0b0b0]">one per line</span>
+                          <textarea
+                            className="field mt-1.5 h-20 resize-none"
+                            placeholder="Built X that reduced Y by Z%&#10;Led team of N to deliver Q&#10;Implemented feature resulting in W"
+                            value={exp.bullets.join('\n')}
+                            onChange={e => updateBullets(exp._id, e.target.value)}
+                          />
+                        </label>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
 
@@ -720,6 +801,120 @@ export default function Setup() {
                             placeholder="Machine Learning, Distributed Systems, Algorithm Design"
                             value={edu.key_topics}
                             onChange={e => updateEdu(edu._id, 'key_topics', e.target.value)}
+                          />
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* ── Projects ──────────────────────────────────────────── */}
+          <div className="card space-y-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-sky-600">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">Projects</p>
+                  <p className="text-[11px] text-[#b0b0b0]">{projects.filter(p => p.name.trim()).length} project(s) added</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={addProject}
+                className="flex items-center gap-1.5 rounded-full border border-[#0066cc] px-3 py-1.5 text-[11px] font-medium text-[#0066cc] hover:bg-[#f4f8fb] transition-all"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Add project
+              </button>
+            </div>
+
+            {projects.length === 0 && (
+              <div className="rounded-xl border border-dashed border-[#d2d2d7] p-8 text-center">
+                <p className="text-sm text-[#858585]">No projects added yet.</p>
+                <button
+                  type="button"
+                  onClick={addProject}
+                  className="mt-2 text-[13px] font-medium text-[#0066cc] hover:underline"
+                >
+                  + Add your first project
+                </button>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              {projects.map((proj, idx) => {
+                const isOpen = openProjectCards.has(proj._id)
+                return (
+                  <div
+                    key={proj._id}
+                    className="animate-fade-in-up rounded-xl border border-[#e2e2e5] bg-white overflow-hidden"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggleProjectCard(proj._id)}
+                      className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-[#fafafa] transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-100 text-[10px] font-semibold text-sky-700">
+                          {idx + 1}
+                        </span>
+                        <span className="text-[13px] font-medium text-[#474747]">
+                          {proj.name || `Project ${idx + 1}`}
+                        </span>
+                        {!proj.name.trim() && (
+                          <span className="text-[11px] text-[#b0b0b0]">— not filled</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <svg
+                          className={`w-3.5 h-3.5 text-[#858585] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                        <button
+                          type="button"
+                          onClick={e => { e.stopPropagation(); removeProject(proj._id) }}
+                          className="flex h-6 w-6 items-center justify-center rounded-full text-[#b0b0b0] hover:bg-rose-50 hover:text-rose-400 transition-all"
+                          title="Remove"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        </button>
+                      </div>
+                    </button>
+
+                    {isOpen && (
+                      <div className="border-t border-[#e2e2e5] p-4 space-y-3 animate-fade-in-up">
+                        <label className="block text-sm text-[#1d1d1f]">
+                          Project name
+                          <input
+                            className="field mt-1.5"
+                            placeholder="ML Pipeline Optimization"
+                            value={proj.name}
+                            onChange={e => updateProject(proj._id, 'name', e.target.value)}
+                          />
+                        </label>
+                        <label className="block text-sm text-[#1d1d1f]">
+                          Description <span className="text-[#b0b0b0]">optional</span>
+                          <textarea
+                            className="field mt-1.5 h-20 resize-none"
+                            placeholder="Built an end-to-end ML pipeline that reduced inference time by 40% and improved model accuracy by 15%."
+                            value={proj.description}
+                            onChange={e => updateProject(proj._id, 'description', e.target.value)}
                           />
                         </label>
                       </div>

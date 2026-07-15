@@ -187,6 +187,23 @@ export default function ProfilePage() {
               )}
             </div>
             <div className="col-span-2">
+              <p className="text-[11px] text-[#858585] uppercase tracking-wider mb-2">Projects</p>
+              {profile.setup.projects?.length ? (
+                <div className="space-y-2">
+                  {profile.setup.projects.map((proj: any, i: number) => (
+                    <div key={i} className="rounded-lg border border-[#e2e2e5] bg-[#fafafa] p-3">
+                      <p className="text-sm font-medium text-[#1d1d1f]">{proj.name || '—'}</p>
+                      {proj.description && (
+                        <p className="text-[11px] text-[#707070] mt-0.5 leading-snug line-clamp-2">{proj.description}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[#1d1d1f]">—</p>
+              )}
+            </div>
+            <div className="col-span-2">
               <p className="text-[11px] text-[#858585] uppercase tracking-wider">Skills</p>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {(profile.setup.skills?.software_tools || [])
