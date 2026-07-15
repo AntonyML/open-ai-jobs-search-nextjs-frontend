@@ -129,11 +129,62 @@ export default function ProfilePage() {
               <p className="text-[#1d1d1f]">{profile.setup.phone || '—'}</p>
             </div>
             <div className="col-span-2">
-              <p className="text-[11px] text-[#858585] uppercase tracking-wider">Current Role</p>
-              <p className="text-[#1d1d1f]">
-                {profile.setup.experience?.[0]?.title || '—'}
-                {profile.setup.experience?.[0]?.company ? ` at ${profile.setup.experience[0].company}` : ''}
-              </p>
+              <p className="text-[11px] text-[#858585] uppercase tracking-wider mb-2">Experience</p>
+              {profile.setup.experience?.length ? (
+                <div className="space-y-2">
+                  {profile.setup.experience.map((exp: any, i: number) => (
+                    <div key={i} className="rounded-lg border border-[#e2e2e5] bg-[#fafafa] p-3">
+                      <p className="text-sm font-medium text-[#1d1d1f]">
+                        {exp.title || '—'}
+                        {exp.company ? <span className="text-[#707070]"> at {exp.company}</span> : ''}
+                      </p>
+                      {(exp.start_date || exp.end_date) && (
+                        <p className="text-[11px] text-[#b0b0b0] mt-0.5">
+                          {exp.start_date || '?'} — {exp.end_date || 'Present'}
+                        </p>
+                      )}
+                      {exp.location && (
+                        <p className="text-[11px] text-[#b0b0b0]">{exp.location}</p>
+                      )}
+                      {exp.bullets?.length > 0 && (
+                        <ul className="mt-1.5 space-y-0.5">
+                          {exp.bullets.slice(0, 3).map((b: string, j: number) => (
+                            <li key={j} className="text-[11px] text-[#707070] list-disc list-inside leading-tight">{b}</li>
+                          ))}
+                          {exp.bullets.length > 3 && (
+                            <li className="text-[11px] text-[#b0b0b0] list-inside">+{exp.bullets.length - 3} more</li>
+                          )}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[#1d1d1f]">—</p>
+              )}
+            </div>
+            <div className="col-span-2">
+              <p className="text-[11px] text-[#858585] uppercase tracking-wider mb-2">Education</p>
+              {profile.setup.education?.length ? (
+                <div className="space-y-2">
+                  {profile.setup.education.map((edu: any, i: number) => (
+                    <div key={i} className="rounded-lg border border-[#e2e2e5] bg-[#fafafa] p-3">
+                      <p className="text-sm font-medium text-[#1d1d1f]">
+                        {edu.degree || '—'}
+                        {edu.institution ? <span className="text-[#707070]"> @ {edu.institution}</span> : ''}
+                      </p>
+                      {edu.period && (
+                        <p className="text-[11px] text-[#b0b0b0] mt-0.5">{edu.period}</p>
+                      )}
+                      {edu.key_topics && (
+                        <p className="text-[11px] text-[#858585] mt-0.5 line-clamp-1">{edu.key_topics}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[#1d1d1f]">—</p>
+              )}
             </div>
             <div className="col-span-2">
               <p className="text-[11px] text-[#858585] uppercase tracking-wider">Skills</p>
