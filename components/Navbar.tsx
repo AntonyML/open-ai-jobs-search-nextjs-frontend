@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { isLoggedIn, clearToken } from '@/lib/auth'
 import NotificationBell from '@/components/NotificationBell'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 const NAV_LINKS = [
   { label: 'Features', href: '/#features' },
@@ -68,6 +69,7 @@ export default function Navbar() {
 
         {/* Right: Auth / Profile */}
         <div className="flex items-center gap-1.5">
+          <LanguageSwitcher />
           {loggedIn ? (
             <>
               <NotificationBell />

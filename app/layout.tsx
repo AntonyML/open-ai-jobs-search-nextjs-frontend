@@ -1,21 +1,21 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Toaster } from 'react-hot-toast'
-import AccessibilityProvider from '@/components/AccessibilityProvider'
-import SoundProvider from '@/components/SoundProvider'
 
 export const metadata: Metadata = {
   title: 'Career OS',
   description: 'AI-powered job search pipeline with multi-provider orchestration',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body>
-        <AccessibilityProvider>
-          <SoundProvider>{children}</SoundProvider>
-        </AccessibilityProvider>
+        {children}
         <Toaster
           position="bottom-center"
           toastOptions={{
