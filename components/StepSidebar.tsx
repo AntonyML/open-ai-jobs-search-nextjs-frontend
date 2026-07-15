@@ -54,6 +54,7 @@ export default function StepSidebar({
             <Link
               key={href}
               href={href}
+              data-cuelume-press
               className={`flex items-center gap-3 rounded-lg px-3 py-3 transition ${
                 active
                   ? 'bg-[#f4f8fb] text-[#1d1d1f]'
@@ -103,6 +104,7 @@ export default function StepSidebar({
             <div className="flex gap-2">
               <button
                 onClick={handleReset}
+                data-cuelume-press
                 className="flex-1 rounded-full bg-rose-500 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-rose-600 transition-colors"
               >
                 Sí, reiniciar
@@ -118,6 +120,7 @@ export default function StepSidebar({
         ) : (
           <button
             onClick={() => setShowResetConfirm(true)}
+            data-cuelume-press
             className="w-full flex items-center justify-center gap-2 rounded-lg border border-[#e2e2e5] px-3 py-2.5 text-[11px] font-medium text-[#858585] hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500 transition-all"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import AccessibilityProvider from '@/components/AccessibilityProvider'
+import SoundProvider from '@/components/SoundProvider'
 
 export const metadata: Metadata = {
   title: 'Career OS',
@@ -11,7 +12,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <AccessibilityProvider>{children}</AccessibilityProvider>
+        <AccessibilityProvider>
+          <SoundProvider>{children}</SoundProvider>
+        </AccessibilityProvider>
       </body>
     </html>
   )

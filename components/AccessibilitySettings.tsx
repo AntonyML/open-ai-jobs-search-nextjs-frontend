@@ -163,6 +163,8 @@ export default function AccessibilitySettings() {
       applySettings(next)
       return next
     })
+    // Notify SoundProvider to re-check reducedMotion
+    window.dispatchEvent(new Event('accessibility-change'))
   }, [])
 
   const resetAll = useCallback(() => {
@@ -170,6 +172,8 @@ export default function AccessibilitySettings() {
     applySettings(DEFAULT_SETTINGS)
     setSettings(DEFAULT_SETTINGS)
     setShowResetConfirm(false)
+    // Notify SoundProvider to re-check reducedMotion
+    window.dispatchEvent(new Event('accessibility-change'))
   }, [])
 
   return (

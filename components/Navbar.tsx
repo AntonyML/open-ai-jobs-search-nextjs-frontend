@@ -86,6 +86,7 @@ export default function Navbar() {
               </Link>
               <button
                 onClick={() => { clearToken(); router.push('/') }}
+                data-cuelume-press
                 className="rounded-full px-3 py-1.5 text-[12px] font-medium text-[#858585] hover:text-rose-500 hover:bg-rose-50 transition-all"
               >
                 Sign out
@@ -101,6 +102,7 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/register"
+                data-cuelume-press
                 className="inline-flex items-center rounded-full bg-[#0071e3] px-4 py-1.5 text-[12px] font-medium text-white hover:bg-[#0068d2] transition-all"
               >
                 Get started
