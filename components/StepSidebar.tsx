@@ -15,6 +15,11 @@ const steps = [
   ['Outcome', 'Track progress', '/outcome'],
 ]
 
+const extras = [
+  ['Expand', 'Discover skills', '/expand'],
+  ['Upskill', 'Skill gaps', '/upskill'],
+]
+
 export default function StepSidebar({
   currentStep,
   completedSteps,
@@ -105,6 +110,36 @@ export default function StepSidebar({
           )
         })}
       </nav>
+
+      {/* Extras */}
+      <div className="mt-4 mb-2 px-3">
+        <p className="text-[10px] font-bold uppercase tracking-[.15em] text-[#b0b0b0]">Extras</p>
+      </div>
+      <nav className="space-y-1">
+        {extras.map(([label, sub, href]) => {
+          const active = href === `/expand`
+          return (
+            <Link
+              key={href}
+              href={href}
+              data-cuelume-press
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition ${
+                active
+                  ? 'bg-[#f4f8fb] text-[#1d1d1f]'
+                  : 'text-[#707070] hover:bg-[#f5f5f7]'
+              }`}
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-[#b0b0b0]">+</span>
+              <span>
+                <span className="block text-sm font-medium">{label}</span>
+                <span className="block text-[11px] text-[#858585]">{sub}</span>
+              </span>
+            </Link>
+          )
+        })}
+      </nav>
+
+      <div className="mt-6">
 
       {/* ── Reset Pipeline ──────────────────────────────────────── */}
       <div className="mt-6 pt-4 border-t border-[#e2e2e5]">

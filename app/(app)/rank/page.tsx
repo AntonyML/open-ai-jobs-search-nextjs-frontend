@@ -36,9 +36,7 @@ export default function Rank() {
     apiFetch<any>('/api/v1/rank/jobs')
       .then(x => setItems(Array.isArray(x) ? x : (x.items || x.jobs || [])))
       .catch(() => {})
-  }, [])
-
-  // Re-fetch ranked jobs whenever the orchestrator completes a job
+  }, [])      // Re-fetch ranked jobs whenever the orchestrator completes a job
   useEffect(() => {
     if (!jobIdRef.current || !queue) return
     // Check if our job is in completed list
@@ -49,6 +47,29 @@ export default function Rank() {
       .then(x => setItems(Array.isArray(x) ? x : (x.items || x.jobs || [])))
       .catch(() => {})
   }, [queue])
+
+  // Merge salary data from result.shortlist into items whenever result changes
+  useEffect(() => {
+    if (!result?.shortlist) return
+    setItems(prev => {
+      // Create a map of job_id → salary from the shortlist
+      const salaryMap = new Map<string, any>()
+      for (const entry of result.shortlist) {
+        if (entry.salary && entry.job?.id) {
+          salaryMap.set(entry.job.id, entry.salary)
+        }
+      }
+      if (salaryMap.size === 0) return prev
+      // Attach salary data to matching items
+      return prev.map(item => {
+        const salary = salaryMap.get(item.id)
+        if (salary) {
+          return { ...item, salary }
+        }
+        return item
+      })
+    })
+  }, [result])
 
   // Elapsed timer
   useEffect(() => {
@@ -105,11 +126,33 @@ export default function Rank() {
         throw new Error(completed.error || 'Ranking failed')
       }
 
-      setResult(completed?.result || completed)
+      const rankData = completed?.result || completed
+      setResult(rankData)
 
       // Refresh jobs list
       const x = await apiFetch<any>('/api/v1/rank/jobs')
-      setItems(Array.isArray(x) ? x : (x.items || x.jobs || []))
+      const freshItems = Array.isArray(x) ? x : (x.items || x.jobs || [])
+
+      // Immediately merge salary data from the rank result into items
+      if (rankData?.shortlist) {
+        const salaryMap = new Map<string, any>()
+        for (const entry of rankData.shortlist) {
+          if (entry.salary && entry.job?.id) {
+            salaryMap.set(entry.job.id, entry.salary)
+          }
+        }
+        if (salaryMap.size > 0) {
+          setItems(freshItems.map((item: any) => {
+            const salary = salaryMap.get(item.id)
+            return salary ? { ...item, salary } : item
+          }))
+        } else {
+          setItems(freshItems)
+        }
+      } else {
+        setItems(freshItems)
+      }
+
 
     } catch (x) {
       if (!mountedRef.current) return
@@ -287,6 +330,13 @@ export default function Rank() {
 
         {/* Results */}
         <div className="space-y-3">
+          {/* Salary data status banner (when user has uploaded salary data) */}
+          {result?.salary_data_available && (
+            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 px-4 py-3 text-xs text-emerald-300">
+              Salary benchmarks active · {result.salary_data_company_count} companies in your data
+            </div>
+          )}
+
           {items.length ? items.map((x, i) => (
             <article key={i} className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
               <div className="flex items-start justify-between gap-3">
@@ -294,13 +344,33 @@ export default function Rank() {
                   <h3 className="font-semibold text-white truncate">{x.title || x.job_title || `Job ${i + 1}`}</h3>
                   <p className="mt-0.5 text-sm text-slate-400">{x.company || ''}{x.location ? ` · ${x.location}` : ''}</p>
                 </div>
-                {x.rank_score != null && (
-                  <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold text-slate-900 ${
-                    scoreColor(x.rank_score)
-                  }`}>
-                    {x.rank_score}
-                  </span>
-                )}
+                <div className="flex items-center gap-2 shrink-0">
+                  {/* Salary badge */}
+                  {(x as any).salary && (
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                        (x as any).salary.salary_delta_pct != null && (x as any).salary.salary_delta_pct > 5
+                          ? 'bg-emerald-400/20 text-emerald-300'
+                          : (x as any).salary.salary_delta_pct != null && (x as any).salary.salary_delta_pct < -5
+                          ? 'bg-amber-400/20 text-amber-300'
+                          : 'bg-slate-700/50 text-slate-400'
+                      }`}
+                      title={`${(x as any).salary.company_name}: ${(x as any).salary.match_confidence}% match`}
+                    >
+                      {(x as any).salary.salary_delta_pct != null
+                        ? `${(x as any).salary.salary_delta_pct > 0 ? '+' : ''}${(x as any).salary.salary_delta_pct.toFixed(0)}%`
+                        : '~'
+                      }
+                    </span>
+                  )}
+                  {x.rank_score != null && (
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold text-slate-900 ${
+                      scoreColor(x.rank_score)
+                    }`}>
+                      {x.rank_score}
+                    </span>
+                  )}
+                </div>
               </div>
               {x.rank_verdict && (
                 <p className="mt-2 text-xs text-slate-500">{x.rank_verdict}</p>
