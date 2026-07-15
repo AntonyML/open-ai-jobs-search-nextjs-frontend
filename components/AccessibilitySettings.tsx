@@ -149,12 +149,138 @@ const IconSound = () => (
   </svg>
 )
 
+// ── Settings controls (shared between variants) ───────────────────
+
+function SettingsPanel({
+  settings,
+  update,
+  resetAll,
+  t,
+  showResetConfirm,
+  setShowResetConfirm,
+}: {
+  settings: AccessibilitySettingsType
+  update: <K extends keyof AccessibilitySettingsType>(key: K, value: AccessibilitySettingsType[K]) => void
+  resetAll: () => void
+  t: (key: string) => string
+  showResetConfirm: boolean
+  setShowResetConfirm: (v: boolean) => void
+}) {
+  return (
+    <>
+      <SliderSelect
+        label={t('fontSize')}
+        description={t('fontSizeDesc')}
+        options={FONT_SIZE_LABELS}
+        value={settings.fontSize}
+        onChange={v => update('fontSize', v)}
+      />
+      <SliderSelect
+        label={t('lineHeight')}
+        description={t('lineHeightDesc')}
+        options={LINE_HEIGHT_LABELS}
+        value={settings.lineHeight}
+        onChange={v => update('lineHeight', v)}
+      />
+      <SliderSelect
+        label={t('letterSpacing')}
+        description={t('letterSpacingDesc')}
+        options={LETTER_SPACING_LABELS}
+        value={settings.letterSpacing}
+        onChange={v => update('letterSpacing', v)}
+      />
+      <div className="py-3 border-b border-[#e2e2e5] last:border-0">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <p className="text-[14px] font-medium text-[#1d1d1f]">{t('fontFamily')}</p>
+            <p className="text-[12px] text-[#858585]">{t('fontFamilyDesc')}</p>
+          </div>
+        </div>
+        <div className="flex gap-1">
+          {[
+            { value: 'system' as const, label: t('system') },
+            { value: 'sans-serif' as const, label: t('sansSerif') },
+            { value: 'serif' as const, label: t('serif') },
+          ].map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => update('fontFamily', opt.value)}
+              className={`flex-1 rounded-lg py-2 text-[11px] font-medium transition-all ${
+                settings.fontFamily === opt.value
+                  ? 'bg-[#0071e3] text-white shadow-sm'
+                  : 'bg-[#f5f5f7] text-[#707070] hover:bg-[#e8e8ea]'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <Toggle
+        label={t('highContrast')}
+        description={t('highContrastDesc')}
+        enabled={settings.highContrast}
+        onChange={v => update('highContrast', v)}
+        icon={<IconContrast />}
+      />
+      <Toggle
+        label={t('reducedMotion')}
+        description={t('reducedMotionDesc')}
+        enabled={settings.reducedMotion}
+        onChange={v => update('reducedMotion', v)}
+        icon={<IconMotion />}
+      />
+      <Toggle
+        label={t('soundEnabled')}
+        description={t('soundEnabledDesc')}
+        enabled={settings.soundEnabled}
+        onChange={v => update('soundEnabled', v)}
+        icon={<IconSound />}
+      />
+      <Toggle
+        label={t('dyslexiaFont')}
+        description={t('dyslexiaFontDesc')}
+        enabled={settings.dyslexiaFont}
+        onChange={v => update('dyslexiaFont', v)}
+        icon={<IconFont />}
+      />
+      <div className="pt-3">
+        {showResetConfirm ? (
+          <div className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3">
+            <p className="text-[12px] text-rose-600 flex-1">{t('resetConfirm')}</p>
+            <button
+              onClick={resetAll}
+              className="rounded-full bg-rose-500 px-3 py-1 text-[11px] font-medium text-white hover:bg-rose-600 transition-colors"
+            >
+              {t('resetYes')}
+            </button>
+            <button
+              onClick={() => setShowResetConfirm(false)}
+              className="rounded-full border border-[#d2d2d7] bg-white px-3 py-1 text-[11px] font-medium text-[#707070] hover:bg-[#f5f5f7] transition-colors"
+            >
+              {t('resetCancel')}
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowResetConfirm(true)}
+            className="w-full rounded-lg border border-[#e2e2e5] py-2.5 text-[12px] font-medium text-[#858585] hover:bg-[#f5f5f7] hover:text-rose-500 transition-all"
+          >
+            {t('reset')}
+          </button>
+        )}
+      </div>
+    </>
+  )
+}
+
 // ── Main Component ─────────────────────────────────────────────────
 
-export default function AccessibilitySettings() {
+export default function AccessibilitySettings({ variant = 'card' }: { variant?: 'card' | 'inline' }) {
   const t = useTranslations('accessibility')
   const [settings, setSettings] = useState<AccessibilitySettingsType>(DEFAULT_SETTINGS)
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(variant === 'inline' ? true : false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   // Load settings on mount
@@ -173,7 +299,6 @@ export default function AccessibilitySettings() {
       applySettings(next)
       return next
     })
-    // Notify SoundProvider to re-check reducedMotion
     window.dispatchEvent(new Event('accessibility-change'))
   }, [])
 
@@ -182,13 +307,26 @@ export default function AccessibilitySettings() {
     applySettings(DEFAULT_SETTINGS)
     setSettings(DEFAULT_SETTINGS)
     setShowResetConfirm(false)
-    // Notify SoundProvider to re-check reducedMotion
     window.dispatchEvent(new Event('accessibility-change'))
   }, [])
 
+  // Inline variant — no collapsible wrapper, just the controls
+  if (variant === 'inline') {
+    return (
+      <SettingsPanel
+        settings={settings}
+        update={update}
+        resetAll={resetAll}
+        t={t}
+        showResetConfirm={showResetConfirm}
+        setShowResetConfirm={setShowResetConfirm}
+      />
+    )
+  }
+
+  // Card variant — collapsible card with header
   return (
     <div className="rounded-xl border border-[#d2d2d7] bg-white overflow-hidden">
-      {/* Header — clickable to expand */}
       <button
         onClick={() => setExpanded(e => !e)}
         className="w-full flex items-center justify-between p-5 hover:bg-[#fafafa] transition-colors text-left"
@@ -209,130 +347,16 @@ export default function AccessibilitySettings() {
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
-
-      {/* Settings panel */}
       {expanded && (
         <div className="px-5 pb-5 border-t border-[#e2e2e5]">
-          {/* Font size */}
-          <SliderSelect
-            label={t('fontSize')}
-            description={t('fontSizeDesc')}
-            options={FONT_SIZE_LABELS}
-            value={settings.fontSize}
-            onChange={v => update('fontSize', v)}
+          <SettingsPanel
+            settings={settings}
+            update={update}
+            resetAll={resetAll}
+            t={t}
+            showResetConfirm={showResetConfirm}
+            setShowResetConfirm={setShowResetConfirm}
           />
-
-          {/* Line height */}
-          <SliderSelect
-            label={t('lineHeight')}
-            description={t('lineHeightDesc')}
-            options={LINE_HEIGHT_LABELS}
-            value={settings.lineHeight}
-            onChange={v => update('lineHeight', v)}
-          />
-
-          {/* Letter spacing */}
-          <SliderSelect
-            label={t('letterSpacing')}
-            description={t('letterSpacingDesc')}
-            options={LETTER_SPACING_LABELS}
-            value={settings.letterSpacing}
-            onChange={v => update('letterSpacing', v)}
-          />
-
-          {/* Font family */}
-          <div className="py-3 border-b border-[#e2e2e5] last:border-0">
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <p className="text-[14px] font-medium text-[#1d1d1f]">{t('fontFamily')}</p>
-                <p className="text-[12px] text-[#858585]">{t('fontFamilyDesc')}</p>
-              </div>
-            </div>
-            <div className="flex gap-1">
-              {[
-                { value: 'system' as const, label: t('system') },
-                { value: 'sans-serif' as const, label: t('sansSerif') },
-                { value: 'serif' as const, label: t('serif') },
-              ].map(opt => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => update('fontFamily', opt.value)}
-                  className={`flex-1 rounded-lg py-2 text-[11px] font-medium transition-all ${
-                    settings.fontFamily === opt.value
-                      ? 'bg-[#0071e3] text-white shadow-sm'
-                      : 'bg-[#f5f5f7] text-[#707070] hover:bg-[#e8e8ea]'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* High contrast */}
-          <Toggle
-            label={t('highContrast')}
-            description={t('highContrastDesc')}
-            enabled={settings.highContrast}
-            onChange={v => update('highContrast', v)}
-            icon={<IconContrast />}
-          />
-
-          {/* Reduced motion */}
-          <Toggle
-            label={t('reducedMotion')}
-            description={t('reducedMotionDesc')}
-            enabled={settings.reducedMotion}
-            onChange={v => update('reducedMotion', v)}
-            icon={<IconMotion />}
-          />
-
-          {/* Sound effects */}
-          <Toggle
-            label={t('soundEnabled')}
-            description={t('soundEnabledDesc')}
-            enabled={settings.soundEnabled}
-            onChange={v => update('soundEnabled', v)}
-            icon={<IconSound />}
-          />
-
-          {/* Dyslexia font */}
-          <Toggle
-            label={t('dyslexiaFont')}
-            description={t('dyslexiaFontDesc')}
-            enabled={settings.dyslexiaFont}
-            onChange={v => update('dyslexiaFont', v)}
-            icon={<IconFont />}
-          />
-
-          {/* Reset button */}
-          <div className="pt-3">
-            {showResetConfirm ? (
-              <div className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3">
-                <p className="text-[12px] text-rose-600 flex-1">{t('resetConfirm')}</p>
-                <button
-                  onClick={resetAll}
-                  className="rounded-full bg-rose-500 px-3 py-1 text-[11px] font-medium text-white hover:bg-rose-600 transition-colors"
-                >
-                  {t('resetYes')}
-                </button>
-                <button
-                  onClick={() => setShowResetConfirm(false)}
-                  className="rounded-full border border-[#d2d2d7] bg-white px-3 py-1 text-[11px] font-medium text-[#707070] hover:bg-[#f5f5f7] transition-colors"
-                >
-                  {t('resetCancel')}
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowResetConfirm(true)}
-                className="w-full rounded-lg border border-[#e2e2e5] py-2.5 text-[12px] font-medium text-[#858585] hover:bg-[#f5f5f7] hover:text-rose-500 transition-all"
-              >
-                {t('reset')}
-              </button>
-            )}
-          </div>
         </div>
       )}
     </div>

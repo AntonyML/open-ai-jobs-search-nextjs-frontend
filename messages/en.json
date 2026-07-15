@@ -340,6 +340,63 @@
     "running": "Running",
     "queued": "Queued"
   },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account, preferences, and configuration",
+    "tabs": {
+      "profile": "Profile",
+      "providers": "Providers",
+      "notifications": "Notifications",
+      "language": "Language",
+      "appearance": "Appearance",
+      "security": "Security"
+    },
+    "profile": {
+      "fullName": "Full name",
+      "email": "Email",
+      "location": "Location",
+      "profileStatement": "Profile statement",
+      "saveChanges": "Save changes",
+      "saved": "Profile updated!",
+      "notLoaded": "Could not load profile"
+    },
+    "providers": {
+      "activeProvider": "Active provider",
+      "notConfigured": "Not configured",
+      "configured": "{count} provider(s) configured",
+      "goToProviders": "Manage providers →"
+    },
+    "notifications": {
+      "emailNotifications": "Email notifications",
+      "emailDesc": "Receive email updates about your pipeline progress",
+      "browserNotifications": "Browser notifications",
+      "browserDesc": "Show browser notifications when processes complete",
+      "soundEffects": "Sound effects",
+      "soundEffectDesc": "Play sounds when ranking, scraping, and other processes finish",
+      "marketingEmails": "Marketing emails",
+      "marketingDesc": "Tips and updates about Career OS"
+    },
+    "language": {
+      "interfaceLanguage": "Interface language",
+      "interfaceDesc": "Choose your preferred language for the interface"
+    },
+    "security": {
+      "changePassword": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "updatePassword": "Update password",
+      "updating": "Updating…",
+      "passwordUpdated": "Password updated!",
+      "passwordsDontMatch": "Passwords don't match",
+      "twoFactor": "Two-factor authentication",
+      "twoFactorDesc": "Add an extra layer of security to your account",
+      "enable2FA": "Enable 2FA",
+      "sessions": "Active sessions",
+      "sessionsDesc": "Manage your active login sessions",
+      "revokeAll": "Revoke all sessions"
+    }
+  },
   "accessibility": {
     "title": "Accessibility",
     "description": "Adjust font size, contrast and more",

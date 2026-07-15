@@ -340,6 +340,63 @@
     "running": "Ejecutando",
     "queued": "En cola"
   },
+  "settings": {
+    "title": "Configuración",
+    "subtitle": "Administra tu cuenta, preferencias y configuración",
+    "tabs": {
+      "profile": "Perfil",
+      "providers": "Proveedores",
+      "notifications": "Notificaciones",
+      "language": "Idioma",
+      "appearance": "Apariencia",
+      "security": "Seguridad"
+    },
+    "profile": {
+      "fullName": "Nombre completo",
+      "email": "Correo electrónico",
+      "location": "Ubicación",
+      "profileStatement": "Resumen profesional",
+      "saveChanges": "Guardar cambios",
+      "saved": "¡Perfil actualizado!",
+      "notLoaded": "No se pudo cargar el perfil"
+    },
+    "providers": {
+      "activeProvider": "Proveedor activo",
+      "notConfigured": "No configurado",
+      "configured": "{count} proveedor(es) configurado(s)",
+      "goToProviders": "Gestionar proveedores →"
+    },
+    "notifications": {
+      "emailNotifications": "Notificaciones por correo",
+      "emailDesc": "Recibe actualizaciones sobre el progreso de tu pipeline",
+      "browserNotifications": "Notificaciones del navegador",
+      "browserDesc": "Muestra notificaciones cuando los procesos se completen",
+      "soundEffects": "Efectos de sonido",
+      "soundEffectDesc": "Reproduce sonidos al completar ranking, scraping y otros procesos",
+      "marketingEmails": "Correos promocionales",
+      "marketingDesc": "Consejos y actualizaciones sobre Career OS"
+    },
+    "language": {
+      "interfaceLanguage": "Idioma de la interfaz",
+      "interfaceDesc": "Elige tu idioma preferido para la interfaz"
+    },
+    "security": {
+      "changePassword": "Cambiar contraseña",
+      "currentPassword": "Contraseña actual",
+      "newPassword": "Nueva contraseña",
+      "confirmPassword": "Confirmar nueva contraseña",
+      "updatePassword": "Actualizar contraseña",
+      "updating": "Actualizando…",
+      "passwordUpdated": "¡Contraseña actualizada!",
+      "passwordsDontMatch": "Las contraseñas no coinciden",
+      "twoFactor": "Autenticación de dos factores",
+      "twoFactorDesc": "Agrega una capa extra de seguridad a tu cuenta",
+      "enable2FA": "Activar 2FA",
+      "sessions": "Sesiones activas",
+      "sessionsDesc": "Administra tus sesiones activas",
+      "revokeAll": "Revocar todas las sesiones"
+    }
+  },
   "accessibility": {
     "title": "Accesibilidad",
     "description": "Ajusta el tamaño de letra, contraste y más",
