@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import PipelinePage from '@/components/PipelinePage'
 import { isPremium } from '@/lib/auth'
+import { useUsageLimits } from '@/hooks/useUsageLimits'
 import UpgradeModal from '@/components/UpgradeModal'
 
 export default function Apply() {
@@ -11,6 +12,9 @@ export default function Apply() {
   const tc = useTranslations('common')
   const [showUpgrade, setShowUpgrade] = useState(false)
   const premium = isPremium()
+  const { data: usage } = useUsageLimits()
+
+  const atLimit = !premium && usage != null && usage.usage.applications >= usage.limits.max_apply_count
 
   return (
     <>
@@ -21,6 +25,7 @@ export default function Apply() {
           </svg>
           <span className="text-xs text-amber-400/80 flex-1">
             {t('freeLimitation') || 'Free plan: limited to 5 applications. Upgrade to Premium for unlimited.'}
+            {usage && ` (${usage.usage.applications}/${usage.limits.max_apply_count})`}
           </span>
           <button
             onClick={() => setShowUpgrade(true)}
@@ -39,6 +44,8 @@ export default function Apply() {
         step={4}
         next="/interview"
         actionLabel={t('generate')}
+        actionDisabled={atLimit}
+        actionDisabledTooltip={atLimit ? t('limitReached') || 'Upgrade para más aplicaciones' : ''}
       />
       <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </>

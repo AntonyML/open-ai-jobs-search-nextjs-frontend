@@ -304,7 +304,10 @@
     "next": "Siguiente",
     "rankingComplete": "¡Ranking completo! {count} empleos evaluados",
     "rankingFailed": "Ranking fallido: {error}",
-    "avgPerJob": "{seconds}s/empleo prom"
+    "avgPerJob": "{seconds}s/empleo prom",
+    "freeLimitation": "Plan Free: limitado a 3 iteraciones de ranking. Mejora a Premium para ilimitado.",
+    "upgrade": "Mejorar",
+    "limitReached": "Mejora para más iteraciones de ranking"
   },
   "apply": {
     "title": "Convierte un buen ajuste en una postulación",
@@ -313,7 +316,10 @@
     "generate": "Generar CV + carta",
     "generating": "Generando…",
     "stepCompleted": "¡Paso completado!",
-    "rawResponse": "Respuesta cruda"
+    "rawResponse": "Respuesta cruda",
+    "freeLimitation": "Plan Free: limitado a 5 aplicaciones. Mejora a Premium para ilimitado.",
+    "upgrade": "Mejorar",
+    "limitReached": "Mejora para más aplicaciones"
   },
   "interview": {
     "title": "Llega preparado a la entrevista",
@@ -341,14 +347,20 @@
     "consistencyBrief": "Resumen de consistencia — afirmaciones a vigilar",
     "logistics": "Logística",
     "recentNews": "Noticias recientes",
-    "noPrepSelected": "Genera un paquete de preparación o selecciona uno del historial."
+    "noPrepSelected": "Genera un paquete de preparación o selecciona uno del historial.",
+    "freeLimitation": "Plan Free: limitado a 5 preparaciones de entrevista. Mejora a Premium para ilimitado.",
+    "upgrade": "Mejorar",
+    "limitReached": "Mejora para más preparaciones de entrevista"
   },
   "outcome": {
     "title": "Sigue tu progreso",
     "subtitle": "Monitorea tus postulaciones y resultados de entrevistas.",
     "dashboardTab": "Panel",
     "historyTab": "Historial",
-    "calibrationTab": "Calibración"
+    "calibrationTab": "Calibración",
+    "freeLimitation": "Plan Free: limitado a 5 resultados registrados. Mejora a Premium para ilimitado.",
+    "upgrade": "Mejorar",
+    "limitReached": "Mejora para más resultados registrados"
   },
   "expand": {
     "title": "Expande tu perfil",
@@ -364,7 +376,9 @@
     "history": "Historial",
     "noHistory": "Aún no hay expansiones. Haz clic en Expandir perfil para comenzar.",
     "complete": "¡Expansión completa! {count} habilidades descubiertas",
-    "failed": "Expansión fallida"
+    "failed": "Expansión fallida",
+    "freeLimitation": "Función Premium — expande tus habilidades y competencias. Mejora para desbloquear.",
+    "upgrade": "Mejorar"
   },
   "upskill": {
     "title": "Análisis de brechas de habilidades",
@@ -387,7 +401,9 @@
     "history": "Historial",
     "noHistory": "Aún no hay análisis. Haz clic en Analizar brechas para comenzar.",
     "complete": "¡Análisis completo! {gaps} brechas identificadas, {plan} ítems de estudio",
-    "failed": "Análisis fallido"
+    "failed": "Análisis fallido",
+    "freeLimitation": "Función Premium — analiza brechas de habilidades y obtén un plan de estudio. Mejora para desbloquear.",
+    "upgrade": "Mejorar"
   },
   "llmControl": {
     "title": "Control LLM",
@@ -585,10 +601,27 @@
     "phoneLabel": "Número de teléfono (SINPE)",
     "phoneHint": "Debe ser un número costarricense (+506)",
     "amount": "Monto",
+    "amountPlaceholder": "$10, $20, etc.",
+    "phonePlaceholder": "+506 8888-8888",
     "sendRequest": "Enviar solicitud",
     "sendDonation": "Enviar donación",
     "sent": "¡Solicitud enviada! Te contactaremos pronto.",
-    "thankYou": "¡Gracias por tu donación!"
+    "thankYou": "¡Gracias por tu donación!",
+    "compareTitle": "Free vs Premium",
+    "compareFeature": "Función",
+    "compareFree": "Free",
+    "comparePremium": "Premium",
+    "compareProviders": "Proveedores",
+    "compareScrapeSites": "Sitios de scrape",
+    "compareJobsPerScrape": "Empleos por scrape",
+    "compareRankIterations": "Iteraciones de ranking",
+    "compareApplications": "Aplicaciones",
+    "compareInterviewPreps": "Preparaciones de entrevista",
+    "compareTrackedOutcomes": "Resultados registrados",
+    "compareExpand": "Expand",
+    "compareUpskill": "Upskill",
+    "compareUnlimited": "Ilimitado",
+    "compareLocked": "Bloqueado"
   },
   "language": {
     "label": "Idioma",

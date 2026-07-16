@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import AccessibilityProvider from '@/components/AccessibilityProvider'
 import SoundProvider from '@/components/SoundProvider'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 export function generateStaticParams() {
   return [{ locale: 'en' }, { locale: 'es' }]
@@ -19,11 +20,13 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <AccessibilityProvider>
-        <SoundProvider>
-          {children}
-        </SoundProvider>
-      </AccessibilityProvider>
+      <TooltipProvider>
+        <AccessibilityProvider>
+          <SoundProvider>
+            {children}
+          </SoundProvider>
+        </AccessibilityProvider>
+      </TooltipProvider>
     </NextIntlClientProvider>
   )
 }

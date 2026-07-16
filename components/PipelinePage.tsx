@@ -16,7 +16,6 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
@@ -162,22 +161,20 @@ export default function PipelinePage({
                 )}
               </label>
             ))}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span tabIndex={0}>
-                    <button disabled={loading || actionDisabled} className="btn-primary w-full">
-                      {loading ? 'Working…' : actionLabel}
-                    </button>
-                  </span>
-                </TooltipTrigger>
-                {actionDisabled && actionDisabledTooltip && (
-                  <TooltipContent side="top" align="center">
-                    {actionDisabledTooltip}
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={0}>
+                  <button disabled={loading || actionDisabled} className="btn-primary w-full">
+                    {loading ? 'Working…' : actionLabel}
+                  </button>
+                </span>
+              </TooltipTrigger>
+              {actionDisabled && actionDisabledTooltip && (
+                <TooltipContent side="top" align="center">
+                  {actionDisabledTooltip}
+                </TooltipContent>
+              )}
+            </Tooltip>
 
             {error && (
               <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">

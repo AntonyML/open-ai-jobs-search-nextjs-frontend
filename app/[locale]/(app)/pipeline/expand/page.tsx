@@ -199,13 +199,13 @@ export default function ExpandPage() {
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
           </svg>
           <span className="text-xs text-amber-400/80 flex-1">
-            Premium feature — expand your skills and competencies. Upgrade to unlock.
+            {t('freeLimitation') || 'Premium feature — expand your skills and competencies. Upgrade to unlock.'}
           </span>
           <button
             onClick={() => setShowUpgrade(true)}
             className="text-xs font-medium text-amber-400 hover:text-amber-300 underline-offset-2 hover:underline shrink-0"
           >
-            Upgrade
+            {t('upgrade') || 'Upgrade'}
           </button>
         </div>
       )}

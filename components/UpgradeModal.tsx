@@ -107,46 +107,46 @@ export default function UpgradeModal({ open, onClose }: UpgradeModalProps) {
               <p className="text-sm text-[#707070]">{t('upgrade.description')}</p>
 
               <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-4 space-y-3">
-                <h3 className="text-sm font-semibold text-amber-800 text-center">Free vs Premium</h3>
+                <h3 className="text-sm font-semibold text-amber-800 text-center">{t('upgrade.compareTitle')}</h3>
                 <div className="grid grid-cols-3 gap-x-2 gap-y-2 text-xs">
-                  <div className="font-medium text-[#707070]">Feature</div>
-                  <div className="text-center font-medium text-[#707070]">Free</div>
-                  <div className="text-center font-medium text-amber-800">Premium</div>
+                  <div className="font-medium text-[#707070]">{t('upgrade.compareFeature')}</div>
+                  <div className="text-center font-medium text-[#707070]">{t('upgrade.compareFree')}</div>
+                  <div className="text-center font-medium text-amber-800">{t('upgrade.comparePremium')}</div>
 
-                  <div className="text-[#474747]">Providers</div>
+                  <div className="text-[#474747]">{t('upgrade.compareProviders')}</div>
                   <div className="text-center text-[#858585]">1</div>
-                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+                  <div className="text-center text-amber-700 font-medium">{t('upgrade.compareUnlimited')}</div>
 
-                  <div className="text-[#474747]">Scrape sites</div>
+                  <div className="text-[#474747]">{t('upgrade.compareScrapeSites')}</div>
                   <div className="text-center text-[#858585]">1</div>
-                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+                  <div className="text-center text-amber-700 font-medium">{t('upgrade.compareUnlimited')}</div>
 
-                  <div className="text-[#474747]">Jobs per scrape</div>
+                  <div className="text-[#474747]">{t('upgrade.compareJobsPerScrape')}</div>
                   <div className="text-center text-[#858585]">5</div>
-                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+                  <div className="text-center text-amber-700 font-medium">{t('upgrade.compareUnlimited')}</div>
 
-                  <div className="text-[#474747]">Rank iterations</div>
+                  <div className="text-[#474747]">{t('upgrade.compareRankIterations')}</div>
                   <div className="text-center text-[#858585]">3</div>
-                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+                  <div className="text-center text-amber-700 font-medium">{t('upgrade.compareUnlimited')}</div>
 
-                  <div className="text-[#474747]">Applications</div>
+                  <div className="text-[#474747]">{t('upgrade.compareApplications')}</div>
                   <div className="text-center text-[#858585]">5</div>
-                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+                  <div className="text-center text-amber-700 font-medium">{t('upgrade.compareUnlimited')}</div>
 
-                  <div className="text-[#474747]">Interview preps</div>
+                  <div className="text-[#474747]">{t('upgrade.compareInterviewPreps')}</div>
                   <div className="text-center text-[#858585]">5</div>
-                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+                  <div className="text-center text-amber-700 font-medium">{t('upgrade.compareUnlimited')}</div>
 
-                  <div className="text-[#474747]">Tracked outcomes</div>
+                  <div className="text-[#474747]">{t('upgrade.compareTrackedOutcomes')}</div>
                   <div className="text-center text-[#858585]">5</div>
-                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+                  <div className="text-center text-amber-700 font-medium">{t('upgrade.compareUnlimited')}</div>
 
-                  <div className="text-[#474747]">Expand</div>
-                  <div className="text-center text-[#858585]">Locked</div>
+                  <div className="text-[#474747]">{t('upgrade.compareExpand')}</div>
+                  <div className="text-center text-[#858585]">{t('upgrade.compareLocked')}</div>
                   <div className="text-center text-amber-700 font-medium">✓</div>
 
-                  <div className="text-[#474747]">Upskill</div>
-                  <div className="text-center text-[#858585]">Locked</div>
+                  <div className="text-[#474747]">{t('upgrade.compareUpskill')}</div>
+                  <div className="text-center text-[#858585]">{t('upgrade.compareLocked')}</div>
                   <div className="text-center text-amber-700 font-medium">✓</div>
                 </div>
               </div>
@@ -162,7 +162,7 @@ export default function UpgradeModal({ open, onClose }: UpgradeModalProps) {
                   type="text"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder="$10, $20, etc."
+                  placeholder={t('upgrade.amountPlaceholder') || '$10, $20, etc.'}
                   className="w-full rounded-lg border border-[#d2d2d7] bg-white px-4 py-2.5 text-sm text-[#1d1d1f] placeholder:text-[#858585] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
                 />
               </div>
@@ -213,7 +213,7 @@ export default function UpgradeModal({ open, onClose }: UpgradeModalProps) {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+506 8888-8888"
+                placeholder={t('upgrade.phonePlaceholder') || '+506 8888-8888'}
                 className="w-full rounded-lg border border-[#d2d2d7] bg-white px-4 py-2.5 text-sm text-[#1d1d1f] placeholder:text-[#858585] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
               />
               <p className="mt-1 text-xs text-[#858585]">{t('upgrade.phoneHint')}</p>

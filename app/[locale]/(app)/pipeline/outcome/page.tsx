@@ -27,6 +27,12 @@ import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { isPremium } from '@/lib/auth'
+import { useUsageLimits } from '@/hooks/useUsageLimits'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import UpgradeModal from '@/components/UpgradeModal'
 
 // ── Types ───────────────────────────────────────────────────────────
@@ -135,6 +141,9 @@ export default function OutcomePage() {
   const tc = useTranslations('common')
   const [showUpgrade, setShowUpgrade] = useState(false)
   const premium = isPremium()
+  const { data: usage } = useUsageLimits()
+
+  const atLimit = !premium && usage != null && usage.usage.outcomes >= usage.limits.max_track_count
   const [loading, setLoading] = useState(true)
   const [report, setReport] = useState<CalibrationReport | null>(null)
   const [outcomes, setOutcomes] = useState<OutcomeSummary[]>([])
@@ -267,6 +276,7 @@ export default function OutcomePage() {
           </svg>
           <span className="text-xs text-amber-400/80 flex-1">
             {t('freeLimitation') || 'Free plan: limited to 5 tracked outcomes. Upgrade to Premium for unlimited.'}
+            {usage && ` (${usage.usage.outcomes}/${usage.limits.max_track_count})`}
           </span>
           <button
             onClick={() => setShowUpgrade(true)}
@@ -673,13 +683,24 @@ export default function OutcomePage() {
                 >
                   {tc('cancel')}
                 </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="flex-1 rounded-full bg-[#0071e3] px-4 py-2.5 text-[12px] font-medium text-white hover:bg-[#0068d2] transition-colors disabled:opacity-40"
-                >
-                  {saving ? 'Saving…' : 'Save outcome'}
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span tabIndex={0} className="flex-1">
+                      <button
+                        type="submit"
+                        disabled={saving || atLimit}
+                        className="w-full rounded-full bg-[#0071e3] px-4 py-2.5 text-[12px] font-medium text-white hover:bg-[#0068d2] transition-colors disabled:opacity-40"
+                      >
+                        {saving ? 'Saving…' : 'Save outcome'}
+                      </button>
+                    </span>
+                  </TooltipTrigger>
+                  {atLimit && (
+                    <TooltipContent side="top" align="center">
+                      {t('limitReached') || 'Upgrade para más resultados'}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
               </div>
             </form>
           </div>

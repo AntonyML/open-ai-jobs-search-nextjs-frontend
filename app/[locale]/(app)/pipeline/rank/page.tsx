@@ -8,6 +8,12 @@ import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
 import { getCompletedSteps, setCompletedSteps, isPremium } from '@/lib/auth'
+import { useUsageLimits } from '@/hooks/useUsageLimits'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import UpgradeModal from '@/components/UpgradeModal'
 
 const FOCUS_TAGS = [
@@ -40,6 +46,9 @@ export default function Rank() {
   const [currentPage, setCurrentPage] = useState(1)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const premium = isPremium()
+  const { data: usage } = useUsageLimits()
+
+  const atLimit = !premium && usage != null && usage.usage.rank_iterations >= usage.limits.max_rank_iterations
   const router = useRouter()
 
   // Orchestrator hook for real-time progress
@@ -321,6 +330,7 @@ export default function Rank() {
           </svg>
           <span className="text-xs text-amber-400/80 flex-1">
             {t('freeLimitation') || 'Free plan: limited to 3 rank iterations. Upgrade to Premium for unlimited.'}
+            {usage && ` (${usage.usage.rank_iterations}/${usage.limits.max_rank_iterations})`}
           </span>
           <button
             onClick={() => setShowUpgrade(true)}
@@ -403,9 +413,20 @@ export default function Rank() {
               }`} />
             </button>
           </div>
-          <button disabled={loading} className="btn-primary shrink-0">
-            {loading ? t('ranking') : t('rankJobs')}
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span tabIndex={0}>
+                <button disabled={loading || atLimit} className="btn-primary shrink-0">
+                  {loading ? t('ranking') : t('rankJobs')}
+                </button>
+              </span>
+            </TooltipTrigger>
+            {atLimit && (
+              <TooltipContent side="top" align="center">
+                {t('limitReached') || 'Upgrade para más evaluaciones'}
+              </TooltipContent>
+            )}
+          </Tooltip>
         </div>
 
         {/* Progress display */}

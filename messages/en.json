@@ -305,7 +305,10 @@
     "next": "Next",
     "rankingComplete": "Ranking complete! {count} jobs evaluated",
     "rankingFailed": "Ranking failed: {error}",
-    "avgPerJob": "{seconds}s/job avg"
+    "avgPerJob": "{seconds}s/job avg",
+    "freeLimitation": "Free plan: limited to 3 rank iterations. Upgrade to Premium for unlimited.",
+    "upgrade": "Upgrade",
+    "limitReached": "Upgrade for more rank iterations"
   },
   "apply": {
     "title": "Turn a strong fit into an application",
@@ -314,7 +317,10 @@
     "generate": "Generate CV + cover letter",
     "generating": "Generating…",
     "stepCompleted": "Step completed!",
-    "rawResponse": "Raw response"
+    "rawResponse": "Raw response",
+    "freeLimitation": "Free plan: limited to 5 applications. Upgrade to Premium for unlimited.",
+    "upgrade": "Upgrade",
+    "limitReached": "Upgrade for more applications"
   },
   "interview": {
     "title": "Walk into the interview prepared",
@@ -342,14 +348,20 @@
     "consistencyBrief": "Consistency brief — claims to watch",
     "logistics": "Logistics",
     "recentNews": "Recent news",
-    "noPrepSelected": "Generate a prep pack or select one from the history to get started."
+    "noPrepSelected": "Generate a prep pack or select one from the history to get started.",
+    "freeLimitation": "Free plan: limited to 5 interview preps. Upgrade to Premium for unlimited.",
+    "upgrade": "Upgrade",
+    "limitReached": "Upgrade for more interview preps"
   },
   "outcome": {
     "title": "Track your progress",
     "subtitle": "Monitor your applications and interview outcomes.",
     "dashboardTab": "Dashboard",
     "historyTab": "History",
-    "calibrationTab": "Calibration"
+    "calibrationTab": "Calibration",
+    "freeLimitation": "Free plan: limited to 5 tracked outcomes. Upgrade to Premium for unlimited.",
+    "upgrade": "Upgrade",
+    "limitReached": "Upgrade for more tracked outcomes"
   },
   "expand": {
     "title": "Expand your profile",
@@ -365,7 +377,9 @@
     "history": "History",
     "noHistory": "No expansions yet. Click Expand profile to discover hidden skills.",
     "complete": "Expansion complete — {count} skills discovered",
-    "failed": "Expansion failed"
+    "failed": "Expansion failed",
+    "freeLimitation": "Premium feature — expand your skills and competencies. Upgrade to unlock.",
+    "upgrade": "Upgrade"
   },
   "upskill": {
     "title": "Skill gap analysis",
@@ -388,7 +402,9 @@
     "history": "History",
     "noHistory": "No analyses yet. Click Analyze skill gaps to start.",
     "complete": "Upskill complete — {gaps} gaps identified, {plan} learning items",
-    "failed": "Analysis failed"
+    "failed": "Analysis failed",
+    "freeLimitation": "Premium feature — analyze skill gaps and get a learning plan. Upgrade to unlock.",
+    "upgrade": "Upgrade"
   },
   "llmControl": {
     "title": "LLM Control",
@@ -586,10 +602,27 @@
     "phoneLabel": "Phone number (SINPE)",
     "phoneHint": "Must be a Costa Rican number (+506)",
     "amount": "Amount",
+    "amountPlaceholder": "$10, $20, etc.",
+    "phonePlaceholder": "+506 8888-8888",
     "sendRequest": "Send request",
     "sendDonation": "Send donation",
     "sent": "Request sent! We will contact you soon.",
-    "thankYou": "Thank you for your donation!"
+    "thankYou": "Thank you for your donation!",
+    "compareTitle": "Free vs Premium",
+    "compareFeature": "Feature",
+    "compareFree": "Free",
+    "comparePremium": "Premium",
+    "compareProviders": "Providers",
+    "compareScrapeSites": "Scrape sites",
+    "compareJobsPerScrape": "Jobs per scrape",
+    "compareRankIterations": "Rank iterations",
+    "compareApplications": "Applications",
+    "compareInterviewPreps": "Interview preps",
+    "compareTrackedOutcomes": "Tracked outcomes",
+    "compareExpand": "Expand",
+    "compareUpskill": "Upskill",
+    "compareUnlimited": "Unlimited",
+    "compareLocked": "Locked"
   },
   "language": {
     "label": "Language",

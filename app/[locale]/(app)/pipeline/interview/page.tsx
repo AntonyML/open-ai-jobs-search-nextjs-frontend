@@ -7,6 +7,12 @@ import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
 import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 import { isPremium } from '@/lib/auth'
+import { useUsageLimits } from '@/hooks/useUsageLimits'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import UpgradeModal from '@/components/UpgradeModal'
 
 // ── Types ───────────────────────────────────────────────────────────
@@ -72,6 +78,9 @@ export default function InterviewPage() {
   const tc = useTranslations('common')
   const [showUpgrade, setShowUpgrade] = useState(false)
   const premium = isPremium()
+  const { data: usage } = useUsageLimits()
+
+  const atLimit = !premium && usage != null && usage.usage.interview_preps >= usage.limits.max_prepare_count
   // State
   const [preps, setPreps] = useState<InterviewPrepSummary[]>([])
   const [applications, setApplications] = useState<Application[]>([])
@@ -259,6 +268,7 @@ export default function InterviewPage() {
           </svg>
           <span className="text-xs text-amber-400/80 flex-1">
             {t('freeLimitation') || 'Free plan: limited to 5 interview preps. Upgrade to Premium for unlimited.'}
+            {usage && ` (${usage.usage.interview_preps}/${usage.limits.max_prepare_count})`}
           </span>
           <button
             onClick={() => setShowUpgrade(true)}
@@ -362,13 +372,24 @@ export default function InterviewPage() {
                   </label>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={generating}
-                  className="btn-primary w-full"
-                >
-                  {generating ? t('generating') : t('generatePrep')}
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span tabIndex={0}>
+                      <button
+                        type="submit"
+                        disabled={generating || atLimit}
+                        className="btn-primary w-full"
+                      >
+                        {generating ? t('generating') : t('generatePrep')}
+                      </button>
+                    </span>
+                  </TooltipTrigger>
+                  {atLimit && (
+                    <TooltipContent side="top" align="center">
+                      {t('limitReached') || 'Upgrade para más entrevistas'}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
               </form>
             </div>
           )}
