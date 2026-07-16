@@ -1,7 +1,7 @@
 name: Deploy Cloudflare Worker
 
 run-name: >
-  Deploy ${{ github.ref_name }}
+  Deploy ${{ github.event.inputs.environment }} @ ${{ github.ref_name }}
   by @${{ github.actor }}
 
 on:
@@ -32,11 +32,11 @@ jobs:
   deploy:
     if: github.event.inputs.confirm == 'DEPLOY'
 
-    name: Deploy Worker
+    name: Deploy to ${{ github.event.inputs.environment }}
 
     runs-on: ubuntu-latest
 
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     environment: ${{ github.event.inputs.environment }}
 
@@ -49,19 +49,18 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: ${{ vars.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ vars.NODE_VERSION }}
           cache: pnpm
 
       - name: Get pnpm store path
         id: pnpm-cache
         shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
 
       - name: Restore pnpm cache
         uses: actions/cache@v4
@@ -71,17 +70,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-
 
-      - name: Restore Wrangler cache
+      - name: Restore OpenNext cache
         uses: actions/cache@v4
         with:
-          path: ~/.cache/wrangler
-          key: wrangler-${{ runner.os }}
+          path: .open-next
+          key: opennext-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'next.config.ts', 'wrangler.jsonc') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Deploy to Cloudflare
-        run: pnpm deploy
+        run: pnpm run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
