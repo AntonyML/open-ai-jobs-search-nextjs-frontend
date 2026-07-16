@@ -195,22 +195,8 @@ export default function ProfilePage() {
           )}
         </div>
 
-        {/* Profile status card */}
-        <div className="card animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
-          <div className="flex items-center justify-between mb-3">
-            <p className="eyebrow !text-[#0071e3]">{t('title')}</p>
-          </div>
-          {hasSetup ? (
-            <div className="flex items-center gap-2">
-              <svg className="size-4 text-[#30d158]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-              </svg>
-              <p className="text-[13px] text-[#1d1d1f]">
-                {setup.experience?.length || 0} {t('experiences')} · {setup.education?.length || 0} {t('educations')} · {setup.skills?.software_tools?.length || 0} {t('skills')}
-              </p>
-            </div>
-          ) : null}
-        </div>
+        {/* Profile setup progress */}
+        <ProfileProgress hasSetup={hasSetup} hasProvider={hasProvider} setup={setup} t={t} />
       </div>
 
       {/* ── Profile Details ────────────────────────────────────── */}
@@ -576,6 +562,83 @@ function EmptySection({ message }: { message: string }) {
         </svg>
       </div>
       <p className="text-[13px] text-[#b0b0b0]">{message}</p>
+    </div>
+  )
+}
+
+/* ── Profile Progress ──────────────────────────────── */
+
+function ProfileProgress({ hasSetup, hasProvider, setup, t }: { hasSetup: boolean; hasProvider: boolean; setup: any; t: (key: string) => string }) {
+  const router = useRouter()
+  const sections = [
+    { key: 'experience', done: (setup?.experience?.length ?? 0) > 0 },
+    { key: 'education', done: (setup?.education?.length ?? 0) > 0 },
+    { key: 'skills', done: (setup?.skills?.software_tools?.length ?? 0) > 0 || (setup?.skills?.programming_ml?.length ?? 0) > 0 },
+  ]
+  const completed = sections.filter((s) => s.done).length
+  const total = sections.length
+  const pct = hasSetup ? Math.round((completed / total) * 100) : 0
+  const radius = 20
+  const circumference = 2 * Math.PI * radius
+  const offset = circumference - (pct / 100) * circumference
+
+  const handleSetupClick = () => {
+    if (!hasProvider) {
+      showError(t('providerRequired'))
+    } else {
+      router.push('/pipeline/setup')
+    }
+  }
+
+  return (
+    <div className="card animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
+      <div className="flex items-center justify-between mb-3">
+        <p className="eyebrow !text-[#0071e3]">{t('setupTitle')}</p>
+        {!hasSetup && (
+          <button onClick={handleSetupClick} className="btn-ghost text-[11px]">
+            {t('setup')}
+          </button>
+        )}
+      </div>
+
+      {/* Circular progress */}
+      <div className="flex items-center gap-4">
+        <div className="relative size-14 shrink-0">
+          <svg className="size-14 -rotate-90" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r={radius} fill="none" stroke="#e2e2e5" strokeWidth="4" />
+            <circle
+              cx="24" cy="24" r={radius}
+              fill="none"
+              stroke={pct === 100 ? '#30d158' : '#0071e3'}
+              strokeWidth="4"
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
+              strokeLinecap="round"
+              className="transition-all duration-700 ease-out"
+            />
+          </svg>
+          <span className="absolute inset-0 flex items-center justify-center text-[11px] font-semibold tabular-nums text-[#1d1d1f]">
+            {hasSetup ? `${pct}%` : '—'}
+          </span>
+        </div>
+
+        <div className="space-y-1.5 min-w-0 flex-1">
+          {sections.map((s) => (
+            <div key={s.key} className="flex items-center gap-2 text-[12px] text-[#707070]">
+              {s.done ? (
+                <svg className="size-3.5 shrink-0 text-[#30d158]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+              ) : (
+                <svg className="size-3.5 shrink-0 text-[#b0b0b0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+              )}
+              <span className="capitalize truncate">{t(s.key)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

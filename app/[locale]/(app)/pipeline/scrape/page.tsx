@@ -12,6 +12,8 @@ import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleButton } from '@/components/ui/apple-button'
 import { UpgradeBanner } from '@/components/ui/upgrade-banner'
 import { OptionPills } from '@/components/scrape/OptionPills'
+import { PipelineEmptyState } from '@/components/PipelineEmptyState'
+import { Search } from 'lucide-react'
 import UpgradeModal from '@/components/UpgradeModal'
 
 const PORTALS = ['linkedin', 'freehire', 'jobbank', 'jobdanmark', 'jobindex', 'jobnet']
@@ -236,19 +238,13 @@ export default function Scrape() {
               </AppleButton>
             </>
           ) : (
-            <div className="card border-dashed text-center">
-              <div className="flex items-center justify-center gap-3 py-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f0f0f2]">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#858585]">
-                    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-[#707070]">{t('noJobsYet')}</p>
-                  <p className="text-xs text-[#b0b0b0] mt-0.5">{t('noJobsHint')}</p>
-                </div>
-              </div>
-            </div>
+            <PipelineEmptyState
+              icon={Search}
+              title={t('emptyTitle')}
+              description={t('emptyDesc')}
+              actionLabel={t('emptyAction')}
+              actionHref="/pipeline/scrape"
+            />
           )}
         </div>
       </div>

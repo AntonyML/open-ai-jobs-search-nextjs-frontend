@@ -13,6 +13,8 @@ import { useUsageLimits } from '@/hooks/useUsageLimits'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleButton } from '@/components/ui/apple-button'
 import { UpgradeBanner } from '@/components/ui/upgrade-banner'
+import { PipelineEmptyState } from '@/components/PipelineEmptyState'
+import { BarChart3 } from 'lucide-react'
 import { FocusTags } from '@/components/rank/FocusTags'
 import { RankSlider } from '@/components/rank/RankSlider'
 import { ReRankToggle } from '@/components/rank/ReRankToggle'
@@ -355,19 +357,13 @@ export default function Rank() {
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={goToPage} />
           </div>
         ) : (
-          <div className="card border-dashed text-center">
-            <div className="flex items-center justify-center gap-3 py-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f0f0f2]">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#858585]">
-                  <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[#707070]">{t('noJobsRanked')}</p>
-                <p className="text-xs text-[#b0b0b0] mt-0.5">{t('noJobsHint')}</p>
-              </div>
-            </div>
-          </div>
+          <PipelineEmptyState
+            icon={BarChart3}
+            title={t('emptyTitle')}
+            description={t('emptyDesc')}
+            actionLabel={t('emptyAction')}
+            actionHref="/pipeline/scrape"
+          />
         )}
 
         {!result && items.length > 0 && (

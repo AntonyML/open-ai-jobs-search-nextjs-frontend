@@ -9,6 +9,8 @@ import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleButton } from '@/components/ui/apple-button'
+import { PipelineEmptyState } from '@/components/PipelineEmptyState'
+import { FileText } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -44,7 +46,23 @@ function ResultCard({ item }: { item: any }) {
   )
 }
 
-function EmptyState() {
+function EmptyState({ title, description, actionLabel, actionHref }: {
+  title?: string
+  description?: string
+  actionLabel?: string
+  actionHref?: string
+}) {
+  if (title) {
+    return (
+      <PipelineEmptyState
+        icon={FileText}
+        title={title}
+        description={description || ''}
+        actionLabel={actionLabel || ''}
+        actionHref={actionHref || '#'}
+      />
+    )
+  }
   return (
     <div className="card border-dashed text-center">
       <div className="flex items-center justify-center gap-3 py-4">
@@ -89,6 +107,10 @@ export default function PipelinePage({
   actionLabel = 'Run',
   actionDisabled = false,
   actionDisabledTooltip = '',
+  emptyTitle,
+  emptyDesc,
+  emptyAction,
+  emptyHref,
 }: PipelinePageProps) {
   const [form, setForm] = useState<Record<string, string>>({})
   const [items, setItems] = useState<any[]>([])
@@ -230,7 +252,14 @@ export default function PipelinePage({
             <div className="space-y-3 max-h-[480px] overflow-y-auto scrollbar-thin pr-1">
               {items.map((x, i) => <ResultCard key={i} item={x} />)}
             </div>
-          ) : <EmptyState />}
+          ) : (
+            <EmptyState
+              title={emptyTitle}
+              description={emptyDesc}
+              actionLabel={emptyAction}
+              actionHref={emptyHref}
+            />
+          )}
 
           {result && <RawResult data={result} />}
 

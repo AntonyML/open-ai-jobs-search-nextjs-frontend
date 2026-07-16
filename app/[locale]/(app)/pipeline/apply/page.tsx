@@ -38,6 +38,10 @@ export default function Apply() {
         actionLabel={t('generate')}
         actionDisabled={atLimit}
         actionDisabledTooltip={atLimit ? t('limitReached') || 'Upgrade para más aplicaciones' : ''}
+        emptyTitle={t('emptyTitle')}
+        emptyDesc={t('emptyDesc')}
+        emptyAction={t('emptyAction')}
+        emptyHref="/pipeline/rank"
       />
       <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </>

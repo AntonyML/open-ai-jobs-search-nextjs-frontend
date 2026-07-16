@@ -221,6 +221,10 @@ export interface PipelinePageProps {
   actionLabel?: string
   actionDisabled?: boolean
   actionDisabledTooltip?: string
+  emptyTitle?: string
+  emptyDesc?: string
+  emptyAction?: string
+  emptyHref?: string
 }
 
 export interface UpgradeBannerProps {

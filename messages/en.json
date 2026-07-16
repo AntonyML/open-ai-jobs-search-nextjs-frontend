@@ -273,6 +273,9 @@
     "new": "new",
     "noJobsYet": "No jobs scraped yet",
     "noJobsHint": "Configure your search and hit Start scraping.",
+    "emptyTitle": "No jobs found yet",
+    "emptyDesc": "Configure your search parameters — pick portals, focus area, and date range — then click Start scraping to discover job openings.",
+    "emptyAction": "Start scraping",
     "continueToRank": "Continue to Rank →",
     "freeLimitation": "Free plan: 1 site, 5 jobs max. Upgrade for unlimited.",
     "upgrade": "Upgrade"
@@ -300,6 +303,9 @@
     "evaluating": "Evaluating jobs",
     "noJobsRanked": "No jobs ranked yet",
     "noJobsHint": "Ranked jobs will appear here after evaluation.",
+    "emptyTitle": "No jobs to rank",
+    "emptyDesc": "Ranking evaluates scraped jobs against your profile to find the best matches. Scrape jobs first to have candidates for evaluation.",
+    "emptyAction": "Go to Scrape",
     "showing": "Showing {count} of {total} ranked jobs",
     "page": "Page {current} of {total}",
     "prev": "Previous",
@@ -321,7 +327,10 @@
     "rawResponse": "Raw response",
     "freeLimitation": "Free plan: limited to 5 applications. Upgrade to Premium for unlimited.",
     "upgrade": "Upgrade",
-    "limitReached": "Upgrade for more applications"
+    "limitReached": "Upgrade for more applications",
+    "emptyTitle": "No applications yet",
+    "emptyDesc": "Generate tailored CVs and cover letters for your top-ranked jobs. Rank jobs first to find the best matches to apply for.",
+    "emptyAction": "Go to Rank"
   },
   "interview": {
     "title": "Walk into the interview prepared",
@@ -648,9 +657,13 @@
     "modelLabel": "Model:",
     "noProvider": "No AI provider connected",
     "noProviderHint": "Connect an API key to use AI services",
+    "setupTitle": "Setup Progress",
+    "setup": "Set up",
+    "experience": "Experience",
+    "education": "Education",
+    "skills": "Skills",
     "experiences": "experiences",
     "educations": "educations",
-    "skills": "skills",
     "profileDetails": "Profile Details",
     "activityUsage": "Activity & Usage",
     "applications": "Applications",
@@ -666,6 +679,7 @@
     "avgRankScore": "Avg. rank score:",
     "accessibility": "Accessibility",
     "accessibilityDesc": "Customize your reading and visual experience.",
-    "loadError": "Could not load profile"
+    "loadError": "Could not load profile",
+    "providerRequired": "Please configure an AI provider first"
   }
 }

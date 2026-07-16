@@ -272,6 +272,9 @@
     "new": "nuevos",
     "noJobsYet": "Aún no hay empleos scapeados",
     "noJobsHint": "Configura tu búsqueda y presiona Comenzar scraping.",
+    "emptyTitle": "Aún no hay empleos encontrados",
+    "emptyDesc": "Configura los parámetros de búsqueda — selecciona portales, área de enfoque y rango de fechas — luego haz clic en Comenzar scraping para descubrir ofertas.",
+    "emptyAction": "Buscar empleos",
     "continueToRank": "Continuar a Rank →",
     "freeLimitation": "Plan Free: 1 sitio, 5 empleos máx. Mejora para ilimitado.",
     "upgrade": "Mejorar"
@@ -299,6 +302,9 @@
     "evaluating": "Evaluando empleos",
     "noJobsRanked": "Aún no hay empleos rankeados",
     "noJobsHint": "Los empleos rankeados aparecerán aquí después de la evaluación.",
+    "emptyTitle": "No hay empleos para rankear",
+    "emptyDesc": "El ranking evalúa los empleos scapeados contra tu perfil para encontrar los mejores. Busca empleos primero para tener candidatos que evaluar.",
+    "emptyAction": "Ir a Scrape",
     "showing": "Mostrando {count} de {total} empleos rankeados",
     "page": "Página {current} de {total}",
     "prev": "Anterior",
@@ -320,7 +326,10 @@
     "rawResponse": "Respuesta cruda",
     "freeLimitation": "Plan Free: limitado a 5 aplicaciones. Mejora a Premium para ilimitado.",
     "upgrade": "Mejorar",
-    "limitReached": "Mejora para más aplicaciones"
+    "limitReached": "Mejora para más aplicaciones",
+    "emptyTitle": "Aún no hay postulaciones",
+    "emptyDesc": "Genera CVs y cartas de presentación personalizadas para tus empleos mejor rankeados. Primero rankea empleos para encontrar los mejores candidatos.",
+    "emptyAction": "Ir a Rank"
   },
   "interview": {
     "title": "Llega preparado a la entrevista",
@@ -647,9 +656,13 @@
     "modelLabel": "Modelo:",
     "noProvider": "Ningún proveedor IA conectado",
     "noProviderHint": "Conecta una API key para usar servicios de IA",
+    "setupTitle": "Progreso del setup",
+    "setup": "Configurar",
+    "experience": "Experiencia",
+    "education": "Educación",
+    "skills": "Habilidades",
     "experiences": "experiencias",
     "educations": "educaciones",
-    "skills": "habilidades",
     "profileDetails": "Detalles del perfil",
     "activityUsage": "Actividad y uso",
     "applications": "Postulaciones",
@@ -665,6 +678,7 @@
     "avgRankScore": "Puntaje prom. de ranking:",
     "accessibility": "Accesibilidad",
     "accessibilityDesc": "Personaliza tu experiencia de lectura y visual.",
-    "loadError": "No se pudo cargar el perfil"
+    "loadError": "No se pudo cargar el perfil",
+    "providerRequired": "Primero configura un proveedor de IA"
   }
 }

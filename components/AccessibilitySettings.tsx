@@ -103,7 +103,7 @@ function FontSizeSlider({
   }
 
   return (
-    <div className="py-4 border-b border-[#e2e2e5] last:border-0 max-w-sm">
+    <div className="py-4 border-b border-[#e2e2e5] last:border-0">
       {/* Label row */}
       <div className="flex items-center justify-between mb-3">
         <div>
