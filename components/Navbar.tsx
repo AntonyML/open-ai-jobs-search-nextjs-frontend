@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from '@/i18n/routing'
 import { useTranslations } from 'next-intl'
-import { isLoggedIn, clearToken } from '@/lib/auth'
+import { isLoggedIn, clearToken, isAdmin } from '@/lib/auth'
 import NotificationBell from '@/components/NotificationBell'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 
@@ -84,6 +84,17 @@ export default function Navbar() {
               >
                 {t('nav.pipeline')}
               </Link>
+              {isAdmin() && (
+                <Link
+                  href="/admin"
+                  className="hidden md:inline-flex items-center rounded-full px-3 py-1.5 text-[12px] font-medium text-amber-600 hover:text-amber-700 hover:bg-amber-50 transition-all"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                  {t('nav.admin')}
+                </Link>
+              )}
               <Link
                 href="/profile"
                 className="inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] bg-white px-3 py-1.5 text-[12px] font-medium text-[#1d1d1f] hover:border-[#0071e3]/30 hover:text-[#0071e3] transition-all"
@@ -155,6 +166,9 @@ export default function Navbar() {
               <>
                 <Link href="/dashboard" className="block rounded-lg px-3 py-2 text-sm text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]">{t('nav.dashboard')}</Link>
                 <Link href="/pipeline/providers" className="block rounded-lg px-3 py-2 text-sm text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]">{t('nav.pipeline')}</Link>
+                {isAdmin() && (
+                  <Link href="/admin" className="block rounded-lg px-3 py-2 text-sm text-amber-600 hover:bg-amber-50">{t('nav.admin')}</Link>
+                )}
                 <button onClick={() => { clearToken(); router.push('/') }} className="block w-full text-left rounded-lg px-3 py-2 text-sm text-rose-500 hover:bg-rose-50">{t('nav.signOut')}</button>
               </>
             ) : (

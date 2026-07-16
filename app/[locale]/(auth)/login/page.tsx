@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
-import { setToken } from '@/lib/auth'
+import { setToken, decodeToken } from '@/lib/auth'
 import { showError } from '@/lib/toasts'
 
 export default function Login() {

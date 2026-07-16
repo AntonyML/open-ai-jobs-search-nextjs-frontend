@@ -26,6 +26,7 @@
     "dashboard": "Panel",
     "pipeline": "Pipeline",
     "profile": "Perfil",
+    "admin": "Admin",
     "signIn": "Iniciar sesión",
     "signOut": "Cerrar sesión",
     "getStarted": "Comenzar",
@@ -167,6 +168,7 @@
       "upskillDesc": "Brechas de skill",
       "lockedMessage": "Completa todos los pasos del pipeline principal (Providers → Outcome) para desbloquear esta opción"
     },
+    "upgradeBanner": "Actualizar a Premium",
     "reset": "Reiniciar pipeline",
     "resetEmpty": "No hay pasos completados para reiniciar",
     "resetConfirm": "¿Estás seguro? Se borrará todo el progreso del pipeline.",
@@ -446,6 +448,9 @@
       "interfaceDesc": "Elige tu idioma preferido para la interfaz"
     },
     "security": {
+      "plan": "Plan y facturación",
+      "planDesc": "Tu plan de suscripción actual",
+      "upgrade": "Mejorar",
       "changePassword": "Cambiar contraseña",
       "currentPassword": "Contraseña actual",
       "newPassword": "Nueva contraseña",
@@ -554,6 +559,30 @@
     "cookies": "Cookies",
     "licenses": "Licencias",
     "allRightsReserved": "© {year} Open Ai Jobs Search. Todos los derechos reservados."
+  },
+  "upgrade": {
+    "title": "Actualizar a Premium",
+    "donateTitle": "Apoyar el Proyecto",
+    "upgrade": "Premium",
+    "donate": "Donar",
+    "description": "Desbloquea todas las funciones con un plan premium. Contáctanos para gestionar tu pago.",
+    "donateDescription": "Apoya el proyecto con una donación. Cada contribución ayuda a mantener los servidores funcionando.",
+    "feature1": "Selección ilimitada de proveedores",
+    "feature2": "Scraping en múltiples sitios de empleo",
+    "feature3": "Ranking y aplicaciones ilimitados",
+    "feature4": "Acceso a los pasos Expand y Upskill",
+    "paymentMethod": "Método de pago",
+    "contactEmail": "Contactar por correo",
+    "contactEmailDesc": "Te contactaremos para coordinar el pago",
+    "sinpe": "SINPE Móvil",
+    "sinpeDesc": "Paga directamente desde Costa Rica",
+    "phoneLabel": "Número de teléfono (SINPE)",
+    "phoneHint": "Debe ser un número costarricense (+506)",
+    "amount": "Monto",
+    "sendRequest": "Enviar solicitud",
+    "sendDonation": "Enviar donación",
+    "sent": "¡Solicitud enviada! Te contactaremos pronto.",
+    "thankYou": "¡Gracias por tu donación!"
   },
   "language": {
     "label": "Idioma",

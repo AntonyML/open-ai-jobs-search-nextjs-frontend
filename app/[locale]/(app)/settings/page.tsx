@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter as useNextRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
-import { clearCompletedSteps, clearToken, isLoggedIn } from '@/lib/auth'
+import { clearCompletedSteps, clearToken, isLoggedIn, isPremium } from '@/lib/auth'
 import { apiFetch } from '@/lib/api'
 import { showError, showSuccess } from '@/lib/toasts'
 import {
@@ -33,6 +33,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 import AccessibilitySettings from '@/components/AccessibilitySettings'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import UpgradeModal from '@/components/UpgradeModal'
 
 // ── Main Settings Page ────────────────────────────────────────────
 
@@ -58,6 +59,7 @@ export default function Settings() {
   const [deletePassword, setDeletePassword] = useState('')
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleting, setDeleting] = useState(false)
+  const [showUpgrade, setShowUpgrade] = useState(false)
 
   useEffect(() => {
     if (!isLoggedIn()) { router.replace('/login'); return }
@@ -316,6 +318,43 @@ export default function Settings() {
         {/* ── Security ──────────────────────────────────── */}
         <TabsContent value="security">
           <div className="space-y-6">
+            {/* ── Plan & Billing ─────────────────── */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                  {t('security.plan')}
+                </CardTitle>
+                <CardDescription>{t('security.planDesc')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+                      isPremium()
+                        ? 'bg-amber-100 text-amber-700'
+                        : 'bg-[#f5f5f7] text-[#707070]'
+                    }`}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                      {isPremium() ? 'Premium' : 'Free'}
+                    </span>
+                  </div>
+                  {!isPremium() && (
+                    <button
+                      onClick={() => setShowUpgrade(true)}
+                      className="rounded-full bg-[#0071e3] px-4 py-1.5 text-xs font-medium text-white hover:bg-[#0068d2] transition-all"
+                    >
+                      {t('security.upgrade')}
+                    </button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>{t('security.changePassword')}</CardTitle>
@@ -460,6 +499,8 @@ export default function Settings() {
           )}
         </TabsContent>
       </Tabs>
+
+      <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </div>
   )
 }

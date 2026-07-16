@@ -27,6 +27,7 @@
     "dashboard": "Dashboard",
     "pipeline": "Pipeline",
     "profile": "Profile",
+    "admin": "Admin",
     "signIn": "Sign in",
     "signOut": "Sign out",
     "getStarted": "Get started",
@@ -168,6 +169,7 @@
       "upskillDesc": "Skill gaps",
       "lockedMessage": "Complete all main pipeline steps (Providers → Outcome) to unlock this option"
     },
+    "upgradeBanner": "Upgrade to Premium",
     "reset": "Reset pipeline",
     "resetEmpty": "No completed steps to reset",
     "resetConfirm": "Are you sure? All pipeline progress will be deleted.",
@@ -447,6 +449,9 @@
       "interfaceDesc": "Choose your preferred language for the interface"
     },
     "security": {
+      "plan": "Plan & Billing",
+      "planDesc": "Your current subscription plan",
+      "upgrade": "Upgrade",
       "changePassword": "Change password",
       "currentPassword": "Current password",
       "newPassword": "New password",
@@ -555,6 +560,30 @@
     "cookies": "Cookies",
     "licenses": "Licenses",
     "allRightsReserved": "© {year} Open Ai Jobs Search. All rights reserved."
+  },
+  "upgrade": {
+    "title": "Upgrade to Premium",
+    "donateTitle": "Support the Project",
+    "upgrade": "Upgrade",
+    "donate": "Donate",
+    "description": "Unlock all features with a premium plan. Contact us to manage your payment.",
+    "donateDescription": "Support the project with a donation. Every contribution helps keep the servers running.",
+    "feature1": "Unlimited provider selection",
+    "feature2": "Multiple job sites scraping",
+    "feature3": "Unlimited ranking & applications",
+    "feature4": "Access to Expand and Upskill steps",
+    "paymentMethod": "Payment method",
+    "contactEmail": "Contact by email",
+    "contactEmailDesc": "We will contact you to arrange payment",
+    "sinpe": "SINPE Móvil",
+    "sinpeDesc": "Pay directly from Costa Rica",
+    "phoneLabel": "Phone number (SINPE)",
+    "phoneHint": "Must be a Costa Rican number (+506)",
+    "amount": "Amount",
+    "sendRequest": "Send request",
+    "sendDonation": "Send donation",
+    "sent": "Request sent! We will contact you soon.",
+    "thankYou": "Thank you for your donation!"
   },
   "language": {
     "label": "Language",
