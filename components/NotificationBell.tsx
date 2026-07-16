@@ -1,7 +1,14 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useNotifications, markAsRead, markAllAsRead, clearNotifications, type ProcessNotification } from '@/lib/notifications'
+import { createPortal } from 'react-dom'
+import {
+  useNotifications,
+  markAsRead,
+  markAllAsRead,
+  clearNotifications,
+  type ProcessNotification,
+} from '@/lib/notifications'
 
 const PIPELINE_LABELS: Record<string, string> = {
   rank: 'Ranking',
@@ -11,9 +18,9 @@ const PIPELINE_LABELS: Record<string, string> = {
   apply: 'Application',
 }
 
-function BellIcon({ hasUnread }: { hasUnread: boolean }) {
+function BellIcon({ count }: { count: number }) {
   return (
-    <span className="relative">
+    <span className="relative inline-flex">
       <svg
         width="16"
         height="16"
@@ -23,14 +30,13 @@ function BellIcon({ hasUnread }: { hasUnread: boolean }) {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="transition-colors"
       >
         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
         <path d="M13.73 21a2 2 0 0 1-3.46 0" />
       </svg>
-      {hasUnread && (
-        <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-rose-500 text-[8px] font-bold text-white ring-2 ring-white">
-          •
+      {count > 0 && (
+        <span className="absolute -top-2 -right-2 flex min-w-[16px] h-4 items-center justify-center rounded-full bg-[#ff3b30] px-1 text-[9px] font-semibold text-white leading-none ring-2 ring-white">
+          {count > 99 ? '99+' : count}
         </span>
       )}
     </span>
@@ -40,13 +46,31 @@ function BellIcon({ hasUnread }: { hasUnread: boolean }) {
 function StatusIcon({ status }: { status: 'success' | 'error' }) {
   if (status === 'success') {
     return (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34c759" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#34c759"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <polyline points="20 6 9 17 4 12" />
       </svg>
     )
   }
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff3b30" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#ff3b30"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="12" cy="12" r="10" />
       <line x1="15" y1="9" x2="9" y2="15" />
       <line x1="9" y1="9" x2="15" y2="15" />
@@ -65,13 +89,21 @@ function formatTimestamp(ts: string): string {
   return d.toLocaleDateString()
 }
 
-function NotificationItem({ notif, onClick }: { notif: ProcessNotification; onClick: () => void }) {
+function NotificationItem({
+  notif,
+  onClick,
+}: {
+  notif: ProcessNotification
+  onClick: () => void
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-[#f5f5f7] ${
-        !notif.read ? 'bg-[#f4f8fb]' : ''
+      className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors ${
+        !notif.read
+          ? 'bg-[#f4f8fb] hover:bg-[#eef4f8]'
+          : 'hover:bg-[#f5f5f7]'
       }`}
     >
       <div className="mt-0.5 shrink-0">
@@ -79,17 +111,17 @@ function NotificationItem({ notif, onClick }: { notif: ProcessNotification; onCl
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-medium text-[#0066cc] uppercase tracking-wide">
+          <span className="text-[11px] font-semibold uppercase tracking-[.12em] text-[#0066cc]">
             {PIPELINE_LABELS[notif.pipeline] || notif.pipeline}
           </span>
           {!notif.read && (
-            <span className="h-1.5 w-1.5 rounded-full bg-[#0071e3]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#0071e3] animate-pulse-dot" />
           )}
         </div>
         <p className="mt-0.5 text-[12px] text-[#1d1d1f] leading-snug line-clamp-2">
           {notif.description}
         </p>
-        <p className="mt-0.5 text-[10px] text-[#b0b0b0]">
+        <p className="mt-0.5 text-[10px] text-[#858585]">
           {formatTimestamp(notif.timestamp)}
         </p>
       </div>
@@ -100,10 +132,11 @@ function NotificationItem({ notif, onClick }: { notif: ProcessNotification; onCl
 export default function NotificationBell() {
   const { notifications, unread } = useNotifications()
   const [open, setOpen] = useState(false)
+  const [pos, setPos] = useState({ top: 0, right: 0 })
   const dropdownRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
-  // Close on click outside
+  // Close dropdown on click outside
   useEffect(() => {
     if (!open) return
     const onPointerDown = (e: PointerEvent) => {
@@ -121,12 +154,18 @@ export default function NotificationBell() {
   }, [open])
 
   const handleToggle = () => {
-    setOpen(o => !o)
+    if (!open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setPos({
+        top: rect.bottom + 8,
+        right: window.innerWidth - rect.right,
+      })
+    }
+    setOpen((o) => !o)
   }
 
   const handleItemClick = (id: string) => {
     markAsRead(id)
-    // Keep dropdown open on click
   }
 
   const handleMarkAllRead = () => {
@@ -139,7 +178,7 @@ export default function NotificationBell() {
   }
 
   return (
-    <div className="relative">
+    <>
       <button
         ref={buttonRef}
         type="button"
@@ -149,80 +188,85 @@ export default function NotificationBell() {
           open
             ? 'bg-[#0071e3] text-white'
             : unread > 0
-            ? 'text-[#0071e3] hover:bg-[#f4f8fb]'
-            : 'text-[#707070] hover:bg-[#f5f5f7]'
+              ? 'text-[#0071e3] hover:bg-[#f4f8fb]'
+              : 'text-[#707070] hover:bg-[#f5f5f7]'
         }`}
-        title="Notifications"
+        aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
       >
-        <BellIcon hasUnread={unread > 0} />
+        <BellIcon count={unread} />
       </button>
 
-      {open && (
-        <div
-          ref={dropdownRef}
-          className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-[#d2d2d7] bg-white shadow-lg shadow-black/5 overflow-hidden z-50"
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[#e2e2e5]">
-            <p className="text-[12px] font-semibold text-[#1d1d1f]">
-              Notifications
-            </p>
-            <div className="flex items-center gap-2">
-              {unread > 0 && (
-                <button
-                  type="button"
-                  onClick={handleMarkAllRead}
-                  className="text-[10px] font-medium text-[#0071e3] hover:text-[#0066cc] transition-colors"
-                >
-                  Mark all read
-                </button>
-              )}
-              {notifications.length > 0 && (
-                <button
-                  type="button"
-                  onClick={handleClear}
-                  className="text-[10px] font-medium text-[#858585] hover:text-rose-500 transition-colors"
-                >
-                  Clear
-                </button>
+      {open
+        && createPortal(
+          <div
+            ref={dropdownRef}
+            style={{ position: 'fixed', top: pos.top, right: pos.right }}
+            className="w-80 rounded-xl border border-[#d2d2d7] bg-white overflow-hidden z-[60] animate-fade-in-up"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#e2e2e5]">
+              <p className="text-[12px] font-semibold text-[#1d1d1f]">
+                Notifications
+              </p>
+              <div className="flex items-center gap-2">
+                {unread > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleMarkAllRead}
+                    className="text-[10px] font-medium text-[#0066cc] hover:text-[#0071e3] transition-colors"
+                  >
+                    Mark all read
+                  </button>
+                )}
+                {notifications.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    className="text-[10px] font-medium text-[#858585] transition-colors hover:text-[#ff3b30]"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* List */}
+            <div className="max-h-80 overflow-y-auto scrollbar-thin">
+              {notifications.length === 0 ? (
+                <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#d2d2d7"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                  <p className="text-[12px] text-[#858585]">
+                    No notifications yet
+                  </p>
+                  <p className="text-[10px] text-[#d2d2d7]">
+                    Complete a pipeline step to see it here.
+                  </p>
+                </div>
+              ) : (
+                notifications.map((notif) => (
+                  <NotificationItem
+                    key={notif.id}
+                    notif={notif}
+                    onClick={() => handleItemClick(notif.id)}
+                  />
+                ))
               )}
             </div>
-          </div>
-
-          {/* List */}
-          <div className="max-h-80 overflow-y-auto scrollbar-thin">
-            {notifications.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#d2d2d7"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                </svg>
-                <p className="text-[12px] text-[#b0b0b0]">No notifications yet</p>
-                <p className="text-[10px] text-[#d2d2d7]">
-                  Complete a pipeline step to see it here.
-                </p>
-              </div>
-            ) : (
-              notifications.map(notif => (
-                <NotificationItem
-                  key={notif.id}
-                  notif={notif}
-                  onClick={() => handleItemClick(notif.id)}
-                />
-              ))
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+          </div>,
+          document.body,
+        )}
+    </>
   )
 }

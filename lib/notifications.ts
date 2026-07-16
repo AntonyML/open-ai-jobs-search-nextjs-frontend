@@ -92,16 +92,10 @@ export function unreadCount(): number {
  * Re-renders the component whenever a notification is added or marked read.
  */
 export function useNotifications() {
-  const [notifs, setNotifs] = useState<ProcessNotification[]>([])
-  const [unread, setUnread] = useState(0)
-
-  // We use a nonce to force refresh — incremented by pages when they add a notification
-  const [nonce, setNonce] = useState(0)
+  const [notifs, setNotifs] = useState<ProcessNotification[]>(() => getNotifications())
+  const [unread, setUnread] = useState(() => unreadCount())
 
   useEffect(() => {
-    setNotifs(getNotifications())
-    setUnread(unreadCount())
-
     // Listen for storage changes (other tabs)
     const onStorage = (e: StorageEvent) => {
       if (e.key === STORAGE_KEY) {
@@ -122,9 +116,12 @@ export function useNotifications() {
       window.removeEventListener('storage', onStorage)
       window.removeEventListener('notification-change', onNotifChange)
     }
-  }, [nonce])
+  }, [])
 
-  const refresh = () => setNonce(n => n + 1)
+  const refresh = () => {
+    setNotifs(getNotifications())
+    setUnread(unreadCount())
+  }
 
   return { notifications: notifs, unread, refresh }
 }
