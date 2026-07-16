@@ -2,29 +2,38 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* ── Design Tokens (Apple-inspired) ──────────────────────────────── */
+/* ── Design Tokens (Apple-inspired, from Style Reference v2) ─────── */
 
 :root {
-  /* Colors */
-  --color-apple-blue: #0071e3;
-  --color-link-blue: #0066cc;
-  --color-signal-blue: #2997ff;
-  --color-carbon: #1d1d1f;
-  --color-frost: #f5f5f7;
-  --color-ice: #f4f8fb;
-  --color-smoke: #333333;
-  --color-graphite: #474747;
-  --color-ash: #707070;
-  --color-mist: #858585;
-  --color-onyx: #000000;
-  --color-pebble: #e2e2e5;
+  /* Blues — three distinct roles, never mixed */
+  --color-apple-blue:  #0071e3;  /* filled action only */
+  --color-link-blue:   #0066cc;  /* outlined action, links */
+  --color-signal-blue: #2997ff;  /* decorative borders only */
 
+  /* Neutrals */
+  --color-carbon:   #1d1d1f;  /* primary text */
+  --color-smoke:    #333333;  /* secondary text, borders */
+  --color-graphite: #474747;  /* nav text */
+  --color-ash:      #707070;  /* footer text, list borders */
+  --color-mist:     #858585;  /* hairline rules */
+  --color-pebble:   #e2e2e5;  /* button bg, disabled */
+
+  /* Surfaces */
+  --color-frost: #f5f5f7;  /* page canvas */
+  --color-ice:   #f4f8fb;  /* elevated wash */
+  --color-onyx:  #000000;  /* max contrast */
+
+  /* Radius — non-negotiable */
+  --radius-button: 980px;
+  --radius-card:   8px;
+
+  /* Shadcn compat */
   --background: var(--color-frost);
   --foreground: var(--color-carbon);
   --border: #d2d2d7;
   --radius: 8px;
 
-  /* Typography Scale — will be multiplied by --access-font-size */
+  /* Typography Scale — multiplied by --access-font-size */
   --text-caption: 12px;
   --text-body-sm: 14px;
   --text-body: 17px;
@@ -34,7 +43,7 @@
   --text-heading-lg: 44px;
   --text-display: 56px;
 
-  /* ── Accessibility CSS Variables (set by AccessibilityProvider) ── */
+  /* Accessibility CSS Variables (set by AccessibilityProvider) */
   --access-font-size: 1;
   --access-line-height: 1.6;
   --access-letter-spacing: 0em;
@@ -188,34 +197,51 @@ html.access-font-sans-serif {
 @layer components {
   /* Form fields — Apple-inspired */
   .field {
-    @apply w-full rounded-lg border bg-white px-4 py-3 text-sm text-[#1d1d1f] outline-none placeholder:text-[#858585] transition-all;
+    @apply w-full rounded-[8px] border bg-white px-4 py-3 text-sm text-[#1d1d1f] outline-none placeholder:text-[#858585] transition-all;
     border-color: #d2d2d7;
+    letter-spacing: -0.017em;
   }
   .field:focus {
     border-color: var(--color-apple-blue);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-apple-blue) 20%, transparent);
   }
 
-  /* Primary filled pill button */
+  /* Primary filled pill button — #0071e3 only */
   .btn-primary {
-    @apply rounded-full px-5 py-3 text-sm font-normal text-white transition-all;
+    @apply rounded-[980px] px-5 py-3 text-sm font-normal text-white transition-all;
     background: var(--color-apple-blue);
+    letter-spacing: -0.015em;
   }
   .btn-primary:hover { background: #0068d2; }
   .btn-primary:disabled { @apply cursor-not-allowed opacity-50; }
 
-  /* Secondary outlined pill button */
+  /* Secondary outlined pill button — #0066cc border + text */
   .btn-secondary {
-    @apply rounded-full border bg-transparent px-5 py-3 text-sm font-normal transition-all;
+    @apply rounded-[980px] border bg-transparent px-5 py-3 text-sm font-normal transition-all;
     color: var(--color-link-blue);
     border-color: var(--color-link-blue);
+    letter-spacing: -0.015em;
   }
   .btn-secondary:hover { background: var(--color-ice); }
+  .btn-secondary:disabled { @apply cursor-not-allowed opacity-50; }
 
-  /* Card container */
+  /* Ghost link — no background, just #0066cc text */
+  .btn-ghost {
+    @apply inline-flex items-center gap-1 text-sm font-normal transition-all;
+    color: var(--color-link-blue);
+    letter-spacing: -0.017em;
+  }
+  .btn-ghost:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+  /* Card container — no shadows */
   .card {
-    @apply rounded-xl border bg-white p-6;
+    @apply rounded-[8px] border bg-white p-6;
     border-color: #d2d2d7;
+  }
+
+  /* Full-bleed dark section */
+  .section-dark {
+    @apply bg-[#1d1d1f] text-[#f5f5f7];
   }
 
   /* Eyebrow text */
@@ -231,4 +257,70 @@ html.access-font-sans-serif {
     line-height: 1.1;
     color: var(--color-carbon);
   }
+
+  /* Content subtitle — weight 300 for the signature whisper voice */
+  .subtitle {
+    @apply text-sm leading-relaxed max-w-xl;
+    color: var(--color-ash);
+    font-weight: 300;
+  }
+
+  /* Tab pill group */
+  .tab-group {
+    @apply flex gap-1 rounded-[980px] bg-[#e2e2e5] p-0.5 w-fit;
+  }
+  .tab-pill {
+    @apply rounded-[980px] px-4 py-1.5 text-[12px] font-medium transition-all;
+    color: var(--color-ash);
+  }
+  .tab-pill.active {
+    @apply bg-white text-[#1d1d1f] shadow-sm;
+  }
+
+  /* Filled tag/pill */
+  .tag-filled {
+    @apply rounded-[980px] px-2.5 py-0.5 text-[11px] font-medium;
+  }
+
+  /* Toggle switch — Apple style */
+  .toggle-track {
+    @apply relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors;
+  }
+  .toggle-track.active {
+    background: var(--color-apple-blue);
+  }
+  .toggle-track.inactive {
+    background: #d2d2d7;
+  }
+  .toggle-thumb {
+    @apply inline-block h-5 w-5 rounded-full bg-white shadow transition-transform;
+  }
+  .toggle-thumb.active {
+    transform: translateX(1.25rem);
+  }
+  .toggle-thumb.inactive {
+    transform: translateX(0.125rem);
+  }
+
+  /* Skeleton loading placeholder */
+  .skeleton {
+    @apply animate-pulse rounded-[8px] bg-[#e2e2e5];
+  }
+
+  /* Upgrade banner — amber alert */
+  .upgrade-banner {
+    @apply mb-4 flex items-center gap-2 rounded-lg border px-4 py-2.5;
+    background: rgba(251, 191, 36, 0.06);
+    border-color: rgba(251, 191, 36, 0.18);
+  }
+  .upgrade-banner-text {
+    @apply text-xs flex-1;
+    color: rgba(251, 191, 36, 0.8);
+  }
+  .upgrade-banner-btn {
+    @apply text-xs font-medium underline-offset-2 hover:underline shrink-0;
+    color: rgba(251, 191, 36, 0.8);
+  }
 }
+
+
