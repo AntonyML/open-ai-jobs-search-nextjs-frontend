@@ -37,8 +37,8 @@ export default function Footer() {
     {
       title: t('legal'),
       links: [
-        { label: t('privacy'), href: '#' },
-        { label: t('terms'), href: '#' },
+        { label: t('privacy'), href: '/privacy' },
+        { label: t('terms'), href: '/terms' },
         { label: t('cookies'), href: '#' },
         { label: t('licenses'), href: '#' },
       ],
