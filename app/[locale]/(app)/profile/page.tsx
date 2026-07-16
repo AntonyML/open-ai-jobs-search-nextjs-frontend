@@ -3,10 +3,10 @@
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
-import { clearToken } from '@/lib/auth'
-import { showError } from '@/lib/toasts'
+import { clearCompletedSteps, clearToken } from '@/lib/auth'
+import { showError, showSuccess } from '@/lib/toasts'
 import { cn } from '@/lib/utils'
 import AccessibilitySettings from '@/components/AccessibilitySettings'
 
@@ -15,6 +15,9 @@ type ProfileTab = (typeof PROFILE_TABS)[number]
 
 export default function ProfilePage() {
   const t = useTranslations('profile')
+  const tc = useTranslations('common')
+  const ts = useTranslations('settings')
+  const locale = useLocale()
   const router = useRouter()
   const [profile, setProfile] = useState<any>(null)
   const [stats, setStats] = useState<any>(null)
@@ -22,6 +25,10 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<ProfileTab>('Experience')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -75,6 +82,29 @@ export default function ProfilePage() {
     router.push('/')
   }
 
+  const deleteAccount = async () => {
+    setDeleting(true)
+    try {
+      await apiFetch('/api/v1/auth/account', {
+        method: 'DELETE',
+        body: JSON.stringify({ password: deletePassword, confirmation: deleteConfirmText }),
+      })
+      showSuccess(t('deleteSuccess'))
+      clearToken()
+      clearCompletedSteps()
+      router.push('/login')
+    } catch {
+      showError(tc('error'))
+    }
+    setDeleting(false)
+    setShowDeleteConfirm(false)
+    setDeletePassword('')
+    setDeleteConfirmText('')
+  }
+
+  const confirmWord = locale === 'es' ? 'CONFIRMAR' : 'CONFIRM'
+  const canDelete = deletePassword.length > 0 && deleteConfirmText === confirmWord && !deleting
+
   if (loading) {
     return (
       <section className="mx-auto max-w-3xl py-8 md:py-12">
@@ -122,47 +152,43 @@ export default function ProfilePage() {
 
       {/* ── Profile Hero Card ──────────────────────────────────── */}
       <div className="card mb-5 animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
-        {profile?.name ? (
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="size-14 rounded-full bg-[#0071e3] flex items-center justify-center text-white text-xl font-semibold select-none shadow-sm">
-                  {profile.name.charAt(0).toUpperCase()}
-                </div>
-                {hasProvider && (
-                  <span className="absolute -bottom-0.5 -right-0.5 size-4 rounded-full bg-[#30d158] border-2 border-white" role="status" aria-label="Provider connected" title="Provider connected" />
-                )}
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="relative shrink-0">
+              <div className="size-14 rounded-full bg-[#0071e3] flex items-center justify-center text-white text-xl font-semibold select-none shadow-sm">
+                {(profile?.name || profile?.email || '?').charAt(0).toUpperCase()}
               </div>
-              <div>
-                <h2 className="text-lg font-semibold text-[#1d1d1f]">{profile.name}</h2>
-                {profile.email && (
-                  <p className="text-sm text-[#707070] flex items-center gap-1.5 mt-0.5">
-                    <svg className="size-3.5 text-[#b0b0b0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                    </svg>
-                    {profile.email}
-                  </p>
-                )}
-              </div>
+              {hasProvider && (
+                <span className="absolute -bottom-0.5 -right-0.5 size-4 rounded-full bg-[#30d158] border-2 border-white" role="status" aria-label="Provider connected" title="Provider connected" />
+              )}
             </div>
-            <button
-              onClick={handleSignOut}
-              className="rounded-full border border-[#d2d2d7] px-4 py-2 text-[12px] font-medium text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-all shrink-0"
-            >
-              {t('signOut')}
-            </button>
+            <div className="min-w-0">
+              <h2 className="text-lg font-semibold text-[#1d1d1f] truncate">
+                {profile?.name || profile?.email?.split('@')[0] || t('user')}
+              </h2>
+              {profile?.email ? (
+                <p className="text-sm text-[#707070] flex items-center gap-1.5 mt-0.5">
+                  <svg className="size-3.5 text-[#b0b0b0] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                  </svg>
+                  <span className="truncate">{profile.email}</span>
+                </p>
+              ) : null}
+            </div>
           </div>
-        ) : (
-          <div className="flex items-center gap-4">
-            <div className="size-14 rounded-full bg-[#e2e2e5] flex items-center justify-center text-[#b0b0b0] shrink-0">
-              <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-[#1d1d1f]">Aún no has configurado tu perfil</p>
-              <p className="text-[12px] text-[#858585] mt-0.5">Agrega tu experiencia, educación y habilidades para empezar</p>
-            </div>
+          <button
+            onClick={handleSignOut}
+            className="rounded-full border border-[#d2d2d7] px-4 py-2 text-[12px] font-medium text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-all shrink-0 ml-4"
+          >
+            {t('signOut')}
+          </button>
+        </div>
+        {!hasSetup && (
+          <div className="mt-4 pt-4 border-t border-[#e2e2e5] flex items-center gap-2">
+            <svg className="size-4 text-[#b0b0b0] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <p className="text-[13px] text-[#858585]">{t('setupPrompt')}</p>
           </div>
         )}
       </div>
@@ -472,6 +498,87 @@ export default function ProfilePage() {
           <AccessibilitySettings />
         </div>
       </div>
+
+      {/* ── Danger Zone: Delete Account ──────────────────────────── */}
+      <div className="mt-7 animate-fade-in-up" style={{ animationDelay: '0.35s' }}>
+        <div className="card border-rose-200">
+          <p className="eyebrow !text-rose-500 mb-3">{ts('security.deleteAccount')}</p>
+          <p className="text-[13px] text-[#707070] mb-4">{ts('security.deleteAccountDesc')}</p>
+          <div className="rounded-lg bg-rose-50 border border-rose-200 p-4 mb-4">
+            <p className="text-[13px] text-rose-700 leading-relaxed">{ts('security.deleteAccountWarning')}</p>
+          </div>
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="rounded-full bg-rose-500 px-5 py-2 text-[13px] font-medium text-white hover:bg-rose-600 transition-all"
+          >
+            {ts('security.deleteAccountButton')}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Delete Account Confirmation Modal ───────────────────── */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/55 backdrop-blur-sm" onClick={() => !deleting && setShowDeleteConfirm(false)} />
+          <div className="relative z-10 w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden animate-[slideUp_0.25s_cubic-bezier(0.16,1,0.3,1)]">
+            <div className="p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-full bg-rose-100 flex items-center justify-center">
+                  <svg className="size-5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-[16px] font-bold text-[#1d1d1f]">{ts('security.deleteAccount')}</h3>
+                  <p className="text-[12px] text-[#707070]">{ts('security.deleteAccountDesc')}</p>
+                </div>
+              </div>
+
+              <div className="rounded-lg bg-rose-50 border border-rose-200 p-3">
+                <p className="text-[12px] text-rose-700 leading-relaxed">{ts('security.deleteAccountWarning')}</p>
+              </div>
+
+              <div>
+                <label className="block text-[12px] font-medium text-[#707070] mb-1">{ts('security.currentPassword')}</label>
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={e => setDeletePassword(e.target.value)}
+                  className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] text-[#1d1d1f] outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400/20 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[12px] font-medium text-[#707070] mb-1">{ts('security.deleteAccountConfirm')}</label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={e => setDeleteConfirmText(e.target.value)}
+                  placeholder={confirmWord}
+                  className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] text-[#1d1d1f] outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400/20 transition-all"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => { setShowDeleteConfirm(false); setDeletePassword(''); setDeleteConfirmText('') }}
+                  disabled={deleting}
+                  className="flex-1 rounded-full border border-[#d2d2d7] bg-white px-4 py-2 text-[13px] font-medium text-[#474747] hover:bg-[#f5f5f7] disabled:opacity-50 transition-all"
+                >
+                  {tc('cancel')}
+                </button>
+                <button
+                  onClick={deleteAccount}
+                  disabled={!canDelete}
+                  className="flex-1 rounded-full bg-rose-500 px-4 py-2 text-[13px] font-medium text-white hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {deleting ? ts('security.deleting') : ts('security.deleteAccountButton')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

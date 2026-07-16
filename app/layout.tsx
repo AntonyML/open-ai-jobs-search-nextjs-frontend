@@ -24,9 +24,9 @@ export default function RootLayout({
               borderRadius: '12px',
               background: '#1d1d1f',
               color: '#f5f5f7',
-              fontSize: '14px',
-              padding: '12px 16px',
-              maxWidth: '400px',
+              fontSize: '15px',
+              padding: '16px 20px',
+              maxWidth: '480px',
             },
           }}
         />

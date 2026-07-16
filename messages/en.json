@@ -688,7 +688,10 @@
     "avgRankScore": "Avg. rank score:",
     "accessibility": "Accessibility",
     "accessibilityDesc": "Customize your reading and visual experience.",
+    "user": "User",
+    "setupPrompt": "Set up your profile — add experience, education and skills to get started",
     "loadError": "Could not load profile",
-    "providerRequired": "Please configure an AI provider first"
+    "providerRequired": "Please configure an AI provider first",
+    "deleteSuccess": "Account deleted. We're sorry to see you go."
   }
 }

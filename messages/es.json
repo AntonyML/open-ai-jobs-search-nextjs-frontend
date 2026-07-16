@@ -687,7 +687,10 @@
     "avgRankScore": "Puntaje prom. de ranking:",
     "accessibility": "Accesibilidad",
     "accessibilityDesc": "Personaliza tu experiencia de lectura y visual.",
+    "user": "Usuario",
+    "setupPrompt": "Configura tu perfil — agrega experiencia, educación y habilidades para empezar",
     "loadError": "No se pudo cargar el perfil",
-    "providerRequired": "Primero configura un proveedor de IA"
+    "providerRequired": "Primero configura un proveedor de IA",
+    "deleteSuccess": "Cuenta eliminada. Lamentamos verte ir."
   }
 }
