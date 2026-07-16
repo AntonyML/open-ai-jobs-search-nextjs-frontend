@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Navbar from '@/components/Navbar'
 import PipelineSidebar from '@/components/PipelineSidebar'
-import { isLoggedIn } from '@/lib/auth'
+import { isLoggedIn, getCompletedSteps } from '@/lib/auth'
 import LLMControlCenter from '@/components/LLMControlCenter'
 import {
   SidebarProvider,
@@ -14,7 +14,12 @@ const routes = ['providers', 'setup', 'scrape', 'rank', 'apply', 'interview', 'o
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const path = usePathname(), router = useRouter(), [ready, setReady] = useState(false), [done, setDone] = useState<number[]>([])
-  useEffect(() => { if (!isLoggedIn()) router.replace('/login'); else { try { setDone(JSON.parse(localStorage.getItem('completed_steps') || '[]')) } catch {} setReady(true) } }, [router])
+  useEffect(() => {
+    if (!isLoggedIn()) { router.replace('/login'); return }
+    // Leer el estado del pipeline asociado al usuario actual (no global).
+    setDone(getCompletedSteps())
+    setReady(true)
+  }, [router])
   if (!ready) return null
   const step = Math.max(0, routes.findIndex(x => path.includes(x)))
   return (

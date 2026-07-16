@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { showSuccess, showError } from '@/lib/toasts'
+import { setCompletedSteps } from '@/lib/auth'
 
 export default function Providers() {
   const t = useTranslations('providers')
@@ -103,7 +104,7 @@ export default function Providers() {
     })
     const updated = await apiFetch<any>('/api/v1/providers/me/active')
     setActive(updated)
-    localStorage.setItem('completed_steps', '[0]')
+    setCompletedSteps([0])
   }
 
   async function remove(p: string) {

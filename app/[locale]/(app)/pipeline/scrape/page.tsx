@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
 import { playPipelineSound, playErrorSound } from '@/lib/sounds'
+import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
 
 const PORTALS = ['linkedin', 'freehire', 'jobbank', 'jobdanmark', 'jobindex', 'jobnet']
 
@@ -57,9 +58,9 @@ export default function Scrape() {
       })
       setResult(data)
       loadJobs()
-      const steps = JSON.parse(localStorage.getItem('completed_steps') || '[]')
+      const steps = getCompletedSteps()
       if (!steps.includes(2)) {
-        localStorage.setItem('completed_steps', JSON.stringify([...steps, 2]))
+        setCompletedSteps([...steps, 2])
       }
       playPipelineSound('scrape')
       const jobCount = data.jobs_found ?? 0

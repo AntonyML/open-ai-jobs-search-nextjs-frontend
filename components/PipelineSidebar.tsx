@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/sidebar'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
+import { clearCompletedSteps, getCompletedSteps } from '@/lib/auth'
 import {
   Search,
   User,
@@ -71,10 +72,12 @@ export default function PipelineSidebar({
     } catch (err) {
       showError(err instanceof Error ? err.message : t('reset'))
     }
-    localStorage.removeItem('completed_steps')
     localStorage.removeItem('ranking_job_id')
+    clearCompletedSteps()
     setShowResetConfirm(false)
     router.push('/pipeline/providers')
+    // Forzar recarga del estado del sidebar tras el reset.
+    setTimeout(() => window.location.reload(), 0)
   }
 
   return (

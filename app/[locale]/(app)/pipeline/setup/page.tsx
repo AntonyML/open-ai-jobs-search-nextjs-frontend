@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { showSuccess, showError } from '@/lib/toasts'
+import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -345,9 +346,9 @@ export default function Setup() {
       await apiFetch<any>('/api/v1/setup/profile', { method, body: JSON.stringify(buildPayload()) })
       setExists(true)
       setSaved(true)
-      const steps = JSON.parse(localStorage.getItem('completed_steps') || '[]')
+      const steps = getCompletedSteps()
       if (!steps.includes(1)) {
-        localStorage.setItem('completed_steps', JSON.stringify([...steps, 1]))
+        setCompletedSteps([...steps, 1])
         showSuccess('Profile saved!')
       } else {
         showSuccess('Profile updated')

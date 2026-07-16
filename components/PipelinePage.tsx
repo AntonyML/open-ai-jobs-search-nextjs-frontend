@@ -5,6 +5,7 @@ import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
 import { playPipelineSound, playErrorSound } from '@/lib/sounds'
+import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
 import {
   Select,
   SelectContent,
@@ -54,9 +55,9 @@ export default function PipelinePage({
   }, [listEndpoint])
 
   const complete = () => {
-    const a = JSON.parse(localStorage.getItem('completed_steps') || '[]')
+    const a = getCompletedSteps()
     if (!a.includes(step)) {
-      localStorage.setItem('completed_steps', JSON.stringify([...a, step]))
+      setCompletedSteps([...a, step])
       showSuccess('Step completed!')
     }
   }

@@ -7,6 +7,7 @@ import { useOrchestrator } from '@/lib/orchestrator'
 import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
+import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
 
 const FOCUS_TAGS = [
   'AI Engineering',
@@ -254,8 +255,8 @@ export default function Rank() {
   }
 
   const complete = () => {
-    const a = JSON.parse(localStorage.getItem('completed_steps') || '[]')
-    if (!a.includes(3)) localStorage.setItem('completed_steps', JSON.stringify([...a, 3]))
+    const a = getCompletedSteps()
+    if (!a.includes(3)) setCompletedSteps([...a, 3])
   }
 
   const scoreColor = (s: number) =>
