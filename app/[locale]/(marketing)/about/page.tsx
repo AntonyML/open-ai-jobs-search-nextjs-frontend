@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { isLoggedIn } from '@/lib/auth'
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/router'
 
 const TECH_STACK_KEYS = [
   { categoryKey: 'techFrontend', items: ['Next.js 15', 'React 19', 'TypeScript', 'Tailwind CSS', 'shadcn/ui'] },
@@ -14,7 +13,6 @@ const TECH_STACK_KEYS = [
 ]
 
 export default function AboutPage() {
-  const router = useRouter()
   const [loggedIn, setLoggedIn] = useState(false)
   const t = useTranslations('about')
   useEffect(() => { setLoggedIn(isLoggedIn()) }, [])
