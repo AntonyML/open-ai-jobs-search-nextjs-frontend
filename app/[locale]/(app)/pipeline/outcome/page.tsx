@@ -684,7 +684,7 @@ export default function OutcomePage() {
                   {tc('cancel')}
                 </button>
                 <Tooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger>
                     <span tabIndex={0} className="flex-1">
                       <button
                         type="submit"

@@ -414,7 +414,7 @@ export default function Rank() {
             </button>
           </div>
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <span tabIndex={0}>
                 <button disabled={loading || atLimit} className="btn-primary shrink-0">
                   {loading ? t('ranking') : t('rankJobs')}

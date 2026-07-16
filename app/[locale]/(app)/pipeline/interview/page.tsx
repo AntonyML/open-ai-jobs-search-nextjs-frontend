@@ -373,7 +373,7 @@ export default function InterviewPage() {
                 </div>
 
                 <Tooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger>
                     <span tabIndex={0}>
                       <button
                         type="submit"

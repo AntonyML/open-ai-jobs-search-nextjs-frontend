@@ -162,7 +162,7 @@ export default function PipelinePage({
               </label>
             ))}
             <Tooltip>
-              <TooltipTrigger asChild>
+              <TooltipTrigger>
                 <span tabIndex={0}>
                   <button disabled={loading || actionDisabled} className="btn-primary w-full">
                     {loading ? 'Working…' : actionLabel}
