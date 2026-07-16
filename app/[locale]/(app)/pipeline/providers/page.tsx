@@ -5,7 +5,8 @@ import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { showSuccess, showError } from '@/lib/toasts'
-import { setCompletedSteps } from '@/lib/auth'
+import { setCompletedSteps, isPremium } from '@/lib/auth'
+import UpgradeModal from '@/components/UpgradeModal'
 
 export default function Providers() {
   const t = useTranslations('providers')
@@ -20,7 +21,10 @@ export default function Providers() {
   const [testing, setTesting] = useState(false)
   const [loadingModels, setLoadingModels] = useState(false)
   const [tested, setTested] = useState(false)
+  const [saveError, setSaveError] = useState('')
+  const [showUpgrade, setShowUpgrade] = useState(false)
   const router = useRouter()
+  const premium = isPremium()
 
   function loadMyProviders() {
     apiFetch<any[]>('/api/v1/providers/me')
@@ -69,6 +73,7 @@ export default function Providers() {
 
   async function add(e: React.FormEvent) {
     e.preventDefault()
+    setSaveError('')
     if (!form.model.trim()) {
       showError('Choose or enter a model before saving')
       return
@@ -80,19 +85,33 @@ export default function Providers() {
     const payload = Object.fromEntries(
       Object.entries({ provider, ...form }).filter(([, v]) => v !== '' && v !== null && v !== undefined)
     )
-    await apiFetch('/api/v1/providers/test', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    })
-    await apiFetch('/api/v1/providers/', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    })
+    try {
+      await apiFetch('/api/v1/providers/test', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Test failed'
+      showError(msg)
+      return
+    }
+    try {
+      await apiFetch('/api/v1/providers/', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Failed to save provider'
+      showError(msg)
+      setSaveError(msg)
+      return
+    }
     const updated = await apiFetch<any>('/api/v1/providers/active', {
       method: 'PUT',
       body: JSON.stringify({ provider }),
     })
     setActive(updated)
+    setSaveError('')
     showSuccess(`Provider saved: ${updated.provider} / ${updated.model}`)
     loadMyProviders()
   }
@@ -125,10 +144,28 @@ export default function Providers() {
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <form onSubmit={add} className="card space-y-4">
           <select className="field" value={provider} onChange={(e) => setProvider(e.target.value)}>
-            {['anthropic', 'openai', 'nvidia_nim', 'lm_studio', 'ollama'].map((x) => (
-              <option key={x}>{x}</option>
-            ))}
+            {['anthropic', 'openai', 'nvidia_nim', 'lm_studio', 'ollama']
+              .filter((x) => premium || x !== 'nvidia_nim')
+              .map((x) => (
+                <option key={x}>{x}</option>
+              ))}
           </select>
+          {!premium && (
+            <div className="flex items-center gap-2 rounded-lg bg-amber-50/10 border border-amber-200/20 px-3 py-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              <span className="text-xs text-amber-400/80 flex-1">
+                {t('nvidiaLocked') || 'NVIDIA NIM is only available on Premium'}
+              </span>
+              <button
+                onClick={() => setShowUpgrade(true)}
+                className="text-xs font-medium text-amber-400 hover:text-amber-300 underline-offset-2 hover:underline shrink-0"
+              >
+                {t('upgrade') || 'Upgrade'}
+              </button>
+            </div>
+          )}
           <div className="flex gap-2">
             <input
               className="field flex-1"
@@ -161,7 +198,19 @@ export default function Providers() {
             finally { setTesting(false) }
           }}>{testing ? t('testing') : t('testProvider')}</button>}
           {tested && <button className="btn-primary w-full">{t('saveProvider')}</button>}
-          {/* Messages now use toast notifications */}
+
+          {/* Inline error con upgrade CTA */}
+          {saveError && (
+            <div className="rounded-lg border border-amber-200/30 bg-amber-50/10 px-4 py-3 space-y-2">
+              <p className="text-xs text-amber-400/90 leading-relaxed">{saveError}</p>
+              <button
+                onClick={() => setShowUpgrade(true)}
+                className="text-xs font-medium text-amber-400 hover:text-amber-300 underline-offset-2 hover:underline"
+              >
+                {t('upgrade')}
+              </button>
+            </div>
+          )}
         </form>
 
         <div className="space-y-4">
@@ -201,6 +250,22 @@ export default function Providers() {
                 </div>
               </div>
             ))}
+            {!premium && myProviders.length >= 1 && (
+              <div className="mt-3 flex items-center gap-2 rounded-lg bg-amber-50/10 border border-amber-200/20 px-3 py-2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+                <span className="text-xs text-amber-400/80 flex-1">
+                  {t('maxProvidersReached') || 'Max 1 provider on Free. Upgrade for more.'}
+                </span>
+                <button
+                  onClick={() => setShowUpgrade(true)}
+                  className="text-xs font-medium text-amber-400 hover:text-amber-300 underline-offset-2 hover:underline shrink-0"
+                >
+                  {t('upgrade') || 'Upgrade'}
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="card">
@@ -225,6 +290,7 @@ export default function Providers() {
           )}
         </div>
       </div>
+      <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </section>
   )
 }

@@ -202,7 +202,11 @@
     "setActive": "Set active",
     "delete": "Delete",
     "continueSetup": "Continue to Setup →",
-    "setProviderActive": "Set {provider} as active"
+    "setProviderActive": "Set {provider} as active",
+    "nvidiaLocked": "NVIDIA NIM is only available on Premium",
+    "upgrade": "Upgrade",
+    "maxProvidersReached": "Max 1 provider on Free. Upgrade for more.",
+    "freeLimitation": "Free plan: max 1 provider, no NVIDIA NIM"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -268,7 +272,9 @@
     "new": "new",
     "noJobsYet": "No jobs scraped yet",
     "noJobsHint": "Configure your search and hit Start scraping.",
-    "continueToRank": "Continue to Rank →"
+    "continueToRank": "Continue to Rank →",
+    "freeLimitation": "Free plan: 1 site, 5 jobs max. Upgrade for unlimited.",
+    "upgrade": "Upgrade"
   },
   "rank": {
     "title": "Prioritize the best fits",

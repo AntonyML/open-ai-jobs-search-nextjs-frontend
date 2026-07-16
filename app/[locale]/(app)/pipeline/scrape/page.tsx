@@ -7,7 +7,8 @@ import { useRouter } from 'next/navigation'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
 import { playPipelineSound, playErrorSound } from '@/lib/sounds'
-import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
+import { getCompletedSteps, setCompletedSteps, isPremium } from '@/lib/auth'
+import UpgradeModal from '@/components/UpgradeModal'
 
 const PORTALS = ['linkedin', 'freehire', 'jobbank', 'jobdanmark', 'jobindex', 'jobnet']
 
@@ -24,6 +25,8 @@ export default function Scrape() {
   const [error, setError] = useState('')
   const [result, setResult] = useState<any>(null)
   const [jobs, setJobs] = useState<any[]>([])
+  const [showUpgrade, setShowUpgrade] = useState(false)
+  const premium = isPremium()
 
   function loadJobs() {
     apiFetch<any[]>('/api/v1/scrape/jobs')
@@ -91,6 +94,23 @@ export default function Scrape() {
           {t('subtitle')}
         </p>
       </div>
+
+      {!premium && (
+        <div className="mb-4 flex items-center gap-2 rounded-lg bg-amber-50/10 border border-amber-200/20 px-4 py-2.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+          <span className="text-xs text-amber-400/80 flex-1">
+            {t('freeLimitation') || 'Free plan: 1 site, 5 jobs max. Upgrade for unlimited.'}
+          </span>
+          <button
+            onClick={() => setShowUpgrade(true)}
+            className="text-xs font-medium text-amber-400 hover:text-amber-300 underline-offset-2 hover:underline shrink-0"
+          >
+            {t('upgrade') || 'Upgrade'}
+          </button>
+        </div>
+      )}
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         {/* ═══════════════════════════════════════════════════════════
@@ -300,6 +320,7 @@ export default function Scrape() {
           )}
         </div>
       </div>
+      <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </section>
   )
 }
