@@ -7,7 +7,12 @@ import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
 import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 import { isPremium } from '@/lib/auth'
+import { PipelineHeader } from '@/components/ui/pipeline-header'
+import { AppleButton } from '@/components/ui/apple-button'
+import { UpgradeBanner } from '@/components/ui/upgrade-banner'
 import UpgradeModal from '@/components/UpgradeModal'
+
+// ── Types ──────────────────────────────────────────────────────────
 
 interface HardSkillGap {
   skill: string
@@ -79,33 +84,130 @@ interface UpskillSummary {
   created_at: string
 }
 
-// ── Priority badge colors ──────────────────────────────────────────
+// ── Constants ──────────────────────────────────────────────────────
 
-const priorityColors: Record<string, { bg: string; text: string; label: string }> & {
-  [key: string]: { bg: string; text: string; label: string }
-} = {
-  Critical: { bg: 'bg-rose-50', text: 'text-rose-600', label: 'Critical' },
-  High: { bg: 'bg-amber-50', text: 'text-amber-600', label: 'High' },
-  Medium: { bg: 'bg-sky-50', text: 'text-sky-600', label: 'Medium' },
-  Low: { bg: 'bg-gray-50', text: 'text-gray-500', label: 'Low' },
+const PRIORITY_STYLES: Record<string, { bg: string; text: string; bar: string }> = {
+  Critical: { bg: 'bg-rose-50', text: 'text-rose-600', bar: '#f43f5e' },
+  High: { bg: 'bg-amber-50', text: 'text-amber-600', bar: '#f59e0b' },
+  Medium: { bg: 'bg-sky-50', text: 'text-sky-600', bar: '#0ea5e9' },
+  Low: { bg: 'bg-gray-50', text: 'text-gray-500', bar: '#9ca3af' },
 }
 
-// ── Utility: format date ───────────────────────────────────────────
-
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+const RESOURCE_ICON: Record<string, string> = {
+  course: '🎓',
+  video: '▶️',
+  article: '📄',
+  certification: '🏅',
 }
 
-// ── Format icon for learning resource ───────────────────────────────
+// ── Subcomponents ──────────────────────────────────────────────────
 
-function resourceIcon(format: string) {
-  switch (format) {
-    case 'course': return '🎓'
-    case 'video': return '▶️'
-    case 'article': return '📄'
-    case 'certification': return '🏅'
-    default: return '🔗'
-  }
+function PriorityBadge({ priority }: { priority: string }) {
+  const s = PRIORITY_STYLES[priority] || PRIORITY_STYLES.Low
+  return (
+    <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${s.bg} ${s.text}`}>
+      {priority}
+    </span>
+  )
+}
+
+function StatCard({ value, label }: { value: number | string; label: string }) {
+  return (
+    <div className="rounded-xl border border-[#e2e2e5] bg-white p-4 text-center">
+      <p className="text-2xl font-semibold text-[#1d1d1f]">{value}</p>
+      <p className="mt-0.5 text-[11px] text-[#858585]">{label}</p>
+    </div>
+  )
+}
+
+function PriorityBar({ priority, count, total }: { priority: string; count: number; total: number }) {
+  const s = PRIORITY_STYLES[priority] || PRIORITY_STYLES.Low
+  const pct = Math.round((count / total) * 100)
+  return (
+    <div className="flex items-center gap-3">
+      <span className={`w-14 text-[11px] font-medium ${s.text}`}>{priority}</span>
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-[#f5f5f7]">
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${pct}%`, backgroundColor: s.bar, opacity: 0.6 }}
+        />
+      </div>
+      <span className="w-8 text-right text-[11px] text-[#858585]">{count}</span>
+    </div>
+  )
+}
+
+function ResourceRow({ resource }: { resource: LearningResource }) {
+  return (
+    <a
+      href={resource.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-3 rounded-lg p-2.5 transition-colors hover:bg-[#f5f5f7]"
+    >
+      <span className="text-base">{RESOURCE_ICON[resource.format] || '🔗'}</span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[13px] font-medium text-[#1d1d1f]">{resource.title}</p>
+        <div className="flex items-center gap-2 text-[11px] text-[#858585]">
+          <span className="capitalize">{resource.format}</span>
+          <span>·</span>
+          <span className="capitalize">{resource.cost}</span>
+          {resource.duration_hours && <><span>·</span><span>~{resource.duration_hours}h</span></>}
+          <span>·</span>
+          <span className="flex items-center gap-0.5">
+            {'★'.repeat(Math.round(resource.quality_score / 2))}
+            <span className="text-[#b0b0b0]">/5</span>
+          </span>
+        </div>
+      </div>
+      <svg className="h-3.5 w-3.5 shrink-0 text-[#858585]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+      </svg>
+    </a>
+  )
+}
+
+function HistoryCard({
+  record,
+  onClick,
+}: {
+  record: UpskillSummary
+  onClick: () => void
+}) {
+  return (
+    <button
+      className="w-full cursor-pointer rounded-xl border border-[#e2e2e5] bg-white p-4 text-left transition-colors hover:border-[#d2d2d7]"
+      onClick={onClick}
+    >
+      <div className="flex items-center justify-between">
+        <span
+          className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
+            record.status === 'completed'
+              ? 'bg-emerald-50 text-emerald-600'
+              : record.status === 'failed'
+                ? 'bg-rose-50 text-rose-500'
+                : 'bg-amber-50 text-amber-600'
+          }`}
+        >
+          {record.status}
+        </span>
+        <span className="text-[11px] text-[#858585]">
+          {new Date(record.created_at).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          })}
+        </span>
+      </div>
+      <div className="mt-2 flex gap-3 text-[11px] text-[#707070]">
+        <span className="capitalize">{record.mode}</span>
+        <span>·</span>
+        <span>{record.gaps_found} gaps</span>
+        <span>·</span>
+        <span>{record.learning_plan_items} plan items</span>
+      </div>
+    </button>
+  )
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -114,7 +216,6 @@ function resourceIcon(format: string) {
 
 export default function UpskillPage() {
   const t = useTranslations('upskill')
-  const tc = useTranslations('common')
   const [showUpgrade, setShowUpgrade] = useState(false)
   const premium = isPremium()
   const [running, setRunning] = useState(false)
@@ -124,14 +225,12 @@ export default function UpskillPage() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<'gaps' | 'heatmap' | 'plan'>('gaps')
 
-  // Load history on mount
   useEffect(() => {
     apiFetch<UpskillSummary[]>('/api/v1/upskill/')
-      .then(x => setHistory(Array.isArray(x) ? x : []))
+      .then((x) => setHistory(Array.isArray(x) ? x : []))
       .catch(() => {})
   }, [])
 
-  // Poll for completion
   useEffect(() => {
     if (!pollId) return
     const interval = window.setInterval(async () => {
@@ -145,12 +244,12 @@ export default function UpskillPage() {
           setHistory(Array.isArray(h) ? h : [])
           if (result.status === 'completed') {
             playPipelineSound('upskill')
-            const gaps = result.gap_heatmap.length
-            const planItems = result.learning_plan.length
-            showSuccess(`Upskill complete — ${gaps} gaps identified, ${planItems} learning items`)
+            showSuccess(
+              `Upskill complete — ${result.gap_heatmap.length} gaps identified, ${result.learning_plan.length} learning items`
+            )
             addNotification({
               pipeline: 'upskill',
-              description: `Identified ${gaps} skill gaps with ${planItems} learning plan items`,
+              description: `Identified ${result.gap_heatmap.length} skill gaps with ${result.learning_plan.length} learning plan items`,
               status: 'success',
             })
           } else {
@@ -188,47 +287,35 @@ export default function UpskillPage() {
     }
   }
 
-  // ── Priority count for summary ──────────────────────────────────
-
   function getGapCount(prio: string): number {
-    return (current?.gap_heatmap?.filter(g => g.priority === prio) ?? []).length
+    return (current?.gap_heatmap?.filter((g) => g.priority === prio) ?? []).length
   }
 
   return (
     <section className="mx-auto max-w-5xl">
-      <p className="eyebrow">EXTRAS</p>
-      <h2 className="title">{t('title')}</h2>
-      <p className="mt-2 text-sm text-[#707070] max-w-2xl">{t('subtitle')}</p>
+      <PipelineHeader eyebrow="EXTRAS" title={t('title')} subtitle={t('subtitle')} />
 
       {!premium && (
-        <div className="mb-4 mt-4 flex items-center gap-2 rounded-lg bg-amber-50/10 border border-amber-200/20 px-4 py-2.5">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-          </svg>
-          <span className="text-xs text-amber-400/80 flex-1">
-            {t('freeLimitation') || 'Premium feature — analyze skill gaps and get a learning plan. Upgrade to unlock.'}
-          </span>
-          <button
-            onClick={() => setShowUpgrade(true)}
-            className="text-xs font-medium text-amber-400 hover:text-amber-300 underline-offset-2 hover:underline shrink-0"
-          >
-            {t('upgrade') || 'Upgrade'}
-          </button>
-        </div>
+        <UpgradeBanner
+          message={t('freeLimitation') || 'Premium feature — analyze skill gaps. Upgrade to unlock.'}
+          upgradeLabel={t('upgrade') || 'Upgrade'}
+          onUpgrade={() => setShowUpgrade(true)}
+        />
       )}
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_1fr]">
-        {/* ── Left: trigger + results ──────────────────────────────── */}
+        {/* Left: trigger + results */}
         <div className="space-y-4">
-          {/* Trigger button */}
+          {/* Trigger */}
           <div className="rounded-2xl border border-[#d2d2d7] bg-white p-6">
-            <button
-              onClick={triggerUpskill}
+            <AppleButton
               disabled={running}
-              className="btn-primary w-full"
+              loading={running}
+              className="w-full"
+              onClick={triggerUpskill}
             >
               {running ? t('analyzing') : t('analyzeButton')}
-            </button>
+            </AppleButton>
 
             {running && (
               <div className="mt-4 flex items-center gap-2 text-sm text-[#0066cc]">
@@ -240,140 +327,111 @@ export default function UpskillPage() {
             {error && <p className="mt-3 text-sm text-rose-500">{error}</p>}
           </div>
 
-          {/* ── Results ──────────────────────────────────────────── */}
+          {/* Results */}
           {current?.status === 'completed' && (
             <>
               {/* Summary cards */}
               <div className="grid grid-cols-3 gap-3">
-                <div className="rounded-xl border border-[#e2e2e5] bg-white p-4 text-center">
-                  <p className="text-2xl font-semibold text-[#1d1d1f]">{current.gap_heatmap.length}</p>
-                  <p className="text-[11px] text-[#858585] mt-0.5">{t('gapsFound')}</p>
-                </div>
-                <div className="rounded-xl border border-[#e2e2e5] bg-white p-4 text-center">
-                  <p className="text-2xl font-semibold text-[#1d1d1f]">{current.learning_plan.length}</p>
-                  <p className="text-[11px] text-[#858585] mt-0.5">{t('planItems')}</p>
-                </div>
-                <div className="rounded-xl border border-[#e2e2e5] bg-white p-4 text-center">
-                  <p className="text-2xl font-semibold text-[#1d1d1f]">
-                    {current.learning_plan.reduce((t, i) => t + i.estimated_weeks, 0)}
-                  </p>
-                  <p className="text-[11px] text-[#858585] mt-0.5">{t('estWeeks')}</p>
-                </div>
+                <StatCard value={current.gap_heatmap.length} label={t('gapsFound')} />
+                <StatCard value={current.learning_plan.length} label={t('planItems')} />
+                <StatCard
+                  value={current.learning_plan.reduce((t, i) => t + i.estimated_weeks, 0)}
+                  label={t('estWeeks')}
+                />
               </div>
 
               {/* Priority distribution */}
-              {['Critical', 'High', 'Medium', 'Low'].some(p => getGapCount(p) > 0) && (
+              {['Critical', 'High', 'Medium', 'Low'].some((p) => getGapCount(p) > 0) && (
                 <div className="rounded-2xl border border-[#d2d2d7] bg-white p-5">
-                  <h3 className="text-[13px] font-semibold text-[#1d1d1f] mb-3">{t('priorityDistribution')}</h3>
+                  <h3 className="mb-3 text-[13px] font-semibold text-[#1d1d1f]">
+                    {t('priorityDistribution')}
+                  </h3>
                   <div className="space-y-2">
-                    {(['Critical', 'High', 'Medium', 'Low'] as const).map(p => {
+                    {(['Critical', 'High', 'Medium', 'Low'] as const).map((p) => {
                       const count = getGapCount(p)
-                      if (count === 0) return null
-                      const total = current.gap_heatmap.length
-                      const pct = Math.round((count / total) * 100)
-                      const color = priorityColors[p]
-                      return (
-                        <div key={p} className="flex items-center gap-3">
-                          <span className={`text-[11px] font-medium w-14 ${color.text}`}>{p}</span>
-                          <div className="flex-1 h-2 rounded-full bg-[#f5f5f7] overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-500 ${color.bg.replace('bg-', 'bg-')}`}
-                              style={{
-                                width: `${pct}%`,
-                                backgroundColor: p === 'Critical' ? '#f43f5e' : p === 'High' ? '#f59e0b' : p === 'Medium' ? '#0ea5e9' : '#9ca3af',
-                                opacity: 0.6,
-                              }}
-                            />
-                          </div>
-                          <span className="text-[11px] text-[#858585] w-8 text-right">{count}</span>
-                        </div>
-                      )
+                      return count > 0 ? (
+                        <PriorityBar key={p} priority={p} count={count} total={current.gap_heatmap.length} />
+                      ) : null
                     })}
                   </div>
                 </div>
               )}
 
               {/* Tabbed detail view */}
-              <div className="rounded-2xl border border-[#d2d2d7] bg-white overflow-hidden">
-                {/* Tabs */}
+              <div className="overflow-hidden rounded-2xl border border-[#d2d2d7] bg-white">
                 <div className="flex border-b border-[#d2d2d7]">
-                  {(['gaps', 'heatmap', 'plan'] as const).map(tab => (
+                  {(['gaps', 'heatmap', 'plan'] as const).map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
                       className={`flex-1 px-4 py-3 text-[12px] font-medium transition-colors ${
                         activeTab === tab
-                          ? 'text-[#1d1d1f] border-b-2 border-[#0071e3]'
+                          ? 'border-b-2 border-[#0071e3] text-[#1d1d1f]'
                           : 'text-[#858585] hover:text-[#1d1d1f]'
                       }`}
                     >
-                      {tab === 'gaps' ? t('hardGaps', { count: current.hard_skill_gaps.length }) :
-                       tab === 'heatmap' ? t('heatmap', { count: current.gap_heatmap.length }) :
-                       t('learningPlan', { count: current.learning_plan.length })}
+                      {tab === 'gaps'
+                        ? t('hardGaps', { count: current.hard_skill_gaps.length })
+                        : tab === 'heatmap'
+                          ? t('heatmap', { count: current.gap_heatmap.length })
+                          : t('learningPlan', { count: current.learning_plan.length })}
                     </button>
                   ))}
                 </div>
 
-                <div className="p-4 max-h-[500px] overflow-y-auto">
-                  {/* Tab: Hard gaps */}
+                <div className="max-h-[500px] overflow-y-auto p-4">
+                  {/* Gaps tab */}
                   {activeTab === 'gaps' && (
                     <table className="w-full text-left">
                       <thead>
-                        <tr className="text-[11px] text-[#858585] uppercase tracking-wider border-b border-[#f0f0f2]">
+                        <tr className="border-b border-[#f0f0f2] text-[11px] uppercase tracking-wider text-[#858585]">
                           <th className="pb-2 font-medium">Skill</th>
                           <th className="pb-2 font-medium">Priority</th>
-                          <th className="pb-2 font-medium text-right">Freq.</th>
-                          <th className="pb-2 font-medium text-right">Weight</th>
+                          <th className="pb-2 text-right font-medium">Freq.</th>
+                          <th className="pb-2 text-right font-medium">Weight</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#f0f0f2]">
                         {current.hard_skill_gaps
                           .sort((a, b) => b.fit_weight - a.fit_weight || b.frequency - a.frequency)
-                          .map((gap, i) => {
-                            const pc = priorityColors[gap.priority] || priorityColors.Low
-                            return (
-                              <tr key={i} className="text-[13px]">
-                                <td className="py-2.5 text-[#1d1d1f] font-medium">{gap.skill}</td>
-                                <td className="py-2.5">
-                                  <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${pc.bg} ${pc.text}`}>
-                                    {pc.label}
-                                  </span>
-                                </td>
-                                <td className="py-2.5 text-right text-[#707070]">{gap.frequency}</td>
-                                <td className="py-2.5 text-right text-[#707070] font-mono">{gap.fit_weight.toFixed(1)}</td>
-                              </tr>
-                            )
-                          })}
+                          .map((gap, i) => (
+                            <tr key={i} className="text-[13px]">
+                              <td className="py-2.5 font-medium text-[#1d1d1f]">{gap.skill}</td>
+                              <td className="py-2.5">
+                                <PriorityBadge priority={gap.priority} />
+                              </td>
+                              <td className="py-2.5 text-right text-[#707070]">{gap.frequency}</td>
+                              <td className="py-2.5 font-mono text-right text-[#707070]">
+                                {gap.fit_weight.toFixed(1)}
+                              </td>
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
                   )}
 
-                  {/* Tab: Heatmap */}
+                  {/* Heatmap tab */}
                   {activeTab === 'heatmap' && (
                     <div className="space-y-2">
                       {current.gap_heatmap
                         .sort((a, b) => {
                           const order: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 }
-                          return (a.priority in order ? order[a.priority] : 99) - (b.priority in order ? order[b.priority] : 99)
+                          return (order[a.priority] ?? 99) - (order[b.priority] ?? 99)
                         })
                         .map((item, i) => {
-                          const pc = priorityColors[item.priority] || priorityColors.Low
+                          const s = PRIORITY_STYLES[item.priority] || PRIORITY_STYLES.Low
                           return (
                             <div
                               key={i}
-                              className={`rounded-xl border p-3.5 transition-all ${
-                                pc.bg.replace('bg-', 'border-').replace('50', '200') || 'border-[#e2e2e5]'
-                              }`}
+                              className={`rounded-xl border p-3.5 transition-all ${s.bg.replace('bg-', 'border-').replace('50', '200') || 'border-[#e2e2e5]'}`}
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0">
                                   <div className="flex items-center gap-2">
                                     <p className="text-sm font-semibold text-[#1d1d1f]">{item.skill}</p>
-                                    <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${pc.bg} ${pc.text}`}>
-                                      {pc.label}
-                                    </span>
+                                    <PriorityBadge priority={item.priority} />
                                   </div>
-                                  <p className="text-[11px] text-[#858585] mt-1">
+                                  <p className="mt-1 text-[11px] text-[#858585]">
                                     {item.type} · {item.gap_source}
                                   </p>
                                 </div>
@@ -384,77 +442,39 @@ export default function UpskillPage() {
                     </div>
                   )}
 
-                  {/* Tab: Learning plan */}
+                  {/* Learning plan tab */}
                   {activeTab === 'plan' && (
                     <div className="space-y-4">
                       {current.learning_plan
                         .sort((a, b) => a.study_order - b.study_order)
-                        .map((item, i) => {
-                          const pc = priorityColors[item.priority] || priorityColors.Low
-                          return (
-                            <div key={i} className="rounded-xl border border-[#e2e2e5] p-4 space-y-3">
-                              {/* Header */}
-                              <div className="flex items-start justify-between gap-2">
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0071e3] text-[11px] font-bold text-white">
-                                      {item.study_order}
-                                    </span>
-                                    <p className="text-sm font-semibold text-[#1d1d1f]">{item.skill}</p>
-                                    <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${pc.bg} ${pc.text}`}>
-                                      {pc.label}
-                                    </span>
-                                  </div>
-                                  {item.prerequisites.length > 0 && (
-                                    <p className="text-[11px] text-[#858585] mt-1">
-                                      Prerequisites: {item.prerequisites.join(', ')}
-                                    </p>
-                                  )}
+                        .map((item, i) => (
+                          <div key={i} className="space-y-3 rounded-xl border border-[#e2e2e5] p-4">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0071e3] text-[11px] font-bold text-white">
+                                    {item.study_order}
+                                  </span>
+                                  <p className="text-sm font-semibold text-[#1d1d1f]">{item.skill}</p>
+                                  <PriorityBadge priority={item.priority} />
                                 </div>
-                                <span className="text-[11px] text-[#707070] whitespace-nowrap">
-                                  ~{item.estimated_weeks} weeks
-                                </span>
+                                {item.prerequisites.length > 0 && (
+                                  <p className="mt-1 text-[11px] text-[#858585]">
+                                    Prerequisites: {item.prerequisites.join(', ')}
+                                  </p>
+                                )}
                               </div>
-
-                              {/* Resources */}
-                              <div className="space-y-1.5">
-                                {item.resources.map((res, j) => (
-                                  <a
-                                    key={j}
-                                    href={res.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-3 rounded-lg p-2.5 transition-colors hover:bg-[#f5f5f7]"
-                                  >
-                                    <span className="text-base">{resourceIcon(res.format)}</span>
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-[13px] font-medium text-[#1d1d1f] truncate">{res.title}</p>
-                                      <div className="flex items-center gap-2 text-[11px] text-[#858585]">
-                                        <span className="capitalize">{res.format}</span>
-                                        <span>·</span>
-                                        <span className="capitalize">{res.cost}</span>
-                                        {res.duration_hours && (
-                                          <>
-                                            <span>·</span>
-                                            <span>~{res.duration_hours}h</span>
-                                          </>
-                                        )}
-                                        <span>·</span>
-                                        <span className="flex items-center gap-0.5">
-                                          {'★'.repeat(Math.round(res.quality_score / 2))}
-                                          <span className="text-[#b0b0b0]">/5</span>
-                                        </span>
-                                      </div>
-                                    </div>
-                                    <svg className="w-3.5 h-3.5 text-[#858585] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                    </svg>
-                                  </a>
-                                ))}
-                              </div>
+                              <span className="whitespace-nowrap text-[11px] text-[#707070]">
+                                ~{item.estimated_weeks} weeks
+                              </span>
                             </div>
-                          )
-                        })}
+                            <div className="space-y-1.5">
+                              {item.resources.map((res, j) => (
+                                <ResourceRow key={j} resource={res} />
+                              ))}
+                            </div>
+                          </div>
+                        ))}
                     </div>
                   )}
                 </div>
@@ -462,14 +482,12 @@ export default function UpskillPage() {
             </>
           )}
 
-          {/* No results */}
           {current?.status === 'completed' && current.gap_heatmap.length === 0 && (
             <div className="rounded-2xl border border-[#d2d2d7] bg-white p-6 text-center">
               <p className="text-sm text-[#707070]">{t('noGapsFound')}</p>
             </div>
           )}
 
-          {/* Failed */}
           {current?.status === 'failed' && (
             <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-600">
               {current.error_message || t('failed')}
@@ -477,20 +495,21 @@ export default function UpskillPage() {
           )}
         </div>
 
-        {/* ── Right: history ──────────────────────────────────────── */}
+        {/* Right: history */}
         <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-[#858585]">{t('history')}</h3>
-
+          <h3 className="text-xs font-bold uppercase tracking-widest text-[#858585]">
+            {t('history')}
+          </h3>
           {history.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#d2d2d7] p-8 text-center text-sm text-[#858585]">
               {t('noHistory')}
             </div>
           ) : (
             <div className="space-y-2">
-              {history.map(record => (
-                <button
+              {history.map((record) => (
+                <HistoryCard
                   key={record.id}
-                  className="w-full text-left rounded-xl border border-[#e2e2e5] bg-white p-4 cursor-pointer hover:border-[#d2d2d7] transition-colors"
+                  record={record}
                   onClick={async () => {
                     try {
                       const r = await apiFetch<UpskillResult>(`/api/v1/upskill/${record.id}`)
@@ -498,27 +517,7 @@ export default function UpskillPage() {
                       setActiveTab('gaps')
                     } catch {}
                   }}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                      record.status === 'completed'
-                        ? 'bg-emerald-50 text-emerald-600'
-                        : record.status === 'failed'
-                        ? 'bg-rose-50 text-rose-500'
-                        : 'bg-amber-50 text-amber-600'
-                    }`}>
-                      {record.status}
-                    </span>
-                    <span className="text-[11px] text-[#858585]">{fmtDate(record.created_at)}</span>
-                  </div>
-                  <div className="mt-2 flex gap-3 text-[11px] text-[#707070]">
-                    <span className="capitalize">{record.mode}</span>
-                    <span>·</span>
-                    <span>{record.gaps_found} gaps</span>
-                    <span>·</span>
-                    <span>{record.learning_plan_items} plan items</span>
-                  </div>
-                </button>
+                />
               ))}
             </div>
           )}
