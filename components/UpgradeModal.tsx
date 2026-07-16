@@ -4,6 +4,7 @@ import { FormEvent, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { X, Star, Heart } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
+import { AppleButton } from '@/components/ui/apple-button'
 
 interface UpgradeModalProps {
   open: boolean
@@ -24,11 +25,26 @@ export default function UpgradeModal({ open, onClose }: UpgradeModalProps) {
 
   if (!open) return null
 
+  const switchTab = (next: ModalTab) => {
+    setTab(next)
+    setError('')
+    setSuccess('')
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
     setSuccess('')
+
+    if (tab === 'donate') {
+      const num = parseFloat(amount)
+      if (!amount.trim() || isNaN(num) || num <= 0) {
+        setError(t('upgrade.amountPlaceholder') ? 'Please enter a valid amount' : '')
+        setLoading(false)
+        return
+      }
+    }
 
     try {
       if (tab === 'upgrade') {
@@ -54,11 +70,11 @@ export default function UpgradeModal({ open, onClose }: UpgradeModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-2xl border border-[#d2d2d7] w-full max-w-md max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[#d2d2d7]/60">
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[#e2e2e5]">
           <div className="flex items-center gap-2">
             {tab === 'upgrade' ? (
               <Star className="w-5 h-5 text-amber-500" />
@@ -74,34 +90,28 @@ export default function UpgradeModal({ open, onClose }: UpgradeModalProps) {
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-[#d2d2d7]/60">
-          <button
-            onClick={() => { setTab('upgrade'); setError(''); setSuccess('') }}
-            className={`flex-1 py-3 text-sm font-medium transition-all ${
-              tab === 'upgrade'
-                ? 'text-[#0071e3] border-b-2 border-[#0071e3]'
-                : 'text-[#707070] hover:text-[#1d1d1f]'
-            }`}
-          >
-            <Star className="w-4 h-4 inline mr-1.5" />
-            {t('upgrade.upgrade')}
-          </button>
-          <button
-            onClick={() => { setTab('donate'); setError(''); setSuccess('') }}
-            className={`flex-1 py-3 text-sm font-medium transition-all ${
-              tab === 'donate'
-                ? 'text-rose-500 border-b-2 border-rose-500'
-                : 'text-[#707070] hover:text-[#1d1d1f]'
-            }`}
-          >
-            <Heart className="w-4 h-4 inline mr-1.5" />
-            {t('upgrade.donate')}
-          </button>
+        {/* Apple-style pill tabs */}
+        <div className="px-6 pt-4 pb-3">
+          <div className="tab-group w-full">
+            <button
+              onClick={() => switchTab('upgrade')}
+              className={`tab-pill flex-1 text-center ${tab === 'upgrade' ? 'active' : ''}`}
+            >
+              <Star className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />
+              {t('upgrade.upgrade')}
+            </button>
+            <button
+              onClick={() => switchTab('donate')}
+              className={`tab-pill flex-1 text-center ${tab === 'donate' ? 'active' : ''}`}
+            >
+              <Heart className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />
+              {t('upgrade.donate')}
+            </button>
+          </div>
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-5">
           {tab === 'upgrade' && (
             <div className="space-y-4">
               <p className="text-sm text-[#707070]">{t('upgrade.description')}</p>
@@ -160,10 +170,11 @@ export default function UpgradeModal({ open, onClose }: UpgradeModalProps) {
                 <label className="block text-xs font-medium text-[#474747] mb-1.5">{t('upgrade.amount')}</label>
                 <input
                   type="text"
+                  inputMode="decimal"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder={t('upgrade.amountPlaceholder') || '$10, $20, etc.'}
-                  className="w-full rounded-lg border border-[#d2d2d7] bg-white px-4 py-2.5 text-sm text-[#1d1d1f] placeholder:text-[#858585] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
+                  className="field"
                 />
               </div>
             </div>
@@ -214,7 +225,7 @@ export default function UpgradeModal({ open, onClose }: UpgradeModalProps) {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder={t('upgrade.phonePlaceholder') || '+506 8888-8888'}
-                className="w-full rounded-lg border border-[#d2d2d7] bg-white px-4 py-2.5 text-sm text-[#1d1d1f] placeholder:text-[#858585] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
+                className="field"
               />
               <p className="mt-1 text-xs text-[#858585]">{t('upgrade.phoneHint')}</p>
             </div>
@@ -227,13 +238,9 @@ export default function UpgradeModal({ open, onClose }: UpgradeModalProps) {
             <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">{error}</div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-full bg-[#0071e3] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#0068d2] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
-          >
-            {loading ? t('common.loading') : (tab === 'upgrade' ? t('upgrade.sendRequest') : t('upgrade.sendDonation'))}
-          </button>
+          <AppleButton type="submit" loading={loading} size="md" className="w-full">
+            {tab === 'upgrade' ? t('upgrade.sendRequest') : t('upgrade.sendDonation')}
+          </AppleButton>
         </form>
       </div>
     </div>

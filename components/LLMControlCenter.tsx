@@ -142,10 +142,8 @@ function StatusBadge({ status, pulse }: { status: string; pulse?: boolean }) {
 
 function ProviderCard({
   provider,
-  allProviders,
 }: {
   provider: ProviderHealth
-  allProviders: ProviderHealth[]
 }) {
   const hasCooldown = provider.status === 'cooldown'
   const isDegraded = provider.status === 'degraded'
@@ -380,15 +378,15 @@ export default function LLMControlCenter() {
 
   return (
     <aside
-      className={`sticky top-6 z-30 transition-all duration-300 ease-in-out ${
+      className={`fixed right-4 top-16 z-40 transition-all duration-300 ease-in-out ${
         collapsed ? 'w-12' : 'w-[280px]'
-      } shrink-0 hidden lg:block`}
+      } hidden lg:block`}
     >
       <div
         className={`rounded-2xl border border-[#d2d2d7] bg-white shadow-sm transition-all llm-control-scroll ${
           collapsed ? 'p-2' : 'p-4'
         }`}
-        style={{ maxHeight: 'calc(100vh - 48px)', overflowY: 'auto' }}
+        style={{ maxHeight: 'calc(100vh - 96px)', overflowY: 'auto' }}
       >
         {/* Toggle collapse */}
         <button
@@ -561,7 +559,7 @@ export default function LLMControlCenter() {
                     <p className="text-[10px] text-[#858585] italic">{tc('noResults')}</p>
                   ) : (
                     providers.map(p => (
-                      <ProviderCard key={p.provider} provider={p} allProviders={providers} />
+                      <ProviderCard key={p.provider} provider={p} />
                     ))
                   )}
                 </Section>
