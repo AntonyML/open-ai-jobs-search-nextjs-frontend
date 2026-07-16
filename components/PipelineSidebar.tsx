@@ -35,6 +35,8 @@ import {
   Circle,
 } from 'lucide-react'
 
+const debugSlideMenu = process.env.NEXT_PUBLIC_DEBUG_SLIDE_MENU === 'true'
+
 const steps = [
   { labelKey: 'providers', subKey: 'providersDesc', href: '/pipeline/providers', icon: User },
   { labelKey: 'setup', subKey: 'setupDesc', href: '/pipeline/setup', icon: FileText },
@@ -97,13 +99,16 @@ export default function PipelineSidebar({
               {steps.map((step, i) => {
                 const isActive = i === currentStep
                 const isDone = completedSteps.includes(i)
+                const accessible = debugSlideMenu || i === 0 || completedSteps.includes(i - 1)
+                const linkEl = accessible ? <Link href={step.href} /> : undefined
                 const Icon = step.icon
                 return (
                   <SidebarMenuItem key={step.href}>
                     <SidebarMenuButton
-                      render={<Link href={step.href} />}
+                      render={linkEl}
                       isActive={isActive}
                       tooltip={t(`steps.${step.labelKey}`)}
+                      className={!accessible ? 'opacity-40 cursor-not-allowed' : ''}
                     >
                       <div className="flex items-center gap-2">
                         {isDone ? (
