@@ -6,6 +6,10 @@ import {
   AccessibilitySettings as AccessibilitySettingsType,
   DEFAULT_SETTINGS,
   FONT_SIZE_LABELS,
+  FONT_SIZE_TICK_VALUES,
+  FONT_SIZE_MIN,
+  FONT_SIZE_MAX,
+  FONT_SIZE_STEP,
   LETTER_SPACING_LABELS,
   LINE_HEIGHT_LABELS,
   loadSettings,
@@ -58,7 +62,133 @@ function Toggle({
   )
 }
 
-// ── Slider select component ────────────────────────────────────────
+// ── Apple NSSlider-style font size slider (with tick marks + snap) ──
+
+function FontSizeSlider({
+  label,
+  description,
+  value,
+  onChange,
+  t,
+}: {
+  label: string
+  description?: string
+  value: number
+  onChange: (v: number) => void
+  t: (key: string, values?: Record<string, string | number>) => string
+}) {
+  const tickValues = [...FONT_SIZE_TICK_VALUES]
+  const min = tickValues[0]
+  const max = tickValues[tickValues.length - 1]
+  const step = FONT_SIZE_STEP
+
+  // Snap to nearest tick
+  const snapToTick = (raw: number) => {
+    const closest = tickValues.reduce((prev, curr) =>
+      Math.abs(curr - raw) < Math.abs(prev - raw) ? curr : prev
+    )
+    return closest
+  }
+
+  const pct = ((value - min) / (max - min)) * 100
+
+  // Find current label
+  const currentLabelKey = FONT_SIZE_LABELS.find(l => l.value === value)?.label || 'normal'
+  const currentLabel = t(currentLabelKey)
+  const displayValue = value.toFixed(2).replace(/0$/, '').replace(/\.?0+$/, '')
+
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = parseFloat(e.target.value)
+    onChange(snapToTick(raw))
+  }
+
+  return (
+    <div className="py-4 border-b border-[#e2e2e5] last:border-0 max-w-sm">
+      {/* Label row */}
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <p className="text-[14px] font-medium text-[#1d1d1f]">{label}</p>
+          {description && (
+            <p className="text-[12px] text-[#858585]">{description}</p>
+          )}
+        </div>
+        <span className="text-[13px] font-semibold text-[#0071e3] min-w-[56px] text-right tabular-nums">
+          {t('sizePreview', { value: displayValue })}
+        </span>
+      </div>
+
+      {/* Slider */}
+      <div className="relative h-9 mb-2">
+        {/* Track background */}
+        <div className="absolute top-1/2 left-0 right-0 h-[3px] -translate-y-1/2 rounded-full bg-[#e2e2e5]" />
+
+        {/* Filled track (leading portion) */}
+        <div
+          className="absolute top-1/2 left-0 h-[3px] -translate-y-1/2 rounded-full bg-[#0071e3]"
+          style={{ width: `${pct}%` }}
+        />
+
+        {/* Tick marks */}
+        {tickValues.map((tick) => {
+          const tickPct = ((tick - min) / (max - min)) * 100
+          const isActive = tick <= value
+          return (
+            <div
+              key={tick}
+              className="absolute top-1/2 -translate-y-1/2"
+              style={{ left: `${tickPct}%` }}
+            >
+              <div
+                className={`w-[1.5px] h-2 rounded-full transition-colors -translate-x-1/2 ${
+                  isActive ? 'bg-[#0071e3]' : 'bg-[#b0b0b0]'
+                }`}
+              />
+            </div>
+          )
+        })}
+
+        {/* Native range input (invisible, for drag handling) */}
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={handleSliderChange}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+          aria-label={label}
+          aria-valuemin={min}
+          aria-valuemax={max}
+          aria-valuenow={value}
+          aria-valuetext={`${currentLabel} (${value.toFixed(2)}×)`}
+        />
+
+        {/* Custom knob (thumb) */}
+        <div
+          className="absolute top-1/2 -translate-y-1/2 size-[18px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.15),0_1px_2px_rgba(0,0,0,0.1)] border border-[#d2d2d7] pointer-events-none z-[5]"
+          style={{ left: `calc(${pct}% - 9px)` }}
+        />
+      </div>
+
+      {/* Tick labels row — grid with 5 columns avoids overlap */}
+      <div className="grid grid-cols-5 gap-0 px-0">
+        {tickValues.filter((_, i) => i % 2 === 0).map((tick) => {
+          const labelKey = FONT_SIZE_LABELS.find(l => l.value === tick)?.label || 'normal'
+          return (
+            <span
+              key={tick}
+              className="text-[9px] text-[#858585] tabular-nums select-none text-center"
+            >
+              {t(labelKey)}
+            </span>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ── Slider select component (for line-height, letter-spacing) ──────
 
 function SliderSelect<T extends string | number>({
   label,
@@ -168,12 +298,12 @@ function SettingsPanel({
 }) {
   return (
     <>
-      <SliderSelect
+      <FontSizeSlider
         label={t('fontSize')}
-        description={t('fontSizeDesc')}
-        options={FONT_SIZE_LABELS}
+        description={t('fontSizeSliderDesc')}
         value={settings.fontSize}
         onChange={v => update('fontSize', v)}
+        t={t}
       />
       <SliderSelect
         label={t('lineHeight')}

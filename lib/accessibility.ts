@@ -83,13 +83,27 @@ export function applySettings(settings: AccessibilitySettings): void {
 }
 
 /**
- * Size labels for the UI slider.
+ * Font size slider constants — Apple NSSlider style with tick marks.
+ */
+export const FONT_SIZE_MIN = 0.75
+export const FONT_SIZE_MAX = 1.75
+export const FONT_SIZE_STEP = 0.125
+
+export const FONT_SIZE_TICK_VALUES = [0.75, 0.875, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75] as const
+
+/**
+ * Size key labels for the UI slider — translated via i18n.
  */
 export const FONT_SIZE_LABELS = [
-  { value: 0.875, label: 'Small' },
-  { value: 1, label: 'Normal' },
-  { value: 1.125, label: 'Large' },
-  { value: 1.25, label: 'Extra large' },
+  { value: 0.75, label: 'extraSmall' },
+  { value: 0.875, label: 'small' },
+  { value: 1, label: 'normal' },
+  { value: 1.125, label: 'large' },
+  { value: 1.25, label: 'extraLarge' },
+  { value: 1.375, label: 'xxLarge' },
+  { value: 1.5, label: 'x3Large' },
+  { value: 1.625, label: 'x4Large' },
+  { value: 1.75, label: 'x5Large' },
 ] as const
 
 export const LINE_HEIGHT_LABELS = [
