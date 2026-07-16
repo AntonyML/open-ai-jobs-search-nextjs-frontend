@@ -34,6 +34,7 @@ import {
   RotateCcw,
   CheckCircle2,
   Circle,
+  Lock,
 } from 'lucide-react'
 
 const debugSlideMenu = process.env.NEXT_PUBLIC_DEBUG_SLIDE_MENU === 'true'
@@ -151,10 +152,13 @@ export default function PipelineSidebar({
                       isActive={isActive}
                       tooltip={t(step.labelKey)}
                       className={!accessible ? 'opacity-40 cursor-not-allowed' : ''}
-                      onClick={!accessible ? () => showError(t('extras.lockedMessage')) : undefined}
+                      onClick={!accessible ? () => setShowUpgrade(true) : undefined}
                     >
-                      <Icon className="size-4" />
-                      <span className="text-sm">{t(step.labelKey)}</span>
+                      <div className="flex items-center gap-2">
+                        <Icon className="size-4" />
+                        <span className="text-sm">{t(step.labelKey)}</span>
+                        {!accessible && <Lock className="size-3 text-amber-500" />}
+                      </div>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )

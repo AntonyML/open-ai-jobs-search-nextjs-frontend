@@ -144,7 +144,8 @@ export default function Providers() {
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <form onSubmit={add} className="card space-y-4">
           <select className="field" value={provider} onChange={(e) => setProvider(e.target.value)}>
-            {['anthropic', 'openai', 'nvidia_nim', 'lm_studio', 'ollama']
+            {/* lm_studio and ollama are commented out for now */}
+            {['anthropic', 'openai', 'nvidia_nim' /*, 'lm_studio', 'ollama' */]
               .filter((x) => premium || x !== 'nvidia_nim')
               .map((x) => (
                 <option key={x}>{x}</option>
