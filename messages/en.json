@@ -21,7 +21,7 @@
     "done": "Done",
     "error": "Error",
     "refresh": "Refresh",
-    "retry": "Retry"
+    "retryAgain": "Retry"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -138,7 +138,7 @@
     "techAI": "AI/LLM",
     "techInfra": "Infrastructure",
     "ctaHeading": "Ready to transform your job search?",
-    "ctaDesc": "Start with a free account. No credit card required. Premium plans start at $19/mo.",
+    "ctaDesc": "Start with a free account. No credit card required. If you want more processing power, consider reaching out to our sales team.",
     "ctaDashboard": "Go to Dashboard",
     "ctaGetStarted": "Get started free"
   },
