@@ -276,7 +276,7 @@ export default function Settings() {
           <Card>
             <CardHeader>
               <CardTitle>{t('tabs.appearance')}</CardTitle>
-              <CardDescription>Customize the look and feel of Career OS</CardDescription>
+              <CardDescription>Customize the look and feel of Open Ai Jobs Search</CardDescription>
             </CardHeader>
             <CardContent>
               <AccessibilitySettings variant="inline" />

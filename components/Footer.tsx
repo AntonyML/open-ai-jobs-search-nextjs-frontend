@@ -13,7 +13,6 @@ export default function Footer() {
       links: [
         { label: t('features'), href: '/#features' },
         { label: t('pipeline'), href: '/#pipeline' },
-        { label: t('pricing'), href: '#' },
         { label: t('changelog'), href: '#' },
       ],
     },
@@ -77,7 +76,7 @@ export default function Footer() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0071e3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
               </svg>
-              <span className="text-[12px] font-semibold text-[#1d1d1f]">Career OS</span>
+              <span className="text-[12px] font-semibold text-[#1d1d1f]">Open Ai Jobs Search</span>
             </div>
 
             <p className="text-[11px] text-[#858585]">

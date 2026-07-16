@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { Toaster } from 'react-hot-toast'
 
 export const metadata: Metadata = {
-  title: 'Career OS',
+  title: 'Open Ai Jobs Search',
   description: 'AI-powered job search pipeline with multi-provider orchestration',
 }
 

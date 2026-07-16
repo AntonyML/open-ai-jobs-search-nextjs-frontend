@@ -37,7 +37,7 @@
   },
   "auth": {
     "loginTitle": "Welcome back",
-    "loginSubtitle": "Sign in to your Career OS account",
+    "loginSubtitle": "Sign in to your Open Ai Jobs Search account",
     "registerTitle": "Create your account",
     "registerSubtitle": "Start your AI-powered job search",
     "email": "Email",
@@ -71,13 +71,13 @@
   },
   "marketing": {
     "heroTitle": "Your AI-powered job search companion",
-    "heroSubtitle": "From scraping to offer — Career OS orchestrates your entire job search with intelligent LLM agents.",
+    "heroSubtitle": "From scraping to offer — Open Ai Jobs Search orchestrates your entire job search with intelligent LLM agents.",
     "ctaStart": "Start free",
     "featuresTitle": "Everything you need",
     "pipelineTitle": "7-step pipeline",
     "pipelineSubtitle": "Providers → Setup → Scrape → Rank → Apply → Interview → Outcome",
-    "aboutTitle": "About Career OS",
-    "aboutDescription": "Career OS is an open-source AI-powered job search pipeline that helps you find, evaluate, and apply to jobs more effectively."
+    "aboutTitle": "About Open Ai Jobs Search",
+    "aboutDescription": "Open Ai Jobs Search is an open-source AI-powered job search pipeline that helps you find, evaluate, and apply to jobs more effectively."
   },
   "pipeline": {
     "title": "Job pipeline",
@@ -374,7 +374,7 @@
       "soundEffects": "Sound effects",
       "soundEffectDesc": "Play sounds when ranking, scraping, and other processes finish",
       "marketingEmails": "Marketing emails",
-      "marketingDesc": "Tips and updates about Career OS"
+      "marketingDesc": "Tips and updates about Open Ai Jobs Search"
     },
     "language": {
       "interfaceLanguage": "Interface language",
@@ -482,7 +482,7 @@
     "terms": "Terms",
     "cookies": "Cookies",
     "licenses": "Licenses",
-    "allRightsReserved": "© {year} Career OS. All rights reserved."
+    "allRightsReserved": "© {year} Open Ai Jobs Search. All rights reserved."
   },
   "language": {
     "label": "Language",

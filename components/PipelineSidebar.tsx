@@ -82,7 +82,7 @@ export default function PipelineSidebar({
       <SidebarHeader className="px-4 py-3">
         <Link href="/dashboard" className="flex items-center gap-2 text-sm font-semibold tracking-tight text-sidebar-foreground hover:opacity-70 transition-opacity">
           <CheckCircle2 className="size-4 text-[#0071e3]" />
-          Career OS
+          Open Ai Jobs Search
         </Link>
       </SidebarHeader>
 

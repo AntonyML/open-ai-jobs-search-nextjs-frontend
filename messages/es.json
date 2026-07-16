@@ -37,7 +37,7 @@
   },
   "auth": {
     "loginTitle": "Bienvenido de nuevo",
-    "loginSubtitle": "Inicia sesión en tu cuenta de Career OS",
+    "loginSubtitle": "Inicia sesión en tu cuenta de Open Ai Jobs Search",
     "registerTitle": "Crea tu cuenta",
     "registerSubtitle": "Comienza tu búsqueda de empleo con IA",
     "email": "Correo electrónico",
@@ -71,13 +71,13 @@
   },
   "marketing": {
     "heroTitle": "Tu buscador de empleo con IA",
-    "heroSubtitle": "Desde el scraping hasta la oferta — Career OS orquesta toda tu búsqueda de empleo con agentes LLM inteligentes.",
+    "heroSubtitle": "Desde el scraping hasta la oferta — Open Ai Jobs Search orquesta toda tu búsqueda de empleo con agentes LLM inteligentes.",
     "ctaStart": "Empezar gratis",
     "featuresTitle": "Todo lo que necesitas",
     "pipelineTitle": "Pipeline de 7 pasos",
     "pipelineSubtitle": "Providers → Setup → Scrape → Rank → Apply → Interview → Outcome",
-    "aboutTitle": "Acerca de Career OS",
-    "aboutDescription": "Career OS es un pipeline de búsqueda de empleo open-source impulsado por IA que te ayuda a encontrar, evaluar y postularte a trabajos de manera más efectiva."
+    "aboutTitle": "Acerca de Open Ai Jobs Search",
+    "aboutDescription": "Open Ai Jobs Search es un pipeline de búsqueda de empleo open-source impulsado por IA que te ayuda a encontrar, evaluar y postularte a trabajos de manera más efectiva."
   },
   "pipeline": {
     "title": "Pipeline de empleo",
@@ -374,7 +374,7 @@
       "soundEffects": "Efectos de sonido",
       "soundEffectDesc": "Reproduce sonidos al completar ranking, scraping y otros procesos",
       "marketingEmails": "Correos promocionales",
-      "marketingDesc": "Consejos y actualizaciones sobre Career OS"
+      "marketingDesc": "Consejos y actualizaciones sobre Open Ai Jobs Search"
     },
     "language": {
       "interfaceLanguage": "Idioma de la interfaz",
@@ -482,7 +482,7 @@
     "terms": "Términos",
     "cookies": "Cookies",
     "licenses": "Licencias",
-    "allRightsReserved": "© {year} Career OS. Todos los derechos reservados."
+    "allRightsReserved": "© {year} Open Ai Jobs Search. Todos los derechos reservados."
   },
   "language": {
     "label": "Idioma",

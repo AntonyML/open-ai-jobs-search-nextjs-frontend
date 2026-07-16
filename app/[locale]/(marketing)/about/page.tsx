@@ -27,7 +27,7 @@ export default function AboutPage() {
             Enterprise-grade AI for your job search
           </h1>
           <p className="mt-4 text-[17px] md:text-[20px] text-[#707070] font-light max-w-2xl mx-auto">
-            Career OS is a premium AI orchestration platform that automates your entire job search pipeline
+            Open Ai Jobs Search is a premium AI orchestration platform that automates your entire job search pipeline
             with multi-provider failover, deterministic scoring, and zero downtime.
           </p>
         </div>
@@ -54,7 +54,7 @@ export default function AboutPage() {
               The solution
             </h2>
             <p className="text-[17px] text-[#707070] leading-relaxed">
-              Career OS is an orchestrated AI execution engine designed for resilience. Instead of
+              Open Ai Jobs Search is an orchestrated AI execution engine designed for resilience. Instead of
               relying on a single model, it automatically falls back across providers — from Anthropic
               to NVIDIA to OpenAI — so your job search never pauses.
             </p>
@@ -117,12 +117,14 @@ export default function AboutPage() {
               >
                 {loggedIn ? 'Go to Dashboard' : 'Get started free'}
               </Link>
+              {/* ── Se deja para un feature future ──────────────────────────────────────── 
               <Link
                 href={loggedIn ? '/providers' : '/register'}
                 className="inline-flex items-center rounded-full border border-[#0066cc] px-6 py-3 text-[15px] font-medium text-[#0066cc] hover:bg-[#f4f8fb] transition-all"
               >
                 View pricing
               </Link>
+              */}
             </div>
           </div>
         </div>

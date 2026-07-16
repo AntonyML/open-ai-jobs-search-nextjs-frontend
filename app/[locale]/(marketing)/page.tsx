@@ -222,12 +222,15 @@ export default function HomePage() {
                 <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
               </svg>
             </Link>
+
+             {/* ── Se deja para un feature future ──────────────────────────────────────── 
             <Link
               href="/#pricing"
               className="inline-flex items-center rounded-full border border-[#0066cc] px-6 py-3 text-[15px] font-medium text-[#0066cc] hover:bg-[#f4f8fb] transition-all"
             >
               View pricing
             </Link>
+            */}
           </div>
 
           <div className="mt-16 mx-auto max-w-4xl rounded-2xl bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe] border border-[#d2d2d7]/60 p-8 md:p-12">
@@ -277,6 +280,8 @@ export default function HomePage() {
       </section>
 
       {/* ── Pricing Section ──────────────────────────────────────── */}
+       {/* ── Se deja para un feature ──────────────────────────────────────── */}
+      {/*
       <section id="pricing" className="bg-[#f5f5f7] border-t border-[#d2d2d7]">
         <div className="mx-auto max-w-[1440px] px-5 md:px-8 py-20 md:py-28">
           <div className="text-center max-w-2xl mx-auto mb-16">
@@ -343,7 +348,7 @@ export default function HomePage() {
           </p>
         </div>
       </section>
-
+      */}
       {/* ── Pipeline Section ─────────────────────────────────────── */}
       <section id="pipeline" className="bg-white border-t border-[#d2d2d7]">
         <div className="mx-auto max-w-[1440px] px-5 md:px-8 py-20 md:py-28">
@@ -405,12 +410,14 @@ export default function HomePage() {
                   <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
                 </svg>
               </Link>
+              {/* ── Se deja para un feature future ──────────────────────────────────────── 
               <Link
                 href="/#pricing"
                 className="inline-flex items-center rounded-full border border-[#0066cc] px-7 py-3.5 text-[15px] font-medium text-[#0066cc] hover:bg-[#f4f8fb] transition-all"
               >
                 See plans
               </Link>
+              */}
             </div>
           </div>
         </div>

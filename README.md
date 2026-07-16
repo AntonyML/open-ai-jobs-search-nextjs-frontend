@@ -1,6 +1,6 @@
-# 🚀 Career OS — Frontend
+# 🚀 Open Ai Jobs Search — Frontend
 
-> **Career OS** es una estación de trabajo para automatizar tu búsqueda de empleo de principio a fin: desde conectar tu proveedor de IA hasta generar CV/cover letter optimizados para ATS, preparar entrevistas y trackear resultados.
+> **Open Ai Jobs Search** es una estación de trabajo para automatizar tu búsqueda de empleo de principio a fin: desde conectar tu proveedor de IA hasta generar CV/cover letter optimizados para ATS, preparar entrevistas y trackear resultados.
 
 Este repositorio es **el frontend** (Next.js 15 + React 19 + Tailwind CSS v4). Toda la lógica de negocio vive en un backend FastAPI separado al que este cliente llama vía REST y WebSocket.
 
@@ -12,7 +12,7 @@ Este repositorio es **el frontend** (Next.js 15 + React 19 + Tailwind CSS v4). T
 
 ## Tabla de contenidos
 
-- [¿Qué es Career OS?](#qué-es-career-os)
+- [¿Qué es Open Ai Jobs Search?](#qué-es-career-os)
 - [Nuevas secciones](#nuevas-secciones)
 - [i18n — Internacionalización](#i18n--internacionalización)
 - [Sistema de notificaciones](#sistema-de-notificaciones)
@@ -28,9 +28,9 @@ Este repositorio es **el frontend** (Next.js 15 + React 19 + Tailwind CSS v4). T
 
 ---
 
-## ¿Qué es Career OS?
+## ¿Qué es Open Ai Jobs Search?
 
-Career OS convierte la búsqueda de trabajo en un **pipeline guiado de 7 pasos**. Una barra lateral (StepSidebar) muestra el progreso y desbloquea los siguientes pasos de forma natural.
+Open Ai Jobs Search convierte la búsqueda de trabajo en un **pipeline guiado de 7 pasos**. Una barra lateral (StepSidebar) muestra el progreso y desbloquea los siguientes pasos de forma natural.
 
 Además del pipeline, la app incluye:
 - **Landing page** con pricing planes y CTA
@@ -44,7 +44,7 @@ Además del pipeline, la app incluye:
 / → Hero con tagline + CTA → Pricing → Features → Footer
 ```
 
-La landing page presenta Career OS como un servicio SaaS con planes en USD:
+La landing page presenta Open Ai Jobs Search como un servicio SaaS con planes en USD:
 - **Free**: 10 evaluaciones/mes, modelo estándar
 - **Pro**: $29/mes, evaluaciones ilimitadas, modelos premium (Claude, GPT)
 - **Enterprise**: $99/mes, APIs dedicadas, soporte prioritario
@@ -250,7 +250,7 @@ Sistema de diseño inspirado en Apple (ver `DESIGN.md` para referencia completa)
 
 - Node.js 20+
 - [pnpm](https://pnpm.io) (`npm i -g pnpm`)
-- Backend de Career OS corriendo (por defecto en `http://localhost:8000`)
+- Backend de Open Ai Jobs Search corriendo (por defecto en `http://localhost:8000`)
 
 ### Instalación
 
@@ -291,7 +291,7 @@ npx tsc --noEmit     # 0 errors esperados
 
 ## Conexión con el backend
 
-El frontend consume la API REST de Career OS (FastAPI backend).
+El frontend consume la API REST de Open Ai Jobs Search (FastAPI backend).
 
 - **URL base:** `NEXT_PUBLIC_API_URL` (default `http://localhost:8000`)
 - **Autenticación:** JWT en `localStorage` (`access_token`), inyectado en cada request por `apiFetch()`
