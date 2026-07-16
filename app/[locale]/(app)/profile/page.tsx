@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { clearToken } from '@/lib/auth'
@@ -97,12 +98,12 @@ export default function ProfilePage() {
             <p className="text-[15px] font-medium text-[#1d1d1f]">{profile?.activeProvider || 'Not configured'}</p>
             <p className="text-[13px] text-[#707070] mt-0.5">Model: {profile?.activeModel || '—'}</p>
           </div>
-          <a
+          <Link
             href="/providers"
             className="rounded-full border border-[#0066cc] px-4 py-1.5 text-[12px] font-medium text-[#0066cc] hover:bg-[#f4f8fb] transition-all"
           >
             Change
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -111,12 +112,12 @@ export default function ProfilePage() {
         <div className="rounded-xl border border-[#d2d2d7] bg-white p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[11px] font-semibold uppercase tracking-widest text-[#0071e3]">Profile Summary</h3>
-            <a
+            <Link
               href="/setup"
               className="text-[12px] font-medium text-[#0066cc] hover:underline"
             >
               Edit
-            </a>
+            </Link>
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-sm">

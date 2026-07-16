@@ -1190,7 +1190,7 @@ export default function Setup() {
                       })} />
                     </label>
                     <label className="block text-sm text-[#1d1d1f]">
-                      Doesn't work
+                      Doesn&apos;t work
                       <input className="field mt-1.5" placeholder="Micromanagers..." value={(bp.management_preferences?.doesnt_work || []).join(', ')} onChange={e => setBp(prev => {
                         const mp = prev.management_preferences || { works_with: [], doesnt_work: [] }
                         return { ...prev, management_preferences: { ...mp, doesnt_work: e.target.value.split(',').map(s => s.trim()).filter(Boolean) } }

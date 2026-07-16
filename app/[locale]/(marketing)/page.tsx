@@ -1,9 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { isLoggedIn } from '@/lib/auth'
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 // ── Icon Components ────────────────────────────────────────────────
 
@@ -55,140 +55,69 @@ function IconShield() {
   )
 }
 
-// ── Check icon for pricing features ────────────────────────────────
 
-const Check = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34c759" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-)
 
 // ── Data ───────────────────────────────────────────────────────────
 
-const FEATURES = [
-  {
-    icon: <IconBrain />,
-    title: 'Multi-Provider AI',
-    description: 'Automatically failover across OpenAI, Anthropic, NVIDIA, and more. Never let a rate limit stop your job search.',
-  },
-  {
-    icon: <IconSearch />,
-    title: 'Smart Job Discovery',
-    description: 'Aggregate listings from LinkedIn, Jobbank, Jobindex, and other portals. Filter by relevance automatically.',
-  },
-  {
-    icon: <IconBarChart />,
-    title: 'Resilient Ranking',
-    description: 'Deterministic keyword matching + AI-powered qualitative scoring. See exactly why each job fits your profile.',
-  },
-  {
-    icon: <IconRocket />,
-    title: 'Auto-Apply Pipeline',
-    description: 'Generate tailored CVs and cover letters for every application. Track outcomes and improve over time.',
-  },
-  {
-    icon: <IconShield />,
-    title: 'Privacy First',
-    description: 'Your data is encrypted at rest. Never used for training. Enterprise-grade security.',
-  },
-  {
-    icon: <IconSparkles />,
-    title: 'Interview Preparation',
-    description: 'AI-generated interview prep based on the job description and your profile. Walk in confident.',
-  },
+const STEP_COLORS = [
+  'from-blue-400 to-cyan-300',
+  'from-cyan-400 to-teal-300',
+  'from-teal-400 to-emerald-300',
+  'from-emerald-400 to-green-300',
+  'from-green-400 to-yellow-300',
+  'from-yellow-400 to-amber-300',
+  'from-amber-400 to-rose-300',
 ]
 
-const PIPELINE_STEPS = [
-  { num: '01', label: 'Configure', desc: 'Connect your preferred AI provider', color: 'from-blue-400 to-cyan-300' },
-  { num: '02', label: 'Profile', desc: 'Build your candidate profile', color: 'from-cyan-400 to-teal-300' },
-  { num: '03', label: 'Discover', desc: 'Find jobs across multiple portals', color: 'from-teal-400 to-emerald-300' },
-  { num: '04', label: 'Evaluate', desc: 'AI-powered ranking against your profile', color: 'from-emerald-400 to-green-300' },
-  { num: '05', label: 'Apply', desc: 'Generate CV + cover letter', color: 'from-green-400 to-yellow-300' },
-  { num: '06', label: 'Prepare', desc: 'Interview prep tailored to each role', color: 'from-yellow-400 to-amber-300' },
-  { num: '07', label: 'Track', desc: 'Monitor outcomes and iterate', color: 'from-amber-400 to-rose-300' },
-]
+const STEP_NUMS = ['01', '02', '03', '04', '05', '06', '07']
 
-// ── Pricing Plans (USD) ───────────────────────────────────────────
-// Based on market research: Simplify $15/mo, Teal $29/mo, Jobscan $50/mo
-// Cost structure: ~$3-5/mo per active user in OpenRouter API costs
-// Pricing positioned competitively in the $19-$49 range
 
-const PLANS = [
-  {
-    name: 'Free',
-    price: '$0',
-    period: '/mo',
-    description: 'Try the platform and see if it fits your workflow.',
-    cta: 'Get started',
-    highlighted: false,
-    features: [
-      '5 job evaluations per month',
-      '1 provider connection',
-      'Basic CV generation',
-      'Pipeline tracking',
-      'Community support',
-    ],
-  },
-  {
-    name: 'Starter',
-    price: '$19',
-    period: '/mo',
-    description: 'For active job seekers who want AI-powered results.',
-    cta: 'Start free trial',
-    highlighted: false,
-    popular: true,
-    features: [
-      '100 job evaluations per month',
-      'Multi-provider failover',
-      'Unlimited CV generation',
-      'Cover letter generation',
-      'Interview prep',
-      'Outcome tracking',
-      'Email support',
-    ],
-  },
-  {
-    name: 'Professional',
-    price: '$39',
-    period: '/mo',
-    description: 'For power users who want the full pipeline automated.',
-    cta: 'Start free trial',
-    highlighted: true,
-    features: [
-      '500 job evaluations per month',
-      'Priority provider access',
-      'Auto-apply pipeline',
-      'Advanced scoring analytics',
-      'Bulk job discovery',
-      'Priority support',
-      'All Starter features',
-    ],
-  },
-  {
-    name: 'Enterprise',
-    price: '$99',
-    period: '/mo',
-    description: 'For teams and career coaches managing multiple candidates.',
-    cta: 'Contact sales',
-    highlighted: false,
-    features: [
-      'Unlimited evaluations',
-      'Dedicated AI models via OpenRouter',
-      'Team accounts (up to 5)',
-      'Custom scoring weights',
-      'API access',
-      'SSO & audit logs',
-      'Dedicated support',
-      'All Professional features',
-    ],
-  },
-]
 
 export default function HomePage() {
-  const router = useRouter()
   const [loggedIn, setLoggedIn] = useState(false)
+  const t = useTranslations('marketing')
 
   useEffect(() => { setLoggedIn(isLoggedIn()) }, [])
+
+  const FEATURES = [
+    {
+      icon: <IconBrain />,
+      title: t('featureMultiProviderTitle'),
+      description: t('featureMultiProviderDesc'),
+    },
+    {
+      icon: <IconSearch />,
+      title: t('featureDiscoveryTitle'),
+      description: t('featureDiscoveryDesc'),
+    },
+    {
+      icon: <IconBarChart />,
+      title: t('featureRankingTitle'),
+      description: t('featureRankingDesc'),
+    },
+    {
+      icon: <IconRocket />,
+      title: t('featureApplyTitle'),
+      description: t('featureApplyDesc'),
+    },
+    {
+      icon: <IconShield />,
+      title: t('featurePrivacyTitle'),
+      description: t('featurePrivacyDesc'),
+    },
+    {
+      icon: <IconSparkles />,
+      title: t('featureInterviewTitle'),
+      description: t('featureInterviewDesc'),
+    },
+  ]
+
+  const PIPELINE_STEPS = STEP_NUMS.map((num, i) => ({
+    num,
+    label: t(`step${num}Label`),
+    desc: t(`step${num}Desc`),
+    color: STEP_COLORS[i],
+  }))
 
   return (
     <>
@@ -197,19 +126,19 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1440px] px-5 md:px-8 pt-20 pb-24 md:pt-28 md:pb-32 text-center">
           <div className="inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] bg-white/60 px-3 py-1 text-[11px] font-medium text-[#707070] mb-6">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Now with multi-provider failover
+            {t('heroBadge')}
           </div>
 
           <h1 className="text-[44px] md:text-[56px] font-semibold tracking-tight text-[#1d1d1f] leading-[1.07] max-w-4xl mx-auto">
-            Your AI-powered
+            {t('heroHeading1')}
             <br />
-            <span className="text-[#0071e3]">career accelerator</span>
+            <span className="text-[#0071e3]">{t('heroHeading2')}</span>
           </h1>
 
           <p className="mt-5 text-[20px] md:text-[24px] font-light text-[#707070] leading-snug max-w-2xl mx-auto">
-            Discover, evaluate, and apply to jobs with an orchestrated AI pipeline.
+            {t('heroDesc1')}
             <br className="hidden md:block" />
-            No rate limits. No downtime. Just results.
+            {t('heroDesc2')}
           </p>
 
           <div className="mt-10 flex items-center justify-center gap-3">
@@ -217,7 +146,7 @@ export default function HomePage() {
               href={loggedIn ? '/providers' : '/register'}
               className="inline-flex items-center rounded-full bg-[#0071e3] px-6 py-3 text-[15px] font-medium text-white hover:bg-[#0068d2] transition-all shadow-sm"
             >
-              {loggedIn ? 'Go to Dashboard' : 'Try it free'}
+              {loggedIn ? t('ctaDashboard') : t('ctaTryFree')}
               <svg className="ml-1.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
               </svg>
@@ -253,12 +182,12 @@ export default function HomePage() {
       <section id="features" className="bg-white border-t border-[#d2d2d7]">
         <div className="mx-auto max-w-[1440px] px-5 md:px-8 py-20 md:py-28">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#0071e3] mb-3">Features</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#0071e3] mb-3">{t('featuresLabel')}</p>
             <h2 className="text-[36px] md:text-[48px] font-semibold tracking-tight text-[#1d1d1f] leading-[1.07]">
-              Everything you need to land your next role
+              {t('featuresHeading')}
             </h2>
             <p className="mt-4 text-[17px] text-[#707070] font-light">
-              An orchestrated AI pipeline that works while you sleep.
+              {t('featuresSubheading')}
             </p>
           </div>
 
@@ -353,12 +282,12 @@ export default function HomePage() {
       <section id="pipeline" className="bg-white border-t border-[#d2d2d7]">
         <div className="mx-auto max-w-[1440px] px-5 md:px-8 py-20 md:py-28">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#0071e3] mb-3">Pipeline</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#0071e3] mb-3">{t('pipelineLabel')}</p>
             <h2 className="text-[36px] md:text-[48px] font-semibold tracking-tight text-[#1d1d1f] leading-[1.07]">
-              From discovery to offer
+              {t('pipelineHeading')}
             </h2>
             <p className="mt-4 text-[17px] text-[#707070] font-light">
-              Seven steps. One seamless flow.
+              {t('pipelineSubheadingShort')}
             </p>
           </div>
 
@@ -395,17 +324,17 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1440px] px-5 md:px-8 py-20 md:py-28 text-center">
           <div className="max-w-2xl mx-auto">
             <h2 className="text-[36px] md:text-[48px] font-semibold tracking-tight text-[#1d1d1f] leading-[1.07]">
-              Ready to accelerate your career?
+              {t('ctaHeading')}
             </h2>
             <p className="mt-4 text-[17px] text-[#707070] font-light">
-              Start free. Upgrade when you need more power. No credit card required.
+              {t('ctaSubheading')}
             </p>
             <div className="mt-10 flex items-center justify-center gap-3">
               <Link
                 href={loggedIn ? '/providers' : '/register'}
                 className="inline-flex items-center rounded-full bg-[#0071e3] px-7 py-3.5 text-[15px] font-medium text-white hover:bg-[#0068d2] transition-all shadow-sm"
               >
-                {loggedIn ? 'Open Dashboard' : 'Get started free'}
+                {loggedIn ? t('ctaOpenDashboard') : t('ctaGetStarted')}
                 <svg className="ml-1.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
                 </svg>
