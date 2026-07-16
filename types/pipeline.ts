@@ -225,6 +225,13 @@ export interface PipelinePageProps {
   emptyDesc?: string
   emptyAction?: string
   emptyHref?: string
+  emptyPrevTitle?: string
+  emptyPrevDesc?: string
+  emptyPrevAction?: string
+  emptyPrevHref?: string
+  emptyPrevDone?: boolean
+  emptyPrevLabel?: string
+  emptyPrevKey?: string
 }
 
 export interface UpgradeBannerProps {

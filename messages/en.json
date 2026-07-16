@@ -276,6 +276,9 @@
     "emptyTitle": "No jobs found yet",
     "emptyDesc": "Configure your search parameters — pick portals, focus area, and date range — then click Start scraping to discover job openings.",
     "emptyAction": "Start scraping",
+    "prevStepTitle": "Complete your profile first",
+    "prevStepDesc": "Before scraping jobs, you need to set up your candidate profile with your experience, education, and skills. This helps the AI find the most relevant openings for you.",
+    "prevStepAction": "Go to Setup",
     "continueToRank": "Continue to Rank →",
     "freeLimitation": "Free plan: 1 site, 5 jobs max. Upgrade for unlimited.",
     "upgrade": "Upgrade"
@@ -306,6 +309,9 @@
     "emptyTitle": "No jobs to rank",
     "emptyDesc": "Ranking evaluates scraped jobs against your profile to find the best matches. Scrape jobs first to have candidates for evaluation.",
     "emptyAction": "Go to Scrape",
+    "prevStepTitle": "Find jobs first",
+    "prevStepDesc": "Before ranking jobs, you need to scrape job listings from portals like LinkedIn and Jobbank. This gives the AI candidates to evaluate against your profile.",
+    "prevStepAction": "Go to Scrape",
     "showing": "Showing {count} of {total} ranked jobs",
     "page": "Page {current} of {total}",
     "prev": "Previous",
@@ -330,7 +336,10 @@
     "limitReached": "Upgrade for more applications",
     "emptyTitle": "No applications yet",
     "emptyDesc": "Generate tailored CVs and cover letters for your top-ranked jobs. Rank jobs first to find the best matches to apply for.",
-    "emptyAction": "Go to Rank"
+    "emptyAction": "Go to Rank",
+    "prevStepTitle": "Rank jobs first",
+    "prevStepDesc": "Before generating applications, you need to rank your scraped jobs. Ranking identifies the best matches for your profile so you can apply strategically.",
+    "prevStepAction": "Go to Rank"
   },
   "interview": {
     "title": "Walk into the interview prepared",

@@ -103,6 +103,7 @@ function ScrapeJobCard({ job, index }: { job: any; index: number }) {
 
 export default function Scrape() {
   const t = useTranslations('scrape')
+  const tp = useTranslations('pipeline.steps')
   const tc = useTranslations('common')
   const router = useRouter()
   const premium = isPremium()
@@ -111,6 +112,7 @@ export default function Scrape() {
   const [focus_area, setFocusArea] = useState('')
   const [broad, setBroad] = useState(false)
   const [selectedPortals, setSelectedPortals] = useState<string[]>([])
+  const prevStepDone = getCompletedSteps().includes(1)
   const [jobage_days, setJobageDays] = useState(14)
   const [limit_per_portal, setLimitPerPortal] = useState(20)
   const [loading, setLoading] = useState(false)
@@ -244,6 +246,15 @@ export default function Scrape() {
               description={t('emptyDesc')}
               actionLabel={t('emptyAction')}
               actionHref="/pipeline/scrape"
+              prevStep={{
+                key: 'setup',
+                label: tp('setup'),
+                href: '/pipeline/setup',
+                title: t('prevStepTitle'),
+                description: t('prevStepDesc'),
+                action: t('prevStepAction'),
+              }}
+              prevStepDone={prevStepDone}
             />
           )}
         </div>

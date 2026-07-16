@@ -32,6 +32,7 @@ const ITEMS_PER_PAGE = 10
 
 export default function Rank() {
   const t = useTranslations('rank')
+  const tp = useTranslations('pipeline.steps')
   const tc = useTranslations('common')
   const router = useRouter()
 
@@ -46,6 +47,7 @@ export default function Rank() {
   const [customFocus, setCustomFocus] = useState('')
   const [topN, setTopN] = useState(5)
   const [reRank, setReRank] = useState(false)
+  const prevStepDone = getCompletedSteps().includes(2)
 
   // Data state
   const [items, setItems] = useState<any[]>([])
@@ -362,7 +364,15 @@ export default function Rank() {
             title={t('emptyTitle')}
             description={t('emptyDesc')}
             actionLabel={t('emptyAction')}
-            actionHref="/pipeline/scrape"
+            actionHref="/pipeline/scrape"            prevStep={{
+                key: 'scrape',
+                label: tp('scrape'),
+              href: '/pipeline/scrape',
+              title: t('prevStepTitle'),
+              description: t('prevStepDesc'),
+              action: t('prevStepAction'),
+            }}
+            prevStepDone={prevStepDone}
           />
         )}
 

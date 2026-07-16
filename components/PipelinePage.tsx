@@ -46,11 +46,13 @@ function ResultCard({ item }: { item: any }) {
   )
 }
 
-function EmptyState({ title, description, actionLabel, actionHref }: {
+function EmptyState({ title, description, actionLabel, actionHref, prevStep, prevStepDone }: {
   title?: string
   description?: string
   actionLabel?: string
   actionHref?: string
+  prevStep?: { key: string; label: string; href: string; title: string; description: string; action: string }
+  prevStepDone?: boolean
 }) {
   if (title) {
     return (
@@ -60,6 +62,8 @@ function EmptyState({ title, description, actionLabel, actionHref }: {
         description={description || ''}
         actionLabel={actionLabel || ''}
         actionHref={actionHref || '#'}
+        prevStep={prevStep}
+        prevStepDone={prevStepDone}
       />
     )
   }
@@ -111,6 +115,13 @@ export default function PipelinePage({
   emptyDesc,
   emptyAction,
   emptyHref,
+  emptyPrevTitle,
+  emptyPrevDesc,
+  emptyPrevAction,
+  emptyPrevHref,
+  emptyPrevDone,
+  emptyPrevLabel,
+  emptyPrevKey,
 }: PipelinePageProps) {
   const [form, setForm] = useState<Record<string, string>>({})
   const [items, setItems] = useState<any[]>([])
@@ -258,6 +269,15 @@ export default function PipelinePage({
               description={emptyDesc}
               actionLabel={emptyAction}
               actionHref={emptyHref}
+              prevStep={emptyPrevTitle ? {
+                key: emptyPrevKey || '',
+                label: emptyPrevLabel || '',
+                href: emptyPrevHref || '#',
+                title: emptyPrevTitle,
+                description: emptyPrevDesc || '',
+                action: emptyPrevAction || '',
+              } : undefined}
+              prevStepDone={emptyPrevDone}
             />
           )}
 

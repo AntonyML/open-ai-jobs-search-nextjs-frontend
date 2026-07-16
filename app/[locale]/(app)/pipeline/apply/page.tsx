@@ -3,19 +3,21 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import PipelinePage from '@/components/PipelinePage'
-import { isPremium } from '@/lib/auth'
+import { isPremium, getCompletedSteps } from '@/lib/auth'
 import { useUsageLimits } from '@/hooks/useUsageLimits'
 import { UpgradeBanner } from '@/components/ui/upgrade-banner'
 import UpgradeModal from '@/components/UpgradeModal'
 
 export default function Apply() {
   const t = useTranslations('apply')
+  const tp = useTranslations('pipeline.steps')
   const tc = useTranslations('common')
   const [showUpgrade, setShowUpgrade] = useState(false)
   const premium = isPremium()
   const { data: usage } = useUsageLimits()
 
   const atLimit = !premium && usage != null && usage.usage.applications >= usage.limits.max_apply_count
+  const prevStepDone = getCompletedSteps().includes(3)
 
   return (
     <>
@@ -42,6 +44,13 @@ export default function Apply() {
         emptyDesc={t('emptyDesc')}
         emptyAction={t('emptyAction')}
         emptyHref="/pipeline/rank"
+        emptyPrevTitle={t('prevStepTitle')}
+        emptyPrevDesc={t('prevStepDesc')}
+        emptyPrevAction={t('prevStepAction')}
+        emptyPrevHref="/pipeline/rank"
+        emptyPrevLabel={tp('rank')}
+        emptyPrevKey="rank"
+        emptyPrevDone={prevStepDone}
       />
       <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </>

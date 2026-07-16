@@ -196,7 +196,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile setup progress */}
-        <ProfileProgress hasSetup={hasSetup} hasProvider={hasProvider} setup={setup} t={t} />
+        <ProfileProgress hasSetup={hasSetup} setup={setup} t={t} />
       </div>
 
       {/* ── Profile Details ────────────────────────────────────── */}
@@ -568,8 +568,7 @@ function EmptySection({ message }: { message: string }) {
 
 /* ── Profile Progress ──────────────────────────────── */
 
-function ProfileProgress({ hasSetup, hasProvider, setup, t }: { hasSetup: boolean; hasProvider: boolean; setup: any; t: (key: string) => string }) {
-  const router = useRouter()
+function ProfileProgress({ hasSetup, setup, t }: { hasSetup: boolean; setup: any; t: (key: string) => string }) {
   const sections = [
     { key: 'experience', done: (setup?.experience?.length ?? 0) > 0 },
     { key: 'education', done: (setup?.education?.length ?? 0) > 0 },
@@ -582,22 +581,14 @@ function ProfileProgress({ hasSetup, hasProvider, setup, t }: { hasSetup: boolea
   const circumference = 2 * Math.PI * radius
   const offset = circumference - (pct / 100) * circumference
 
-  const handleSetupClick = () => {
-    if (!hasProvider) {
-      showError(t('providerRequired'))
-    } else {
-      router.push('/pipeline/setup')
-    }
-  }
-
   return (
     <div className="card animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
       <div className="flex items-center justify-between mb-3">
         <p className="eyebrow !text-[#0071e3]">{t('setupTitle')}</p>
         {!hasSetup && (
-          <button onClick={handleSetupClick} className="btn-ghost text-[11px]">
+          <Link href="/pipeline/setup" className="btn-ghost text-[11px]">
             {t('setup')}
-          </button>
+          </Link>
         )}
       </div>
 

@@ -275,6 +275,9 @@
     "emptyTitle": "Aún no hay empleos encontrados",
     "emptyDesc": "Configura los parámetros de búsqueda — selecciona portales, área de enfoque y rango de fechas — luego haz clic en Comenzar scraping para descubrir ofertas.",
     "emptyAction": "Buscar empleos",
+    "prevStepTitle": "Completa tu perfil primero",
+    "prevStepDesc": "Antes de buscar empleos, debes configurar tu perfil de candidato con tu experiencia, educación y habilidades. Esto ayuda a la IA a encontrar las ofertas más relevantes para ti.",
+    "prevStepAction": "Ir a Setup",
     "continueToRank": "Continuar a Rank →",
     "freeLimitation": "Plan Free: 1 sitio, 5 empleos máx. Mejora para ilimitado.",
     "upgrade": "Mejorar"
@@ -305,6 +308,9 @@
     "emptyTitle": "No hay empleos para rankear",
     "emptyDesc": "El ranking evalúa los empleos scapeados contra tu perfil para encontrar los mejores. Busca empleos primero para tener candidatos que evaluar.",
     "emptyAction": "Ir a Scrape",
+    "prevStepTitle": "Busca empleos primero",
+    "prevStepDesc": "Antes de rankear empleos, debes buscar ofertas en portales como LinkedIn y Jobbank. Esto le da a la IA candidatos para evaluar contra tu perfil.",
+    "prevStepAction": "Ir a Scrape",
     "showing": "Mostrando {count} de {total} empleos rankeados",
     "page": "Página {current} de {total}",
     "prev": "Anterior",
@@ -329,7 +335,10 @@
     "limitReached": "Mejora para más aplicaciones",
     "emptyTitle": "Aún no hay postulaciones",
     "emptyDesc": "Genera CVs y cartas de presentación personalizadas para tus empleos mejor rankeados. Primero rankea empleos para encontrar los mejores candidatos.",
-    "emptyAction": "Ir a Rank"
+    "emptyAction": "Ir a Rank",
+    "prevStepTitle": "Rankea empleos primero",
+    "prevStepDesc": "Antes de generar postulaciones, debes rankear tus empleos scapeados. El ranking identifica las mejores coincidencias para tu perfil.",
+    "prevStepAction": "Ir a Rank"
   },
   "interview": {
     "title": "Llega preparado a la entrevista",
