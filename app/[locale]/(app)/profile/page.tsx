@@ -21,12 +21,21 @@ export default function ProfilePage() {
       apiFetch<any>('/api/v1/setup/profile').catch(() => null),
     ])
       .then(([active, setupProfile]) => {
+        const hasProvider = active?.provider && active.provider !== 'Not configured'
+        const hasProfile = setupProfile !== null
+
+        // Redirect new users to pipeline setup on first visit
+        if (!hasProvider && !hasProfile) {
+          router.replace('/pipeline/providers')
+          return
+        }
+
         setProfile({
-          activeProvider: active?.provider || 'Not configured',
-          activeModel: active?.model || '—',
+          activeProvider: active?.provider || null,
+          activeModel: active?.model || null,
           setup: setupProfile,
-          email: active?.email || setupProfile?.email || '—',
-          name: setupProfile?.full_name || active?.full_name || 'User',
+          email: active?.email || setupProfile?.email || null,
+          name: setupProfile?.full_name || active?.full_name || null,
         })
         setLoading(false)
       })
@@ -35,7 +44,7 @@ export default function ProfilePage() {
         showError('Could not load profile')
         setLoading(false)
       })
-  }, [])
+  }, [router])
 
   const handleSignOut = () => {
     clearToken()
@@ -71,40 +80,77 @@ export default function ProfilePage() {
 
       {/* Account info card */}
       <div className="rounded-xl border border-[#d2d2d7] bg-white p-6 mb-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-full bg-[#0071e3] flex items-center justify-center text-white text-xl font-semibold">
-              {profile?.name?.charAt(0)?.toUpperCase() || 'U'}
+        {profile?.name ? (
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-full bg-[#0071e3] flex items-center justify-center text-white text-xl font-semibold">
+                {profile.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-[#1d1d1f]">{profile.name}</h2>
+                {profile.email && <p className="text-sm text-[#707070]">{profile.email}</p>}
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-semibold text-[#1d1d1f]">{profile?.name || 'User'}</h2>
-              <p className="text-sm text-[#707070]">{profile?.email || '—'}</p>
-            </div>
+            <button
+              onClick={handleSignOut}
+              className="rounded-full border border-[#d2d2d7] px-4 py-2 text-[12px] font-medium text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-all"
+            >
+              Sign out
+            </button>
           </div>
-          <button
-            onClick={handleSignOut}
-            className="rounded-full border border-[#d2d2d7] px-4 py-2 text-[12px] font-medium text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-all"
-          >
-            Sign out
-          </button>
-        </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-full bg-[#e2e2e5] flex items-center justify-center text-[#b0b0b0]">
+                <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-[#1d1d1f]">Aún no has configurado tu perfil</p>
+                <p className="text-[12px] text-[#858585] mt-0.5">Agrega tu experiencia, educación y habilidades para empezar</p>
+              </div>
+            </div>
+            <Link
+              href="/pipeline/setup"
+              className="rounded-full bg-[#0071e3] px-4 py-2 text-[12px] font-medium text-white hover:bg-[#0077ed] transition-all shrink-0"
+            >
+              Configurar perfil
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Active provider card */}
       <div className="rounded-xl border border-[#d2d2d7] bg-white p-6 mb-6">
         <h3 className="text-[11px] font-semibold uppercase tracking-widest text-[#0071e3] mb-4">Active Provider</h3>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-[15px] font-medium text-[#1d1d1f]">{profile?.activeProvider || 'Not configured'}</p>
-            <p className="text-[13px] text-[#707070] mt-0.5">Model: {profile?.activeModel || '—'}</p>
+        {profile?.activeProvider ? (
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[15px] font-medium text-[#1d1d1f]">{profile.activeProvider}</p>
+              {profile.activeModel && <p className="text-[13px] text-[#707070] mt-0.5">Model: {profile.activeModel}</p>}
+            </div>
+            <Link
+              href="/pipeline/providers"
+              className="rounded-full border border-[#0066cc] px-4 py-1.5 text-[12px] font-medium text-[#0066cc] hover:bg-[#f4f8fb] transition-all"
+            >
+              Change
+            </Link>
           </div>
-          <Link
-            href="/providers"
-            className="rounded-full border border-[#0066cc] px-4 py-1.5 text-[12px] font-medium text-[#0066cc] hover:bg-[#f4f8fb] transition-all"
-          >
-            Change
-          </Link>
-        </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[13px] text-[#707070]">No has conectado ningún proveedor IA</p>
+              <p className="text-[12px] text-[#b0b0b0] mt-0.5">Conecta una API key para usar los servicios de IA</p>
+            </div>
+            <Link
+              href="/pipeline/providers"
+              className="rounded-full bg-[#0071e3] px-4 py-2 text-[12px] font-medium text-white hover:bg-[#0077ed] transition-all"
+            >
+              Conectar proveedor
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Profile summary */}
