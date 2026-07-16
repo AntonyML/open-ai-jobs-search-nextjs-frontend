@@ -139,13 +139,17 @@ export default function PipelineSidebar({
             <SidebarMenu>
               {extraSteps.map((step) => {
                 const isActive = pathname === step.href
+                const accessible = debugSlideMenu || (completedSteps.includes(6) && completedSteps.length >= 7)
+                const linkEl = accessible ? <Link href={step.href} /> : undefined
                 const Icon = step.icon
                 return (
                   <SidebarMenuItem key={step.href}>
                     <SidebarMenuButton
-                      render={<Link href={step.href} />}
+                      render={linkEl}
                       isActive={isActive}
                       tooltip={t(step.labelKey)}
+                      className={!accessible ? 'opacity-40 cursor-not-allowed' : ''}
+                      onClick={!accessible ? () => showError(t('extras.lockedMessage')) : undefined}
                     >
                       <Icon className="size-4" />
                       <span className="text-sm">{t(step.labelKey)}</span>
@@ -159,7 +163,16 @@ export default function PipelineSidebar({
       </SidebarContent>
 
       <SidebarFooter className="p-2">
-        {showResetConfirm ? (
+        {completedSteps.length === 0 ? (
+          <SidebarMenuButton
+            disabled
+            tooltip={t('resetEmpty')}
+            className="text-[#b0b0b0] cursor-not-allowed"
+          >
+            <RotateCcw className="size-4" />
+            <span className="text-xs">{t('reset')}</span>
+          </SidebarMenuButton>
+        ) : showResetConfirm ? (
           <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 space-y-2">
             <p className="text-[11px] text-rose-700 leading-snug">
               {t('resetConfirm')}

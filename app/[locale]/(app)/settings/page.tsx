@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useRouter as useNextRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useTranslations } from 'next-intl'
-import { isLoggedIn } from '@/lib/auth'
+import { useLocale, useTranslations } from 'next-intl'
+import { clearCompletedSteps, clearToken, isLoggedIn } from '@/lib/auth'
 import { apiFetch } from '@/lib/api'
+import { showError, showSuccess } from '@/lib/toasts'
 import {
   Card,
   CardContent,
@@ -38,6 +39,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher'
 export default function Settings() {
   const t = useTranslations('settings')
   const tc = useTranslations('common')
+  const locale = useLocale()
   const router = useNextRouter()
   const [activeTab, setActiveTab] = useState('profile')
   const [profile, setProfile] = useState<{ full_name?: string; email?: string; location?: string; profile_statement?: string } | null>(null)
@@ -52,6 +54,10 @@ export default function Settings() {
   const [pwUpdating, setPwUpdating] = useState(false)
   const [pwError, setPwError] = useState('')
   const [pwSuccess, setPwSuccess] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     if (!isLoggedIn()) { router.replace('/login'); return }
@@ -93,6 +99,29 @@ export default function Settings() {
     } catch { setPwError('Failed to update password') }
     setPwUpdating(false)
   }
+
+  const deleteAccount = async () => {
+    setDeleting(true)
+    try {
+      await apiFetch('/api/v1/auth/account', {
+        method: 'DELETE',
+        body: JSON.stringify({ password: deletePassword, confirmation: deleteConfirmText }),
+      })
+      showSuccess(t('common.saved'))
+      clearToken()
+      clearCompletedSteps()
+      router.push('/login')
+    } catch {
+      showError(t('common.error'))
+    }
+    setDeleting(false)
+    setShowDeleteConfirm(false)
+    setDeletePassword('')
+    setDeleteConfirmText('')
+  }
+
+  const confirmWord = locale === 'es' ? 'CONFIRMAR' : 'CONFIRM'
+  const canDelete = deletePassword.length > 0 && deleteConfirmText === confirmWord && !deleting
 
   const tabs = [
     { key: 'profile', label: t('tabs.profile'), icon: User },
@@ -341,7 +370,94 @@ export default function Settings() {
                 <p className="mt-2 text-[11px] text-[#b0b0b0]">Coming soon</p>
               </CardContent>
             </Card>
+
+            {/* ── Danger Zone: Delete Account ─────────────────── */}
+            <Card className="border-rose-200">
+              <CardHeader>
+                <CardTitle className="text-rose-600">{t('security.deleteAccount')}</CardTitle>
+                <CardDescription>{t('security.deleteAccountDesc')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="rounded-lg bg-rose-50 border border-rose-200 p-4">
+                    <p className="text-[13px] text-rose-700 leading-relaxed">
+                      {t('security.deleteAccountWarning')}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="rounded-full bg-rose-500 px-5 py-2 text-[13px] font-medium text-white hover:bg-rose-600 transition-all"
+                  >
+                    {t('security.deleteAccountButton')}
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
+
+          {/* ── Delete Account Confirmation Modal ─────────────── */}
+          {showDeleteConfirm && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-black/55 backdrop-blur-sm" onClick={() => !deleting && setShowDeleteConfirm(false)} />
+              <div className="relative z-10 w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden animate-[slideUp_0.25s_cubic-bezier(0.16,1,0.3,1)]">
+                <div className="p-6 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="size-10 rounded-full bg-rose-100 flex items-center justify-center">
+                      <svg className="size-5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-[16px] font-bold text-[#1d1d1f]">{t('security.deleteAccount')}</h3>
+                      <p className="text-[12px] text-[#707070]">{t('security.deleteAccountDesc')}</p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-rose-50 border border-rose-200 p-3">
+                    <p className="text-[12px] text-rose-700 leading-relaxed">{t('security.deleteAccountWarning')}</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-[12px] font-medium text-[#707070] mb-1">{t('security.currentPassword')}</label>
+                    <input
+                      type="password"
+                      value={deletePassword}
+                      onChange={e => setDeletePassword(e.target.value)}
+                      className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] text-[#1d1d1f] outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400/20 transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[12px] font-medium text-[#707070] mb-1">{t('security.deleteAccountConfirm')}</label>
+                    <input
+                      type="text"
+                      value={deleteConfirmText}
+                      onChange={e => setDeleteConfirmText(e.target.value)}
+                      placeholder={confirmWord}
+                      className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] text-[#1d1d1f] outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400/20 transition-all"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={() => { setShowDeleteConfirm(false); setDeletePassword(''); setDeleteConfirmText('') }}
+                      disabled={deleting}
+                      className="flex-1 rounded-full border border-[#d2d2d7] bg-white px-4 py-2 text-[13px] font-medium text-[#474747] hover:bg-[#f5f5f7] disabled:opacity-50 transition-all"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={deleteAccount}
+                      disabled={!canDelete}
+                      className="flex-1 rounded-full bg-rose-500 px-4 py-2 text-[13px] font-medium text-white hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                      {deleting ? t('security.deleting') : t('security.deleteAccountButton')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

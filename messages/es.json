@@ -66,7 +66,8 @@
     "brandRegisterTitle": "Comienza tu viaje en segundos",
     "brandRegisterSubtitle": "Sin tarjeta de crédito. Conecta tu proveedor IA preferido y empieza a rankear empleos inmediatamente.",
     "loginSubtitleAlt": "Inicia sesión para continuar tu búsqueda de empleo.",
-    "registerSubtitleAlt": "Comienza tu búsqueda de empleo con IA."
+    "registerSubtitleAlt": "Comienza tu búsqueda de empleo con IA.",
+    "account_deleted": "Cuenta eliminada permanentemente. Todos tus datos han sido borrados."
   },
   "marketing": {
     "heroTitle": "Tu buscador de empleo con IA",
@@ -163,9 +164,11 @@
       "expand": "Expandir",
       "expandDesc": "Descubrir skills",
       "upskill": "Upskill",
-      "upskillDesc": "Brechas de skill"
+      "upskillDesc": "Brechas de skill",
+      "lockedMessage": "Completa todos los pasos del pipeline principal (Providers → Outcome) para desbloquear esta opción"
     },
     "reset": "Reiniciar pipeline",
+    "resetEmpty": "No hay pasos completados para reiniciar",
     "resetConfirm": "¿Estás seguro? Se borrará todo el progreso del pipeline.",
     "resetYes": "Sí, reiniciar",
     "resetNo": "Cancelar"
@@ -456,7 +459,13 @@
       "enable2FA": "Activar 2FA",
       "sessions": "Sesiones activas",
       "sessionsDesc": "Administra tus sesiones activas",
-      "revokeAll": "Revocar todas las sesiones"
+      "revokeAll": "Revocar todas las sesiones",
+      "deleteAccount": "Eliminar cuenta",
+      "deleteAccountDesc": "Esta acción eliminará permanentemente tu cuenta y todos tus datos. No se puede deshacer.",
+      "deleteAccountWarning": "Todos tus perfiles, postulaciones, documentos generados y datos de uso serán eliminados de forma irreversible.",
+      "deleteAccountConfirm": "Escribe CONFIRMAR para eliminar tu cuenta",
+      "deleteAccountButton": "Eliminar mi cuenta",
+      "deleting": "Eliminando cuenta…"
     }
   },
   "accessibility": {

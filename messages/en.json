@@ -67,7 +67,8 @@
     "brandRegisterTitle": "Start your journey in seconds",
     "brandRegisterSubtitle": "No credit card required. Connect your preferred AI provider and start ranking jobs immediately.",
     "loginSubtitleAlt": "Sign in to continue your job search.",
-    "registerSubtitleAlt": "Start your AI-powered job search."
+    "registerSubtitleAlt": "Start your AI-powered job search.",
+    "account_deleted": "Account permanently deleted. All your data has been removed."
   },
   "marketing": {
     "heroTitle": "Your AI-powered job search companion",
@@ -164,9 +165,11 @@
       "expand": "Expand",
       "expandDesc": "Discover skills",
       "upskill": "Upskill",
-      "upskillDesc": "Skill gaps"
+      "upskillDesc": "Skill gaps",
+      "lockedMessage": "Complete all main pipeline steps (Providers → Outcome) to unlock this option"
     },
     "reset": "Reset pipeline",
+    "resetEmpty": "No completed steps to reset",
     "resetConfirm": "Are you sure? All pipeline progress will be deleted.",
     "resetYes": "Yes, reset",
     "resetNo": "Cancel"
@@ -457,7 +460,13 @@
       "enable2FA": "Enable 2FA",
       "sessions": "Active sessions",
       "sessionsDesc": "Manage your active login sessions",
-      "revokeAll": "Revoke all sessions"
+      "revokeAll": "Revoke all sessions",
+      "deleteAccount": "Delete account",
+      "deleteAccountDesc": "This will permanently delete your account and all your data. This cannot be undone.",
+      "deleteAccountWarning": "All your profiles, applications, generated documents, and usage data will be irreversibly removed.",
+      "deleteAccountConfirm": "Type CONFIRM to delete your account",
+      "deleteAccountButton": "Delete my account",
+      "deleting": "Deleting account…"
     }
   },
   "accessibility": {
