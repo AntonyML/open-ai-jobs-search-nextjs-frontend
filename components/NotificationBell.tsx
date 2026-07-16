@@ -18,24 +18,17 @@ const PIPELINE_LABELS: Record<string, string> = {
   apply: 'Application',
 }
 
+// ── Bell Icon ────────────────────────────────────────────────────
+
 function BellIcon({ count }: { count: number }) {
   return (
     <span className="relative inline-flex">
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
         <path d="M13.73 21a2 2 0 0 1-3.46 0" />
       </svg>
       {count > 0 && (
-        <span className="absolute -top-2 -right-2 flex min-w-[16px] h-4 items-center justify-center rounded-full bg-[#ff3b30] px-1 text-[9px] font-semibold text-white leading-none ring-2 ring-white">
+        <span className="absolute -right-2 -top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#ff3b30] px-1 text-[9px] font-semibold leading-none text-white ring-2 ring-white">
           {count > 99 ? '99+' : count}
         </span>
       )}
@@ -43,34 +36,18 @@ function BellIcon({ count }: { count: number }) {
   )
 }
 
+// ── Status Icon ──────────────────────────────────────────────────
+
 function StatusIcon({ status }: { status: 'success' | 'error' }) {
   if (status === 'success') {
     return (
-      <svg
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#34c759"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34c759" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="20 6 9 17 4 12" />
       </svg>
     )
   }
   return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#ff3b30"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff3b30" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10" />
       <line x1="15" y1="9" x2="9" y2="15" />
       <line x1="9" y1="9" x2="15" y2="15" />
@@ -78,16 +55,19 @@ function StatusIcon({ status }: { status: 'success' | 'error' }) {
   )
 }
 
+// ── Time formatter ───────────────────────────────────────────────
+
 function formatTimestamp(ts: string): string {
   const d = new Date(ts)
-  const now = Date.now()
-  const diff = now - d.getTime()
+  const diff = Date.now() - d.getTime()
   if (diff < 60000) return 'Just now'
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
   if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
   if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`
   return d.toLocaleDateString()
 }
+
+// ── Notification Item ────────────────────────────────────────────
 
 function NotificationItem({
   notif,
@@ -100,10 +80,8 @@ function NotificationItem({
     <button
       type="button"
       onClick={onClick}
-      className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors ${
-        !notif.read
-          ? 'bg-[#f4f8fb] hover:bg-[#eef4f8]'
-          : 'hover:bg-[#f5f5f7]'
+      className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors ${
+        !notif.read ? 'bg-[#f4f8fb] hover:bg-[#eef4f8]' : 'hover:bg-[#f5f5f7]'
       }`}
     >
       <div className="mt-0.5 shrink-0">
@@ -115,19 +93,36 @@ function NotificationItem({
             {PIPELINE_LABELS[notif.pipeline] || notif.pipeline}
           </span>
           {!notif.read && (
-            <span className="h-1.5 w-1.5 rounded-full bg-[#0071e3] animate-pulse-dot" />
+            <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-[#0071e3]" />
           )}
         </div>
-        <p className="mt-0.5 text-[12px] text-[#1d1d1f] leading-snug line-clamp-2">
+        <p className="mt-0.5 text-[12px] leading-snug text-[#1d1d1f] line-clamp-2">
           {notif.description}
         </p>
-        <p className="mt-0.5 text-[10px] text-[#858585]">
-          {formatTimestamp(notif.timestamp)}
-        </p>
+        <p className="mt-0.5 text-[10px] text-[#858585]">{formatTimestamp(notif.timestamp)}</p>
       </div>
     </button>
   )
 }
+
+// ── Empty State ──────────────────────────────────────────────────
+
+function EmptyBellState() {
+  return (
+    <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d2d2d7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+      </svg>
+      <p className="text-[12px] text-[#858585]">No notifications yet</p>
+      <p className="text-[10px] text-[#d2d2d7]">Complete a pipeline step to see it here.</p>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ═══════════════════════════════════════════════════════════════════
 
 export default function NotificationBell() {
   const { notifications, unread } = useNotifications()
@@ -164,19 +159,6 @@ export default function NotificationBell() {
     setOpen((o) => !o)
   }
 
-  const handleItemClick = (id: string) => {
-    markAsRead(id)
-  }
-
-  const handleMarkAllRead = () => {
-    markAllAsRead()
-  }
-
-  const handleClear = () => {
-    clearNotifications()
-    setOpen(false)
-  }
-
   return (
     <>
       <button
@@ -196,24 +178,22 @@ export default function NotificationBell() {
         <BellIcon count={unread} />
       </button>
 
-      {open
-        && createPortal(
+      {open &&
+        createPortal(
           <div
             ref={dropdownRef}
             style={{ position: 'fixed', top: pos.top, right: pos.right }}
-            className="w-80 rounded-xl border border-[#d2d2d7] bg-white overflow-hidden z-[60] animate-fade-in-up"
+            className="z-[60] w-80 animate-fade-in-up overflow-hidden rounded-xl border border-[#d2d2d7] bg-white"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[#e2e2e5]">
-              <p className="text-[12px] font-semibold text-[#1d1d1f]">
-                Notifications
-              </p>
+            <div className="flex items-center justify-between border-b border-[#e2e2e5] px-4 py-3">
+              <p className="text-[12px] font-semibold text-[#1d1d1f]">Notifications</p>
               <div className="flex items-center gap-2">
                 {unread > 0 && (
                   <button
                     type="button"
-                    onClick={handleMarkAllRead}
-                    className="text-[10px] font-medium text-[#0066cc] hover:text-[#0071e3] transition-colors"
+                    onClick={() => markAllAsRead()}
+                    className="text-[10px] font-medium text-[#0066cc] transition-colors hover:text-[#0071e3]"
                   >
                     Mark all read
                   </button>
@@ -221,7 +201,10 @@ export default function NotificationBell() {
                 {notifications.length > 0 && (
                   <button
                     type="button"
-                    onClick={handleClear}
+                    onClick={() => {
+                      clearNotifications()
+                      setOpen(false)
+                    }}
                     className="text-[10px] font-medium text-[#858585] transition-colors hover:text-[#ff3b30]"
                   >
                     Clear
@@ -233,33 +216,13 @@ export default function NotificationBell() {
             {/* List */}
             <div className="max-h-80 overflow-y-auto scrollbar-thin">
               {notifications.length === 0 ? (
-                <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#d2d2d7"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                  </svg>
-                  <p className="text-[12px] text-[#858585]">
-                    No notifications yet
-                  </p>
-                  <p className="text-[10px] text-[#d2d2d7]">
-                    Complete a pipeline step to see it here.
-                  </p>
-                </div>
+                <EmptyBellState />
               ) : (
                 notifications.map((notif) => (
                   <NotificationItem
                     key={notif.id}
                     notif={notif}
-                    onClick={() => handleItemClick(notif.id)}
+                    onClick={() => markAsRead(notif.id)}
                   />
                 ))
               )}

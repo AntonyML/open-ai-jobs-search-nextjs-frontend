@@ -28,55 +28,41 @@ import {
   useOrchestrator,
 } from '@/lib/orchestrator'
 
-// ── Icons (inline SVGs for dependency-free operation) ──────────────
+// ── Single Icon component (replaces 9 inline SVG functions) ─────
 
-const IconPause = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" />
-  </svg>
-)
-const IconPlay = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="5 3 19 12 5 21 5 3" />
-  </svg>
-)
-const IconX = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-  </svg>
-)
-const IconRefresh = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-  </svg>
-)
-const IconAlertCircle = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-  </svg>
-)
-const IconChevronDown = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="6 9 12 15 18 9" />
-  </svg>
-)
-const IconChevronUp = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="18 15 12 9 6 15" />
-  </svg>
-)
-const IconCheck = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-)
-const IconClock = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-  </svg>
-)
+const ICON_PATHS: Record<string, string> = {
+  pause: 'M6 4h4v16H6zM14 4h4v16h-4z',
+  play: 'M5 3l14 9-14 9V3z',
+  x: 'M18 6L6 18M6 6l12 12',
+  refresh: 'M23 4v6h-6M20.49 15a9 9 0 11-2.12-9.36L23 10',
+  alertCircle: 'M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM12 8v4M12 16h.01',
+  chevronDown: 'M6 9l6 6 6-6',
+  chevronUp: 'M18 15l-6-6-6 6',
+  check: 'M20 6L9 17l-5-5',
+  clock: 'M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 4v6l4 2',
+  chevronLeft: 'M15 18l-6-6 6-6',
+  chevronRight: 'M9 18l6-6-6-6',
+}
 
-// ── Collapsible Section ────────────────────────────────────────────
+function Icon({ name, className = '' }: { name: string; className?: string }) {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d={ICON_PATHS[name] || ICON_PATHS.x} />
+    </svg>
+  )
+}
+
+// ── Collapsible Section ──────────────────────────────────────────
 
 function Section({
   title,
@@ -93,7 +79,7 @@ function Section({
   return (
     <div className="border-t border-[#d2d2d7] pt-3">
       <button
-        onClick={() => setOpen(o => !o)}
+        onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-between text-left group"
       >
         <span className="text-[10px] font-semibold uppercase tracking-[.18em] text-[#707070]">
@@ -105,22 +91,20 @@ function Section({
           )}
         </span>
         <span className="text-[#858585] transition-transform duration-200 group-hover:text-[#707070]">
-          {open ? <IconChevronUp /> : <IconChevronDown />}
+          <Icon name={open ? 'chevronUp' : 'chevronDown'} />
         </span>
       </button>
       <div
         className="overflow-hidden transition-all duration-300 ease-in-out"
         style={{ maxHeight: open ? '2000px' : '0px', opacity: open ? 1 : 0 }}
       >
-        <div className="pt-2 pb-1 space-y-1.5">
-          {children}
-        </div>
+        <div className="space-y-1.5 pb-1 pt-2">{children}</div>
       </div>
     </div>
   )
 }
 
-// ── Status Badge ───────────────────────────────────────────────────
+// ── Status Badge ─────────────────────────────────────────────────
 
 function StatusBadge({ status, pulse }: { status: string; pulse?: boolean }) {
   return (
@@ -138,20 +122,15 @@ function StatusBadge({ status, pulse }: { status: string; pulse?: boolean }) {
   )
 }
 
-// ── Provider Card ──────────────────────────────────────────────────
+// ── Provider Card ────────────────────────────────────────────────
 
-function ProviderCard({
-  provider,
-}: {
-  provider: ProviderHealth
-}) {
+function ProviderCard({ provider }: { provider: ProviderHealth }) {
   const hasCooldown = provider.status === 'cooldown'
   const isDegraded = provider.status === 'degraded'
   const isDisabled = provider.status === 'disabled'
   const totalAttempts = provider.total_calls || 1
-  const successLabel = provider.total_calls > 0
-    ? `${provider.success_count}/${totalAttempts - 1} ok`
-    : '—'
+  const successLabel =
+    provider.total_calls > 0 ? `${provider.success_count}/${totalAttempts - 1} ok` : '—'
 
   return (
     <div
@@ -159,56 +138,50 @@ function ProviderCard({
         isDisabled
           ? 'border-[#e2e2e5] bg-[#f5f5f7] opacity-60'
           : hasCooldown
-          ? 'border-blue-200 bg-blue-50'
-          : isDegraded
-          ? 'border-amber-200 bg-amber-50'
-          : 'border-[#d2d2d7] bg-white hover:border-[#0071e3]/30 hover:shadow-sm'
+            ? 'border-blue-200 bg-blue-50'
+            : isDegraded
+              ? 'border-amber-200 bg-amber-50'
+              : 'border-[#d2d2d7] bg-white hover:border-[#0071e3]/30 hover:shadow-sm'
       }`}
     >
-      {/* Header */}
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[13px] font-semibold text-[#1d1d1f] truncate">{provider.provider}</span>
+        <span className="truncate text-[13px] font-semibold text-[#1d1d1f]">{provider.provider}</span>
         <StatusBadge status={provider.status} pulse={hasCooldown} />
       </div>
 
-      {/* Metrics row */}
       <div className="mt-1.5 flex items-center gap-3 text-[10px] text-[#858585]">
         <span className="inline-flex items-center gap-1">
-          <IconClock /> {formatMs(provider.last_latency_ms)}
+          <Icon name="clock" /> {formatMs(provider.last_latency_ms)}
         </span>
-        <span>
-          {successLabel}
-        </span>
+        <span>{successLabel}</span>
         {provider.rate_limit_count > 0 && (
           <span className="text-blue-500">{provider.rate_limit_count}× 429</span>
         )}
       </div>
 
-      {/* Error message */}
       {provider.last_error && (
         <div className="mt-1.5 flex items-start gap-1.5 rounded-md bg-rose-50 px-2 py-1.5">
-          <span className="mt-0.5 shrink-0 text-rose-400"><IconAlertCircle /></span>
+          <span className="mt-0.5 shrink-0 text-rose-400"><Icon name="alertCircle" /></span>
           <p className="text-[10px] leading-tight text-rose-600">
             {provider.last_error_code === 'rate_limit'
               ? `Rate limited. ${provider.cooldown_until ? 'Resuming shortly.' : 'Cooling down.'}`
               : provider.last_error_code === 'auth_error'
-              ? 'Auth failed. Check your API key.'
-              : provider.last_error_code === 'timeout'
-              ? 'Timed out. Switching provider.'
-              : provider.last_error?.split('\n')[0].substring(0, 60)}
+                ? 'Auth failed. Check your API key.'
+                : provider.last_error_code === 'timeout'
+                  ? 'Timed out. Switching provider.'
+                  : provider.last_error?.split('\n')[0].substring(0, 60)}
           </p>
         </div>
       )}
 
-      {/* Health bar */}
-      <div className="mt-1.5 h-1 rounded-full bg-[#e2e2e5] overflow-hidden">
+      <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-[#e2e2e5]">
         <div
           className={`h-full rounded-full transition-all duration-500 ${
             provider.health_score > 0.8
               ? 'bg-emerald-400'
               : provider.health_score > 0.5
-              ? 'bg-amber-400'
-              : 'bg-rose-400'
+                ? 'bg-amber-400'
+                : 'bg-rose-400'
           }`}
           style={{ width: `${Math.round(provider.health_score * 100)}%` }}
         />
@@ -217,7 +190,7 @@ function ProviderCard({
   )
 }
 
-// ── Queue Job Row ──────────────────────────────────────────────────
+// ── Queue Job Row ────────────────────────────────────────────────
 
 function JobRow({
   job,
@@ -241,55 +214,56 @@ function JobRow({
         isRunning
           ? 'border-cyan-200 bg-cyan-50'
           : isFailed
-          ? 'border-rose-200 bg-rose-50'
-          : isRetrying
-          ? 'border-amber-200 bg-amber-50'
-          : isRateLimited
-          ? 'border-blue-200 bg-blue-50'
-          : 'border-[#d2d2d7] bg-white'
+            ? 'border-rose-200 bg-rose-50'
+            : isRetrying
+              ? 'border-amber-200 bg-amber-50'
+              : isRateLimited
+                ? 'border-blue-200 bg-blue-50'
+                : 'border-[#d2d2d7] bg-white'
       }`}
     >
-      {/* Job header */}
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <span className="text-[11px] font-medium text-[#1d1d1f] truncate block">
+          <span className="block truncate text-[11px] font-medium text-[#1d1d1f]">
             {job.description || job.pipeline || 'LLM call'}
           </span>
         </div>
         <StatusBadge status={job.status} pulse={isRunning || isRetrying} />
       </div>
 
-      {/* Job details */}
-      <div className="mt-1 flex items-center gap-2 text-[10px] text-[#858585] flex-wrap">
+      <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-[#858585]">
         {job.provider && <span className="font-medium text-[#474747]">{job.provider}</span>}
         {job.model && <span>{job.model}</span>}
-        {job.retry_count > 0 && <span className="text-amber-500">retry {job.retry_count}/{job.max_retries}</span>}
+        {job.retry_count > 0 && (
+          <span className="text-amber-500">
+            retry {job.retry_count}/{job.max_retries}
+          </span>
+        )}
         {job.execution_time_ms != null && <span>{formatMs(job.execution_time_ms)}</span>}
       </div>
 
-      {/* Last error */}
       {job.last_error && (
-        <p className="mt-1 text-[10px] leading-tight text-rose-500 truncate">
+        <p className="mt-1 truncate text-[10px] leading-tight text-rose-500">
           {job.last_error.split('\n')[0].substring(0, 80)}
         </p>
       )}
 
-      {/* Actions */}
       {showActions && (
         <div className="mt-1.5 flex gap-1.5">
           {isRunning && (
             <button
               onClick={() => onCancel(job.id)}
-              className="inline-flex items-center gap-1 rounded-full border border-[#d2d2d7] bg-white px-2 py-0.5 text-[9px] font-medium text-[#707070] hover:border-rose-300 hover:text-rose-500 transition-colors"
-            >                              <IconX /> {t('cancel')}
-                            </button>
-                          )}
-                          {isFailed && (
-                            <button
-                              onClick={() => onRetry(job.id)}
-                              className="inline-flex items-center gap-1 rounded-full border border-[#d2d2d7] bg-white px-2 py-0.5 text-[9px] font-medium text-[#707070] hover:border-[#0071e3]/30 hover:text-[#0071e3] transition-colors"
-                            >
-                              <IconRefresh /> {t('retry')}
+              className="inline-flex items-center gap-1 rounded-full border border-[#d2d2d7] bg-white px-2 py-0.5 text-[9px] font-medium text-[#707070] transition-colors hover:border-rose-300 hover:text-rose-500"
+            >
+              <Icon name="x" /> {t('cancel')}
+            </button>
+          )}
+          {isFailed && (
+            <button
+              onClick={() => onRetry(job.id)}
+              className="inline-flex items-center gap-1 rounded-full border border-[#d2d2d7] bg-white px-2 py-0.5 text-[9px] font-medium text-[#707070] transition-colors hover:border-[#0071e3]/30 hover:text-[#0071e3]"
+            >
+              <Icon name="refresh" /> {t('retry')}
             </button>
           )}
         </div>
@@ -298,7 +272,7 @@ function JobRow({
   )
 }
 
-// ── Metric Card ────────────────────────────────────────────────────
+// ── Metric Card ──────────────────────────────────────────────────
 
 function MetricCard({
   label,
@@ -320,15 +294,412 @@ function MetricCard({
   return (
     <div className="rounded-lg border border-[#d2d2d7] bg-white px-2.5 py-2">
       <p className="text-[9px] uppercase tracking-wider text-[#858585]">{label}</p>
-      <p className={`text-[15px] font-semibold leading-tight ${accent ? accentColors[accent] : 'text-[#1d1d1f]'}`}>
+      <p
+        className={`text-[15px] font-semibold leading-tight ${accent ? accentColors[accent] : 'text-[#1d1d1f]'}`}
+      >
         {value}
       </p>
-      {sub && <p className="text-[9px] text-[#858585] mt-0.5">{sub}</p>}
+      {sub && <p className="mt-0.5 text-[9px] text-[#858585]">{sub}</p>}
     </div>
   )
 }
 
-// ── Main Component ─────────────────────────────────────────────────
+// ── Metrics Grid ─────────────────────────────────────────────────
+
+function MetricsGrid({
+  completed,
+  totalEnqueued,
+  completionRate,
+  failed,
+  activeWorkers,
+  maxConcurrency,
+  rateLimitCount,
+  tc,
+  t,
+}: {
+  completed: number
+  totalEnqueued: number
+  completionRate: number
+  failed: number
+  activeWorkers: number
+  maxConcurrency: number
+  rateLimitCount: number
+  tc: (key: string) => string
+  t: (key: string) => string
+}) {
+  return (
+    <div className="mb-3 grid grid-cols-2 gap-1.5">
+      <MetricCard
+        label={tc('done')}
+        value={completed}
+        sub={totalEnqueued > 0 ? `${completionRate}% rate` : undefined}
+        accent="emerald"
+      />
+      <MetricCard
+        label={tc('error')}
+        value={failed}
+        accent={failed > 0 ? 'rose' : undefined}
+      />
+      <MetricCard
+        label={t('activeWorkers')}
+        value={activeWorkers}
+        sub={`of ${maxConcurrency}`}
+        accent={activeWorkers > 0 ? 'cyan' : undefined}
+      />
+      <MetricCard label={t('rateLimitCount')} value={rateLimitCount} accent="amber" />
+    </div>
+  )
+}
+
+// ── Queue Controls ───────────────────────────────────────────────
+
+function QueueControls({
+  paused,
+  isWorking,
+  pendingCount,
+  failedCount,
+  onPause,
+  onResume,
+  onCancelAll,
+  onRetry,
+  t,
+}: {
+  paused: boolean
+  isWorking: boolean
+  pendingCount: number
+  failedCount: number
+  onPause: () => void
+  onResume: () => void
+  onCancelAll: () => void
+  onRetry: () => void
+  t: (key: string) => string
+}) {
+  const hasActivity = isWorking || pendingCount > 0
+
+  return (
+    <div className="mb-3 flex flex-wrap gap-1">
+      {paused ? (
+        <button
+          onClick={onResume}
+          className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-[10px] font-medium text-emerald-600 transition-colors hover:bg-emerald-100"
+        >
+          <Icon name="play" /> {t('resume')}
+        </button>
+      ) : (
+        <button
+          onClick={onPause}
+          disabled={!hasActivity}
+          className="inline-flex items-center gap-1 rounded-full border border-[#d2d2d7] bg-white px-2.5 py-1 text-[10px] font-medium text-[#707070] transition-colors hover:border-amber-300 hover:bg-amber-50 hover:text-amber-600 disabled:opacity-40"
+        >
+          <Icon name="pause" /> {t('pause')}
+        </button>
+      )}
+      <button
+        onClick={onCancelAll}
+        disabled={!hasActivity}
+        className="inline-flex items-center gap-1 rounded-full border border-[#d2d2d7] bg-white px-2.5 py-1 text-[10px] font-medium text-[#707070] transition-colors hover:border-rose-300 hover:bg-rose-50 hover:text-rose-500 disabled:opacity-40"
+      >
+        <Icon name="x" /> {t('cancelAll')}
+      </button>
+      {failedCount > 0 && (
+        <button
+          onClick={onRetry}
+          className="inline-flex items-center gap-1 rounded-full border border-[#0071e3]/30 bg-[#f4f8fb] px-2.5 py-1 text-[10px] font-medium text-[#0071e3] transition-colors hover:bg-[#e8f0fe]"
+        >
+          <Icon name="refresh" /> {t('retry')}
+        </button>
+      )}
+    </div>
+  )
+}
+
+// ── Queue Summary Footer ─────────────────────────────────────────
+
+function QueueSummary({
+  total,
+  completed,
+  failed,
+  cancelled,
+  tc,
+}: {
+  total: number
+  completed: number
+  failed: number
+  cancelled: number
+  tc: (key: string) => string
+}) {
+  return (
+    <div className="mt-2 flex items-center justify-between border-t border-[#e2e2e5] pt-2 text-[9px] text-[#858585]">
+      <span>{tc('all')}: {total}</span>
+      <span>{completed} ✓</span>
+      <span>{failed} ✗</span>
+      <span>{cancelled} ⊘</span>
+    </div>
+  )
+}
+
+// ── Minimized Panel ─────────────────────────────────────────────
+
+function MinimizedPanel({ isWorking, paused }: { isWorking: boolean; paused?: boolean }) {
+  return (
+    <div className="flex flex-col items-center gap-3 pt-6">
+      <span
+        className={`inline-block h-2.5 w-2.5 rounded-full ${
+          isWorking ? 'animate-pulse bg-cyan-400' : paused ? 'bg-amber-400' : 'bg-emerald-400'
+        }`}
+      />
+      <span className="text-[8px] uppercase tracking-wider text-[#858585] [writing-mode:vertical-rl]">
+        LLM
+      </span>
+    </div>
+  )
+}
+
+// ── Tab Buttons ─────────────────────────────────────────────────
+
+function ControlTabs({
+  activeTab,
+  setActiveTab,
+  totalJobs,
+}: {
+  activeTab: 'status' | 'queue'
+  setActiveTab: (tab: 'status' | 'queue') => void
+  totalJobs: number
+}) {
+  const t = useTranslations('llmControl')
+
+  return (
+    <div className="mb-3 flex gap-1 rounded-lg bg-[#f5f5f7] p-0.5">
+      <button
+        onClick={() => setActiveTab('status')}
+        className={`flex-1 rounded-md px-2 py-1 text-[10px] font-medium transition-all ${
+          activeTab === 'status'
+            ? 'bg-white text-[#1d1d1f] shadow-sm'
+            : 'text-[#858585] hover:text-[#474747]'
+        }`}
+      >
+        {t('status')}
+      </button>
+      <button
+        onClick={() => setActiveTab('queue')}
+        className={`flex-1 rounded-md px-2 py-1 text-[10px] font-medium transition-all ${
+          activeTab === 'queue'
+            ? 'bg-white text-[#1d1d1f] shadow-sm'
+            : 'text-[#858585] hover:text-[#474747]'
+        }`}
+      >
+        {t('queue')}
+        {totalJobs > 0 && (
+          <span className="ml-1 inline-flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-[#0071e3] px-1 text-[8px] font-bold text-white">
+            {totalJobs}
+          </span>
+        )}
+      </button>
+    </div>
+  )
+}
+
+// ── Status Tab Panel ────────────────────────────────────────────
+
+function StatusTab({
+  queue,
+  providers,
+  models,
+  providerErrors,
+  tc,
+  t,
+}: {
+  queue: any
+  providers: ProviderHealth[]
+  models: any[]
+  providerErrors: Record<string, string>
+  tc: (key: string) => string
+  t: (key: string) => string
+}) {
+  const totalEnqueued = queue?.total_enqueued ?? 0
+  const completionRate =
+    totalEnqueued > 0 ? Math.round(((queue?.total_completed ?? 0) / totalEnqueued) * 100) : 0
+
+  return (
+    <>
+      <MetricsGrid
+        completed={queue?.total_completed ?? 0}
+        totalEnqueued={totalEnqueued}
+        completionRate={completionRate}
+        failed={queue?.total_failed ?? 0}
+        activeWorkers={queue?.active_workers ?? 0}
+        maxConcurrency={queue?.max_concurrency ?? 4}
+        rateLimitCount={providers.reduce((s, p) => s + p.rate_limit_count, 0)}
+        tc={tc}
+        t={t}
+      />
+
+      {Object.keys(providerErrors).length > 0 && (
+        <div className="mb-3 space-y-1">
+          {Object.entries(providerErrors)
+            .slice(0, 2)
+            .map(([prov, msg]) => (
+              <div
+                key={prov}
+                className="flex items-start gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5"
+              >
+                <span className="mt-0.5 shrink-0 text-amber-500"><Icon name="alertCircle" /></span>
+                <p className="text-[10px] leading-tight text-amber-700">{msg}</p>
+              </div>
+            ))}
+        </div>
+      )}
+
+      <Section title={t('providers')} count={providers.length}>
+        {providers.length === 0 ? (
+          <p className="text-[10px] italic text-[#858585]">{tc('noResults')}</p>
+        ) : (
+          providers.map((p) => <ProviderCard key={p.provider} provider={p} />)
+        )}
+      </Section>
+
+      <Section title={t('models')} count={models.length} defaultOpen={false}>
+        {models.length === 0 ? (
+          <p className="text-[10px] italic text-[#858585]">{tc('noResults')}</p>
+        ) : (
+          models.slice(0, 8).map((m) => (
+            <div
+              key={`${m.provider}/${m.model_name}`}
+              className="flex items-center justify-between rounded-lg border border-[#e2e2e5] px-2.5 py-1.5"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[11px] font-medium text-[#1d1d1f]">{m.model_name}</p>
+                <p className="text-[9px] text-[#858585]">{m.provider}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <StatusBadge status={m.state} pulse={m.state === 'COOLDOWN'} />
+                {m.average_latency_ms != null && (
+                  <span className="text-[9px] text-[#858585]">{formatMs(m.average_latency_ms)}</span>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </Section>
+    </>
+  )
+}
+
+// ── Queue Tab Panel ─────────────────────────────────────────────
+
+function QueueTab({
+  queue,
+  cancelJob,
+  retryFailed,
+  pauseQueue,
+  resumeQueue,
+  cancelAll,
+  isWorking,
+  tc,
+  t,
+}: {
+  queue: any
+  cancelJob: (id: string) => void
+  retryFailed: (id?: string) => void
+  pauseQueue: () => void
+  resumeQueue: () => void
+  cancelAll: () => void
+  isWorking: boolean
+  tc: (key: string) => string
+  t: (key: string) => string
+}) {
+  const runningJobs: ExecutionJob[] = queue?.running_jobs ?? []
+  const pendingJobs: ExecutionJob[] = queue?.pending_jobs ?? []
+  const recentCompleted: ExecutionJob[] = queue?.recent_completed ?? []
+
+  return (
+    <>
+      <QueueControls
+        paused={queue?.paused}
+        isWorking={isWorking}
+        pendingCount={pendingJobs.length}
+        failedCount={queue?.total_failed ?? 0}
+        onPause={pauseQueue}
+        onResume={resumeQueue}
+        onCancelAll={cancelAll}
+        onRetry={() => retryFailed()}
+        t={t}
+      />
+
+      {queue?.paused && (
+        <div className="mb-2 flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5">
+          <span className="text-amber-500"><Icon name="alertCircle" /></span>
+          <p className="text-[10px] text-amber-700">{t('pausedHint')}</p>
+        </div>
+      )}
+
+      {runningJobs.length > 0 && (
+        <div className="mb-2">
+          <p className="mb-1 text-[10px] font-semibold text-[#474747]">{t('running')}</p>
+          {runningJobs.map((job) => (
+            <JobRow key={job.id} job={job} onCancel={cancelJob} onRetry={retryFailed} />
+          ))}
+        </div>
+      )}
+
+      {pendingJobs.length > 0 && (
+        <div className="mb-2">
+          <p className="mb-1 text-[10px] font-semibold text-[#474747]">
+            {t('queued')} · {pendingJobs.length}
+          </p>
+          {pendingJobs.slice(0, 10).map((job) => (
+            <JobRow key={job.id} job={job} onCancel={cancelJob} onRetry={retryFailed} />
+          ))}
+        </div>
+      )}
+
+      {recentCompleted.length > 0 && (
+        <Section title={t('recent')} count={recentCompleted.length} defaultOpen={false}>
+          {recentCompleted.slice(0, 5).map((job) => (
+            <div
+              key={job.id}
+              className="flex items-center justify-between rounded-lg border border-[#e2e2e5] px-2.5 py-1.5"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[10px] font-medium text-[#1d1d1f]">
+                  {job.description || job.pipeline}
+                </p>
+                <p className="text-[9px] text-[#858585]">
+                  {job.provider && `${job.provider} · `}
+                  {formatDate(job.finished_at)}
+                </p>
+              </div>
+              <span className="shrink-0 text-[10px] font-medium text-emerald-500">
+                <Icon name="check" />
+              </span>
+            </div>
+          ))}
+        </Section>
+      )}
+
+      {(!queue || (runningJobs.length === 0 && pendingJobs.length === 0 && recentCompleted.length === 0)) && (
+        <div className="rounded-lg border border-dashed border-[#d2d2d7] p-4 text-center">
+          <p className="text-[10px] text-[#858585]">{t('noJobs')}</p>
+          <p className="mt-0.5 text-[9px] text-[#b0b0b0]">{t('startHint')}</p>
+        </div>
+      )}
+
+      {queue && (
+        <QueueSummary
+          total={queue.total_enqueued}
+          completed={queue.total_completed}
+          failed={queue.total_failed}
+          cancelled={queue.total_cancelled}
+          tc={tc}
+        />
+      )}
+    </>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ═══════════════════════════════════════════════════════════════════
 
 export default function LLMControlCenter() {
   const t = useTranslations('llmControl')
@@ -354,27 +725,24 @@ export default function LLMControlCenter() {
   const [collapsed, setCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState<'status' | 'queue'>('status')
 
-  const activeProvider = providers.find(
-    p => (queue?.running_jobs ?? []).some(j => j.provider === p.provider)
+  const activeProvider = providers.find((p) =>
+    (queue?.running_jobs ?? []).some((j: any) => j.provider === p.provider)
   ) ?? providers[0]
 
   // Friendly top-level status message
   const topStatus = (() => {
     if (loading) return { text: t('loading'), accent: 'text-[#858585]' as const }
     if (error) return { text: tc('error'), accent: 'text-rose-500' as const }
-    if (isWorking) return { text: `${t('status')} · ${queue?.running_jobs.length ?? 0}`, accent: 'text-cyan-500' as const }
+    if (isWorking)
+      return { text: `${t('status')} · ${queue?.running_jobs.length ?? 0}`, accent: 'text-cyan-500' as const }
     if (queue?.paused) return { text: t('pause'), accent: 'text-amber-500' as const }
     if (isCooldown) return { text: t('loading'), accent: 'text-blue-500' as const }
-    if (queue?.pending_jobs.length) return { text: `${queue.pending_jobs.length} ${t('queued').toLowerCase()}`, accent: 'text-[#707070]' as const }
+    if (queue?.pending_jobs.length)
+      return { text: `${queue.pending_jobs.length} ${t('queued').toLowerCase()}`, accent: 'text-[#707070]' as const }
     return { text: t('idle'), accent: 'text-[#707070]' as const }
   })()
 
-  const totalEnqueued = queue
-    ? queue.total_enqueued
-    : 0
-  const completionRate = totalEnqueued > 0
-    ? Math.round(((queue?.total_completed ?? 0) / totalEnqueued) * 100)
-    : 0
+  const totalJobs = queue ? queue.running_jobs.length + queue.pending_jobs.length : 0
 
   return (
     <aside
@@ -390,56 +758,33 @@ export default function LLMControlCenter() {
       >
         {/* Toggle collapse */}
         <button
-          onClick={() => setCollapsed(c => !c)}
-          className="float-right rounded-full p-1 text-[#858585] hover:bg-[#f5f5f7] hover:text-[#1d1d1f] transition-colors"
+          onClick={() => setCollapsed((c) => !c)}
+          className="float-right rounded-full p-1 text-[#858585] transition-colors hover:bg-[#f5f5f7] hover:text-[#1d1d1f]"
           title={collapsed ? 'Expand panel' : 'Collapse panel'}
         >
-          {collapsed ? (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          ) : (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          )}
+          <Icon name={collapsed ? 'chevronLeft' : 'chevronRight'} />
         </button>
 
-        {/* Collapsed state — minimal dots */}
         {collapsed ? (
-          <div className="flex flex-col items-center gap-3 pt-6">
-            <span
-              className={`inline-block h-2.5 w-2.5 rounded-full ${
-                isWorking ? 'bg-cyan-400 animate-pulse' : queue?.paused ? 'bg-amber-400' : 'bg-emerald-400'
-              }`}
-            />
-            <span className="text-[8px] uppercase tracking-wider text-[#858585] [writing-mode:vertical-rl]">
-              LLM
-            </span>
-          </div>
+          <MinimizedPanel isWorking={isWorking} paused={queue?.paused} />
         ) : (
           <>
-            {/* ── Header ─────────────────────────────────────────── */}
+            {/* Header */}
             <div className="mb-3">
-              <div className="flex items-center justify-between mb-1">
+              <div className="mb-1 flex items-center justify-between">
                 <p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#0071e3]">
                   {t('title')}
                 </p>
                 <div className="flex items-center gap-1">
-                  {/* WebSocket connection status */}
                   <span
                     className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 transition-all ${
-                      wsConnected
-                        ? 'bg-emerald-50 text-emerald-600'
-                        : 'bg-amber-50 text-amber-600'
+                      wsConnected ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
                     }`}
                     title={wsConnected ? t('live') : t('polling')}
                   >
                     <span
                       className={`inline-block h-1.5 w-1.5 rounded-full ${
-                        wsConnected
-                          ? 'bg-emerald-400'
-                          : 'bg-amber-400 animate-pulse'
+                        wsConnected ? 'bg-emerald-400' : 'animate-pulse bg-amber-400'
                       }`}
                     />
                     <span className="text-[8px] font-medium leading-none">
@@ -448,270 +793,70 @@ export default function LLMControlCenter() {
                   </span>
                   <button
                     onClick={refresh}
-                    className="rounded-full p-1 text-[#858585] hover:bg-[#f5f5f7] hover:text-[#1d1d1f] transition-colors"
+                    className="rounded-full p-1 text-[#858585] transition-colors hover:bg-[#f5f5f7] hover:text-[#1d1d1f]"
                     title={tc('refresh')}
                   >
-                    <IconRefresh />
+                    <Icon name="refresh" />
                   </button>
                 </div>
               </div>
 
-              {/* Main status */}
               <div className="flex items-center gap-2">
                 <span
                   className={`inline-flex h-2 w-2 rounded-full ${
                     isWorking
-                      ? 'bg-cyan-400 animate-pulse'
+                      ? 'animate-pulse bg-cyan-400'
                       : queue?.paused
-                      ? 'bg-amber-400'
-                      : isCooldown
-                      ? 'bg-blue-400'
-                      : 'bg-emerald-400'
+                        ? 'bg-amber-400'
+                        : isCooldown
+                          ? 'bg-blue-400'
+                          : 'bg-emerald-400'
                   }`}
                 />
-                <p className={`text-[13px] font-semibold ${topStatus.accent}`}>
-                  {topStatus.text}
-                </p>
+                <p className={`text-[13px] font-semibold ${topStatus.accent}`}>{topStatus.text}</p>
               </div>
               {activeProvider && (
                 <p className="mt-0.5 text-[11px] text-[#858585]">
-                  {activeProvider.provider} · {models.find(m => m.provider === activeProvider.provider)?.model_name ?? '—'}
+                  {activeProvider.provider} ·{' '}
+                  {models.find((m) => m.provider === activeProvider.provider)?.model_name ?? '—'}
                 </p>
               )}
             </div>
 
-            {/* ── Tabs ───────────────────────────────────────────── */}
-            <div className="flex gap-1 mb-3 rounded-lg bg-[#f5f5f7] p-0.5">
-              <button
-                onClick={() => setActiveTab('status')}
-                className={`flex-1 rounded-md px-2 py-1 text-[10px] font-medium transition-all ${
-                  activeTab === 'status'
-                    ? 'bg-white text-[#1d1d1f] shadow-sm'
-                    : 'text-[#858585] hover:text-[#474747]'
-                }`}
-              >
-                {t('status')}
-              </button>
-              <button
-                onClick={() => setActiveTab('queue')}
-                className={`flex-1 rounded-md px-2 py-1 text-[10px] font-medium transition-all ${
-                  activeTab === 'queue'
-                    ? 'bg-white text-[#1d1d1f] shadow-sm'
-                    : 'text-[#858585] hover:text-[#474747]'
-                }`}
-              >
-                {t('queue')}
-                {queue && (queue.running_jobs.length + queue.pending_jobs.length) > 0 && (
-                  <span className="ml-1 inline-flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-[#0071e3] px-1 text-[8px] font-bold text-white">
-                    {queue.running_jobs.length + queue.pending_jobs.length}
-                  </span>
-                )}
-              </button>
-            </div>
+            {/* Tabs */}
+            <ControlTabs activeTab={activeTab} setActiveTab={setActiveTab} totalJobs={totalJobs} />
 
-            {/* ── Status Tab ─────────────────────────────────────── */}
-            {activeTab === 'status' && (
-              <>
-                {/* Metrics grid */}
-                <div className="grid grid-cols-2 gap-1.5 mb-3">
-                  <MetricCard
-                    label={tc('done')}
-                    value={queue?.total_completed ?? 0}
-                    sub={totalEnqueued > 0 ? `${completionRate}% rate` : undefined}
-                    accent="emerald"
-                  />
-                  <MetricCard
-                    label={tc('error')}
-                    value={queue?.total_failed ?? 0}
-                    accent={((queue?.total_failed ?? 0) > 0) ? 'rose' : undefined}
-                  />
-                  <MetricCard
-                    label={t('activeWorkers')}
-                    value={queue?.active_workers ?? 0}
-                    sub={`of ${queue?.max_concurrency ?? 4}`}
-                    accent={(queue?.active_workers ?? 0) > 0 ? 'cyan' : undefined}
-                  />
-                  <MetricCard
-                    label={t('rateLimitCount')}
-                    value={providers.reduce((s, p) => s + p.rate_limit_count, 0)}
-                    accent="amber"
-                  />
-                </div>
-
-                {/* Provider errors */}
-                {Object.keys(providerErrors).length > 0 && (
-                  <div className="mb-3 space-y-1">
-                    {Object.entries(providerErrors).slice(0, 2).map(([prov, msg]) => (
-                      <div
-                        key={prov}
-                        className="flex items-start gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5"
-                      >
-                        <span className="mt-0.5 shrink-0 text-amber-500"><IconAlertCircle /></span>
-                        <p className="text-[10px] leading-tight text-amber-700">{msg}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Providers section */}
-                <Section title={t('providers')} count={providers.length}>
-                  {providers.length === 0 ? (
-                    <p className="text-[10px] text-[#858585] italic">{tc('noResults')}</p>
-                  ) : (
-                    providers.map(p => (
-                      <ProviderCard key={p.provider} provider={p} />
-                    ))
-                  )}
-                </Section>
-
-                {/* Models section (collapsed by default) */}
-                <Section title={t('models')} count={models.length} defaultOpen={false}>
-                  {models.length === 0 ? (
-                    <p className="text-[10px] text-[#858585] italic">{tc('noResults')}</p>
-                  ) : (
-                    models.slice(0, 8).map(m => (
-                      <div
-                        key={`${m.provider}/${m.model_name}`}
-                        className="flex items-center justify-between rounded-lg border border-[#e2e2e5] px-2.5 py-1.5"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[11px] font-medium text-[#1d1d1f] truncate">{m.model_name}</p>
-                          <p className="text-[9px] text-[#858585]">{m.provider}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <StatusBadge status={m.state} pulse={m.state === 'COOLDOWN'} />
-                          {m.average_latency_ms != null && (
-                            <span className="text-[9px] text-[#858585]">{formatMs(m.average_latency_ms)}</span>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </Section>
-              </>
+            {/* Tab panels */}
+            {activeTab === 'status' ? (
+              <StatusTab
+                queue={queue}
+                providers={providers}
+                models={models}
+                providerErrors={providerErrors}
+                tc={tc}
+                t={t}
+              />
+            ) : (
+              <QueueTab
+                queue={queue}
+                cancelJob={cancelJob}
+                retryFailed={retryFailed}
+                pauseQueue={pauseQueue}
+                resumeQueue={resumeQueue}
+                cancelAll={cancelAll}
+                isWorking={isWorking}
+                tc={tc}
+                t={t}
+              />
             )}
 
-            {/* ── Queue Tab ──────────────────────────────────────── */}
-            {activeTab === 'queue' && (
-              <>
-                {/* Controls bar */}
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {queue?.paused ? (
-                    <button
-                      onClick={resumeQueue}
-                      className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-[10px] font-medium text-emerald-600 hover:bg-emerald-100 transition-colors"
-                    >
-                      <IconPlay /> {t('resume')}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={pauseQueue}
-                      className="inline-flex items-center gap-1 rounded-full border border-[#d2d2d7] bg-white px-2.5 py-1 text-[10px] font-medium text-[#707070] hover:border-amber-300 hover:bg-amber-50 hover:text-amber-600 transition-colors"
-                      disabled={!isWorking && queue?.pending_jobs.length === 0}
-                    >
-                      <IconPause /> {t('pause')}
-                    </button>
-                  )}
-                  <button
-                    onClick={cancelAll}
-                    className="inline-flex items-center gap-1 rounded-full border border-[#d2d2d7] bg-white px-2.5 py-1 text-[10px] font-medium text-[#707070] hover:border-rose-300 hover:bg-rose-50 hover:text-rose-500 transition-colors"
-                    disabled={!isWorking && queue?.pending_jobs.length === 0}
-                  >
-                    <IconX /> {t('cancelAll')}
-                  </button>
-                  {(queue?.total_failed ?? 0) > 0 && (
-                    <button
-                      onClick={() => retryFailed()}
-                      className="inline-flex items-center gap-1 rounded-full border border-[#0071e3]/30 bg-[#f4f8fb] px-2.5 py-1 text-[10px] font-medium text-[#0071e3] hover:bg-[#e8f0fe] transition-colors"
-                    >
-                      <IconRefresh /> {t('retry')}
-                    </button>
-                  )}
-                </div>
-
-                {/* Paused indicator */}
-                {queue?.paused && (
-                  <div className="mb-2 flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5">
-                    <span className="text-amber-500"><IconAlertCircle /></span>
-                    <p className="text-[10px] text-amber-700">{t('pausedHint')}</p>
-                  </div>
-                )}
-
-                {/* Running jobs */}
-                {(queue?.running_jobs ?? []).length > 0 && (
-                  <div className="mb-2">
-                    <p className="text-[10px] font-semibold text-[#474747] mb-1">
-                      {t('running')}
-                    </p>
-                    {queue!.running_jobs.map(job => (
-                      <JobRow key={job.id} job={job} onCancel={cancelJob} onRetry={retryFailed} />
-                    ))}
-                  </div>
-                )}
-
-                {/* Pending jobs */}
-                {(queue?.pending_jobs ?? []).length > 0 && (
-                  <div className="mb-2">
-                    <p className="text-[10px] font-semibold text-[#474747] mb-1">
-                      {t('queued')} · {queue!.pending_jobs.length}
-                    </p>
-                    {queue!.pending_jobs.slice(0, 10).map(job => (
-                      <JobRow key={job.id} job={job} onCancel={cancelJob} onRetry={retryFailed} />
-                    ))}
-                  </div>
-                )}
-
-                {/* Recent completed */}
-                {(queue?.recent_completed ?? []).length > 0 && (
-                  <Section title={t('recent')} count={queue?.recent_completed.length} defaultOpen={false}>
-                    {queue!.recent_completed.slice(0, 5).map(job => (
-                      <div
-                        key={job.id}
-                        className="flex items-center justify-between rounded-lg border border-[#e2e2e5] px-2.5 py-1.5"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[10px] font-medium text-[#1d1d1f] truncate">
-                            {job.description || job.pipeline}
-                          </p>
-                          <p className="text-[9px] text-[#858585]">
-                            {job.provider && `${job.provider} · `}{formatDate(job.finished_at)}
-                          </p>
-                        </div>
-                        <span className="shrink-0 text-[10px] font-medium text-emerald-500">
-                          <IconCheck />
-                        </span>
-                      </div>
-                    ))}
-                  </Section>
-                )}
-
-                {/* Empty state */}
-                {(!queue || (queue.running_jobs.length === 0 && queue.pending_jobs.length === 0 && queue.recent_completed.length === 0)) && (
-                  <div className="rounded-lg border border-dashed border-[#d2d2d7] p-4 text-center">
-                    <p className="text-[10px] text-[#858585]">{t('noJobs')}</p>
-                    <p className="text-[9px] text-[#b0b0b0] mt-0.5">{t('startHint')}</p>
-                  </div>
-                )}
-
-                {/* Queue summary */}
-                {queue && (
-                  <div className="mt-2 flex items-center justify-between text-[9px] text-[#858585] border-t border-[#e2e2e5] pt-2">
-                    <span>{tc('all')}: {queue.total_enqueued}</span>
-                    <span>{queue.total_completed} ✓</span>
-                    <span>{queue.total_failed} ✗</span>
-                    <span>{queue.total_cancelled} ⊘</span>
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* ── Error toast area ───────────────────────────────── */}
+            {/* Error toast area */}
             {error && (
               <div className="mt-3 flex items-start gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-2">
-                <span className="mt-0.5 shrink-0 text-rose-400"><IconAlertCircle /></span>
+                <span className="mt-0.5 shrink-0 text-rose-400"><Icon name="alertCircle" /></span>
                 <div>
                   <p className="text-[10px] font-medium text-rose-600">{tc('error')}</p>
-                  <p className="text-[9px] text-rose-500 mt-0.5">{t('retry')}</p>
+                  <p className="mt-0.5 text-[9px] text-rose-500">{t('retry')}</p>
                 </div>
               </div>
             )}

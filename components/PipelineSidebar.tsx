@@ -54,18 +54,21 @@ const extraSteps = [
   { labelKey: 'extras.upskill', subKey: 'extras.upskillDesc', href: '/pipeline/upskill', icon: ArrowLeftRight },
 ]
 
-export default function PipelineSidebar({
-  currentStep,
-  completedSteps,
-}: {
-  currentStep: number
-  completedSteps: number[]
-}) {
+// ── Subcomponents ─────────────────────────────────────────────────
+
+function StepStatusIcon({ isDone, isActive }: { isDone: boolean; isActive: boolean }) {
+  if (isDone) {
+    return <CheckCircle2 className="size-4 text-emerald-500" />
+  }
+  if (isActive) {
+    return <Circle className="size-4 fill-[#0071e3]/20 text-[#0071e3]" />
+  }
+  return <Circle className="size-4 text-[#b0b0b0]" />
+}
+
+function ResetSection({ completedSteps, t }: { completedSteps: number[]; t: (key: string) => string }) {
   const router = useRouter()
-  const pathname = usePathname()
-  const t = useTranslations('pipeline')
-  const [showResetConfirm, setShowResetConfirm] = useState(false)
-  const [showUpgrade, setShowUpgrade] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
 
   const handleReset = async () => {
     try {
@@ -79,22 +82,101 @@ export default function PipelineSidebar({
     }
     localStorage.removeItem('ranking_job_id')
     clearCompletedSteps()
-    setShowResetConfirm(false)
+    setShowConfirm(false)
     router.push('/pipeline/providers')
-    // Forzar recarga del estado del sidebar tras el reset.
     setTimeout(() => window.location.reload(), 0)
   }
+
+  if (completedSteps.length === 0) {
+    return (
+      <SidebarMenuButton disabled tooltip={t('resetEmpty')} className="cursor-not-allowed text-[#b0b0b0]">
+        <RotateCcw className="size-4" />
+        <span className="text-xs">{t('reset')}</span>
+      </SidebarMenuButton>
+    )
+  }
+
+  if (showConfirm) {
+    return (
+      <div className="space-y-2 rounded-lg border border-rose-200 bg-rose-50 p-3">
+        <p className="text-[11px] leading-snug text-rose-700">{t('resetConfirm')}</p>
+        <div className="flex gap-2">
+          <button
+            onClick={handleReset}
+            className="flex-1 rounded-full bg-rose-500 px-2 py-1 text-[10px] font-medium text-white transition-colors hover:bg-rose-600"
+          >
+            {t('resetYes')}
+          </button>
+          <button
+            onClick={() => setShowConfirm(false)}
+            className="flex-1 rounded-full border border-[#d2d2d7] bg-white px-2 py-1 text-[10px] font-medium text-[#707070] transition-colors hover:bg-[#f5f5f7]"
+          >
+            {t('resetNo')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <SidebarMenuButton
+      onClick={() => setShowConfirm(true)}
+      tooltip={t('reset')}
+      className="text-[#858585] hover:text-rose-500"
+    >
+      <RotateCcw className="size-4" />
+      <span className="text-xs">{t('reset')}</span>
+    </SidebarMenuButton>
+  )
+}
+
+function UpgradeFooter({ onUpgrade }: { onUpgrade: () => void }) {
+  const t = useTranslations('pipeline')
+
+  return (
+    <div className="mb-2">
+      <button
+        onClick={onUpgrade}
+        className="flex w-full items-center gap-2 rounded-lg border border-amber-200 bg-gradient-to-r from-amber-50 to-amber-100/80 px-3 py-2 text-xs font-medium text-amber-700 transition-all hover:from-amber-100 hover:to-amber-200"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+        {t('upgradeBanner') || 'Upgrade to Premium'}
+      </button>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ═══════════════════════════════════════════════════════════════════
+
+export default function PipelineSidebar({
+  currentStep,
+  completedSteps,
+}: {
+  currentStep: number
+  completedSteps: number[]
+}) {
+  const pathname = usePathname()
+  const t = useTranslations('pipeline')
+  const [showUpgrade, setShowUpgrade] = useState(false)
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarHeader className="px-4 py-3">
-        <Link href="/dashboard" className="flex items-center gap-2 text-sm font-semibold tracking-tight text-sidebar-foreground hover:opacity-70 transition-opacity">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2 text-sm font-semibold tracking-tight text-sidebar-foreground transition-opacity hover:opacity-70"
+        >
           <CheckCircle2 className="size-4 text-[#0071e3]" />
           Open Ai Jobs Search
         </Link>
       </SidebarHeader>
 
       <SidebarContent>
+        {/* Main pipeline steps */}
         <SidebarGroup>
           <SidebarGroupLabel>{t('title')}</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -104,26 +186,24 @@ export default function PipelineSidebar({
                 const isDone = completedSteps.includes(i)
                 const accessible = debugSlideMenu || i === 0 || completedSteps.includes(i - 1)
                 const linkEl = accessible ? <Link href={step.href} /> : undefined
-                const Icon = step.icon
+
                 return (
                   <SidebarMenuItem key={step.href}>
                     <SidebarMenuButton
                       render={linkEl}
                       isActive={isActive}
                       tooltip={t(`steps.${step.labelKey}`)}
-                      className={!accessible ? 'opacity-40 cursor-not-allowed' : ''}
+                      className={!accessible ? 'cursor-not-allowed opacity-40' : ''}
                     >
                       <div className="flex items-center gap-2">
-                        {isDone ? (
-                          <CheckCircle2 className="size-4 text-emerald-500" />
-                        ) : isActive ? (
-                          <Circle className="size-4 fill-[#0071e3]/20 text-[#0071e3]" />
-                        ) : (
-                          <Circle className="size-4 text-[#b0b0b0]" />
-                        )}
+                        <StepStatusIcon isDone={isDone} isActive={isActive} />
                         <div className="flex flex-col leading-tight">
-                          <span className="text-sm font-medium">{t(`steps.${step.labelKey}`)}</span>
-                          <span className="text-[10px] text-muted-foreground">{t(`steps.${step.subKey}`)}</span>
+                          <span className="text-sm font-medium">
+                            {t(`steps.${step.labelKey}`)}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">
+                            {t(`steps.${step.subKey}`)}
+                          </span>
                         </div>
                       </div>
                     </SidebarMenuButton>
@@ -136,6 +216,7 @@ export default function PipelineSidebar({
 
         <SidebarSeparator />
 
+        {/* Extra steps (expand, upskill) */}
         <SidebarGroup>
           <SidebarGroupLabel>{t('extras.expand')}</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -145,13 +226,14 @@ export default function PipelineSidebar({
                 const accessible = debugSlideMenu || isPremium()
                 const linkEl = accessible ? <Link href={step.href} /> : undefined
                 const Icon = step.icon
+
                 return (
                   <SidebarMenuItem key={step.href}>
                     <SidebarMenuButton
                       render={linkEl}
                       isActive={isActive}
                       tooltip={t(step.labelKey)}
-                      className={!accessible ? 'opacity-40 cursor-not-allowed' : ''}
+                      className={!accessible ? 'cursor-not-allowed opacity-40' : ''}
                       onClick={!accessible ? () => setShowUpgrade(true) : undefined}
                     >
                       <div className="flex items-center gap-2">
@@ -170,60 +252,12 @@ export default function PipelineSidebar({
 
       <SidebarFooter className="p-2">
         {/* Upgrade banner for free tier */}
-        {!isPremium() && !debugSlideMenu && (
-          <div className="mb-2">
-            <button
-              onClick={() => setShowUpgrade(true)}
-              className="w-full flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-50 to-amber-100/80 border border-amber-200 px-3 py-2 text-xs font-medium text-amber-700 hover:from-amber-100 hover:to-amber-200 transition-all"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
-              {t('upgradeBanner') || 'Upgrade to Premium'}
-            </button>
-          </div>
-        )}
+        {!isPremium() && !debugSlideMenu && <UpgradeFooter onUpgrade={() => setShowUpgrade(true)} />}
 
-        {completedSteps.length === 0 ? (
-          <SidebarMenuButton
-            disabled
-            tooltip={t('resetEmpty')}
-            className="text-[#b0b0b0] cursor-not-allowed"
-          >
-            <RotateCcw className="size-4" />
-            <span className="text-xs">{t('reset')}</span>
-          </SidebarMenuButton>
-        ) : showResetConfirm ? (
-          <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 space-y-2">
-            <p className="text-[11px] text-rose-700 leading-snug">
-              {t('resetConfirm')}
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={handleReset}
-                className="flex-1 rounded-full bg-rose-500 px-2 py-1 text-[10px] font-medium text-white hover:bg-rose-600 transition-colors"
-              >
-                {t('resetYes')}
-              </button>
-              <button
-                onClick={() => setShowResetConfirm(false)}
-                className="flex-1 rounded-full border border-[#d2d2d7] bg-white px-2 py-1 text-[10px] font-medium text-[#707070] hover:bg-[#f5f5f7] transition-colors"
-              >
-                {t('resetNo')}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <SidebarMenuButton
-            onClick={() => setShowResetConfirm(true)}
-            tooltip={t('reset')}
-            className="text-[#858585] hover:text-rose-500"
-          >
-            <RotateCcw className="size-4" />
-            <span className="text-xs">{t('reset')}</span>
-          </SidebarMenuButton>
-        )}
+        {/* Reset button */}
+        <ResetSection completedSteps={completedSteps} t={t} />
       </SidebarFooter>
+
       <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </Sidebar>
   )
