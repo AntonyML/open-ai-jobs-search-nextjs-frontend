@@ -232,7 +232,8 @@
     "createCv": "Crear CV",
     "createCvDesc": "Generar postulación",
     "prepare": "Preparar",
-    "prepareDesc": "Preparación entrevista"
+    "prepareDesc": "Preparación entrevista",
+    "nextStep": "Siguiente paso"
   },
   "setup": {
     "title": "Construye tu perfil de candidato",
@@ -634,5 +635,36 @@
     "label": "Idioma",
     "en": "English",
     "es": "Español"
+  },
+  "profile": {
+    "title": "Perfil",
+    "settingsLabel": "Configuración",
+    "subtitle": "Administra tu cuenta, proveedor conectado y detalles personales.",
+    "signOut": "Cerrar sesión",
+    "activeProvider": "Proveedor activo",
+    "change": "Cambiar",
+    "connect": "Conectar",
+    "modelLabel": "Modelo:",
+    "noProvider": "Ningún proveedor IA conectado",
+    "noProviderHint": "Conecta una API key para usar servicios de IA",
+    "experiences": "experiencias",
+    "educations": "educaciones",
+    "skills": "habilidades",
+    "profileDetails": "Detalles del perfil",
+    "activityUsage": "Actividad y uso",
+    "applications": "Postulaciones",
+    "interviewPreps": "Prep. entrevistas",
+    "rankings": "Rankings",
+    "outcomesTracked": "Resultados",
+    "pipelineOverview": "Resumen del pipeline",
+    "scraped": "Scrapeados",
+    "ranked": "Rankeados",
+    "applied": "Aplicados",
+    "interviews": "Entrevistas",
+    "hired": "Contratado",
+    "avgRankScore": "Puntaje prom. de ranking:",
+    "accessibility": "Accesibilidad",
+    "accessibilityDesc": "Personaliza tu experiencia de lectura y visual.",
+    "loadError": "No se pudo cargar el perfil"
   }
 }

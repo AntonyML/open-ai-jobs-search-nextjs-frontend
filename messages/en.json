@@ -233,7 +233,8 @@
     "createCv": "Create CV",
     "createCvDesc": "Generate application",
     "prepare": "Prepare",
-    "prepareDesc": "Interview prep"
+    "prepareDesc": "Interview prep",
+    "nextStep": "Next step"
   },
   "setup": {
     "title": "Build your candidate profile",
@@ -635,5 +636,36 @@
     "label": "Language",
     "en": "English",
     "es": "Español"
+  },
+  "profile": {
+    "title": "Profile",
+    "settingsLabel": "Settings",
+    "subtitle": "Manage your account, connected provider, and personal details.",
+    "signOut": "Sign out",
+    "activeProvider": "Active Provider",
+    "change": "Change",
+    "connect": "Connect",
+    "modelLabel": "Model:",
+    "noProvider": "No AI provider connected",
+    "noProviderHint": "Connect an API key to use AI services",
+    "experiences": "experiences",
+    "educations": "educations",
+    "skills": "skills",
+    "profileDetails": "Profile Details",
+    "activityUsage": "Activity & Usage",
+    "applications": "Applications",
+    "interviewPreps": "Interview Preps",
+    "rankings": "Rankings",
+    "outcomesTracked": "Outcomes Tracked",
+    "pipelineOverview": "Pipeline Overview",
+    "scraped": "Scraped",
+    "ranked": "Ranked",
+    "applied": "Applied",
+    "interviews": "Interviews",
+    "hired": "Hired",
+    "avgRankScore": "Avg. rank score:",
+    "accessibility": "Accessibility",
+    "accessibilityDesc": "Customize your reading and visual experience.",
+    "loadError": "Could not load profile"
   }
 }

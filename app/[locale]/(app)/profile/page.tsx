@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { clearToken } from '@/lib/auth'
 import { showError } from '@/lib/toasts'
@@ -13,6 +14,7 @@ const PROFILE_TABS = ['Experience', 'Education', 'Projects', 'Skills'] as const
 type ProfileTab = (typeof PROFILE_TABS)[number]
 
 export default function ProfilePage() {
+  const t = useTranslations('profile')
   const router = useRouter()
   const [profile, setProfile] = useState<any>(null)
   const [stats, setStats] = useState<any>(null)
@@ -22,20 +24,28 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>('Experience')
 
   useEffect(() => {
-    Promise.all([
-      apiFetch<any>('/api/v1/providers/me/active').catch(() => null),
-      apiFetch<any>('/api/v1/setup/profile').catch(() => null),
-      apiFetch<any>('/api/v1/dashboard/stats').catch(() => null),
-      apiFetch<any>('/api/v1/users/usage').catch(() => null),
-    ])
-      .then(([active, setupProfile, dashboardStats, userUsage]) => {
-        const hasProvider = active?.provider && active.provider !== 'Not configured'
-        const hasProfile = setupProfile !== null
+    let cancelled = false
 
-        if (!hasProvider && !hasProfile) {
+    async function load() {
+      try {
+        const active = await apiFetch<any>('/api/v1/providers/me/active').catch(() => null)
+        if (cancelled) return
+
+        const hasProvider = active?.provider && active.provider !== 'Not configured'
+
+        if (!hasProvider) {
           router.replace('/pipeline/providers')
           return
         }
+
+        const setupProfile = await apiFetch<any>('/api/v1/setup/profile').catch(() => null)
+        if (cancelled) return
+
+        const [dashboardStats, userUsage] = await Promise.all([
+          setupProfile ? apiFetch<any>('/api/v1/dashboard/stats').catch(() => null) : null,
+          setupProfile ? apiFetch<any>('/api/v1/users/usage').catch(() => null) : null,
+        ])
+        if (cancelled) return
 
         setProfile({
           activeProvider: active?.provider || null,
@@ -47,13 +57,18 @@ export default function ProfilePage() {
         setStats(dashboardStats)
         setUsageData(userUsage)
         setLoading(false)
-      })
-      .catch(() => {
-        setError('Could not load profile')
-        showError('Could not load profile')
-        setLoading(false)
-      })
-  }, [router])
+      } catch {
+        if (!cancelled) {
+          setError(t('loadError'))
+          showError(t('loadError'))
+          setLoading(false)
+        }
+      }
+    }
+
+    load()
+    return () => { cancelled = true }
+  }, [router, t])
 
   const handleSignOut = () => {
     clearToken()
@@ -90,12 +105,12 @@ export default function ProfilePage() {
     <section className="mx-auto max-w-3xl py-8 md:py-12">
       {/* ── Page Header ─────────────────────────────────────────── */}
       <div className="mb-10 animate-fade-in-up">
-        <p className="eyebrow">Settings</p>
+        <p className="eyebrow">{t('settingsLabel')}</p>
         <h1 className="mt-3 text-[40px] font-semibold tracking-tight text-[#1d1d1f] leading-[1.1]">
-          Profile
+          {t('title')}
         </h1>
         <p className="subtitle mt-2">
-          Manage your account, connected provider, and personal details.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -134,7 +149,7 @@ export default function ProfilePage() {
               onClick={handleSignOut}
               className="rounded-full border border-[#d2d2d7] px-4 py-2 text-[12px] font-medium text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-all shrink-0"
             >
-              Sign out
+              {t('signOut')}
             </button>
           </div>
         ) : (
@@ -157,25 +172,25 @@ export default function ProfilePage() {
         {/* Provider card */}
         <div className="card animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <div className="flex items-center justify-between mb-3">
-            <p className="eyebrow !text-[#0071e3]">Active Provider</p>
+            <p className="eyebrow !text-[#0071e3]">{t('activeProvider')}</p>
             <Link
               href="/pipeline/providers"
               className="btn-ghost text-[11px]"
             >
-              {hasProvider ? 'Change' : 'Connect'}
+              {hasProvider ? t('change') : t('connect')}
             </Link>
           </div>
           {hasProvider ? (
             <div>
               <p className="text-[15px] font-medium text-[#1d1d1f]">{profile.activeProvider}</p>
               {profile.activeModel && (
-                <p className="text-[13px] text-[#707070] mt-0.5">Model: {profile.activeModel}</p>
+                <p className="text-[13px] text-[#707070] mt-0.5">{t('modelLabel')} {profile.activeModel}</p>
               )}
             </div>
           ) : (
             <div>
-              <p className="text-[13px] text-[#707070]">No AI provider connected</p>
-              <p className="text-[11px] text-[#b0b0b0] mt-0.5">Connect an API key to use AI services</p>
+              <p className="text-[13px] text-[#707070]">{t('noProvider')}</p>
+              <p className="text-[11px] text-[#b0b0b0] mt-0.5">{t('noProviderHint')}</p>
             </div>
           )}
         </div>
@@ -183,13 +198,7 @@ export default function ProfilePage() {
         {/* Profile status card */}
         <div className="card animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
           <div className="flex items-center justify-between mb-3">
-            <p className="eyebrow !text-[#0071e3]">Profile</p>
-            <Link
-              href={hasSetup ? '/setup' : '/pipeline/setup'}
-              className="btn-ghost text-[11px]"
-            >
-              {hasSetup ? 'Edit' : 'Setup'}
-            </Link>
+            <p className="eyebrow !text-[#0071e3]">{t('title')}</p>
           </div>
           {hasSetup ? (
             <div className="flex items-center gap-2">
@@ -197,15 +206,10 @@ export default function ProfilePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
               </svg>
               <p className="text-[13px] text-[#1d1d1f]">
-                {setup.experience?.length || 0} experiences · {setup.education?.length || 0} educations · {setup.skills?.software_tools?.length || 0} skills
+                {setup.experience?.length || 0} {t('experiences')} · {setup.education?.length || 0} {t('educations')} · {setup.skills?.software_tools?.length || 0} {t('skills')}
               </p>
             </div>
-          ) : (
-            <div>
-              <p className="text-[13px] text-[#707070]">Not configured yet</p>
-              <p className="text-[11px] text-[#b0b0b0] mt-0.5">Add experience, education &amp; skills</p>
-            </div>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -214,7 +218,7 @@ export default function ProfilePage() {
         <div className="card animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           {/* Section header */}
           <div className="flex items-center justify-between mb-6">
-            <p className="eyebrow !text-[#0071e3]">Profile Details</p>
+            <p className="eyebrow !text-[#0071e3]">{t('profileDetails')}</p>
           </div>
 
           {/* Apple-style tab pills */}
@@ -369,12 +373,12 @@ export default function ProfilePage() {
       {/* ── Activity & Usage ──────────────────────────────────── */}
       <div className="mt-7 animate-fade-in-up" style={{ animationDelay: '0.25s' }}>
         <div className="card">
-          <p className="eyebrow !text-[#0071e3] mb-5">Activity &amp; Usage</p>
+          <p className="eyebrow !text-[#0071e3] mb-5">{t('activityUsage')}</p>
 
           {/* Usage meters */}
           <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-6">
             <UsageMeter
-              label="Applications"
+              label={t('applications')}
               used={usageData?.usage?.applications ?? 0}
               max={usageData?.limits?.max_apply_count ?? 5}
               icon={
@@ -385,7 +389,7 @@ export default function ProfilePage() {
               color="#0071e3"
             />
             <UsageMeter
-              label="Interview Preps"
+              label={t('interviewPreps')}
               used={usageData?.usage?.interview_preps ?? 0}
               max={usageData?.limits?.max_prepare_count ?? 5}
               icon={
@@ -396,7 +400,7 @@ export default function ProfilePage() {
               color="#30d158"
             />
             <UsageMeter
-              label="Rankings"
+              label={t('rankings')}
               used={usageData?.usage?.rank_iterations ?? 0}
               max={usageData?.limits?.max_rank_iterations ?? 3}
               icon={
@@ -407,7 +411,7 @@ export default function ProfilePage() {
               color="#ff9f0a"
             />
             <UsageMeter
-              label="Outcomes Tracked"
+              label={t('outcomesTracked')}
               used={usageData?.usage?.outcomes ?? 0}
               max={usageData?.limits?.max_track_count ?? 5}
               icon={
@@ -425,31 +429,31 @@ export default function ProfilePage() {
           {/* Pipeline funnel summary */}
           {stats ? (
             <div>
-              <p className="text-[11px] text-[#858585] uppercase tracking-wider font-semibold mb-3">Pipeline Overview</p>
+              <p className="text-[11px] text-[#858585] uppercase tracking-wider font-semibold mb-3">{t('pipelineOverview')}</p>
               <div className="grid grid-cols-5 gap-2">
                 <FunnelStage
-                  label="Scraped"
+                  label={t('scraped')}
                   count={stats.jobs_scraped}
                   color="#0071e3"
                   isFirst
                 />
                 <FunnelStage
-                  label="Ranked"
+                  label={t('ranked')}
                   count={stats.jobs_ranked}
                   color="#30d158"
                 />
                 <FunnelStage
-                  label="Applied"
+                  label={t('applied')}
                   count={stats.applications}
                   color="#ff9f0a"
                 />
                 <FunnelStage
-                  label="Interviews"
+                  label={t('interviews')}
                   count={stats.interviews}
                   color="#bf5af2"
                 />
                 <FunnelStage
-                  label="Hired"
+                  label={t('hired')}
                   count={stats.hired}
                   color="#ff375f"
                   isLast
@@ -460,7 +464,7 @@ export default function ProfilePage() {
                   <svg className="size-3 text-[#ff9f0a]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
                   </svg>
-                  Avg. rank score: <span className="font-medium text-[#1d1d1f]">{stats.avg_rank_score}</span>
+                  {t('avgRankScore')} <span className="font-medium text-[#1d1d1f]">{stats.avg_rank_score}</span>
                 </div>
               )}
             </div>
@@ -475,9 +479,9 @@ export default function ProfilePage() {
       {/* ── Accessibility Settings ─────────────────────────────── */}
       <div className="mt-7 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
         <div className="card">
-          <p className="eyebrow !text-[#0071e3] mb-3">Accessibility</p>
+          <p className="eyebrow !text-[#0071e3] mb-3">{t('accessibility')}</p>
           <p className="text-[13px] text-[#707070] mb-4">
-            Customize your reading and visual experience.
+            {t('accessibilityDesc')}
           </p>
           <AccessibilitySettings />
         </div>
@@ -572,12 +576,6 @@ function EmptySection({ message }: { message: string }) {
         </svg>
       </div>
       <p className="text-[13px] text-[#b0b0b0]">{message}</p>
-      <Link
-        href="/pipeline/setup"
-        className="btn-ghost text-[12px] mt-2"
-      >
-        Go to profile setup
-      </Link>
     </div>
   )
 }
