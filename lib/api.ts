@@ -6,6 +6,9 @@ export async function apiFetch<T = unknown>(path: string, init?: RequestInit): P
     const text = await res.text()
     let msg = text
     try { const j = JSON.parse(text); msg = j.message || j.detail || text } catch {}
+    if (res.status === 402 && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('upgrade:required', { detail: msg }))
+    }
     throw new Error(msg)
   }
   if (res.status === 204) return undefined as T

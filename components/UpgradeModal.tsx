@@ -106,14 +106,49 @@ export default function UpgradeModal({ open, onClose }: UpgradeModalProps) {
             <div className="space-y-4">
               <p className="text-sm text-[#707070]">{t('upgrade.description')}</p>
 
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 space-y-3">
-                <h3 className="text-sm font-semibold text-amber-800">Premium</h3>
-                <ul className="text-xs text-amber-700 space-y-1.5">
-                  <li>• {t('upgrade.feature1')}</li>
-                  <li>• {t('upgrade.feature2')}</li>
-                  <li>• {t('upgrade.feature3')}</li>
-                  <li>• {t('upgrade.feature4')}</li>
-                </ul>
+              <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-4 space-y-3">
+                <h3 className="text-sm font-semibold text-amber-800 text-center">Free vs Premium</h3>
+                <div className="grid grid-cols-3 gap-x-2 gap-y-2 text-xs">
+                  <div className="font-medium text-[#707070]">Feature</div>
+                  <div className="text-center font-medium text-[#707070]">Free</div>
+                  <div className="text-center font-medium text-amber-800">Premium</div>
+
+                  <div className="text-[#474747]">Providers</div>
+                  <div className="text-center text-[#858585]">1</div>
+                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+
+                  <div className="text-[#474747]">Scrape sites</div>
+                  <div className="text-center text-[#858585]">1</div>
+                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+
+                  <div className="text-[#474747]">Jobs per scrape</div>
+                  <div className="text-center text-[#858585]">5</div>
+                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+
+                  <div className="text-[#474747]">Rank iterations</div>
+                  <div className="text-center text-[#858585]">3</div>
+                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+
+                  <div className="text-[#474747]">Applications</div>
+                  <div className="text-center text-[#858585]">5</div>
+                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+
+                  <div className="text-[#474747]">Interview preps</div>
+                  <div className="text-center text-[#858585]">5</div>
+                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+
+                  <div className="text-[#474747]">Tracked outcomes</div>
+                  <div className="text-center text-[#858585]">5</div>
+                  <div className="text-center text-amber-700 font-medium">Unlimited</div>
+
+                  <div className="text-[#474747]">Expand</div>
+                  <div className="text-center text-[#858585]">Locked</div>
+                  <div className="text-center text-amber-700 font-medium">✓</div>
+
+                  <div className="text-[#474747]">Upskill</div>
+                  <div className="text-center text-[#858585]">Locked</div>
+                  <div className="text-center text-amber-700 font-medium">✓</div>
+                </div>
               </div>
             </div>
           )}

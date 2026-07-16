@@ -13,6 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 type Props = {
   title: string
@@ -24,6 +30,8 @@ type Props = {
   step: number
   next?: string
   actionLabel?: string
+  actionDisabled?: boolean
+  actionDisabledTooltip?: string
 }
 
 export default function PipelinePage({
@@ -36,6 +44,8 @@ export default function PipelinePage({
   step,
   next,
   actionLabel = 'Run',
+  actionDisabled = false,
+  actionDisabledTooltip = '',
 }: Props) {
   const [form, setForm] = useState<Record<string, string>>({})
   const [items, setItems] = useState<any[]>([])
@@ -152,9 +162,22 @@ export default function PipelinePage({
                 )}
               </label>
             ))}
-            <button disabled={loading} className="btn-primary w-full">
-              {loading ? 'Working…' : actionLabel}
-            </button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span tabIndex={0}>
+                    <button disabled={loading || actionDisabled} className="btn-primary w-full">
+                      {loading ? 'Working…' : actionLabel}
+                    </button>
+                  </span>
+                </TooltipTrigger>
+                {actionDisabled && actionDisabledTooltip && (
+                  <TooltipContent side="top" align="center">
+                    {actionDisabledTooltip}
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
 
             {error && (
               <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">

@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar'
 import PipelineSidebar from '@/components/PipelineSidebar'
 import { isLoggedIn, getCompletedSteps } from '@/lib/auth'
 import LLMControlCenter from '@/components/LLMControlCenter'
+import UpgradeListener from '@/components/UpgradeListener'
 import {
   SidebarProvider,
   SidebarInset,
@@ -34,6 +35,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </SidebarProvider>
       <LLMControlCenter />
+      <UpgradeListener />
     </div>
   )
 }
