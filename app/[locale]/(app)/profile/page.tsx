@@ -35,7 +35,10 @@ export default function ProfilePage() {
 
     async function load() {
       try {
-        const active = await apiFetch<any>('/api/v1/providers/me/active').catch(() => null)
+        const [active, me] = await Promise.all([
+          apiFetch<any>('/api/v1/providers/me/active').catch(() => null),
+          apiFetch<any>('/api/v1/auth/me').catch(() => null),
+        ])
         if (cancelled) return
 
         const hasProvider = active?.provider && active.provider !== 'Not configured'
@@ -58,8 +61,8 @@ export default function ProfilePage() {
           activeProvider: active?.provider || null,
           activeModel: active?.model || null,
           setup: setupProfile,
-          email: active?.email || setupProfile?.email || null,
-          name: setupProfile?.full_name || active?.full_name || null,
+          email: me?.email || setupProfile?.email || null,
+          name: setupProfile?.full_name || me?.full_name || null,
         })
         setStats(dashboardStats)
         setUsageData(userUsage)
