@@ -1,4 +1,4 @@
-# 🚀 Open Ai Jobs Search — Frontend
+# Open Ai Jobs Search — Frontend
 
 > **Open Ai Jobs Search** es una estación de trabajo para automatizar tu búsqueda de empleo de principio a fin: desde conectar tu proveedor de IA hasta generar CV/cover letter optimizados para ATS, preparar entrevistas y trackear resultados.
 
@@ -6,110 +6,87 @@ Este repositorio es **el frontend** (Next.js 15 + React 19 + Tailwind CSS v4). T
 
 **Diseño:** Inspirado en Apple — blanco, tipografía SF Pro, azul `#0071e3` como único color de acción, sin sombras, con superficies diferenciadas por color en vez de elevación.
 
-**i18n:** Soporte completo multi-idioma (inglés y español) con detección automática, routing basado en locale (`/[locale]/...`), y 492 claves de traducción por idioma.
+**i18n:** Soporte completo multi-idioma (inglés y español) con detección automática, routing basado en locale (`/[locale]/...`), y +490 claves de traducción por idioma.
 
 ---
 
 ## Tabla de contenidos
 
-- [¿Qué es Open Ai Jobs Search?](#qué-es-career-os)
-- [Nuevas secciones](#nuevas-secciones)
-- [i18n — Internacionalización](#i18n--internacionalización)
-- [Sistema de notificaciones](#sistema-de-notificaciones)
-- [Accesibilidad](#accesibilidad)
-- [LLM Control Center](#llm-control-center)
-- [Dashboard y Analytics](#dashboard-y-analytics)
+- [Stack técnico](#stack-técnico)
+- [Páginas y rutas](#páginas-y-rutas)
 - [Flujo del usuario](#flujo-del-usuario)
 - [Estructura del proyecto](#estructura-del-proyecto)
-- [Stack técnico](#stack-técnico)
+- [LLM Control Center](#llm-control-center)
+- [Sistema de diseño](#sistema-de-diseño)
+- [i18n — Internacionalización](#i18n--internacionalización)
+- [Accesibilidad](#accesibilidad)
 - [Puesta en marcha](#puesta-en-marcha)
 - [Conexión con el backend](#conexión-con-el-backend)
+- [Testing](#testing)
+- [Deployment](#deployment)
 - [Decisiones de diseño](#decisiones-de-diseño)
 
 ---
 
-## ¿Qué es Open Ai Jobs Search?
+## Stack técnico
 
-Open Ai Jobs Search convierte la búsqueda de trabajo en un **pipeline guiado de 7 pasos**. Una barra lateral (StepSidebar) muestra el progreso y desbloquea los siguientes pasos de forma natural.
-
-Además del pipeline, la app incluye:
-- **Landing page** con pricing planes y CTA
-- **Sobre el proyecto** — descripción del servicio
-- **Perfil de usuario** con configuración de accesibilidad (tamaño de letra, alto contraste, animaciones reducidas, fuente legible, densidad)
-- **LLM Control Center** — sidebar derecha sticky con monitoreo en tiempo real de proveedores, modelos, cola y métricas
-
-### Página principal (Landing)
-
-```
-/ → Hero con tagline + CTA → Pricing → Features → Footer
-```
-
-La landing page presenta Open Ai Jobs Search como un servicio SaaS con planes en USD:
-- **Free**: 10 evaluaciones/mes, modelo estándar
-- **Pro**: $29/mes, evaluaciones ilimitadas, modelos premium (Claude, GPT)
-- **Enterprise**: $99/mes, APIs dedicadas, soporte prioritario
-
-### Pricing
-
-Los planes están diseñados para cubrir costos de API (OpenRouter para modelos Claude/GPT) y ser competitivos con herramientas como Simplify.jobs, TealHQ y Jobscan.
+| Categoría | Tecnología | Versión |
+|-----------|-----------|---------|
+| **Framework** | Next.js (App Router) | ^15.5 |
+| **UI** | React | ^19.2 |
+| **Lenguaje** | TypeScript (strict) | ^5 |
+| **Estilos** | Tailwind CSS v4 + tw-animate-css | ^4 |
+| **Componentes** | shadcn/ui (base-nova) + @base-ui/react | ^4.13 / ^1.6 |
+| **Iconos** | lucide-react | ^1.24 |
+| **Gráficos** | recharts | ^3.8 |
+| **i18n** | next-intl | ^4.13 |
+| **Notificaciones** | react-hot-toast | ^2.6 |
+| **Markdown** | react-markdown + remark-gfm | ^10 / ^4 |
+| **Sonido** | cuelume (2KB, sin archivos de audio) | ^0.1 |
+| **Fechas** | date-fns | ^4.4 |
+| **Utilidades** | clsx + tailwind-merge + class-variance-authority | latest |
+| **Linting** | ESLint v9 + eslint-config-next | ^16 |
+| **Deploy** | @opennextjs/cloudflare + wrangler | ^1.20 / ^4.110 |
+| **Gestor** | pnpm | — |
 
 ---
 
-## LLM Control Center
+## Páginas y rutas
 
-El **LLM Control Center** es una sidebar derecha sticky, siempre visible durante el uso del pipeline. Muestra en tiempo real:
+### Públicas (marketing)
 
-### Estado general
-- Proveedor activo actual + modelo
-- Salud del proveedor (healthy / degraded / down)
-- Estado de la cola (running / paused / idle)
-- Workers activos
+| Ruta | Página |
+|------|--------|
+| `/` | Landing page (Hero, Features, Pipeline, CTA) |
+| `/about` | Sobre el proyecto (historia, stack, roadmap) |
+| `/privacy` | Política de privacidad (Ley 8968 de Costa Rica) |
+| `/terms` | Términos de servicio |
+| `/login` | Inicio de sesión |
+| `/register` | Registro con modal de términos |
 
-### Sección de proveedores
-- Todos los proveedores configurados con:
-  - Estado (🟢 healthy / 🟡 degraded / 🔴 down / ⚪ disabled)
-  - Latencia (ms)
-  - Tasa de éxito (%)
-  - Contador de 429s
-  - Cooldown restante
-- Botón toggle para habilitar/deshabilitar
+### Autenticadas
 
-### Sección de modelos
-- Modelos dinámicos por proveedor
-- Modelo activo destacado
-- Estado de cada modelo (READY / BUSY / COOLDOWN / DISABLED)
+| Ruta | Página |
+|------|--------|
+| `/dashboard` | Dashboard principal (stats, funnel chart, pipeline progress) |
+| `/analytics` | Analíticas (funnel, tasas de conversión, distribución) |
+| `/admin` | Administración de usuarios (CRUD, roles, tiers) |
+| `/profile` | Perfil de usuario + configuración de accesibilidad |
+| `/settings` | Configuración completa (6 tabs: perfil, proveedores, notificaciones, idioma, apariencia, seguridad) |
 
-### Vista de cola
-- Jobs en cola con estados:
-  - ⏳ Queued
-  - ▶️ Running
-  - ✅ Completed
-  - ❌ Failed
-  - ⏸ Retrying
-  - ⛔ RateLimited
-- Click para ver detalle de cada job
+### Pipeline (7 pasos guiados)
 
-### Controles
-- Pausar / Reanudar cola
-- Cancelar job específico
-- Reintentar jobs fallidos
-- Limpiar cola
-
-### Métricas
-- Latencia promedio
-- Requests/minuto
-- Jobs completados
-- Tiempo restante estimado
-
-### UX de errores
-Los errores se muestran como mensajes amigables, nunca stack traces:
-> "GLM-5.2 alcanzó rate limit. Enfriando 60s. Cambiando automáticamente a GLM-4.5."
-
-### Polling adaptativo
-- Running: 1 segundo
-- Waiting: 5 segundos
-- Idle: 15 segundos
-- Completed: polling se detiene inmediatamente
+| Paso | Ruta | Descripción |
+|------|------|-------------|
+| 1 | `/pipeline/providers` | Conectar proveedor IA (OpenAI, Anthropic, NVIDIA, Groq, OpenRouter, LM Studio, Ollama) |
+| 2 | `/pipeline/setup` | Perfil candidato + conductual (DISC) + ejemplos STAR |
+| 3 | `/pipeline/scrape` | Scraping multi-portal (LinkedIn, FreeHire, JobBank, JobDanmark, JobIndex, JobNet) |
+| 4 | `/pipeline/rank` | Evaluación y ranking de ofertas con orquestación multi-proveedor |
+| 5 | `/pipeline/apply` | Generación CV + cover letter (pipeline drafter-reviewer-revise) |
+| 6 | `/pipeline/interview` | Prep pack + mock interview (chat interactivo) |
+| 7 | `/pipeline/outcome` | Tracker de resultados + calibración de fit |
+| — | `/pipeline/expand` | Expansión de competencias desde fuentes públicas |
+| — | `/pipeline/upskill` | Análisis de gaps + plan de aprendizaje |
 
 ---
 
@@ -130,45 +107,17 @@ flowchart LR
   F --> L[Expand]
 ```
 
-1. **Landing**: el usuario llega a `/`, ve la propuesta de valor y los planes de pricing.
+1. **Landing**: el usuario llega a `/`, ve la propuesta de valor.
 2. **Login/Register**: crea cuenta o inicia sesión. JWT se guarda en `localStorage`.
-3. **Providers**: conecta su proveedor de IA (Anthropic, OpenAI, NVIDIA, Groq, OpenRouter, LM Studio…).
+3. **Providers**: conecta su proveedor de IA (Anthropic, OpenAI, NVIDIA, Groq, OpenRouter, LM Studio, Ollama).
 4. **Setup**: construye su perfil (datos personales, experiencia, skills, **perfil conductual DISC**, **ejemplos STAR**).
 5. **Scrape**: lanza búsquedas en portales de empleo.
 6. **Rank**: la IA + analizador determinista evalúan y ordenan las ofertas.
 7. **Apply**: genera CV + cover letter en LaTeX con el pipeline drafter-reviewer-revise.
 8. **Interview**: preparación personalizada + **mock interview** (chat interactivo con IA como entrevistador).
-9. **Outcome**: registra resultados (entrevista, oferta, rechazo).
+9. **Outcome**: registra resultados (entrevista, oferta, rechazo) y calibra el fit.
 10. **Upskill** (opcional): análisis de gaps de skills + plan de aprendizaje.
 11. **Expand** (opcional): enriquece perfil desde fuentes públicas.
-
----
-
-## Nuevas secciones
-
-### Landing Page (`/`)
-- Hero con tagline + demostración visual
-- Pricing cards en USD (Free / Pro / Enterprise)
-- Features grid
-
-### Sobre el proyecto (`/about`)
-- Descripción del servicio (privado, de paga)
-- Tecnologías usadas
-- Roadmap
-
-### Perfil de usuario (`/profile`)
-- Datos de la cuenta
-- **Configuración de accesibilidad**:
-  - Tamaño de letra (pequeño / mediano / grande / extra grande)
-  - Alto contraste
-  - Animaciones reducidas
-  - Fuente legible (opcional)
-  - Densidad de interfaz (cómoda / compacta)
-
-### Pricing (`/pricing`)
-- Plan Free: funcionalidad básica, 10 evaluaciones/mes
-- Plan Pro ($29/mes): evaluaciones ilimitadas, modelos premium (Claude Sonnet, GPT-4o via OpenRouter)
-- Plan Enterprise ($99/mes): APIs dedicadas, soporte prioritario, modelos exclusivos
 
 ---
 
@@ -176,59 +125,122 @@ flowchart LR
 
 ```
 app/
-├── layout.tsx                     # Layout raíz (metadata + globals.css)
-├── page.tsx                        # Landing page (hero + pricing + features + footer)
-├── globals.css                     # Tokens CSS Apple + Tailwind v4 @theme
-├── (app)/                          # Rutas autenticadas (con StepSidebar + LLM Control Center)
-│   ├── layout.tsx                  # Guard de auth + StepSidebar + LLMControlCenter
-│   ├── about/page.tsx              # Sobre el proyecto
-│   ├── pricing/page.tsx            # Planes y precios
-│   ├── profile/page.tsx            # Perfil de usuario + accesibilidad
-│   ├── providers/page.tsx          # Paso 1: configuración de proveedor IA
-│   ├── setup/page.tsx              # Paso 2: perfil candidato + conductual + STAR
-│   ├── scrape/page.tsx             # Paso 3: búsqueda de ofertas
-│   ├── rank/page.tsx               # Paso 4: ranking con LLM Control Center integrado
-│   ├── apply/page.tsx              # Paso 5: generación de CV + carta
-│   ├── interview/page.tsx          # Paso 6: prep + mock interview (chat interactivo)
-│   └── outcome/page.tsx            # Paso 7: tracker de resultados
-└── (auth)/                         # Rutas públicas
-    ├── login/page.tsx
-    └── register/page.tsx
+├── [locale]/                        # Dynamic locale segment
+│   ├── layout.tsx                   # NextIntlClientProvider, AccessibilityProvider, SoundProvider
+│   ├── (marketing)/                 # Páginas públicas
+│   │   ├── layout.tsx               # Navbar + Footer
+│   │   ├── page.tsx                 # Landing page
+│   │   ├── about/page.tsx           # Sobre el proyecto
+│   │   ├── privacy/page.tsx         # Política de privacidad
+│   │   └── terms/page.tsx           # Términos de servicio
+│   ├── (auth)/                      # Autenticación
+│   │   ├── login/page.tsx
+│   │   └── register/page.tsx
+│   └── (app)/                       # Rutas autenticadas
+│       ├── layout.tsx               # Auth guard + PipelineSidebar + LLMControlCenter
+│       ├── dashboard/page.tsx       # Dashboard con stats y funnel
+│       ├── analytics/page.tsx       # Analíticas detalladas
+│       ├── admin/page.tsx           # Admin panel (CRUD usuarios)
+│       ├── profile/page.tsx         # Perfil + accesibilidad
+│       ├── settings/page.tsx        # Configuración (6 tabs)
+│       └── pipeline/                # Pipeline de 7 pasos
+│           ├── layout.tsx           # Breadcrumb + Progress bar
+│           ├── providers/page.tsx   # Paso 1: proveedores IA
+│           ├── setup/page.tsx       # Paso 2: perfil candidato
+│           ├── scrape/page.tsx      # Paso 3: scraping
+│           ├── rank/page.tsx        # Paso 4: ranking
+│           ├── apply/page.tsx       # Paso 5: CV + cover letter
+│           ├── interview/page.tsx   # Paso 6: entrevistas
+│           ├── outcome/page.tsx     # Paso 7: outcomes
+│           ├── expand/page.tsx      # Expansión de skills
+│           └── upskill/page.tsx     # Gap analysis
+├── globals.css                      # Apple design tokens + a11y overrides
+└── layout.tsx                       # Layout raíz
 
 components/
-├── LLMControlCenter.tsx            # Sidebar derecha sticky (proveedores, modelos, cola, métricas)
-├── PipelinePage.tsx                # Formulario reutilizable para pasos del pipeline
-├── StepSidebar.tsx                 # Navegación lateral con progreso del pipeline
-└── ui/
-    ├── button.tsx                  # Componente botón (shadcn/ui + estilos Apple)
-    ├── card.tsx                    # Componente card
-    └── ...
+├── LLMControlCenter.tsx             # Sidebar derecha sticky (proveedores, modelos, cola, métricas)
+├── PipelineSidebar.tsx              # Navegación lateral con progreso del pipeline
+├── PipelinePage.tsx                 # Formulario reutilizable para pasos del pipeline
+├── Navbar.tsx                       # Barra de navegación superior
+├── Footer.tsx                       # Footer de 4 columnas
+├── LanguageSwitcher.tsx             # Toggle EN/ES
+├── AccessibilityProvider.tsx        # Aplica settings de accesibilidad al mount
+├── AccessibilitySettings.tsx        # Controles UI de accesibilidad
+├── SoundProvider.tsx                # Inicializa sonidos cuelume
+├── NotificationBell.tsx             # Campana con historial de notificaciones
+├── TermsModal.tsx                   # Modal de términos (registro)
+├── UpgradeModal.tsx                 # Modal de upgrade/donación
+├── UpgradeListener.tsx              # Escucha eventos 402
+├── landing/                         # Secciones de landing page
+├── about/                           # Secciones de about page
+├── providers/                       # Componentes de configuración de proveedores
+├── setup/                           # Componentes de perfil candidato
+├── scrape/                          # Componentes de scraping
+├── rank/                            # Componentes de ranking
+├── interview/                       # Componentes de entrevistas
+├── outcome/                         # Componentes de tracking
+└── ui/                              # 19 componentes base (button, card, input, chart, sidebar, etc.)
 
 lib/
-├── api.ts                          # Cliente HTTP con auth automática + manejo de errores
-├── auth.ts                         # Helpers de JWT (localStorage)
-├── orchestrator.ts                 # Hooks + polling adaptativo para LLM Control Center
-├── toasts.ts                       # Notificaciones toast (react-hot-toast)
-├── sounds.ts                       # Sonidos UI (cuelume — 2KB)
-└── utils.ts                        # Utilidades (cn, etc.)
+├── api.ts                           # Cliente HTTP con auth automática + manejo 402
+├── auth.ts                          # Helpers de JWT (localStorage, decode, pipeline steps)
+├── orchestrator.ts                  # WebSocket + HTTP polling para LLM Control Center
+├── accessibility.ts                 # Settings de accesibilidad (font size, contrast, motion)
+├── notifications.ts                 # Historial de notificaciones (localStorage)
+├── sounds.ts                        # Sonidos UI (cuelume)
+├── toasts.ts / toasts.tsx           # Wrappers react-hot-toast
+├── rank-utils.ts                    # Utilidades de color para scores
+└── utils.ts                         # cn() (clsx + tailwind-merge)
+
+hooks/
+├── use-mobile.ts                    # Detección de breakpoint móvil (768px)
+└── useUsageLimits.ts                # Límites de uso free/premium
 ```
 
 ---
 
-## Stack técnico
+## LLM Control Center
 
-- **Next.js 15** (App Router) + **React 19**
-- **TypeScript** estricto
-- **Tailwind CSS v4** + Apple design tokens (`@theme`)
-- **shadcn/ui** para componentes base
-- **lucide-react** para iconos
-- **react-hot-toast** para notificaciones
-- **cuelume** — 10 sonidos UI (2KB)
-- **pnpm** como gestor de paquetes
+El **LLM Control Center** es una sidebar derecha sticky, siempre visible durante el uso del pipeline. Muestra en tiempo real:
 
-### Design System
+### Estado general
+- Proveedor activo actual + modelo
+- Salud del proveedor (healthy / degraded / down)
+- Estado de la cola (running / paused / idle)
+- Workers activos
 
-Sistema de diseño inspirado en Apple (ver `DESIGN.md` para referencia completa):
+### Sección de proveedores
+- Todos los proveedores configurados con estado, latencia, tasa de éxito, contador de 429s, cooldown
+- Botón toggle para habilitar/deshabilitar
+
+### Sección de modelos
+- Modelos dinámicos por proveedor
+- Estado de cada modelo (READY / BUSY / COOLDOWN / DISABLED)
+
+### Vista de cola
+- Jobs en cola con estados (queued, running, completed, failed, retrying, rate_limited)
+- Click para ver detalle de cada job
+
+### Controles
+- Pausar / Reanudar cola
+- Cancelar job específico
+- Reintentar jobs fallidos
+- Limpiar cola
+
+### Métricas
+- Latencia promedio, requests/minuto, jobs completados, tiempo restante estimado
+
+### Polling adaptativo
+- Running: 1 segundo
+- Waiting: 5 segundos
+- Idle: 15 segundos
+- Completed: polling se detiene inmediatamente
+
+---
+
+## Sistema de diseño
+
+Sistema de diseño inspirado en Apple:
 
 | Token | Valor | Uso |
 |-------|-------|-----|
@@ -241,6 +253,30 @@ Sistema de diseño inspirado en Apple (ver `DESIGN.md` para referencia completa)
 | `--font-sf-pro-text` | SF Pro Text | Body, nav, botones |
 | `--radius-buttons` | `980px` | Todos los botones: completamente redondeados |
 | `--radius-cards` | `8px` | Todas las cards |
+
+El diseño escala según la configuración de accesibilidad del usuario (tamaño de fuente, alto contraste, animaciones reducidas, fuente legible, densidad).
+
+---
+
+## i18n — Internacionalización
+
+- **Idiomas**: inglés (`en`) y español (`es`)
+- **Detección**: automática vía navegador, `as-needed` prefix (se omite `/en/`)
+- **Routing**: middleware next-intl en todas las rutas no-API y no-static
+- **Claves**: +490 por idioma en `messages/{locale}.json`
+- **Provider**: `NextIntlClientProvider` en el layout de locale
+
+---
+
+## Accesibilidad
+
+Configuración persistente en `localStorage`:
+
+- **Tamaño de letra**: pequeño / mediano / grande / extra grande
+- **Alto contraste**: activa modo de alto contraste
+- **Animaciones reducidas**: respeta `prefers-reduced-motion`
+- **Fuente legible**: fuente opcional para dislexia
+- **Densidad**: cómoda / compacta
 
 ---
 
@@ -295,47 +331,29 @@ El frontend consume la API REST de Open Ai Jobs Search (FastAPI backend).
 
 - **URL base:** `NEXT_PUBLIC_API_URL` (default `http://localhost:8000`)
 - **Autenticación:** JWT en `localStorage` (`access_token`), inyectado en cada request por `apiFetch()`
+- **HTTP 402:** dispara evento `upgrade:required` → muestra UpgradeModal
 - **Polling adaptativo:** el LLM Control Center usa hooks de `lib/orchestrator.ts` con frecuencias variables según el estado
+- **Pipeline progress:** se guarda en `localStorage` por usuario (`completed_steps:<hash>`)
 
 ### Endpoints consumidos
 
 | Sección | Endpoints |
 |---------|-----------|
-| Auth | `POST /api/v1/auth/login`, `POST /api/v1/auth/register` |
-| Providers | `GET /providers/`, `POST /providers/`, `GET /providers/me`, `PUT /providers/active` |
+| Auth | `POST /auth/login`, `POST /auth/register`, `GET /auth/me`, `POST /auth/upgrade`, `POST /auth/donate` |
+| Providers | `GET /providers/`, `POST /providers/`, `GET /providers/me`, `PUT /providers/active`, `POST /providers/test` |
 | Setup | `POST /setup/profile`, `GET /setup/profile`, `PUT /setup/behavioral-profile`, `POST /setup/star-examples` |
 | Scrape | `POST /scrape/`, `GET /scrape/runs`, `GET /scrape/jobs` |
 | Rank | `POST /rank/`, `GET /rank/jobs`, `GET /rank/jobs/{id}/evaluation` |
-| Apply | `POST /apply/`, `GET /apply/`, `GET /apply/{id}` |
+| Apply | `POST /apply/`, `GET /apply/`, `GET /apply/{id}`, `GET /apply/{id}/status` |
 | Interview | `POST /interview/`, `GET /interview/{id}`, `POST /interview/{id}/mock` |
 | Outcome | `POST /outcome/`, `PATCH /outcome/{id}`, `GET /outcome/tracker/rows` |
 | Upskill | `POST /upskill/`, `GET /upskill/{id}`, `GET /upskill/` |
 | Expand | `POST /expand/`, `GET /expand/{id}` |
+| Salary | `POST /salary/data`, `GET /salary/data`, `DELETE /salary/data` |
+| Dashboard | `GET /dashboard/stats`, `GET /dashboard/pipeline`, `GET /analytics/funnel` |
 | Orchestrator | `GET /orchestrator/status`, `GET /orchestrator/providers`, `GET /orchestrator/queue`, `POST /orchestrator/pause`, `POST /orchestrator/resume`, `POST /orchestrator/cancel/{id}`, `POST /orchestrator/retry/{id}` |
 | Pipeline | `DELETE /pipeline-reset` |
-
----
-
-## Decisiones de diseño
-
-- **Estado en el cliente.** El progreso del pipeline se guarda en `localStorage` (`completed_steps`). Sobrevive a recargas sin backend extra.
-- **LLM Control Center como sidebar independiente.** No interfiere con el contenido principal del pipeline. Tiene su propio polling adaptativo.
-- **Mensajes de error amigables.** Los errores del orquestador se convierten automáticamente a mensajes legibles (ej: "NVIDIA alcanzó rate limit. Cambiando a Groq…").
-- **Resultados progresivos.** Los resultados de ranking aparecen a medida que se completan, no al final.
-- **Sonidos UI opcionales.** Feedback auditivo con `cuelume` para acciones importantes (completado, error, notificación).
-- **Tema claro.** Diseño Apple con fondos blancos/grises y azul como único color de acento.
-
-### Pipeline Reset
-
-El botón "Reiniciar pipeline" en el StepSidebar llama a `DELETE /pipeline-reset` que borra:
-- Jobs scrapeados, rankeados, aplicaciones, entrevistas, outcomes
-- Runs de scraping
-- Jobs del orquestador
-- Datos de salario
-- Métricas de salud de proveedores/modelos
-- Archivo `job_search_tracker.csv`
-
-**Preserva**: perfil de candidato, credenciales de proveedores, perfil conductual, ejemplos STAR, configuración de usuario.
+| Users (admin) | `GET /users/`, `PATCH /users/{id}`, `DELETE /users/{id}` |
 
 ---
 
@@ -347,24 +365,30 @@ npx tsc --noEmit   # TypeScript (0 errors)
 pnpm build         # Build check
 ```
 
-No hay tests unitarios de frontend aún. El proyecto depende de los tests del backend (367 tests, 99.5% pass rate) para validación de lógica de negocio.
+---
+
+## Deployment
+
+El frontend deploya en **Cloudflare Workers** via OpenNext.
+
+```bash
+pnpm preview       # Build & preview local
+pnpm deploy        # Build & deploy a Cloudflare
+```
+
+Configuración en `wrangler.jsonc` y `open-next.config.ts`. Variables de entorno se configuran como secrets de Cloudflare Workers.
 
 ---
 
-## Dependencias principales
+## Decisiones de diseño
 
-| Paquete | Versión | Propósito |
-|---------|---------|-----------|
-| next | 15.x | Framework React |
-| react | 19.x | UI |
-| tailwindcss | 4.x | Estilos |
-| shadcn/ui | latest | Componentes base |
-| lucide-react | latest | Iconos |
-| react-hot-toast | latest | Notificaciones toast |
-| cuelume | latest | Sonidos UI (2KB) |
-| class-variance-authority | latest | Variantes de componentes |
-| clsx + tailwind-merge | latest | Utilidad `cn()` |
-
----
-
-Hecho con ☕, mucho Tailwind y un toque de Apple.
+- **Estado en el cliente.** El progreso del pipeline se guarda en `localStorage` (`completed_steps:<hash>`). Sobrevive a recargas sin backend extra.
+- **Pipeline Sidebar vs StepSidebar.** Navegación lateral izquierda que muestra los pasos secuencialmente bloqueados hasta completar el anterior.
+- **LLM Control Center como sidebar independiente.** No interfiere con el contenido principal del pipeline. Tiene su propio polling adaptativo con fallback a WebSocket.
+- **Mensajes de error amigables.** Los errores del orquestador se convierten automáticamente a mensajes legibles.
+- **Sonidos UI opcionales.** Feedback auditivo con `cuelume` para acciones importantes, respeta `prefers-reduced-motion`.
+- **i18n first.** next-intl con routing basado en locale, 490+ claves por idioma.
+- **Accesibilidad integrada.** Font scaling, contraste, animaciones reducidas, fuente legible, densidad.
+- **Tema claro.** Diseño Apple con fondos blancos/grises y azul como único color de acento.
+- **shadcn/ui base-nova.** Estilo base-nova con personalización Apple.
+- **recharts para analíticas.** Dashboard y analytics con gráficos de funnel, barras y pie.
