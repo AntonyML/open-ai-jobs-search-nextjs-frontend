@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import PipelinePage from '@/components/PipelinePage'
 import { isPremium } from '@/lib/auth'
 import { useUsageLimits } from '@/hooks/useUsageLimits'
+import { UpgradeBanner } from '@/components/ui/upgrade-banner'
 import UpgradeModal from '@/components/UpgradeModal'
 
 export default function Apply() {
@@ -19,21 +20,12 @@ export default function Apply() {
   return (
     <>
       {!premium && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg bg-amber-50/10 border border-amber-200/20 px-4 py-2.5">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-          </svg>
-          <span className="text-xs text-amber-400/80 flex-1">
-            {t('freeLimitation') || 'Free plan: limited to 5 applications. Upgrade to Premium for unlimited.'}
-            {usage && ` (${usage.usage.applications}/${usage.limits.max_apply_count})`}
-          </span>
-          <button
-            onClick={() => setShowUpgrade(true)}
-            className="text-xs font-medium text-amber-400 hover:text-amber-300 underline-offset-2 hover:underline shrink-0"
-          >
-            {t('upgrade') || 'Upgrade'}
-          </button>
-        </div>
+        <UpgradeBanner
+          message={t('freeLimitation') || 'Free plan: limited to 5 applications. Upgrade to Premium for unlimited.'}
+          usage={usage ? `${usage.usage.applications}/${usage.limits.max_apply_count}` : undefined}
+          upgradeLabel={t('upgrade') || 'Upgrade'}
+          onUpgrade={() => setShowUpgrade(true)}
+        />
       )}
       <PipelinePage
         title={t('title')}
