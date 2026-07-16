@@ -2,118 +2,103 @@
 
 import { useRef, useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface TermsModalProps {
   onAccept: () => void
   onDecline: () => void
 }
 
-// ── Términos de Servicio completos (en JSX para el modal) ────────────────────
 function TermsContent() {
+  const [termsMd, setTermsMd] = useState('')
+  const [privacyMd, setPrivacyMd] = useState('')
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/legal/terms.md').then(r => r.text()),
+      fetch('/legal/privacy.md').then(r => r.text()),
+    ]).then(([terms, privacy]) => {
+      setTermsMd(terms)
+      setPrivacyMd(privacy)
+      setLoaded(true)
+    })
+  }, [])
+
+  if (!loaded) {
+    return (
+      <div className="legal-modal-content">
+        <div className="legal-section">
+          <p className="text-[13px] text-[#858585]">Cargando documentos legales...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const mdComponents = {
+    h1: ({ children, ...rest }: React.ComponentPropsWithoutRef<'h3'>) => (
+      <h3 className="text-[16px] font-bold text-[#1d1d1f] mb-4 mt-0" {...rest}>{children}</h3>
+    ),
+    h2: ({ children, ...rest }: React.ComponentPropsWithoutRef<'h3'>) => (
+      <h3 className="text-[14px] font-bold text-[#1d1d1f] mb-2 mt-4" {...rest}>{children}</h3>
+    ),
+    h3: ({ children, ...rest }: React.ComponentPropsWithoutRef<'h4'>) => (
+      <h4 className="text-[13px] font-bold text-[#1d1d1f] mb-1 mt-3" {...rest}>{children}</h4>
+    ),
+    h4: ({ children, ...rest }: React.ComponentPropsWithoutRef<'h5'>) => (
+      <h5 className="text-[12px] font-bold text-[#1d1d1f] mb-1 mt-2" {...rest}>{children}</h5>
+    ),
+    p: ({ children, ...rest }: React.ComponentPropsWithoutRef<'p'>) => (
+      <p className="text-[13px] text-[#474747] leading-relaxed mb-3" {...rest}>{children}</p>
+    ),
+    ul: ({ children, ...rest }: React.ComponentPropsWithoutRef<'ul'>) => (
+      <ul className="list-disc ml-5 mb-3 space-y-1" {...rest}>{children}</ul>
+    ),
+    ol: ({ children, ...rest }: React.ComponentPropsWithoutRef<'ol'>) => (
+      <ol className="list-decimal ml-5 mb-3 space-y-1" {...rest}>{children}</ol>
+    ),
+    li: ({ children, ...rest }: React.ComponentPropsWithoutRef<'li'>) => (
+      <li className="text-[13px] text-[#474747] leading-relaxed" {...rest}>{children}</li>
+    ),
+    strong: ({ children, ...rest }: React.ComponentPropsWithoutRef<'strong'>) => (
+      <strong className="font-semibold text-[#1d1d1f]" {...rest}>{children}</strong>
+    ),
+    em: ({ children, ...rest }: React.ComponentPropsWithoutRef<'em'>) => (
+      <em className="italic text-[#707070]" {...rest}>{children}</em>
+    ),
+    hr: (props: React.ComponentPropsWithoutRef<'hr'>) => (
+      <hr className="my-5 border-t border-[#e2e2e5]" {...props} />
+    ),
+    table: ({ children, ...rest }: React.ComponentPropsWithoutRef<'table'>) => (
+      <div className="overflow-x-auto my-3">
+        <table className="min-w-full text-[13px] border-collapse" {...rest}>{children}</table>
+      </div>
+    ),
+    thead: ({ children, ...rest }: React.ComponentPropsWithoutRef<'thead'>) => (
+      <thead className="bg-[#f5f5f7]" {...rest}>{children}</thead>
+    ),
+    th: ({ children, ...rest }: React.ComponentPropsWithoutRef<'th'>) => (
+      <th className="border border-[#e2e2e5] px-3 py-2 text-left font-semibold text-[#1d1d1f] text-[12px]" {...rest}>{children}</th>
+    ),
+    td: ({ children, ...rest }: React.ComponentPropsWithoutRef<'td'>) => (
+      <td className="border border-[#e2e2e5] px-3 py-2 text-[#474747]" {...rest}>{children}</td>
+    ),
+    code: ({ children, ...rest }: React.ComponentPropsWithoutRef<'code'>) => (
+      <code className="bg-[#f5f5f7] px-1.5 py-0.5 rounded text-[12px] font-mono text-[#c85000]" {...rest}>{children}</code>
+    ),
+    a: ({ href, children, ...rest }: React.ComponentPropsWithoutRef<'a'>) => (
+      <a href={href} className="text-[#0066cc] hover:underline" target="_blank" rel="noopener noreferrer" {...rest}>{children}</a>
+    ),
+  }
+
+  const fullContent = `${termsMd}\n\n---\n\n${privacyMd}`
+
   return (
     <div className="legal-modal-content">
-      <div className="legal-section">
-        <h3>1. Aceptación de los Términos</h3>
-        <p>
-          Al acceder, registrarse o utilizar la plataforma <strong>Open Ai Jobs Search</strong>, usted declara haber leído, comprendido y aceptado en su totalidad los presentes Términos de Servicio y nuestra Política de Privacidad. Si no está de acuerdo con alguna de estas condiciones, debe abstenerse de utilizar la Plataforma.
-        </p>
-      </div>
-
-      <div className="legal-section">
-        <h3>2. Descripción del Servicio</h3>
-        <p>Open Ai Jobs Search es una plataforma SaaS que permite a personas físicas:</p>
-        <ul>
-          <li>Crear y gestionar un perfil profesional de candidato.</li>
-          <li>Descubrir ofertas de empleo en portales públicos mediante técnicas automatizadas (<em>web scraping</em>).</li>
-          <li>Evaluar y priorizar ofertas de empleo mediante algoritmos deterministas e inteligencia artificial generativa.</li>
-          <li>Generar documentos de postulación (CV y cartas de presentación) mediante modelos de lenguaje de terceros.</li>
-          <li>Prepararse para entrevistas de trabajo mediante contenido generado por IA.</li>
-          <li>Registrar y hacer seguimiento de postulaciones y resultados.</li>
-        </ul>
-        <p>El Servicio actúa como intermediario tecnológico y <strong>no</strong> es una bolsa de empleo, agencia de colocación ni empleador.</p>
-      </div>
-
-      <div className="legal-section">
-        <h3>3. Elegibilidad y Registro</h3>
-        <p><strong>Edad mínima:</strong> Para utilizar la Plataforma, el Usuario debe tener al menos <strong>18 años de edad</strong>.</p>
-        <p><strong>Veracidad:</strong> El Usuario se compromete a proporcionar información veraz, completa y actualizada. El suministro de información falsa constituye motivo de cancelación inmediata de la cuenta.</p>
-        <p><strong>Seguridad:</strong> El Usuario es responsable de mantener la confidencialidad de sus credenciales de acceso.</p>
-      </div>
-
-      <div className="legal-section">
-        <h3>4. Uso Aceptable</h3>
-        <p>Queda estrictamente prohibido:</p>
-        <ul>
-          <li>Utilizar la Plataforma para actividades ilegales, fraudulentas o engañosas.</li>
-          <li>Realizar ingeniería inversa o descompilar cualquier componente del software.</li>
-          <li>Transmitir malware, virus o código dañino.</li>
-          <li>Sobrecargar los sistemas mediante ataques de denegación de servicio.</li>
-          <li>Revender, sublicenciar o ceder el acceso a la Plataforma a terceros.</li>
-          <li>Utilizar la Plataforma para crear productos competidores.</li>
-        </ul>
-      </div>
-
-      <div className="legal-section">
-        <h3>5. Datos del Usuario y Propiedad Intelectual</h3>
-        <p>Usted conserva todos los derechos sobre los datos que ingresa en la Plataforma. Al ingresar estos datos, nos otorga una licencia limitada y no exclusiva para procesarlos con el único fin de prestarle el Servicio.</p>
-        <p>Los documentos generados por IA son producidos mediante modelos de lenguaje de terceros. El Usuario es <strong>responsable de revisar y verificar</strong> dicho contenido antes de enviarlo a empleadores.</p>
-      </div>
-
-      <div className="legal-section">
-        <h3>6. Servicios de Terceros y API Keys</h3>
-        <p>La Plataforma integra modelos de lenguaje de terceros (OpenAI, Anthropic, NVIDIA NIM, OpenRouter, entre otros). <strong>Open Ai Jobs Search no almacena sus API keys en texto claro.</strong> Estas son cifradas antes de ser guardadas en base de datos. El Usuario es responsable de cumplir los términos de uso de cada proveedor de IA que conecte.</p>
-      </div>
-
-      <div className="legal-section">
-        <h3>7. Limitación de Responsabilidad</h3>
-        <p>En la máxima medida permitida por la ley costarricense, la Plataforma se proporciona <strong>"tal cual"</strong> y <strong>"según disponibilidad"</strong>, sin garantías de ningún tipo. No somos responsables por resultados de procesos de selección, rechazos de empleadores, inexactitudes en el contenido generado por IA, ni por el uso que el Usuario haga de dicho contenido. Nuestra responsabilidad total no excederá el monto pagado por el Servicio en los tres (3) meses anteriores al evento generador de la reclamación.</p>
-      </div>
-
-      <div className="legal-section">
-        <h3>8. Indemnización</h3>
-        <p>El Usuario acepta indemnizar y mantener indemne a Open Ai Jobs Search frente a cualquier reclamación, daño, pérdida, costo o gasto que surja de su uso indebido de la Plataforma, violación de estos Términos o de derechos de terceros.</p>
-      </div>
-
-      <div className="legal-section">
-        <h3>9. Modificaciones al Servicio y a los Términos</h3>
-        <p>Nos reservamos el derecho de modificar, suspender o descontinuar el Servicio en cualquier momento. Podemos actualizar estos Términos y le notificaremos los cambios mediante publicación en la Plataforma y notificación por correo electrónico.</p>
-      </div>
-
-      <div className="legal-section">
-        <h3>10. Política de Privacidad y Datos Sensibles</h3>
-        <p>Al registrarse, usted autoriza el tratamiento de sus datos personales de conformidad con nuestra <strong>Política de Privacidad</strong> y la <strong>Ley N.° 8968</strong> de Costa Rica. En particular:</p>
-        <ul>
-          <li><strong>Datos recopilados:</strong> nombre completo, correo electrónico, perfil profesional, habilidades, experiencia laboral, educación, proyectos, preferencias laborales, API keys (cifradas), documentos generados y datos de uso.</li>
-          <li><strong>Datos sensibles:</strong> Su perfil profesional puede contener información sensible (salud, orientación, creencias). Usted decide qué incluir y asume la responsabilidad de esa decisión.</li>
-          <li><strong>Cifrado:</strong> Las contraseñas se almacenan como hash irreversible (bcrypt). Las API keys se cifran en reposo. La comunicación usa TLS (HTTPS).</li>
-          <li><strong>Compartición con terceros:</strong> Fragmentos de su perfil son enviados a proveedores de IA únicamente para completar las tareas que usted solicita. <strong>No vendemos sus datos.</strong></li>
-          <li><strong>No entrenamiento:</strong> Sus datos nunca son usados para entrenar modelos de inteligencia artificial.</li>
-          <li><strong>Retención:</strong> Sus datos son eliminados o anonimizados en máximo 90 días tras cerrar su cuenta.</li>
-          <li><strong>Sus derechos (Ley 8968):</strong> acceso, rectificación, cancelación, oposición, portabilidad y revocación del consentimiento. Ejecútelos escribiendo a privacy@openai-jobs-search.com.</li>
-        </ul>
-      </div>
-
-      <div className="legal-section">
-        <h3>11. Ley Aplicable y Resolución de Disputas</h3>
-        <p>Estos Términos se rigen por las leyes de la <strong>República de Costa Rica</strong> (Ley N.° 8968, Ley N.° 7472, Código Civil y Código de Comercio). Cualquier disputa será sometida a la jurisdicción de los <strong>Tribunales de Justicia del Primer Circuito Judicial de San José, Costa Rica</strong>.</p>
-      </div>
-
-      <div className="legal-section">
-        <h3>12. Contacto Legal</h3>
-        <p>
-          <strong>Open Ai Jobs Search</strong><br />
-          legal@openai-jobs-search.com · privacy@openai-jobs-search.com<br />
-          República de Costa Rica
-        </p>
-        <p>
-          <span style={{ fontSize: '12px', color: '#858585' }}>
-            Puede consultar los documentos completos en:{' '}
-            <Link href="/terms" className="text-[#0066cc] hover:underline" target="_blank">Términos de Servicio</Link>
-            {' '}y{' '}
-            <Link href="/privacy" className="text-[#0066cc] hover:underline" target="_blank">Política de Privacidad</Link>.
-          </span>
-        </p>
-      </div>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+        {fullContent}
+      </ReactMarkdown>
     </div>
   )
 }
@@ -131,30 +116,32 @@ export default function TermsModal({ onAccept, onDecline }: TermsModalProps) {
   const lastTime = useRef(0)
   const isDragging = useRef(false)
 
-  const applyInertia = useCallback(() => {
-    const el = scrollRef.current
-    if (!el) return
-    if (Math.abs(velocityRef.current) < 0.5) {
-      animRef.current = null
-      return
+  const applyInertiaRef = useRef<() => void>(() => {})
+  useEffect(() => {
+    applyInertiaRef.current = () => {
+      const el = scrollRef.current
+      if (!el) return
+      if (Math.abs(velocityRef.current) < 0.5) {
+        animRef.current = null
+        return
+      }
+      el.scrollTop += velocityRef.current
+      velocityRef.current *= 0.93
+      animRef.current = requestAnimationFrame(applyInertiaRef.current)
     }
-    el.scrollTop += velocityRef.current
-    velocityRef.current *= 0.93 // friction
-    animRef.current = requestAnimationFrame(applyInertia)
   }, [])
 
   const handleWheel = useCallback((e: WheelEvent) => {
     e.preventDefault()
     const el = scrollRef.current
     if (!el) return
-    // Boost speed when scrolling fast (deltaY large = user scrolls fast)
     const speed = Math.abs(e.deltaY)
     const multiplier = speed > 100 ? 2.5 : speed > 50 ? 1.6 : 1
     el.scrollTop += e.deltaY * multiplier
     velocityRef.current = e.deltaY * 0.3
     if (animRef.current) cancelAnimationFrame(animRef.current)
-    animRef.current = requestAnimationFrame(applyInertia)
-  }, [applyInertia])
+    animRef.current = requestAnimationFrame(applyInertiaRef.current)
+  }, [])
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
     isDragging.current = true
@@ -179,8 +166,8 @@ export default function TermsModal({ onAccept, onDecline }: TermsModalProps) {
 
   const handleTouchEnd = useCallback(() => {
     isDragging.current = false
-    animRef.current = requestAnimationFrame(applyInertia)
-  }, [applyInertia])
+    animRef.current = requestAnimationFrame(applyInertiaRef.current)
+  }, [])
 
   useEffect(() => {
     const el = scrollRef.current
