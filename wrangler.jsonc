@@ -10,5 +10,9 @@
   },
   "observability": {
     "enabled": true
+  },
+  "vars": {
+    "NEXT_PUBLIC_API_URL": "https://open-ai-jobs-search-fastapi.fly.dev",
+    "NEXT_PUBLIC_DEBUG_SLIDE_MENU": "false"
   }
 }
