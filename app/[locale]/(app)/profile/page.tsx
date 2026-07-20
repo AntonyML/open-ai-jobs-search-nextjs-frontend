@@ -693,6 +693,7 @@ function ProfileProgress({ hasSetup, setup, t }: { hasSetup: boolean; setup: any
 
   return (
     <div className="card animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
+      {/* Profile Progress 
       <div className="flex items-center justify-between mb-3">
         <p className="eyebrow !text-[#0071e3]">{t('setupTitle')}</p>
         {!hasSetup && (
@@ -701,7 +702,7 @@ function ProfileProgress({ hasSetup, setup, t }: { hasSetup: boolean; setup: any
           </Link>
         )}
       </div>
-
+        */}
       {/* Circular progress */}
       <div className="flex items-center gap-4">
         <div className="relative size-14 shrink-0">

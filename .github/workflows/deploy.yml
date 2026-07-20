@@ -22,7 +22,7 @@ on:
         default: ""
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: deploy-${{ github.event.inputs.environment }}
@@ -86,3 +86,26 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || 'https://open-ai-jobs-search-fastapi.fly.dev' }}
           NEXT_PUBLIC_DEBUG_SLIDE_MENU: ${{ vars.NEXT_PUBLIC_DEBUG_SLIDE_MENU || 'false' }}
+
+      - name: Generate version tag
+        id: version
+        shell: bash
+        run: |
+          DATE_TAG=$(date +'v%Y.%m.%d')
+          echo "VERSION=${DATE_TAG}.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: frontend-${{ steps.version.outputs.VERSION }}
+          name: "Frontend ${{ steps.version.outputs.VERSION }}"
+          body: |
+            ## 🚀 Frontend desplegado
+
+            **Entorno:** ${{ github.event.inputs.environment }}
+
+            Haz clic para ver: https://open-ai-jobs-search.tonyml.com/es
+
+            **Desplegado por:** @${{ github.actor }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: false
