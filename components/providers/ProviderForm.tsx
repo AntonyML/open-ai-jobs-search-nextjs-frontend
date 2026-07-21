@@ -28,6 +28,32 @@ export function ProviderForm({
   onUpgrade,
 }: ProviderFormProps) {
   const t = useTranslations('providers')
+
+  function validateApiKey(provider: string, key: string): string | null {
+    if (provider === 'lm_studio' || provider === 'ollama') return null
+    const trimmed = key.trim()
+    if (trimmed.length < 10) {
+      return t('apiKeyTooShort')
+    }
+    const prefixes: Record<string, string> = {
+      openai: 'sk-',
+      anthropic: 'sk-ant-',
+      nvidia_nim: 'nvapi-',
+    }
+    const expected = prefixes[provider]
+    if (expected && !trimmed.startsWith(expected)) {
+      return t('invalidKeyFormat', { provider, prefix: expected })
+    }
+    return null
+  }
+
+  function sanitizeApiError(msg: string): string {
+    if (/401|incorrect|invalid.*key/i.test(msg)) {
+      return t('connectionFailed')
+    }
+    return msg
+  }
+
   const [models, setModels] = useState<any[]>([])
   const [loadingModels, setLoadingModels] = useState(false)
   const [testing, setTesting] = useState(false)
@@ -40,11 +66,16 @@ export function ProviderForm({
 
   async function loadModels() {
     if (!form.api_key.trim() && provider !== 'lm_studio' && provider !== 'ollama') {
-      showError('API key is required before loading models')
+      showError(t('apiKeyRequired'))
       return
     }
     if (!form.api_base.trim() && (provider === 'lm_studio' || provider === 'ollama')) {
-      showError('API base is required before loading models')
+      showError(t('apiBaseRequired'))
+      return
+    }
+    const keyError = validateApiKey(provider, form.api_key)
+    if (keyError) {
+      showError(keyError)
       return
     }
     setLoadingModels(true)
@@ -61,14 +92,19 @@ export function ProviderForm({
       showSuccess(`${(x.models || []).length} models loaded`)
     } catch (e) {
       setModels([])
-      const msg = e instanceof Error ? e.message : 'Could not load models'
-      showError(msg)
+      const msg = e instanceof Error ? e.message : t('couldNotLoadModels')
+      showError(sanitizeApiError(msg))
     } finally {
       setLoadingModels(false)
     }
   }
 
   async function testProvider() {
+    const keyError = validateApiKey(provider, form.api_key)
+    if (keyError) {
+      showError(keyError)
+      return
+    }
     setTesting(true)
     try {
       const testPayload = Object.fromEntries(
@@ -86,13 +122,13 @@ export function ProviderForm({
       showSuccess(`Test OK: ${x.provider} / ${x.model}`)
     } catch (e) {
       setTested(false)
-      const msg =
+      const raw =
         e instanceof DOMException && e.name === 'AbortError'
-          ? 'Provider timeout (35s)'
+          ? t('providerTimeout')
           : e instanceof Error
             ? e.message
-            : 'Test failed'
-      showError(msg)
+            : t('testFailed')
+      showError(sanitizeApiError(raw))
     } finally {
       setTesting(false)
     }

@@ -16,6 +16,31 @@ import UpgradeModal from '@/components/UpgradeModal'
 
 export default function Providers() {
   const t = useTranslations('providers')
+
+  function validateApiKey(provider: string, key: string): string | null {
+    if (provider === 'lm_studio' || provider === 'ollama') return null
+    const trimmed = key.trim()
+    if (trimmed.length < 10) {
+      return t('apiKeyTooShort')
+    }
+    const prefixes: Record<string, string> = {
+      openai: 'sk-',
+      anthropic: 'sk-ant-',
+      nvidia_nim: 'nvapi-',
+    }
+    const expected = prefixes[provider]
+    if (expected && !trimmed.startsWith(expected)) {
+      return t('invalidKeyFormat', { provider, prefix: expected })
+    }
+    return null
+  }
+
+  function sanitizeApiError(msg: string): string {
+    if (/401|incorrect|invalid.*key/i.test(msg)) {
+      return t('connectionFailed')
+    }
+    return msg
+  }
   const router = useRouter()
   const premium = isPremium()
 
@@ -47,11 +72,16 @@ export default function Providers() {
     e.preventDefault()
     setSaveError('')
     if (!form.model.trim()) {
-      showError('Choose or enter a model before saving')
+      showError(t('chooseModelRequired'))
       return
     }
     if ((provider === 'lm_studio' || provider === 'ollama') && !form.api_base.trim()) {
-      showError('API base is required for this provider')
+      showError(t('apiBaseRequiredForProvider'))
+      return
+    }
+    const keyError = validateApiKey(provider, form.api_key)
+    if (keyError) {
+      showError(keyError)
       return
     }
     const payload = Object.fromEntries(
@@ -63,8 +93,8 @@ export default function Providers() {
         body: JSON.stringify(payload),
       })
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Test failed'
-      showError(msg)
+      const msg = e instanceof Error ? e.message : t('testFailed')
+      showError(sanitizeApiError(msg))
       return
     }
     try {
@@ -73,7 +103,8 @@ export default function Providers() {
         body: JSON.stringify(payload),
       })
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Failed to save provider'
+      const raw = e instanceof Error ? e.message : t('failedToSave')
+      const msg = sanitizeApiError(raw)
       showError(msg)
       setSaveError(msg)
       return

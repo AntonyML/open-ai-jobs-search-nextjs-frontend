@@ -205,7 +205,18 @@
     "nvidiaLocked": "NVIDIA NIM solo disponible en Premium",
     "upgrade": "Mejorar",
     "maxProvidersReached": "Máx. 1 proveedor en Free. Mejora para más.",
-    "freeLimitation": "Plan Free: máximo 1 proveedor, sin NVIDIA NIM"
+    "freeLimitation": "Plan Free: máximo 1 proveedor, sin NVIDIA NIM",
+    "apiKeyTooShort": "La API key es demasiado corta. Ingresa una API key válida.",
+    "invalidKeyFormat": "Formato de API key inválido para {provider}. Se esperaba el prefijo: \"{prefix}\"",
+    "connectionFailed": "Conexión fallida. Verifica tu API key e intenta de nuevo.",
+    "apiKeyRequired": "Se requiere una API key antes de cargar modelos",
+    "apiBaseRequired": "Se requiere una API base antes de cargar modelos",
+    "couldNotLoadModels": "No se pudieron cargar los modelos",
+    "providerTimeout": "Tiempo de espera agotado (35s)",
+    "testFailed": "Prueba fallida",
+    "chooseModelRequired": "Elige o ingresa un modelo antes de guardar",
+    "apiBaseRequiredForProvider": "Se requiere una API base para este proveedor",
+    "failedToSave": "Error al guardar el proveedor"
   },
   "dashboard": {
     "title": "Panel",

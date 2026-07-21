@@ -206,7 +206,18 @@
     "nvidiaLocked": "NVIDIA NIM is only available on Premium",
     "upgrade": "Upgrade",
     "maxProvidersReached": "Max 1 provider on Free. Upgrade for more.",
-    "freeLimitation": "Free plan: max 1 provider, no NVIDIA NIM"
+    "freeLimitation": "Free plan: max 1 provider, no NVIDIA NIM",
+    "apiKeyTooShort": "API key is too short. Please enter a valid API key.",
+    "invalidKeyFormat": "Invalid API key format for {provider}. Expected prefix: \"{prefix}\"",
+    "connectionFailed": "Connection failed. Please verify your API key and try again.",
+    "apiKeyRequired": "API key is required before loading models",
+    "apiBaseRequired": "API base is required before loading models",
+    "couldNotLoadModels": "Could not load models",
+    "providerTimeout": "Provider timeout (35s)",
+    "testFailed": "Test failed",
+    "chooseModelRequired": "Choose or enter a model before saving",
+    "apiBaseRequiredForProvider": "API base is required for this provider",
+    "failedToSave": "Failed to save provider"
   },
   "dashboard": {
     "title": "Dashboard",
