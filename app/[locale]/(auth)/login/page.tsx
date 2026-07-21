@@ -82,6 +82,7 @@ export default function Login() {
               <label className="block text-[12px] font-medium text-[#474747] mb-1.5">{t('email')}</label>
               <input
                 required
+                autoComplete="username"
                 type="email"
                 placeholder="you@example.com"
                 value={email}

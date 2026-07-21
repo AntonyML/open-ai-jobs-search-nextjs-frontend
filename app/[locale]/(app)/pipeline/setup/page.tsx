@@ -3,44 +3,28 @@
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
-import { useRouter } from 'next/navigation'
 import { showSuccess, showError } from '@/lib/toasts'
 import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleButton } from '@/components/ui/apple-button'
 import { StatusPanel } from '@/components/setup/StatusPanel'
-import {
-  CollapsibleCard,
-  CollapsibleCardListWrapper,
-} from '@/components/setup/CollapsibleCard'
 import { BehavioralProfileSection } from '@/components/setup/BehavioralProfileSection'
 import { StarExamplesSection } from '@/components/setup/StarExamplesSection'
 
-// ── Types ──────────────────────────────────────────────────────────
-
-interface ProjectEntry {
-  _id: string
-  name: string
-  description: string
-}
-
-interface EducationEntry {
-  _id: string
-  degree: string
-  institution: string
-  period: string
-  key_topics: string
-}
-
-interface ExperienceEntry {
-  _id: string
-  title: string
-  company: string
-  start_date: string
-  end_date: string
-  location: string
-  bullets: string[]
-}
+import { BasicInfoSection } from '@/app/[locale]/(app)/setup/components/BasicInfoSection'
+import {
+  ExperienceSection,
+  type ExperienceEntry,
+} from '@/app/[locale]/(app)/setup/components/ExperienceSection'
+import {
+  EducationSection,
+  type EducationEntry,
+} from '@/app/[locale]/(app)/setup/components/EducationSection'
+import {
+  ProjectsSection,
+  type ProjectEntry,
+} from '@/app/[locale]/(app)/setup/components/ProjectsSection'
+import { SkillsSection } from '@/app/[locale]/(app)/setup/components/SkillsSection'
 
 interface BehavioralProfile {
   id?: string
@@ -67,25 +51,18 @@ interface StarExample {
   created_at: string
 }
 
-// ── Helpers ─────────────────────────────────────────────────────────
+interface FormState {
+  full_name: string
+  email: string
+  phone: string
+  location: string
+  skills_raw: string
+  profile_statement: string
+}
 
 function generateId() {
   return Math.random().toString(36).substring(2, 9)
 }
-
-const emptyProject = (): ProjectEntry => ({
-  _id: generateId(),
-  name: '',
-  description: '',
-})
-
-const emptyEducation = (): EducationEntry => ({
-  _id: generateId(),
-  degree: '',
-  institution: '',
-  period: '',
-  key_topics: '',
-})
 
 const emptyExperience = (): ExperienceEntry => ({
   _id: generateId(),
@@ -97,38 +74,29 @@ const emptyExperience = (): ExperienceEntry => ({
   bullets: [],
 })
 
-// ── Section icons (reusable) ──────────────────────────────────────
+const emptyEducation = (): EducationEntry => ({
+  _id: generateId(),
+  degree: '',
+  institution: '',
+  period: '',
+  key_topics: '',
+})
 
-const SectionIcon = ({
-  bg,
-  children,
-}: {
-  bg: string
-  children: React.ReactNode
-}) => (
-  <div
-    className={`flex h-8 w-8 items-center justify-center rounded-full ${bg}`}
-  >
-    {children}
-  </div>
-)
-
-// ═══════════════════════════════════════════════════════════════════
-// PAGE
-// ═══════════════════════════════════════════════════════════════════
+const emptyProject = (): ProjectEntry => ({
+  _id: generateId(),
+  name: '',
+  description: '',
+})
 
 export default function Setup() {
   const t = useTranslations('setup')
-  const tc = useTranslations('common')
-  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
   const [exists, setExists] = useState(false)
 
-  // ── Profile form ─────────────────────────────────────────
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     full_name: '',
     email: '',
     phone: '',
@@ -137,16 +105,13 @@ export default function Setup() {
     profile_statement: '',
   })
 
-  // ── Dynamic arrays ─────────────────────────────────────
   const [projects, setProjects] = useState<ProjectEntry[]>([emptyProject()])
   const [educations, setEducations] = useState<EducationEntry[]>([emptyEducation()])
   const [experiences, setExperiences] = useState<ExperienceEntry[]>([emptyExperience()])
 
-  // ── Behavioral profile & STAR data (from API) ──────────
   const [bpData, setBpData] = useState<BehavioralProfile>({})
   const [starData, setStarData] = useState<StarExample[]>([])
 
-  // ── Collapse state ────────────────────────────────────
   const [openExpCards, setOpenExpCards] = useState<Set<string>>(new Set())
   const [openEduCards, setOpenEduCards] = useState<Set<string>>(new Set())
   const [openProjectCards, setOpenProjectCards] = useState<Set<string>>(new Set())
@@ -160,7 +125,6 @@ export default function Setup() {
     })
   }
 
-  // ── Update helpers ───────────────────────────────────
   function f(name: string, value: string) {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
@@ -193,7 +157,6 @@ export default function Setup() {
     )
   }
 
-  // ── Load data ─────────────────────────────────────────
   useEffect(() => {
     setLoading(true)
     Promise.all([
@@ -260,19 +223,19 @@ export default function Setup() {
       .finally(() => setLoading(false))
   }, [])
 
-  // ── Build payload ─────────────────────────────────────
   function buildPayload() {
     const skillsList = form.skills_raw
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean)
+
     const experiencePayload = experiences
       .filter((e) => e.title.trim())
       .map((e) => ({
         title: e.title.trim(),
         company: e.company.trim(),
-        start_date: e.start_date.trim() || undefined,
-        end_date: e.end_date.trim() || undefined,
+        start_date: e.start_date || undefined,
+        end_date: e.end_date || undefined,
         location: e.location.trim() || undefined,
         bullets: e.bullets,
       }))
@@ -297,7 +260,7 @@ export default function Setup() {
       .map((e) => ({
         degree: e.degree.trim(),
         institution: e.institution.trim(),
-        period: e.period.trim() || undefined,
+        period: e.period || undefined,
         key_topics: e.key_topics.trim() || undefined,
       }))
     if (educationPayload.length) payload.education = educationPayload
@@ -311,7 +274,6 @@ export default function Setup() {
     return payload
   }
 
-  // ── Submit ───────────────────────────────────────────
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
@@ -340,7 +302,6 @@ export default function Setup() {
     }
   }
 
-  // ── Loading state ───────────────────────────────────
   if (loading) {
     return (
       <section className="mx-auto max-w-5xl">
@@ -359,261 +320,49 @@ export default function Setup() {
       <PipelineHeader eyebrow="02 / PROFILE" title={t('title')} subtitle={t('subtitle')} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        {/* ═══ LEFT: Profile form ═══ */}
         <form onSubmit={submit} className="space-y-6">
-          {/* ── Basic Info ───────────────────────────── */}
-          <div className="card space-y-5">
-            <div className="flex items-center gap-2.5">
-              <SectionIcon bg="bg-[#0071e3]/10 text-[#0071e3]">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              </SectionIcon>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">Basic Info</p>
-                <p className="text-[11px] text-[#b0b0b0]">Your name and contact details</p>
-              </div>
-            </div>
+          <BasicInfoSection form={form} onChange={f} />
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="block text-sm text-[#1d1d1f]">
-                {t('fullName')} <span className="text-rose-400">*</span>
-                <input required className="field mt-1.5" placeholder="Jane Doe" value={form.full_name} onChange={(e) => f('full_name', e.target.value)} />
-              </label>
-              <label className="block text-sm text-[#1d1d1f]">
-                Email <span className="text-rose-400">*</span>
-                <input required type="email" className="field mt-1.5" placeholder="jane@example.com" value={form.email} onChange={(e) => f('email', e.target.value)} />
-              </label>
-              <label className="block text-sm text-[#1d1d1f]">
-                Phone <span className="text-[#b0b0b0]">optional</span>
-                <input className="field mt-1.5" placeholder="+45 12 34 56 78" value={form.phone} onChange={(e) => f('phone', e.target.value)} />
-              </label>
-              <label className="block text-sm text-[#1d1d1f]">
-                {t('location')} <span className="text-[#b0b0b0]">{tc('optional')}</span>
-                <input className="field mt-1.5" placeholder="Copenhagen, Denmark" value={form.location} onChange={(e) => f('location', e.target.value)} />
-              </label>
-            </div>
-          </div>
-
-          {/* ── Work Experience ──────────────────────── */}
-          <CollapsibleCardListWrapper
-            title={t('experience')}
-            countLabel={`${experiences.filter((e) => e.title.trim()).length} position(s) added`}
-            icon={
-              <SectionIcon bg="bg-emerald-100 text-emerald-600">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                </svg>
-              </SectionIcon>
-            }
-            count={experiences.filter((e) => e.title.trim()).length}
-            emptyMessage="No experience added yet."
-            addLabel={t('addExperience')}
+          <ExperienceSection
+            experiences={experiences}
+            openCards={openExpCards}
+            onToggle={(id) => toggleCards(setOpenExpCards, id)}
+            onUpdate={updateExp}
+            onUpdateBullets={updateBullets}
             onAdd={() => setExperiences((prev) => [...prev, emptyExperience()])}
-            isEmpty={experiences.length === 0}
-          >
-            {experiences.map((exp, idx) => (
-              <CollapsibleCard
-                key={exp._id}
-                id={exp._id}
-                index={idx}
-                title={exp.title || `Position ${idx + 1}`}
-                isFilled={!!exp.title.trim()}
-                isOpen={openExpCards.has(exp._id)}
-                onToggle={(id) => toggleCards(setOpenExpCards, id)}
-                onRemove={(id) =>
-                  setExperiences((prev) => prev.filter((e) => e._id !== id))
-                }
-                badgeColor="bg-emerald-100"
-                badgeTextColor="text-emerald-700"
-                placeholder="position"
-              >
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="block text-sm text-[#1d1d1f]">
-                    Job title
-                    <input className="field mt-1.5" placeholder="Senior Software Engineer" value={exp.title} onChange={(e) => updateExp(exp._id, 'title', e.target.value)} />
-                  </label>
-                  <label className="block text-sm text-[#1d1d1f]">
-                    Company
-                    <input className="field mt-1.5" placeholder="Acme Corp" value={exp.company} onChange={(e) => updateExp(exp._id, 'company', e.target.value)} />
-                  </label>
-                  <label className="block text-sm text-[#1d1d1f]">
-                    Start date <span className="text-[#b0b0b0]">YYYY-MM</span>
-                    <input className="field mt-1.5" placeholder="2022-03" value={exp.start_date} onChange={(e) => updateExp(exp._id, 'start_date', e.target.value)} />
-                  </label>
-                  <label className="block text-sm text-[#1d1d1f]">
-                    End date <span className="text-[#b0b0b0]">or present</span>
-                    <input className="field mt-1.5" placeholder="2024-01" value={exp.end_date} onChange={(e) => updateExp(exp._id, 'end_date', e.target.value)} />
-                  </label>
-                  <label className="block text-sm text-[#1d1d1f] sm:col-span-2">
-                    Location <span className="text-[#b0b0b0]">optional</span>
-                    <input className="field mt-1.5" placeholder="San Francisco, CA" value={exp.location} onChange={(e) => updateExp(exp._id, 'location', e.target.value)} />
-                  </label>
-                </div>
-                <label className="block text-sm text-[#1d1d1f]">
-                  Achievements <span className="text-[#b0b0b0]">one per line</span>
-                  <textarea className="field mt-1.5 h-20 resize-none" placeholder="Built X that reduced Y by Z%&#10;Led team of N to deliver Q&#10;Implemented feature resulting in W" value={exp.bullets.join('\n')} onChange={(e) => updateBullets(exp._id, e.target.value)} />
-                </label>
-              </CollapsibleCard>
-            ))}
-          </CollapsibleCardListWrapper>
-
-          {/* ── Education ───────────────────────────── */}
-          <CollapsibleCardListWrapper
-            title={t('education')}
-            countLabel={`${educations.filter((e) => e.degree.trim()).length} degree(s) added`}
-            icon={
-              <SectionIcon bg="bg-violet-100 text-violet-600">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-                  <path d="M6 12v5c3 3 9 3 12 0v-5" />
-                </svg>
-              </SectionIcon>
+            onRemove={(id) =>
+              setExperiences((prev) => prev.filter((e) => e._id !== id))
             }
-            count={educations.filter((e) => e.degree.trim()).length}
-            emptyMessage="No education added yet."
-            addLabel={t('addEducation')}
+          />
+
+          <EducationSection
+            educations={educations}
+            openCards={openEduCards}
+            onToggle={(id) => toggleCards(setOpenEduCards, id)}
+            onUpdate={updateEdu}
             onAdd={() => setEducations((prev) => [...prev, emptyEducation()])}
-            isEmpty={educations.length === 0}
-          >
-            {educations.map((edu, idx) => (
-              <CollapsibleCard
-                key={edu._id}
-                id={edu._id}
-                index={idx}
-                title={edu.degree || `Degree ${idx + 1}`}
-                isFilled={!!edu.degree.trim()}
-                isOpen={openEduCards.has(edu._id)}
-                onToggle={(id) => toggleCards(setOpenEduCards, id)}
-                onRemove={(id) =>
-                  setEducations((prev) => prev.filter((e) => e._id !== id))
-                }
-                badgeColor="bg-violet-100"
-                badgeTextColor="text-violet-700"
-                placeholder="degree"
-              >
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="block text-sm text-[#1d1d1f]">
-                    Degree
-                    <input className="field mt-1.5" placeholder="B.Sc. Computer Science" value={edu.degree} onChange={(e) => updateEdu(edu._id, 'degree', e.target.value)} />
-                  </label>
-                  <label className="block text-sm text-[#1d1d1f]">
-                    Institution
-                    <input className="field mt-1.5" placeholder="MIT" value={edu.institution} onChange={(e) => updateEdu(edu._id, 'institution', e.target.value)} />
-                  </label>
-                  <label className="block text-sm text-[#1d1d1f]">
-                    Period <span className="text-[#b0b0b0]">optional</span>
-                    <input className="field mt-1.5" placeholder="2020–2024" value={edu.period} onChange={(e) => updateEdu(edu._id, 'period', e.target.value)} />
-                  </label>
-                </div>
-                <label className="block text-sm text-[#1d1d1f]">
-                  Key topics <span className="text-[#b0b0b0]">optional — relevant coursework</span>
-                  <textarea className="field mt-1.5 h-16 resize-none" placeholder="Machine Learning, Distributed Systems, Algorithm Design" value={edu.key_topics} onChange={(e) => updateEdu(edu._id, 'key_topics', e.target.value)} />
-                </label>
-              </CollapsibleCard>
-            ))}
-          </CollapsibleCardListWrapper>
-
-          {/* ── Projects ───────────────────────────── */}
-          <CollapsibleCardListWrapper
-            title={t('projects')}
-            countLabel={`${projects.filter((p) => p.name.trim()).length} project(s) added`}
-            icon={
-              <SectionIcon bg="bg-sky-100 text-sky-600">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="16 18 22 12 16 6" />
-                  <polyline points="8 6 2 12 8 18" />
-                </svg>
-              </SectionIcon>
+            onRemove={(id) =>
+              setEducations((prev) => prev.filter((e) => e._id !== id))
             }
-            count={projects.filter((p) => p.name.trim()).length}
-            emptyMessage="No projects added yet."
-            addLabel={t('addProject')}
+          />
+
+          <ProjectsSection
+            projects={projects}
+            openCards={openProjectCards}
+            onToggle={(id) => toggleCards(setOpenProjectCards, id)}
+            onUpdate={updateProject}
             onAdd={() => setProjects((prev) => [...prev, emptyProject()])}
-            isEmpty={projects.length === 0}
-          >
-            {projects.map((proj, idx) => (
-              <CollapsibleCard
-                key={proj._id}
-                id={proj._id}
-                index={idx}
-                title={proj.name || `Project ${idx + 1}`}
-                isFilled={!!proj.name.trim()}
-                isOpen={openProjectCards.has(proj._id)}
-                onToggle={(id) => toggleCards(setOpenProjectCards, id)}
-                onRemove={(id) =>
-                  setProjects((prev) => prev.filter((p) => p._id !== id))
-                }
-                badgeColor="bg-sky-100"
-                badgeTextColor="text-sky-700"
-                placeholder="project"
-              >
-                <label className="block text-sm text-[#1d1d1f]">
-                  Project name
-                  <input className="field mt-1.5" placeholder="ML Pipeline Optimization" value={proj.name} onChange={(e) => updateProject(proj._id, 'name', e.target.value)} />
-                </label>
-                <label className="block text-sm text-[#1d1d1f]">
-                  Description <span className="text-[#b0b0b0]">optional</span>
-                  <textarea className="field mt-1.5 h-20 resize-none" placeholder="Built an end-to-end ML pipeline that reduced inference time by 40% and improved model accuracy by 15%." value={proj.description} onChange={(e) => updateProject(proj._id, 'description', e.target.value)} />
-                </label>
-              </CollapsibleCard>
-            ))}
-          </CollapsibleCardListWrapper>
+            onRemove={(id) =>
+              setProjects((prev) => prev.filter((p) => p._id !== id))
+            }
+          />
 
-          {/* ── Skills & Summary ───────────────────── */}
-          <div className="card space-y-5">
-            <div className="flex items-center gap-2.5">
-              <SectionIcon bg="bg-amber-100 text-amber-600">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-              </SectionIcon>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">{t('skills')} &amp; {t('profileStatement')}</p>
-                <p className="text-[11px] text-[#b0b0b0]">Technical skills and professional summary</p>
-              </div>
-            </div>
-            <label className="block text-sm text-[#1d1d1f]">
-              {t('skills')} <span className="text-[#b0b0b0]">comma separated</span>
-              <input className="field mt-1.5" placeholder="Python, FastAPI, React, PostgreSQL, Docker…" value={form.skills_raw} onChange={(e) => f('skills_raw', e.target.value)} />
-            </label>
-            {form.skills_raw && (
-              <div className="flex flex-wrap gap-1.5">
-                {form.skills_raw
-                  .split(',')
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-                  .map((skill, i) => (
-                    <span
-                      key={i}
-                      className="animate-fade-in-up rounded-full border border-[#e2e2e5] bg-[#f5f5f7] px-2.5 py-0.5 text-[11px] text-[#474747]"
-                      style={{ animationDelay: `${i * 20}ms` }}
-                    >
-                      {skill}
-                    </span>
-                  ))}
-              </div>
-            )}
-            <label className="block text-sm text-[#1d1d1f]">
-              {t('profileStatement')} <span className="text-[#b0b0b0]">{tc('optional')} — 2-3 sentences</span>
-              <textarea className="field mt-1.5 h-24 resize-none" placeholder="ML engineer with 5+ years building production systems at scale. Passionate about turning complex problems into elegant solutions." value={form.profile_statement} onChange={(e) => f('profile_statement', e.target.value)} />
-            </label>
-            <div className="flex items-center gap-2 text-[11px] text-[#b0b0b0]">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="16" x2="12" y2="12" />
-                <line x1="12" y1="8" x2="12.01" y2="8" />
-              </svg>
-              This summary appears at the top of your CV and cover letters.
-            </div>
-          </div>
+          <SkillsSection form={form} onFieldChange={f} />
 
-          {/* ── Save button + error ───────────────── */}
           <AppleButton disabled={saving} loading={saving} className="w-full">
-            {saving ? t('saving') : exists ? tc('edit') : t('saveProfile')}
+            {saving ? t('saving') : exists ? 'Update' : t('saveProfile')}
           </AppleButton>
+
           {error && (
             <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -626,7 +375,6 @@ export default function Setup() {
           )}
         </form>
 
-        {/* ═══ RIGHT: Status + BP + STAR ═══ */}
         <div className="space-y-6">
           <StatusPanel saved={saved} exists={exists} />
           <BehavioralProfileSection initial={bpData} />
