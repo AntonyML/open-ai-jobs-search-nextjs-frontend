@@ -40,7 +40,7 @@ export function BasicInfoSection({ form, onChange }: Props) {
             required
             autoComplete="name"
             className="field mt-1.5"
-            placeholder="Jane Doe"
+            placeholder={t('basicNamePlaceholder')}
             value={form.full_name}
             onChange={(e) => onChange('full_name', e.target.value)}
           />
@@ -52,7 +52,7 @@ export function BasicInfoSection({ form, onChange }: Props) {
             type="email"
             autoComplete="email"
             className="field mt-1.5"
-            placeholder="jane@example.com"
+            placeholder={t('basicEmailPlaceholder')}
             value={form.email}
             onChange={(e) => onChange('email', e.target.value)}
           />
@@ -62,7 +62,7 @@ export function BasicInfoSection({ form, onChange }: Props) {
           <input
             className="field mt-1.5"
             autoComplete="tel"
-            placeholder="+45 12 34 56 78"
+            placeholder={t('basicPhonePlaceholder')}
             value={form.phone}
             onChange={(e) => onChange('phone', e.target.value)}
           />
@@ -73,7 +73,7 @@ export function BasicInfoSection({ form, onChange }: Props) {
             required
             autoComplete="address-level2"
             className="field mt-1.5"
-            placeholder="Copenhagen, Denmark"
+            placeholder={t('basicLocationPlaceholder')}
             value={form.location}
             onChange={(e) => onChange('location', e.target.value)}
           />

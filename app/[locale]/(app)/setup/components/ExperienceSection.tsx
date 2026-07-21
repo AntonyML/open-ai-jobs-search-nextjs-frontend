@@ -74,7 +74,7 @@ export function ExperienceSection({
               <input
                 required
                 className="field mt-1.5"
-                placeholder="Senior Software Engineer"
+                placeholder={t('expTitlePlaceholder')}
                 value={exp.title}
                 onChange={(e) => onUpdate(exp._id, 'title', e.target.value)}
               />
@@ -84,7 +84,7 @@ export function ExperienceSection({
               <input
                 required
                 className="field mt-1.5"
-                placeholder="Acme Corp"
+                placeholder={t('expCompanyPlaceholder')}
                 value={exp.company}
                 onChange={(e) => onUpdate(exp._id, 'company', e.target.value)}
               />
@@ -112,7 +112,7 @@ export function ExperienceSection({
               <input
                 required
                 className="field mt-1.5"
-                placeholder="San Francisco, CA"
+                placeholder={t('expLocationPlaceholder')}
                 value={exp.location}
                 onChange={(e) => onUpdate(exp._id, 'location', e.target.value)}
               />
@@ -122,7 +122,7 @@ export function ExperienceSection({
             {t('achievements')} <span className="text-[#b0b0b0]">{t('onePerLine')}</span>
             <textarea
               className="field mt-1.5 h-20 resize-none"
-              placeholder="Built X that reduced Y by Z%&#10;Led team of N to deliver Q&#10;Implemented feature resulting in W"
+              placeholder={t('expBulletsPlaceholder')}
               value={exp.bullets.join('\n')}
               onChange={(e) => onUpdateBullets(exp._id, e.target.value)}
             />

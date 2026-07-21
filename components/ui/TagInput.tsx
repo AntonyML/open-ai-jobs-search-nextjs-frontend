@@ -23,7 +23,7 @@ const BTN_MAP = {
   amber: 'hover:bg-amber-100',
 }
 
-export function TagInput({ tags, onChange, placeholder = 'Type and press Enter', color = 'blue', max }: Props) {
+export function TagInput({ tags, onChange, placeholder = '', color = 'blue', max }: Props) {
   const [input, setInput] = useState('')
 
   function add(value: string) {

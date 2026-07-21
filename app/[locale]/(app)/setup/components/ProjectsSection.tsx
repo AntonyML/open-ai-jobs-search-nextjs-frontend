@@ -68,7 +68,7 @@ export function ProjectsSection({
             <input
               required
               className="field mt-1.5"
-              placeholder="ML Pipeline Optimization"
+              placeholder={t('projectNamePlaceholder')}
               value={proj.name}
               onChange={(e) => onUpdate(proj._id, 'name', e.target.value)}
             />
@@ -77,7 +77,7 @@ export function ProjectsSection({
             {t('description')} <span className="text-[#b0b0b0]">{tc('optional')}</span>
             <textarea
               className="field mt-1.5 h-20 resize-none"
-              placeholder="Built an end-to-end ML pipeline that reduced inference time by 40% and improved model accuracy by 15%."
+              placeholder={t('projectDescPlaceholder')}
               value={proj.description}
               onChange={(e) => onUpdate(proj._id, 'description', e.target.value)}
             />

@@ -71,7 +71,7 @@ export function EducationSection({
               <input
                 required
                 className="field mt-1.5"
-                placeholder="B.Sc. Computer Science"
+                placeholder={t('eduDegreePlaceholder')}
                 value={edu.degree}
                 onChange={(e) => onUpdate(edu._id, 'degree', e.target.value)}
               />
@@ -81,7 +81,7 @@ export function EducationSection({
               <input
                 required
                 className="field mt-1.5"
-                placeholder="MIT"
+                placeholder={t('eduInstitutionPlaceholder')}
                 value={edu.institution}
                 onChange={(e) => onUpdate(edu._id, 'institution', e.target.value)}
               />
@@ -91,7 +91,7 @@ export function EducationSection({
               <input
                 type="month"
                 className="field mt-1.5"
-                placeholder="2020-09"
+                placeholder={t('eduPeriodPlaceholder')}
                 value={edu.period}
                 onChange={(e) => onUpdate(edu._id, 'period', e.target.value)}
               />
@@ -101,7 +101,7 @@ export function EducationSection({
             {t('keyTopics')} <span className="text-[#b0b0b0]">{tc('optional')} — {t('relevantCoursework')}</span>
             <textarea
               className="field mt-1.5 h-16 resize-none"
-              placeholder="Machine Learning, Distributed Systems, Algorithm Design"
+              placeholder={t('eduTopicsPlaceholder')}
               value={edu.key_topics}
               onChange={(e) => onUpdate(edu._id, 'key_topics', e.target.value)}
             />

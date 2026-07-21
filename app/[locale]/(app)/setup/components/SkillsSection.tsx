@@ -46,7 +46,7 @@ export function SkillsSection({ form, onFieldChange }: Props) {
           <TagInput
             tags={tags}
             onChange={handleTagsChange}
-            placeholder="Type a skill and press Enter..."
+            placeholder={t('skillsPlaceholder')}
             color="amber"
           />
         </div>
@@ -57,7 +57,7 @@ export function SkillsSection({ form, onFieldChange }: Props) {
         {t('profileStatement')} <span className="text-[#b0b0b0]">{tc('optional')} — {t('twoThreeSentences')}</span>
         <textarea
           className="field mt-1.5 h-24 resize-none"
-          placeholder="ML engineer with 5+ years building production systems at scale. Passionate about turning complex problems into elegant solutions."
+          placeholder={t('profileStatementPlaceholder')}
           value={form.profile_statement}
           onChange={(e) => onFieldChange('profile_statement', e.target.value)}
         />

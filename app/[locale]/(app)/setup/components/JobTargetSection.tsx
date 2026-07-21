@@ -249,7 +249,7 @@ export function JobTargetSection({ value, onChange }: Props) {
             <TagInput
               tags={value.keywords}
               onChange={(tags) => update('keywords', tags)}
-              placeholder="Type a keyword and press Enter..."
+              placeholder={t('keywordsPlaceholder')}
               color="blue"
             />
           </div>
@@ -263,7 +263,7 @@ export function JobTargetSection({ value, onChange }: Props) {
             <TagInput
               tags={value.exclude_keywords}
               onChange={(tags) => update('exclude_keywords', tags)}
-              placeholder="Type a keyword and press Enter..."
+              placeholder={t('excludeKeywordsPlaceholder')}
               color="rose"
             />
           </div>
@@ -277,7 +277,7 @@ export function JobTargetSection({ value, onChange }: Props) {
             <TagInput
               tags={value.exclude_companies}
               onChange={(tags) => update('exclude_companies', tags)}
-              placeholder="Type a company and press Enter..."
+              placeholder={t('excludeCompaniesPlaceholder')}
               color="rose"
             />
           </div>
