@@ -215,6 +215,7 @@
     "providerTimeout": "Tiempo de espera agotado (35s)",
     "testFailed": "Prueba fallida",
     "chooseModelRequired": "Elige o ingresa un modelo antes de guardar",
+    "noActiveProvider": "No hay proveedor activo configurado. Configura uno abajo para usar funciones de IA.",
     "apiBaseRequiredForProvider": "Se requiere una API base para este proveedor",
     "failedToSave": "Error al guardar el proveedor"
   },

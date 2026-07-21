@@ -216,6 +216,7 @@
     "providerTimeout": "Provider timeout (35s)",
     "testFailed": "Test failed",
     "chooseModelRequired": "Choose or enter a model before saving",
+    "noActiveProvider": "No active provider configured. Set up one below to use AI features.",
     "apiBaseRequiredForProvider": "API base is required for this provider",
     "failedToSave": "Failed to save provider"
   },

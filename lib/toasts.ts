@@ -14,3 +14,11 @@ export function showError(message: string) {
     style: { borderLeft: '3px solid #e63e3e' },
   })
 }
+
+export function showWarning(message: string) {
+  toast(message, {
+    duration: 6000,
+    icon: '⚠️',
+    style: { borderLeft: '3px solid #d4a72c', background: '#fef9e7' },
+  })
+}

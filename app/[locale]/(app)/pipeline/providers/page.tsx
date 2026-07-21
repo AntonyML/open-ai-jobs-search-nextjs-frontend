@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
-import { showSuccess, showError } from '@/lib/toasts'
+import { showSuccess, showError, showWarning } from '@/lib/toasts'
 import { setCompletedSteps, isPremium } from '@/lib/auth'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleButton } from '@/components/ui/apple-button'
@@ -63,7 +63,12 @@ export default function Providers() {
       .then((x) => setCatalog(Array.isArray(x) ? x : x.providers || []))
       .catch(() => {})
     apiFetch<any>('/api/v1/providers/me/active')
-      .then(setActive)
+      .then((x) => {
+        setActive(x)
+        if (!x?.provider) {
+          showWarning(t('noActiveProvider'))
+        }
+      })
       .catch(() => {})
     loadMyProviders()
   }, [])
