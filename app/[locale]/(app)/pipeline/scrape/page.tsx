@@ -110,6 +110,7 @@ export default function Scrape() {
   const [showUpgrade, setShowUpgrade] = useState(false)
 
   const [focus_area, setFocusArea] = useState('')
+  const [prefilledFromTarget, setPrefilledFromTarget] = useState(false)
   const [broad, setBroad] = useState(false)
   const [selectedPortals, setSelectedPortals] = useState<string[]>([])
   const prevStepDone = getCompletedSteps().includes(1)
@@ -124,6 +125,21 @@ export default function Scrape() {
     apiFetch<any[]>('/api/v1/scrape/jobs').then(x => setJobs(Array.isArray(x) ? x : [])).catch(() => {})
   }
   useEffect(() => { loadJobs() }, [])
+
+  useEffect(() => {
+    apiFetch<any>('/api/v1/setup/profile').then(profile => {
+      if (profile?.job_target) {
+        const jt = profile.job_target
+        const parts: string[] = []
+        if (jt.target_titles?.length) parts.push(jt.target_titles[0])
+        if (jt.keywords?.length) parts.push(jt.keywords.join(' '))
+        if (parts.length) {
+          setFocusArea(parts.join(' — '))
+          setPrefilledFromTarget(true)
+        }
+      }
+    }).catch(() => {})
+  }, [])
 
   function togglePortal(p: string) {
     setSelectedPortals(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p])
@@ -189,8 +205,13 @@ export default function Scrape() {
 
           {/* Focus area */}
           <label className="block text-sm text-[#1d1d1f]">
-            Focus area <span className="text-[#b0b0b0] font-normal">{tc('optional')}</span>
-            <input className="field mt-1.5" placeholder={t('focusAreaPlaceholder')} value={focus_area} onChange={e => setFocusArea(e.target.value)} />
+            <span className="flex items-center gap-2">
+              Focus area <span className="text-[#b0b0b0] font-normal">{tc('optional')}</span>
+              {prefilledFromTarget && (
+                <span className="text-[10px] bg-[#0071e3]/10 text-[#0071e3] px-2 py-0.5 rounded-full font-medium">from job target</span>
+              )}
+            </span>
+            <input className="field mt-1.5" placeholder={t('focusAreaPlaceholder')} value={focus_area} onChange={e => { setPrefilledFromTarget(false); setFocusArea(e.target.value); }} />
           </label>
 
           <OptionPills
