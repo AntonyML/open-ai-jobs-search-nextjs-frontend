@@ -1,15 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleButton } from '@/components/ui/apple-button'
-import { StatusPanel } from '@/components/setup/StatusPanel'
-import { BehavioralProfileSection } from '@/components/setup/BehavioralProfileSection'
-import { StarExamplesSection } from '@/components/setup/StarExamplesSection'
 
 import { BasicInfoSection } from '@/app/[locale]/(app)/setup/components/BasicInfoSection'
 import {
@@ -30,31 +27,6 @@ import {
   DEFAULT_JOB_TARGET,
   type JobTarget,
 } from '@/app/[locale]/(app)/setup/components/JobTargetSection'
-
-interface BehavioralProfile {
-  id?: string
-  profile_type?: string
-  summary?: string
-  drives?: { drive: string; level?: string; meaning?: string }[]
-  behaviors?: { behavior: string; description?: string }[]
-  work_preferences?: string[]
-  growth_areas?: { area: string; positive_frame?: string }[]
-  strong_fit_keywords?: string[]
-  friction_keywords?: string[]
-  management_preferences?: { works_with: string[]; doesnt_work: string[] }
-}
-
-interface StarExample {
-  id: string
-  title: string
-  skill_demonstrated?: string
-  situation: string
-  task: string
-  action: string
-  result: string
-  use_for?: string[]
-  created_at: string
-}
 
 interface FormState {
   full_name: string
@@ -95,11 +67,9 @@ const emptyProject = (): ProjectEntry => ({
 
 export default function Setup() {
   const t = useTranslations('setup')
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
-  const [exists, setExists] = useState(false)
 
   const [form, setForm] = useState<FormState>({
     full_name: '',
@@ -113,9 +83,6 @@ export default function Setup() {
   const [projects, setProjects] = useState<ProjectEntry[]>([emptyProject()])
   const [educations, setEducations] = useState<EducationEntry[]>([emptyEducation()])
   const [experiences, setExperiences] = useState<ExperienceEntry[]>([emptyExperience()])
-
-  const [bpData, setBpData] = useState<BehavioralProfile>({})
-  const [starData, setStarData] = useState<StarExample[]>([])
   const [jobTarget, setJobTarget] = useState<JobTarget>(DEFAULT_JOB_TARGET)
 
   const [openExpCards, setOpenExpCards] = useState<Set<string>>(new Set())
@@ -162,73 +129,6 @@ export default function Setup() {
       prev.map((p) => (p._id === id ? { ...p, [key]: value } : p))
     )
   }
-
-  useEffect(() => {
-    setLoading(true)
-    Promise.all([
-      apiFetch<any>('/api/v1/setup/profile').catch(() => null),
-      apiFetch<BehavioralProfile>('/api/v1/setup/behavioral-profile').catch(() => null),
-      apiFetch<StarExample[]>('/api/v1/setup/star-examples').catch(() => []),
-    ])
-      .then(([profile, bp, stars]) => {
-        if (profile) {
-          setExists(true)
-          const mlSkills: any[] = profile.skills?.programming_ml ?? []
-          const tools: string[] = profile.skills?.software_tools ?? []
-          const allSkills = [
-            ...mlSkills.map((s: any) => s.language ?? s).filter(Boolean),
-            ...tools,
-          ].join(', ')
-
-          setForm({
-            full_name: profile.full_name ?? '',
-            email: profile.email ?? '',
-            phone: profile.phone ?? '',
-            location: profile.location ?? '',
-            skills_raw: allSkills,
-            profile_statement: profile.profile_statement ?? '',
-          })
-
-          if (profile.projects?.length) {
-            setProjects(
-              profile.projects.map((p: any) => ({
-                _id: generateId(),
-                name: p.name ?? '',
-                description: p.description ?? '',
-              }))
-            )
-          }
-          if (profile.education?.length) {
-            setEducations(
-              profile.education.map((e: any) => ({
-                _id: generateId(),
-                degree: e.degree ?? '',
-                institution: e.institution ?? '',
-                period: e.period ?? '',
-                key_topics: e.key_topics ?? '',
-              }))
-            )
-          }
-          if (profile.experience?.length) {
-            setExperiences(
-              profile.experience.map((exp: any) => ({
-                _id: generateId(),
-                title: exp.title ?? '',
-                company: exp.company ?? '',
-                start_date: exp.start_date ?? '',
-                end_date: exp.end_date ?? '',
-                location: exp.location ?? '',
-                bullets: exp.bullets ?? [],
-              }))
-            )
-          }
-          if (profile.job_target) setJobTarget(profile.job_target)
-        }
-        if (bp) setBpData(bp)
-        if (Array.isArray(stars)) setStarData(stars)
-      })
-      .finally(() => setLoading(false))
-  }, [])
 
   function buildPayload() {
     const skillsList = form.skills_raw
@@ -288,12 +188,11 @@ export default function Setup() {
     setSaving(true)
     setError('')
     try {
-      const method = exists ? 'PATCH' : 'POST'
-      await apiFetch<any>('/api/v1/setup/profile', {
-        method,
-        body: JSON.stringify(buildPayload()),
+      const payload = buildPayload()
+      let res = await apiFetch<any>('/api/v1/setup/profile', {
+        method: 'POST',
+        body: JSON.stringify(payload),
       })
-      setExists(true)
       setSaved(true)
       const steps = getCompletedSteps()
       if (!steps.includes(1)) {
@@ -302,96 +201,99 @@ export default function Setup() {
       } else {
         showSuccess('Profile updated')
       }
-    } catch (x) {
-      const msg = x instanceof Error ? x.message : 'Request failed'
-      setError(msg)
-      showError(msg)
+    } catch (x: any) {
+      if (x?.status === 409) {
+        try {
+          await apiFetch<any>('/api/v1/setup/profile', {
+            method: 'PATCH',
+            body: JSON.stringify(buildPayload()),
+          })
+          setSaved(true)
+          showSuccess('Profile updated')
+        } catch (x2: any) {
+          const msg = x2 instanceof Error ? x2.message : 'Update failed'
+          setError(msg)
+          showError(msg)
+        }
+      } else {
+        const msg = x instanceof Error ? x.message : 'Request failed'
+        setError(msg)
+        showError(msg)
+      }
     } finally {
       setSaving(false)
     }
   }
 
-  if (loading) {
-    return (
-      <section className="mx-auto max-w-5xl">
-        <PipelineHeader eyebrow="02 / PROFILE" title={t('title')} />
-        <div className="mt-8 animate-pulse space-y-4">
-          <div className="h-8 w-48 rounded-lg bg-[#e2e2e5]" />
-          <div className="h-64 rounded-2xl bg-[#e2e2e5]" />
-          <div className="h-48 rounded-2xl bg-[#e2e2e5]" />
-        </div>
-      </section>
-    )
-  }
-
   return (
-    <section className="mx-auto max-w-5xl">
+    <section className="mx-auto max-w-3xl">
       <PipelineHeader eyebrow="02 / PROFILE" title={t('title')} subtitle={t('subtitle')} />
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <form onSubmit={submit} className="space-y-6">
-          <BasicInfoSection form={form} onChange={f} />
-
-          <JobTargetSection value={jobTarget} onChange={setJobTarget} />
-
-          <ExperienceSection
-            experiences={experiences}
-            openCards={openExpCards}
-            onToggle={(id) => toggleCards(setOpenExpCards, id)}
-            onUpdate={updateExp}
-            onUpdateBullets={updateBullets}
-            onAdd={() => setExperiences((prev) => [...prev, emptyExperience()])}
-            onRemove={(id) =>
-              setExperiences((prev) => prev.filter((e) => e._id !== id))
-            }
-          />
-
-          <EducationSection
-            educations={educations}
-            openCards={openEduCards}
-            onToggle={(id) => toggleCards(setOpenEduCards, id)}
-            onUpdate={updateEdu}
-            onAdd={() => setEducations((prev) => [...prev, emptyEducation()])}
-            onRemove={(id) =>
-              setEducations((prev) => prev.filter((e) => e._id !== id))
-            }
-          />
-
-          <ProjectsSection
-            projects={projects}
-            openCards={openProjectCards}
-            onToggle={(id) => toggleCards(setOpenProjectCards, id)}
-            onUpdate={updateProject}
-            onAdd={() => setProjects((prev) => [...prev, emptyProject()])}
-            onRemove={(id) =>
-              setProjects((prev) => prev.filter((p) => p._id !== id))
-            }
-          />
-
-          <SkillsSection form={form} onFieldChange={f} />
-
-          <AppleButton disabled={saving} loading={saving} className="w-full">
-            {saving ? t('saving') : exists ? t('updateProfile') : t('saveProfile')}
-          </AppleButton>
-
-          {error && (
-            <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="15" y1="9" x2="9" y2="15" />
-                <line x1="9" y1="9" x2="15" y2="15" />
-              </svg>
-              {error}
-            </div>
-          )}
-        </form>
-
-        <div className="space-y-6">
-          <StatusPanel saved={saved} exists={exists} />
-          <BehavioralProfileSection initial={bpData} />
-          <StarExamplesSection initial={starData} />
+      {saved && (
+        <div className="mb-6 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
+          Profile saved
         </div>
-      </div>
+      )}
+
+      <form onSubmit={submit} className="space-y-6">
+        <BasicInfoSection form={form} onChange={f} />
+
+        <JobTargetSection value={jobTarget} onChange={setJobTarget} />
+
+        <ExperienceSection
+          experiences={experiences}
+          openCards={openExpCards}
+          onToggle={(id) => toggleCards(setOpenExpCards, id)}
+          onUpdate={updateExp}
+          onUpdateBullets={updateBullets}
+          onAdd={() => setExperiences((prev) => [...prev, emptyExperience()])}
+          onRemove={(id) =>
+            setExperiences((prev) => prev.filter((e) => e._id !== id))
+          }
+        />
+
+        <EducationSection
+          educations={educations}
+          openCards={openEduCards}
+          onToggle={(id) => toggleCards(setOpenEduCards, id)}
+          onUpdate={updateEdu}
+          onAdd={() => setEducations((prev) => [...prev, emptyEducation()])}
+          onRemove={(id) =>
+            setEducations((prev) => prev.filter((e) => e._id !== id))
+          }
+        />
+
+        <ProjectsSection
+          projects={projects}
+          openCards={openProjectCards}
+          onToggle={(id) => toggleCards(setOpenProjectCards, id)}
+          onUpdate={updateProject}
+          onAdd={() => setProjects((prev) => [...prev, emptyProject()])}
+          onRemove={(id) =>
+            setProjects((prev) => prev.filter((p) => p._id !== id))
+          }
+        />
+
+        <SkillsSection form={form} onFieldChange={f} />
+
+        <div className="border-t border-[#d2d2d7] pt-6">
+          <AppleButton disabled={saving} loading={saving} className="w-full">
+            {saving ? t('saving') : t('saveProfile')}
+          </AppleButton>
+        </div>
+
+        {error && (
+          <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+            {error}
+          </div>
+        )}
+      </form>
     </section>
   )
 }
