@@ -25,6 +25,11 @@ import {
   type ProjectEntry,
 } from '@/app/[locale]/(app)/setup/components/ProjectsSection'
 import { SkillsSection } from '@/app/[locale]/(app)/setup/components/SkillsSection'
+import {
+  JobTargetSection,
+  DEFAULT_JOB_TARGET,
+  type JobTarget,
+} from '@/app/[locale]/(app)/setup/components/JobTargetSection'
 
 interface BehavioralProfile {
   id?: string
@@ -111,6 +116,7 @@ export default function Setup() {
 
   const [bpData, setBpData] = useState<BehavioralProfile>({})
   const [starData, setStarData] = useState<StarExample[]>([])
+  const [jobTarget, setJobTarget] = useState<JobTarget>(DEFAULT_JOB_TARGET)
 
   const [openExpCards, setOpenExpCards] = useState<Set<string>>(new Set())
   const [openEduCards, setOpenEduCards] = useState<Set<string>>(new Set())
@@ -216,6 +222,7 @@ export default function Setup() {
               }))
             )
           }
+          if (profile.job_target) setJobTarget(profile.job_target)
         }
         if (bp) setBpData(bp)
         if (Array.isArray(stars)) setStarData(stars)
@@ -271,6 +278,8 @@ export default function Setup() {
         domain_expertise: [],
       }
     if (form.profile_statement) payload.profile_statement = form.profile_statement
+    const hasJobTarget = jobTarget.target_titles.length > 0
+    if (hasJobTarget) payload.job_target = jobTarget
     return payload
   }
 
@@ -322,6 +331,8 @@ export default function Setup() {
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <form onSubmit={submit} className="space-y-6">
           <BasicInfoSection form={form} onChange={f} />
+
+          <JobTargetSection value={jobTarget} onChange={setJobTarget} />
 
           <ExperienceSection
             experiences={experiences}
