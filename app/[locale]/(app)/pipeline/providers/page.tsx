@@ -11,7 +11,6 @@ import { AppleButton } from '@/components/ui/apple-button'
 import { ProviderForm } from '@/components/providers/ProviderForm'
 import { ActiveProviderCard } from '@/components/providers/ActiveProviderCard'
 import { ProviderList } from '@/components/providers/ProviderList'
-import { CatalogList } from '@/components/providers/CatalogList'
 import UpgradeModal from '@/components/UpgradeModal'
 
 export default function Providers() {
@@ -44,7 +43,6 @@ export default function Providers() {
   const router = useRouter()
   const premium = isPremium()
 
-  const [catalog, setCatalog] = useState<any[]>([])
   const [myProviders, setMyProviders] = useState<any[]>([])
   const [active, setActive] = useState<any>(null)
   const [provider, setProvider] = useState('openai')
@@ -59,9 +57,6 @@ export default function Providers() {
   }
 
   useEffect(() => {
-    apiFetch<any>('/api/v1/providers/')
-      .then((x) => setCatalog(Array.isArray(x) ? x : x.providers || []))
-      .catch(() => {})
     apiFetch<any>('/api/v1/providers/me/active')
       .then((x) => {
         setActive(x)
@@ -177,8 +172,6 @@ export default function Providers() {
             onDelete={remove}
             onUpgrade={() => setShowUpgrade(true)}
           />
-
-          <CatalogList catalog={catalog} />
 
           {isConfigured(provider) && active?.provider !== provider && (
             <AppleButton
