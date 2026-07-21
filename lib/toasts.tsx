@@ -92,6 +92,17 @@ export function dismissToast(toastId: string) {
   toast.dismiss(toastId)
 }
 
+export function showWarning(message: string) {
+  toast.custom(t => (
+    <ToastContainer visible={t.visible}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <span style={{ fontSize: '16px' }}>⚠️</span>
+        <span style={{ fontSize: '14px', lineHeight: 1.4 }}>{message}</span>
+      </div>
+    </ToastContainer>
+  ), { duration: 6000 })
+}
+
 export function showPromise<T>(
   promise: Promise<T>,
   messages: { loading: string; success: string; error: string }
