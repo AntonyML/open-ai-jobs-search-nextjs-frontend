@@ -95,6 +95,7 @@ export default function Login() {
               <div className="relative">
                 <input
                   required
+                  autoComplete="current-password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder={t('enterPassword')}
                   value={password}

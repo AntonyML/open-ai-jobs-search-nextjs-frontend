@@ -140,6 +140,7 @@ export default function Register() {
                 <div className="relative">
                   <input
                     required
+                    autoComplete="new-password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder={t('enterPassword')}
                     value={form.password}

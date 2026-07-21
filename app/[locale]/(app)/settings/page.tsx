@@ -363,17 +363,17 @@ export default function Settings() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-[12px] font-medium text-[#707070] mb-1">{t('security.currentPassword')}</label>
-                    <input type="password" value={passwordForm.current} onChange={e => setPasswordForm(p => ({ ...p, current: e.target.value }))}
+                    <input type="password" autoComplete="current-password" value={passwordForm.current} onChange={e => setPasswordForm(p => ({ ...p, current: e.target.value }))}
                       className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] outline-none focus:border-[#0071e3] focus:ring-1 focus:ring-[#0071e3]/20 transition-all" />
                   </div>
                   <div>
                     <label className="block text-[12px] font-medium text-[#707070] mb-1">{t('security.newPassword')}</label>
-                    <input type="password" value={passwordForm.newPw} onChange={e => setPasswordForm(p => ({ ...p, newPw: e.target.value }))}
+                    <input type="password" autoComplete="new-password" value={passwordForm.newPw} onChange={e => setPasswordForm(p => ({ ...p, newPw: e.target.value }))}
                       className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] outline-none focus:border-[#0071e3] focus:ring-1 focus:ring-[#0071e3]/20 transition-all" />
                   </div>
                   <div>
                     <label className="block text-[12px] font-medium text-[#707070] mb-1">{t('security.confirmPassword')}</label>
-                    <input type="password" value={passwordForm.confirm} onChange={e => setPasswordForm(p => ({ ...p, confirm: e.target.value }))}
+                    <input type="password" autoComplete="new-password" value={passwordForm.confirm} onChange={e => setPasswordForm(p => ({ ...p, confirm: e.target.value }))}
                       className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] outline-none focus:border-[#0071e3] focus:ring-1 focus:ring-[#0071e3]/20 transition-all" />
                   </div>
                   {pwError && <p className="text-[12px] text-rose-500">{pwError}</p>}
@@ -460,6 +460,7 @@ export default function Settings() {
                     <label className="block text-[12px] font-medium text-[#707070] mb-1">{t('security.currentPassword')}</label>
                     <input
                       type="password"
+                      autoComplete="current-password"
                       value={deletePassword}
                       onChange={e => setDeletePassword(e.target.value)}
                       className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] text-[#1d1d1f] outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400/20 transition-all"

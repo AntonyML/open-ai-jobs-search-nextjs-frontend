@@ -549,6 +549,7 @@ export default function ProfilePage() {
                 <label className="block text-[12px] font-medium text-[#707070] mb-1">{ts('security.currentPassword')}</label>
                 <input
                   type="password"
+                  autoComplete="current-password"
                   value={deletePassword}
                   onChange={e => setDeletePassword(e.target.value)}
                   className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] text-[#1d1d1f] outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400/20 transition-all"
