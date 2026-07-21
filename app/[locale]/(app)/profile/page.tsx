@@ -48,8 +48,12 @@ export default function ProfilePage() {
           return
         }
 
-        const setupProfile = await apiFetch<any>('/api/v1/setup/profile').catch(() => null)
-        if (cancelled) return
+        let setupProfile: any = null
+        if (me?.has_profile) {
+          const r = await apiFetch<any>('/api/v1/setup/profile').catch(() => null)
+          if (cancelled) return
+          setupProfile = r
+        }
 
         const [dashboardStats, userUsage] = await Promise.all([
           setupProfile ? apiFetch<any>('/api/v1/dashboard/stats').catch(() => null) : null,
