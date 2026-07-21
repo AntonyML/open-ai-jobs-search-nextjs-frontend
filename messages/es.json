@@ -244,7 +244,18 @@
     "createCvDesc": "Generar postulación",
     "prepare": "Preparar",
     "prepareDesc": "Preparación entrevista",
-    "nextStep": "Siguiente paso"
+    "nextStep": "Siguiente paso",
+    "emptyTitle": "Configura tu proveedor de IA",
+    "emptyDesc": "Conecta un proveedor de IA como OpenAI, Anthropic u Ollama para potenciar tu pipeline de búsqueda de empleo. Una vez configurado, puedes comenzar a encontrar y rankear empleos.",
+    "emptyCta": "Comenzar",
+    "pipelineSteps": "Pipeline de 7 pasos",
+    "stepProviders": "Proveedores",
+    "stepSetup": "Configuración",
+    "stepScrape": "Scrapear",
+    "stepRank": "Rankear",
+    "stepApply": "Postular",
+    "stepInterview": "Entrevista",
+    "stepOutcome": "Resultado"
   },
   "setup": {
     "title": "Construye tu perfil de candidato",

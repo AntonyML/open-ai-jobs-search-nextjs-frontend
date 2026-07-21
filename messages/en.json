@@ -245,7 +245,18 @@
     "createCvDesc": "Generate application",
     "prepare": "Prepare",
     "prepareDesc": "Interview prep",
-    "nextStep": "Next step"
+    "nextStep": "Next step",
+    "emptyTitle": "Configure your AI provider",
+    "emptyDesc": "Connect an AI provider like OpenAI, Anthropic, or Ollama to power your job search pipeline. Once configured, you can start finding and ranking jobs.",
+    "emptyCta": "Get started",
+    "pipelineSteps": "7-step pipeline",
+    "stepProviders": "Providers",
+    "stepSetup": "Setup",
+    "stepScrape": "Scrape",
+    "stepRank": "Rank",
+    "stepApply": "Apply",
+    "stepInterview": "Interview",
+    "stepOutcome": "Outcome"
   },
   "setup": {
     "title": "Build your candidate profile",

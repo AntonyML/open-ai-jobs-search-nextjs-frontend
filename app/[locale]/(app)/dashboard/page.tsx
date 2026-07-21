@@ -207,10 +207,10 @@ export default function Dashboard() {
             </svg>
           </div>
           <h2 className="text-[22px] font-semibold tracking-tight text-[#1d1d1f] mb-2">
-            Configure your AI provider
+            {t('emptyTitle')}
           </h2>
           <p className="text-sm text-[#707070] max-w-md mx-auto mb-6 leading-relaxed">
-            Connect an AI provider like OpenAI, Anthropic, or Ollama to power your job search pipeline. Once configured, you can start finding and ranking jobs.
+            {t('emptyDesc')}
           </p>
           <Link
             href="/pipeline/providers"
@@ -220,14 +220,22 @@ export default function Dashboard() {
               <path d="M5 12h14" />
               <path d="m12 5 7 7-7 7" />
             </svg>
-            Get started
+            {t('emptyCta')}
           </Link>
           <div className="mt-8 pt-6 border-t border-[#e2e2e5]">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#858585] mb-3">7-step pipeline</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#858585] mb-3">{t('pipelineSteps')}</p>
             <div className="flex flex-wrap justify-center gap-1.5">
-              {['Providers', 'Setup', 'Scrape', 'Rank', 'Apply', 'Interview', 'Outcome'].map((step) => (
-                <span key={step} className="rounded-full border border-[#e2e2e5] bg-[#f5f5f7] px-2.5 py-1 text-[10px] text-[#707070]">
-                  {step}
+              {[
+                { key: 'Providers', label: t('stepProviders') },
+                { key: 'Setup', label: t('stepSetup') },
+                { key: 'Scrape', label: t('stepScrape') },
+                { key: 'Rank', label: t('stepRank') },
+                { key: 'Apply', label: t('stepApply') },
+                { key: 'Interview', label: t('stepInterview') },
+                { key: 'Outcome', label: t('stepOutcome') },
+              ].map((step) => (
+                <span key={step.key} className="rounded-full border border-[#e2e2e5] bg-[#f5f5f7] px-2.5 py-1 text-[10px] text-[#707070]">
+                  {step.label}
                 </span>
               ))}
             </div>
