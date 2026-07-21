@@ -140,7 +140,7 @@ export function JobTargetSection({ value, onChange }: Props) {
                   : 'border-[#d2d2d7] text-[#707070] hover:border-[#0071e3] hover:text-[#0071e3]'
               }`}
             >
-              {t(labelKey + opt.charAt(0).toUpperCase() + opt.slice(1).replace('-', ''))}
+              {t(labelKey + opt.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(''))}
             </button>
           )
         })}
@@ -297,7 +297,7 @@ export function JobTargetSection({ value, onChange }: Props) {
           >
             <option value="">--</option>
             {AVAILABILITY_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>{t('availability' + opt.charAt(0).toUpperCase() + opt.slice(1))}</option>
+              <option key={opt} value={opt}>{t('availability' + opt.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(''))}</option>
             ))}
           </select>
         </div>
