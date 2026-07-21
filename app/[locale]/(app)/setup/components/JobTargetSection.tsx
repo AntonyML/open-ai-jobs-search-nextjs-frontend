@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { X } from 'lucide-react'
+import { TagInput } from '@/components/ui/TagInput'
 
 export interface JobTarget {
   target_titles: string[]
@@ -56,7 +57,7 @@ const EMPLOYMENT_TYPE_OPTIONS = [
 
 const AVAILABILITY_OPTIONS = ['immediate', 'within_month', 'exploring'] as const
 
-type TagField = 'target_titles' | 'search_locations' | 'keywords' | 'exclude_keywords' | 'exclude_companies'
+type TagField = 'target_titles' | 'search_locations'
 
 export function JobTargetSection({ value, onChange }: Props) {
   const t = useTranslations('setup')
@@ -244,21 +245,41 @@ export function JobTargetSection({ value, onChange }: Props) {
           <label className="block text-sm text-[#1d1d1f]">
             {t('keywords')}
           </label>
-          {renderTagList('keywords', 'keywordsPlaceholder', t('keywords'))}
+          <div className="mt-1.5">
+            <TagInput
+              tags={value.keywords}
+              onChange={(tags) => update('keywords', tags)}
+              placeholder="Type a keyword and press Enter..."
+              color="blue"
+            />
+          </div>
         </div>
 
         <div>
           <label className="block text-sm text-[#1d1d1f]">
             {t('excludeKeywords')}
           </label>
-          {renderTagList('exclude_keywords', 'excludeKeywordsPlaceholder', t('excludeKeywords'))}
+          <div className="mt-1.5">
+            <TagInput
+              tags={value.exclude_keywords}
+              onChange={(tags) => update('exclude_keywords', tags)}
+              placeholder="Type a keyword and press Enter..."
+              color="rose"
+            />
+          </div>
         </div>
 
         <div>
           <label className="block text-sm text-[#1d1d1f]">
             {t('excludeCompanies')}
           </label>
-          {renderTagList('exclude_companies', 'excludeCompaniesPlaceholder', t('excludeCompanies'))}
+          <textarea
+            className="field mt-1.5 h-20 resize-none text-sm"
+            placeholder={"Meta\nGoogle\nAmazon"}
+            value={value.exclude_companies.join('\n')}
+            onChange={(e) => update('exclude_companies', e.target.value.split('\n').map(s => s.trim()).filter(Boolean))}
+          />
+          <p className="mt-1 text-[11px] text-[#b0b0b0]">{t('excludeCompanies')} — one per line</p>
         </div>
 
         <div>

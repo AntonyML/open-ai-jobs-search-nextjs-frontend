@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { TagInput } from '@/components/ui/TagInput'
 
 interface SkillsForm {
   skills_raw: string
@@ -16,10 +17,14 @@ export function SkillsSection({ form, onFieldChange }: Props) {
   const t = useTranslations('setup')
   const tc = useTranslations('common')
 
-  const skillTags = form.skills_raw
+  const tags = form.skills_raw
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
+
+  function handleTagsChange(newTags: string[]) {
+    onFieldChange('skills_raw', newTags.join(', '))
+  }
 
   return (
     <div className="card space-y-5">
@@ -36,28 +41,17 @@ export function SkillsSection({ form, onFieldChange }: Props) {
       </div>
 
       <label className="block text-sm text-[#1d1d1f]">
-        {t('skills')} <span className="text-[#b0b0b0]">{t('commaSeparated')}</span>
-        <input
-          className="field mt-1.5"
-          placeholder="Python, FastAPI, React, PostgreSQL, Docker…"
-          value={form.skills_raw}
-          onChange={(e) => onFieldChange('skills_raw', e.target.value)}
-        />
-      </label>
-
-      {skillTags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {skillTags.map((skill, i) => (
-            <span
-              key={i}
-              className="animate-fade-in-up rounded-full border border-[#e2e2e5] bg-[#f5f5f7] px-2.5 py-0.5 text-[11px] text-[#474747]"
-              style={{ animationDelay: `${i * 20}ms` }}
-            >
-              {skill}
-            </span>
-          ))}
+        {t('skills')}
+        <div className="mt-1.5">
+          <TagInput
+            tags={tags}
+            onChange={handleTagsChange}
+            placeholder="Type a skill and press Enter..."
+            color="amber"
+          />
         </div>
-      )}
+        <p className="mt-1 text-[11px] text-[#b0b0b0]">Press Enter or comma to add each skill</p>
+      </label>
 
       <label className="block text-sm text-[#1d1d1f]">
         {t('profileStatement')} <span className="text-[#b0b0b0]">{tc('optional')} — {t('twoThreeSentences')}</span>
