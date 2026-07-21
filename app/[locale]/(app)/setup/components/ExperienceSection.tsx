@@ -59,7 +59,7 @@ export function ExperienceSection({
           key={exp._id}
           id={exp._id}
           index={idx}
-          title={exp.title || `Position ${idx + 1}`}
+          title={exp.title || t('positionFallback', { n: idx + 1 })}
           isFilled={!!exp.title.trim()}
           isOpen={openCards.has(exp._id)}
           onToggle={onToggle}

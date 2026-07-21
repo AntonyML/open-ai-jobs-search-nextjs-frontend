@@ -107,7 +107,7 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
               {t('behavioralProfile')}
             </p>
             <p className="mt-0.5 text-[11px] text-[#b0b0b0]">
-              {bp.profile_type || bp.drives?.length ? 'Profile defined' : 'DISC, strengths, work preferences'}
+              {bp.profile_type || bp.drives?.length ? t('bpProfileDefined') : t('bpDesc')}
             </p>
           </div>
         </div>
@@ -124,21 +124,19 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
 
       {isOpen && (
         <div className="animate-fade-in-up space-y-4 border-t border-[#f0f0f2] px-6 pb-6 pt-4">
-          {/* Profile Type */}
           <label className="block text-sm text-[#1d1d1f]">
-            Profile type{' '}
-            <span className="text-[#b0b0b0]">e.g. Analytical Driver</span>
+            {t('bpProfileType')}{' '}
+            <span className="text-[#b0b0b0]">{t('bpProfileTypeHint')}</span>
             <input
               className="field mt-1.5"
-              placeholder="Analytical Driver, Collaborative Builder..."
+              placeholder={t('bpProfileTypePlaceholder')}
               value={bp.profile_type || ''}
               onChange={(e) => setBp((prev) => ({ ...prev, profile_type: e.target.value }))}
             />
           </label>
 
-          {/* Summary */}
           <label className="block text-sm text-[#1d1d1f]">
-            Summary
+            {t('bpSummary')}
             <textarea
               className="field mt-1.5 h-16 resize-none"
               value={bp.summary || ''}
@@ -146,10 +144,9 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
             />
           </label>
 
-          {/* Core drives */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-xs font-semibold text-[#707070]">Core drives</p>
+              <p className="text-xs font-semibold text-[#707070]">{t('bpCoreDrives')}</p>
               <button
                 onClick={() =>
                   setBp((prev) => ({
@@ -159,20 +156,20 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
                 }
                 className="text-[11px] text-[#0066cc] hover:underline"
               >
-                + Add drive
+                {t('bpAddDrive')}
               </button>
             </div>
             {(bp.drives || []).map((d, i) => (
               <div key={i} className="mb-2 flex items-start gap-2">
                 <input
                   className="field flex-1 text-sm"
-                  placeholder="Drive name"
+                  placeholder={t('bpDriveName')}
                   value={d.drive}
                   onChange={(e) => updateBpDrive(i, 'drive', e.target.value)}
                 />
                 <input
                   className="field w-20 text-sm"
-                  placeholder="Level"
+                  placeholder={t('bpLevel')}
                   value={d.level || ''}
                   onChange={(e) => updateBpDrive(i, 'level', e.target.value)}
                 />
@@ -191,10 +188,9 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
             ))}
           </div>
 
-          {/* Behaviors */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-xs font-semibold text-[#707070]">Strongest behaviors</p>
+              <p className="text-xs font-semibold text-[#707070]">{t('bpBehaviors')}</p>
               <button
                 onClick={() =>
                   setBp((prev) => ({
@@ -204,20 +200,20 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
                 }
                 className="text-[11px] text-[#0066cc] hover:underline"
               >
-                + Add behavior
+                {t('bpAddBehavior')}
               </button>
             </div>
             {(bp.behaviors || []).map((b, i) => (
               <div key={i} className="mb-2 flex items-start gap-2">
                 <input
                   className="field flex-1 text-sm"
-                  placeholder="Behavior"
+                  placeholder={t('bpBehavior')}
                   value={b.behavior}
                   onChange={(e) => updateBpBehavior(i, 'behavior', e.target.value)}
                 />
                 <input
                   className="field flex-1 text-sm"
-                  placeholder="Description"
+                  placeholder={t('bpDescription')}
                   value={b.description || ''}
                   onChange={(e) => updateBpBehavior(i, 'description', e.target.value)}
                 />
@@ -236,10 +232,9 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
             ))}
           </div>
 
-          {/* Work preferences */}
           <label className="block text-sm text-[#1d1d1f]">
-            Work preferences{' '}
-            <span className="text-[#b0b0b0]">comma separated</span>
+            {t('bpWorkPreferences')}{' '}
+            <span className="text-[#b0b0b0]">{t('bpCommaSeparated')}</span>
             <input
               className="field mt-1.5"
               placeholder="Autonomous, Fast-paced, Collaborative..."
@@ -256,10 +251,9 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
             />
           </label>
 
-          {/* Growth areas */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-xs font-semibold text-[#707070]">Growth areas</p>
+              <p className="text-xs font-semibold text-[#707070]">{t('bpGrowthAreas')}</p>
               <button
                 onClick={() =>
                   setBp((prev) => ({
@@ -269,20 +263,20 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
                 }
                 className="text-[11px] text-[#0066cc] hover:underline"
               >
-                + Add area
+                {t('bpAddArea')}
               </button>
             </div>
             {(bp.growth_areas || []).map((g, i) => (
               <div key={i} className="mb-2 flex items-start gap-2">
                 <input
                   className="field flex-1 text-sm"
-                  placeholder="Area"
+                  placeholder={t('bpArea')}
                   value={g.area}
                   onChange={(e) => updateBpGrowth(i, 'area', e.target.value)}
                 />
                 <input
                   className="field flex-1 text-sm"
-                  placeholder="Positive reframe"
+                  placeholder={t('bpPositiveReframe')}
                   value={g.positive_frame || ''}
                   onChange={(e) => updateBpGrowth(i, 'positive_frame', e.target.value)}
                 />
@@ -301,11 +295,10 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
             ))}
           </div>
 
-          {/* Keywords */}
           <div className="grid grid-cols-2 gap-3">
             <label className="block text-sm text-[#1d1d1f]">
-              Strong fit keywords{' '}
-              <span className="text-[#b0b0b0]">comma sep</span>
+              {t('bpStrongFitKeywords')}{' '}
+              <span className="text-[#b0b0b0]">{t('bpCommaSeparated')}</span>
               <input
                 className="field mt-1.5"
                 placeholder="Autonomy, Innovation..."
@@ -322,8 +315,8 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
               />
             </label>
             <label className="block text-sm text-[#1d1d1f]">
-              Friction keywords{' '}
-              <span className="text-[#b0b0b0]">comma sep</span>
+              {t('bpFrictionKeywords')}{' '}
+              <span className="text-[#b0b0b0]">{t('bpCommaSeparated')}</span>
               <input
                 className="field mt-1.5"
                 placeholder="Micromanagement..."
@@ -341,14 +334,13 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
             </label>
           </div>
 
-          {/* Management preferences */}
           <div>
             <p className="mb-2 text-xs font-semibold text-[#707070]">
-              Management preferences
+              {t('bpManagementPrefs')}
             </p>
             <div className="grid grid-cols-2 gap-3">
               <label className="block text-sm text-[#1d1d1f]">
-                Works with
+                {t('bpWorksWith')}
                 <input
                   className="field mt-1.5"
                   placeholder="Delegators, Mentors..."
@@ -374,7 +366,7 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
                 />
               </label>
               <label className="block text-sm text-[#1d1d1f]">
-                Doesn&apos;t work
+                {t('bpDoesntWork')}
                 <input
                   className="field mt-1.5"
                   placeholder="Micromanagers..."

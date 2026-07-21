@@ -360,7 +360,7 @@ export default function Setup() {
           <SkillsSection form={form} onFieldChange={f} />
 
           <AppleButton disabled={saving} loading={saving} className="w-full">
-            {saving ? t('saving') : exists ? 'Update' : t('saveProfile')}
+            {saving ? t('saving') : exists ? t('updateProfile') : t('saveProfile')}
           </AppleButton>
 
           {error && (

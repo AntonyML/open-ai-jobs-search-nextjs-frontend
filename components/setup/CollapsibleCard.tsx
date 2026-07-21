@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 interface CollapsibleCardProps {
   id: string
   index: number
@@ -27,6 +29,7 @@ export function CollapsibleCard({
   placeholder,
   children,
 }: CollapsibleCardProps) {
+  const t = useTranslations('setup')
   return (
     <div className="animate-fade-in-up overflow-hidden rounded-xl border border-[#e2e2e5] bg-white">
       {/* Clickable header — toggles collapse */}
@@ -51,7 +54,7 @@ export function CollapsibleCard({
           </span>
           <span className="text-[13px] font-medium text-[#474747]">{title}</span>
           {!isFilled && (
-            <span className="text-[11px] text-[#b0b0b0]">— not filled</span>
+            <span className="text-[11px] text-[#b0b0b0]">{t('notFilled')}</span>
           )}
         </div>
         <div className="flex items-center gap-1.5">

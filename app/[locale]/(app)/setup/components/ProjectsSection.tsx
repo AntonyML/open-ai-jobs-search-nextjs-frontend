@@ -54,7 +54,7 @@ export function ProjectsSection({
           key={proj._id}
           id={proj._id}
           index={idx}
-          title={proj.name || `Project ${idx + 1}`}
+                  title={proj.name || t('projectFallback', { n: idx + 1 })}
           isFilled={!!proj.name.trim()}
           isOpen={openCards.has(proj._id)}
           onToggle={onToggle}

@@ -60,7 +60,7 @@ export function SkillsSection({ form, onFieldChange }: Props) {
       )}
 
       <label className="block text-sm text-[#1d1d1f]">
-        {t('profileStatement')} <span className="text-[#b0b0b0]">{tc('optional')} — 2-3 sentences</span>
+        {t('profileStatement')} <span className="text-[#b0b0b0]">{tc('optional')} — {t('twoThreeSentences')}</span>
         <textarea
           className="field mt-1.5 h-24 resize-none"
           placeholder="ML engineer with 5+ years building production systems at scale. Passionate about turning complex problems into elegant solutions."

@@ -22,6 +22,7 @@ interface StarExamplesSectionProps {
 }
 
 export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
+  const t = useTranslations('setup')
   const [isOpen, setIsOpen] = useState(false)
   const [stars, setStars] = useState<StarExample[]>(initial)
 
@@ -64,7 +65,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
         result: '',
         use_for: '',
       })
-      showSuccess('STAR example created')
+      showSuccess(t('starCreated'))
     } catch (x) {
       showError(x instanceof Error ? x.message : 'Failed to create')
     }
@@ -74,7 +75,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
     try {
       await apiFetch(`/api/v1/setup/star-examples/${id}`, { method: 'DELETE' })
       setStars((prev) => prev.filter((s) => s.id !== id))
-      showSuccess('STAR example deleted')
+      showSuccess(t('starDeleted'))
     } catch (x) {
       showError(x instanceof Error ? x.message : 'Failed to delete')
     }
@@ -94,10 +95,10 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
           </div>
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">
-              STAR Examples
+              {t('starExamples')}
             </p>
             <p className="mt-0.5 text-[11px] text-[#b0b0b0]">
-              {stars.length} example(s) saved
+              {t('starCount', { count: stars.length })}
             </p>
           </div>
         </div>
@@ -137,7 +138,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
                   <button
                     onClick={() => deleteStar(s.id)}
                     className="mt-0.5 shrink-0 text-[#b0b0b0] hover:text-rose-400"
-                    title="Delete"
+                    title={t('starDelete')}
                   >
                     ✕
                   </button>
@@ -146,12 +147,11 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
             </div>
           )}
 
-          {/* New STAR form */}
           <form onSubmit={createStar} className="space-y-3">
-            <p className="text-xs font-semibold text-[#707070]">Add new STAR example</p>
+            <p className="text-xs font-semibold text-[#707070]">{t('starAddNew')}</p>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block text-sm text-[#1d1d1f]">
-                Title <span className="text-rose-400">*</span>
+                {t('starTitle')} <span className="text-rose-400">*</span>
                 <input
                   required
                   className="field mt-1.5"
@@ -161,7 +161,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
                 />
               </label>
               <label className="block text-sm text-[#1d1d1f]">
-                Skill <span className="text-[#b0b0b0]">opt</span>
+                {t('starSkill')} <span className="text-[#b0b0b0]">{t('starSkillOpt')}</span>
                 <input
                   className="field mt-1.5"
                   placeholder="Machine Learning, Leadership..."
@@ -174,7 +174,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block text-sm text-[#1d1d1f]">
-                Situation <span className="text-rose-400">*</span>
+                {t('starSituation')} <span className="text-rose-400">*</span>
                 <textarea
                   required
                   className="field mt-1.5 h-14 resize-none"
@@ -184,7 +184,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
                 />
               </label>
               <label className="block text-sm text-[#1d1d1f]">
-                Task <span className="text-rose-400">*</span>
+                {t('starTask')} <span className="text-rose-400">*</span>
                 <textarea
                   required
                   className="field mt-1.5 h-14 resize-none"
@@ -196,7 +196,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block text-sm text-[#1d1d1f]">
-                Action <span className="text-rose-400">*</span>
+                {t('starAction')} <span className="text-rose-400">*</span>
                 <textarea
                   required
                   className="field mt-1.5 h-14 resize-none"
@@ -206,7 +206,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
                 />
               </label>
               <label className="block text-sm text-[#1d1d1f]">
-                Result <span className="text-rose-400">*</span>
+                {t('starResult')} <span className="text-rose-400">*</span>
                 <textarea
                   required
                   className="field mt-1.5 h-14 resize-none"
@@ -217,8 +217,8 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
               </label>
             </div>
             <label className="block text-sm text-[#1d1d1f]">
-              Use for{' '}
-              <span className="text-[#b0b0b0]">comma separated skills/roles</span>
+              {t('starUseFor')}{' '}
+              <span className="text-[#b0b0b0]">{t('starUseForHint')}</span>
               <input
                 className="field mt-1.5"
                 placeholder="Teamwork, Python, System Design..."
@@ -227,7 +227,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
               />
             </label>
             <button type="submit" className="btn-primary w-full">
-              Add STAR example
+              {t('addStarExample')}
             </button>
           </form>
         </div>

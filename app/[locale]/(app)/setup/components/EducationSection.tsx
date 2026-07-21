@@ -56,7 +56,7 @@ export function EducationSection({
           key={edu._id}
           id={edu._id}
           index={idx}
-          title={edu.degree || `Degree ${idx + 1}`}
+          title={edu.degree || t('degreeFallback', { n: idx + 1 })}
           isFilled={!!edu.degree.trim()}
           isOpen={openCards.has(edu._id)}
           onToggle={onToggle}

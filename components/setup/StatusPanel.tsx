@@ -11,7 +11,6 @@ interface StatusPanelProps {
 
 export function StatusPanel({ saved, exists }: StatusPanelProps) {
   const t = useTranslations('setup')
-  const tc = useTranslations('common')
   const router = useRouter()
 
   if (saved) {
@@ -35,11 +34,11 @@ export function StatusPanel({ saved, exists }: StatusPanelProps) {
           </div>
           <div>
             <p className="text-sm font-semibold text-emerald-700">{t('saved')}</p>
-            <p className="text-[11px] text-[#858585]">Your data is stored and ready</p>
+            <p className="text-[11px] text-[#858585]">{t('dataStoredReady')}</p>
           </div>
         </div>
         <AppleButton className="w-full" onClick={() => router.push('/scrape')}>
-          {tc('continue')} to Scrape →
+          {t('continueTo', { step: 'Scrape' })} →
         </AppleButton>
       </div>
     )
@@ -67,12 +66,10 @@ export function StatusPanel({ saved, exists }: StatusPanelProps) {
         </div>
         <div>
           <p className="text-sm font-medium text-[#707070]">
-            {exists ? 'Profile loaded' : 'No profile yet'}
+            {exists ? t('profileLoaded') : t('noProfileYet')}
           </p>
           <p className="text-[11px] text-[#b0b0b0]">
-            {exists
-              ? 'Edit and save to update.'
-              : 'Fill the form and save to get started.'}
+            {exists ? t('editAndSave') : t('fillFormToStart')}
           </p>
         </div>
       </div>
