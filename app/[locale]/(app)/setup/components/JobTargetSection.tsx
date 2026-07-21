@@ -273,13 +273,14 @@ export function JobTargetSection({ value, onChange }: Props) {
           <label className="block text-sm text-[#1d1d1f]">
             {t('excludeCompanies')}
           </label>
-          <textarea
-            className="field mt-1.5 h-20 resize-none text-sm"
-            placeholder={"Meta\nGoogle\nAmazon"}
-            value={value.exclude_companies.join('\n')}
-            onChange={(e) => update('exclude_companies', e.target.value.split('\n').map(s => s.trim()).filter(Boolean))}
-          />
-          <p className="mt-1 text-[11px] text-[#b0b0b0]">{t('excludeCompanies')} — one per line</p>
+          <div className="mt-1.5">
+            <TagInput
+              tags={value.exclude_companies}
+              onChange={(tags) => update('exclude_companies', tags)}
+              placeholder="Type a company and press Enter..."
+              color="rose"
+            />
+          </div>
         </div>
 
         <div>
