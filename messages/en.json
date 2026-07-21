@@ -658,6 +658,7 @@
     "sent": "Request sent! We will contact you soon.",
     "requestSent": "Request sent! We will contact you soon.",
     "thankYou": "Thank you for your donation!",
+    "cooldown": "You can send another request in 30s",
     "compareTitle": "Free vs Premium",
     "compareFeature": "Feature",
     "compareFree": "Free",
