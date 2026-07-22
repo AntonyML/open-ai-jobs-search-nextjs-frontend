@@ -55,6 +55,7 @@ function ToggleSwitch({ value, onChange, label, desc }: { value: boolean; onChan
 }
 
 function ScrapeResultBanner({ result }: { result: any }) {
+  const t = useTranslations('scrape')
   return (
     <div className="card space-y-2">
       <div className="flex items-center gap-2.5">
@@ -71,8 +72,8 @@ function ScrapeResultBanner({ result }: { result: any }) {
         </div>
       </div>
       <div className="flex gap-3 text-xs text-[#707070]">
-        <span><strong className="text-[#1d1d1f]">{result.jobs_found}</strong> found</span>
-        <span><strong className="text-[#1d1d1f]">{result.jobs_new}</strong> new</span>
+        <span><strong className="text-[#1d1d1f]">{result.jobs_found}</strong> {t('found')}</span>
+        <span><strong className="text-[#1d1d1f]">{result.jobs_new}</strong> {t('new')}</span>
       </div>
     </div>
   )
@@ -163,10 +164,10 @@ export default function Scrape() {
 
       playPipelineSound('scrape')
       const jobCount = data.jobs_found ?? 0
-      showSuccess(`${jobCount} jobs found! Step 3 completed.`)
-      addNotification({ pipeline: 'scrape', description: `Found ${jobCount} jobs · focus=${focus_area || 'all'}`, status: 'success' })
+      showSuccess(t('jobsFound', { count: jobCount }))
+      addNotification({ pipeline: 'scrape', description: t('notificationFound', { count: jobCount, focus: focus_area || 'all' }), status: 'success' })
     } catch (x) {
-      const msg = x instanceof Error ? x.message : 'Scrape failed'
+      const msg = x instanceof Error ? x.message : t('scrapeFailed')
       playErrorSound()
       showError(msg)
       addNotification({ pipeline: 'scrape', description: msg, status: 'error' })
@@ -178,7 +179,7 @@ export default function Scrape() {
 
   return (
     <section className="mx-auto max-w-5xl">
-      <PipelineHeader eyebrow="03 / DISCOVER" title={t('title')} subtitle={t('subtitle')} />
+      <PipelineHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
 
       {!premium && (
         <UpgradeBanner
@@ -194,7 +195,7 @@ export default function Scrape() {
           {/* Portals */}
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-[#858585] mb-3">
-              Portals <span className="text-[#b0b0b0] font-normal normal-case">({t('portalsHint')})</span>
+              {t('portals')} <span className="text-[#b0b0b0] font-normal normal-case">({t('portalsHint')})</span>
             </p>
             <div className="flex flex-wrap gap-2">
               {PORTALS.map(p => (
@@ -206,16 +207,16 @@ export default function Scrape() {
           {/* Focus area */}
           <label className="block text-sm text-[#1d1d1f]">
             <span className="flex items-center gap-2">
-              Focus area <span className="text-[#b0b0b0] font-normal">{tc('optional')}</span>
+              {t('focusArea')} <span className="text-[#b0b0b0] font-normal">{tc('optional')}</span>
               {prefilledFromTarget && (
-                <span className="text-[10px] bg-[#0071e3]/10 text-[#0071e3] px-2 py-0.5 rounded-full font-medium">from job target</span>
+                <span className="text-[10px] bg-[#0071e3]/10 text-[#0071e3] px-2 py-0.5 rounded-full font-medium">{t('fromJobTarget')}</span>
               )}
             </span>
             <input className="field mt-1.5" placeholder={t('focusAreaPlaceholder')} value={focus_area} onChange={e => { setPrefilledFromTarget(false); setFocusArea(e.target.value); }} />
           </label>
 
           <OptionPills
-            label={`Posted in last`}
+            label={t('postedInLastLabel')}
             options={[{ value: 7, label: '7d' }, { value: 14, label: '14d' }, { value: 30, label: '30d' }, { value: 60, label: '60d' }]}
             selected={jobage_days}
             onChange={setJobageDays}
@@ -223,7 +224,7 @@ export default function Scrape() {
           />
 
           <OptionPills
-            label="Results per portal"
+            label={t('resultsPerPortal')}
             options={[{ value: 10, label: '10' }, { value: 20, label: '20' }, { value: 50, label: '50' }, { value: 100, label: '100' }]}
             selected={limit_per_portal}
             onChange={setLimitPerPortal}
@@ -252,12 +253,12 @@ export default function Scrape() {
 
           {jobs.length > 0 ? (
             <>
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-[#858585]">{jobs.length} jobs in database</p>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-[#858585]">{t('jobsInDatabase', { count: jobs.length })}</p>
               <div className="max-h-[480px] overflow-y-auto space-y-2 pr-1 scrollbar-thin">
                 {jobs.map((j, i) => <ScrapeJobCard key={i} job={j} index={i} />)}
               </div>
               <AppleButton variant="secondary" className="w-full" onClick={() => router.push('/rank')}>
-                Continue to Rank →
+                {t('continueToRank')}
               </AppleButton>
             </>
           ) : (

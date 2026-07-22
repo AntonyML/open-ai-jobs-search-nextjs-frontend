@@ -300,11 +300,11 @@ export default function Setup() {
     } catch (x: any) {
       let msg: string
       if (x instanceof ApiError && x.status === 409) {
-        msg = hasProfile ? 'Update failed' : 'Profile already exists'
+        msg = hasProfile ? t('updateFailed') : t('alreadyExists')
       } else if (x instanceof ApiError && x.status === 422) {
-        msg = 'Invalid data. Check your fields.'
+        msg = t('invalidData')
       } else {
-        msg = x instanceof Error ? x.message : 'Request failed'
+        msg = x instanceof Error ? x.message : t('requestFailed')
       }
       setError(msg)
       showError(msg)
@@ -343,19 +343,19 @@ export default function Setup() {
 
   return (
     <section className="mx-auto max-w-3xl">
-      <PipelineHeader eyebrow="02 / PROFILE" title={t('title')} subtitle={t('subtitle')} />
+      <PipelineHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
 
       {saved && (
         <div className="mb-6 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           <div className="flex items-center gap-2">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
-            Profile saved
+            {t('profileSaved')}
           </div>
           <a
             href={`/${locale}/pipeline/scrape`}
             className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition-colors"
           >
-            Continue to Scrape →
+            {t('continueToScrape')}
           </a>
         </div>
       )}
@@ -427,7 +427,7 @@ export default function Setup() {
               href={`/${locale}/pipeline/scrape`}
               className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors shadow-lg"
             >
-              Continue to Scrape →
+              {t('continueToScrape')}
             </a>
           </div>
         )}
