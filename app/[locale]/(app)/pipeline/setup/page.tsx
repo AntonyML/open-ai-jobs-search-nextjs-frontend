@@ -92,15 +92,18 @@ export default function Setup() {
   const [openEduCards, setOpenEduCards] = useState<Set<string>>(new Set())
   const [openProjectCards, setOpenProjectCards] = useState<Set<string>>(new Set())
 
-  // Pre-fill full_name and email from auth/me on mount
+  // Pre-fill from saved candidate profile on mount
+  // full_name and email come from User table (single source of truth)
   useEffect(() => {
-    apiFetch<{ full_name?: string; email?: string }>('/api/v1/auth/me')
-      .then((user) => {
-        if (!user) return
+    apiFetch<{ full_name?: string; email?: string; phone?: string; location?: string }>('/api/v1/setup/profile')
+      .then((profile) => {
+        if (!profile) return
         setForm((prev) => ({
           ...prev,
-          full_name: user.full_name || prev.full_name,
-          email: user.email || prev.email,
+          full_name: profile.full_name || prev.full_name,
+          email: profile.email || prev.email,
+          phone: profile.phone || prev.phone,
+          location: profile.location || prev.location,
         }))
       })
       .catch(() => {})

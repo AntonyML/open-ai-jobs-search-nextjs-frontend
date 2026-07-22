@@ -65,7 +65,7 @@ export default function ProfilePage() {
           activeProvider: active?.provider || null,
           activeModel: active?.model || null,
           setup: setupProfile,
-          email: me?.email || setupProfile?.email || null,
+          email: setupProfile?.email || me?.email || null,
           name: setupProfile?.full_name || me?.full_name || null,
         })
         setStats(dashboardStats)
