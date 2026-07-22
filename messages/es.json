@@ -488,7 +488,19 @@
     "scrapeFailed": "Scrape fallido",
     "notificationFound": "{count} empleos encontrados · enfoque={focus}",
     "freeLimitation": "Plan Free: 1 sitio, 5 empleos máx. Mejora para ilimitado.",
-    "upgrade": "Mejorar"
+    "upgrade": "Mejorar",
+    "filtersFromSetup": "Filtros desde tu perfil",
+    "filtersFromSetupDesc": "Edítalos en Setup si necesitas cambiarlos",
+    "targetTitles": "Puestos objetivo",
+    "seniority": "Seniority",
+    "searchingSources": "Buscando en {count} fuentes…",
+    "sourceDone": "Listo",
+    "sourceSearching": "Buscando…",
+    "sourcePending": "Pendiente",
+    "sourceSkipped": "Saltado",
+    "noValue": "—",
+    "searching": "Buscando…",
+    "interimResults": "Resultados parciales ({count})"
   },
   "rank": {
     "title": "Prioriza los mejores ajustes",

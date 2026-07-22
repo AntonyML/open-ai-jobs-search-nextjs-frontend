@@ -489,7 +489,19 @@
     "scrapeFailed": "Scrape failed",
     "notificationFound": "Found {count} jobs · focus={focus}",
     "freeLimitation": "Free plan: 1 site, 5 jobs max. Upgrade for unlimited.",
-    "upgrade": "Upgrade"
+    "upgrade": "Upgrade",
+    "filtersFromSetup": "Filters from your profile",
+    "filtersFromSetupDesc": "Edit in Setup if you need changes",
+    "targetTitles": "Target titles",
+    "seniority": "Seniority",
+    "searchingSources": "Searching {count} sources…",
+    "sourceDone": "Done",
+    "sourceSearching": "Searching…",
+    "sourcePending": "Pending",
+    "sourceSkipped": "Skipped",
+    "noValue": "—",
+    "searching": "Searching…",
+    "interimResults": "Partial results ({count})"
   },
   "rank": {
     "title": "Prioritize the best fits",

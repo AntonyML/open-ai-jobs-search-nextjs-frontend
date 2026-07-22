@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
@@ -14,7 +14,7 @@ import { UpgradeBanner } from '@/components/ui/upgrade-banner'
 import { OptionPills } from '@/components/scrape/OptionPills'
 import { PipelineEmptyState } from '@/components/PipelineEmptyState'
 import { TagInput } from '@/components/ui/TagInput'
-import { Search, MapPin, Briefcase } from 'lucide-react'
+import { Search, MapPin, Briefcase, Check, Loader2, SkipForward } from 'lucide-react'
 import UpgradeModal from '@/components/UpgradeModal'
 
 const PORTALS = [
@@ -26,12 +26,16 @@ const PORTALS = [
   { id: 'jobnet', label: 'JobNet' },
 ]
 
-const REMOTE_OPTIONS = [
-  { value: '', labelKey: 'remoteAll' },
-  { value: 'remote', labelKey: 'remoteRemote' },
-  { value: 'hybrid', labelKey: 'remoteHybrid' },
-  { value: 'onsite', labelKey: 'remoteOnsite' },
-]
+const SOURCE_LABELS: Record<string, string> = {
+  linkedin: 'LinkedIn',
+  freehire: 'FreeHire',
+  jobbank: 'JobBank',
+  jobdanmark: 'JobDanmark',
+  jobindex: 'JobIndex',
+  jobnet: 'JobNet',
+}
+
+type SourceStatus = 'pending' | 'searching' | 'done' | 'skipped' | 'error'
 
 function PortalTag({ name, active, onToggle }: { name: string; active: boolean; onToggle: () => void }) {
   return (
@@ -46,6 +50,26 @@ function PortalTag({ name, active, onToggle }: { name: string; active: boolean; 
     >
       {name}
     </button>
+  )
+}
+
+function SourceProgress({ name, status, query }: { name: string; status: SourceStatus; query?: string }) {
+  const t = useTranslations('scrape')
+  const icon = status === 'done' ? <Check className="h-3.5 w-3.5 text-emerald-500" />
+    : status === 'searching' ? <Loader2 className="h-3.5 w-3.5 text-[#0071e3] animate-spin" />
+    : status === 'skipped' ? <SkipForward className="h-3.5 w-3.5 text-[#b0b0b0]" />
+    : status === 'error' ? <span className="h-3.5 w-3.5 text-rose-500 text-xs">!</span>
+    : <div className="h-3.5 w-3.5 rounded-full border border-[#d2d2d7]" />
+  const label = status === 'done' ? t('sourceDone')
+    : status === 'searching' ? t('sourceSearching')
+    : status === 'skipped' ? t('sourceSkipped')
+    : t('sourcePending')
+  return (
+    <div className="flex items-center gap-2 py-1.5">
+      {icon}
+      <span className="text-xs text-[#1d1d1f] font-medium">{SOURCE_LABELS[name] || name}</span>
+      <span className="text-[10px] text-[#b0b0b0] ml-auto">{label}</span>
+    </div>
   )
 }
 
@@ -65,31 +89,6 @@ function ToggleSwitch({ value, onChange, label, desc }: { value: boolean; onChan
       >
         <span className={`inline-block h-5 w-5 mt-0.5 rounded-full bg-white shadow transition-transform ${value ? 'translate-x-5' : 'translate-x-0.5'}`} />
       </button>
-    </div>
-  )
-}
-
-function ScrapeResultBanner({ result }: { result: any }) {
-  const t = useTranslations('scrape')
-  return (
-    <div className="card space-y-2">
-      <div className="flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-[#1d1d1f]">{result.message}</p>
-          <p className="text-[11px] text-[#707070] mt-0.5">
-            {result.portals_queried?.join(', ') || '—'}
-          </p>
-        </div>
-      </div>
-      <div className="flex gap-3 text-xs text-[#707070]">
-        <span><strong className="text-[#1d1d1f]">{result.jobs_found}</strong> {t('found')}</span>
-        <span><strong className="text-[#1d1d1f]">{result.jobs_new}</strong> {t('new')}</span>
-      </div>
     </div>
   )
 }
@@ -120,7 +119,6 @@ function ScrapeJobCard({ job, index }: { job: any; index: number }) {
 export default function Scrape() {
   const t = useTranslations('scrape')
   const tp = useTranslations('pipeline.steps')
-  const tc = useTranslations('common')
   const router = useRouter()
   const premium = isPremium()
   const [showUpgrade, setShowUpgrade] = useState(false)
@@ -128,8 +126,8 @@ export default function Scrape() {
   const [keywords, setKeywords] = useState<string[]>([])
   const [targetTitles, setTargetTitles] = useState<string[]>([])
   const [seniority, setSeniority] = useState('')
-  const [location, setLocation] = useState('')
-  const [remote, setRemote] = useState('')
+  const [profileLocation, setProfileLocation] = useState('')
+  const [profileRemote, setProfileRemote] = useState('')
   const [broad, setBroad] = useState(false)
   const [selectedPortals, setSelectedPortals] = useState<string[]>([])
   const prevStepDone = getCompletedSteps().includes(1)
@@ -139,6 +137,11 @@ export default function Scrape() {
   const [error, setError] = useState('')
   const [result, setResult] = useState<any>(null)
   const [jobs, setJobs] = useState<any[]>([])
+  const [runId, setRunId] = useState<string | null>(null)
+  const [sourceStatuses, setSourceStatuses] = useState<Record<string, SourceStatus>>({})
+  const [interimJobs, setInterimJobs] = useState<any[]>([])
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
   function loadJobs() {
     apiFetch<any[]>('/api/v1/scrape/jobs').then(x => setJobs(Array.isArray(x) ? x : [])).catch(() => {})
   }
@@ -148,60 +151,121 @@ export default function Scrape() {
     apiFetch<any>('/api/v1/setup/profile').then(profile => {
       if (profile?.job_target) {
         const jt = profile.job_target
-        if (jt.target_titles?.length) {
-          setTargetTitles(jt.target_titles)
-        }
-        if (jt.seniority) {
-          setSeniority(jt.seniority)
-        }
-        if (jt.search_locations?.length && !location) {
-          setLocation(jt.search_locations[0])
-        }
-        if (jt.keywords?.length) {
-          setKeywords(jt.keywords)
-        }
+        if (jt.target_titles?.length) setTargetTitles(jt.target_titles)
+        if (jt.seniority) setSeniority(jt.seniority)
+        if (jt.search_locations?.length) setProfileLocation(jt.search_locations[0])
+        if (jt.work_mode) setProfileRemote(Array.isArray(jt.work_mode) ? jt.work_mode.join(', ') : jt.work_mode)
+        if (jt.keywords?.length) setKeywords(jt.keywords)
       }
     }).catch(() => {})
+    return () => { if (pollRef.current) clearInterval(pollRef.current) }
   }, [])
 
   function togglePortal(p: string) {
     setSelectedPortals(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p])
   }
 
+  // Determine planned sources before scrape starts
+  function getPlannedSources(): string[] {
+    const sources = selectedPortals.length > 0 ? selectedPortals : PORTALS.map(p => p.id)
+    return sources
+  }
+
+  async function pollRun() {
+    if (!runId) return
+    try {
+      const run = await apiFetch<any>(`/api/v1/scrape/runs/${runId}`)
+      setSourceStatuses(prev => {
+        const next = { ...prev }
+        const allSources = getPlannedSources()
+        for (const s of allSources) {
+          if (next[s] === 'done' || next[s] === 'skipped') continue
+          if (run.status === 'completed' || run.status === 'completed_with_errors') {
+            next[s] = 'done'
+          } else if (next[s] === 'pending') {
+            next[s] = 'searching'
+          }
+        }
+        // Mark skipped sources if there's an error about cooldown
+        if (run.error_message) {
+          for (const s of allSources) {
+            if (run.error_message.includes(`${s}: skipped`)) next[s] = 'skipped'
+          }
+        }
+        return next
+      })
+      // Load interim jobs
+      if (run.status === 'running') {
+        loadJobs()
+      }
+      if (run.status !== 'running') {
+        if (pollRef.current) clearInterval(pollRef.current)
+        pollRef.current = null
+        setLoading(false)
+        loadJobs()
+        setResult(run)
+        const steps = getCompletedSteps()
+        if (!steps.includes(2)) setCompletedSteps([...steps, 2])
+      }
+    } catch {
+      if (pollRef.current) clearInterval(pollRef.current)
+      pollRef.current = null
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (runId && loading) {
+      pollRef.current = setInterval(pollRun, 3000)
+      return () => { if (pollRef.current) clearInterval(pollRef.current) }
+    }
+  }, [runId, loading])
+
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setResult(null)
+    setInterimJobs([])
+    setRunId(null)
+    // Init source statuses
+    const planned = getPlannedSources()
+    const init: Record<string, SourceStatus> = {}
+    for (const s of planned) init[s] = 'pending'
+    setSourceStatuses(init)
+
     try {
       const payload: Record<string, any> = { jobage_days, limit_per_portal, broad }
       if (keywords.length > 0) payload.keywords = keywords
       if (targetTitles.length > 0) payload.target_titles = targetTitles
       if (seniority) payload.seniority = seniority
-      if (location.trim()) payload.location = location.trim()
-      if (remote) payload.remote = remote
       if (selectedPortals.length > 0) payload.portals = selectedPortals
 
       const data = await apiFetch<any>('/api/v1/scrape/', { method: 'POST', body: JSON.stringify(payload) })
+      setRunId(data.run_id)
       setResult(data)
       loadJobs()
-
-      const steps = getCompletedSteps()
-      if (!steps.includes(2)) setCompletedSteps([...steps, 2])
 
       playPipelineSound('scrape')
       const jobCount = data.jobs_found ?? 0
       showSuccess(t('jobsFound', { count: jobCount }))
-      addNotification({ pipeline: 'scrape', description: t('notificationFound', { count: jobCount, focus: keywords.join(', ') || 'all' }), status: 'success' })
+      addNotification({
+        pipeline: 'scrape',
+        description: t('notificationFound', { count: jobCount, focus: keywords.join(', ') || 'all' }),
+        status: 'success',
+      })
     } catch (x) {
       const msg = x instanceof Error ? x.message : t('scrapeFailed')
       playErrorSound()
       showError(msg)
       addNotification({ pipeline: 'scrape', description: msg, status: 'error' })
       setError(msg)
-    } finally {
       setLoading(false)
     }
   }
+
+  const isScraping = loading && runId != null
+  const hasFilters = targetTitles.length > 0 || seniority || profileLocation || profileRemote
 
   return (
     <section className="mx-auto max-w-5xl">
@@ -218,6 +282,43 @@ export default function Scrape() {
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         {/* Left: Form */}
         <form onSubmit={submit} className="card space-y-6">
+          {hasFilters && (
+            <div className="rounded-xl border border-[#d2d2d7] bg-[#f5f5f7] px-4 py-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-[#858585]">
+                  {t('filtersFromSetup')}
+                </p>
+              </div>
+              {targetTitles.length > 0 && (
+                <div className="flex items-center gap-2 text-xs">
+                  <Briefcase className="h-3 w-3 text-[#858585] shrink-0" />
+                  <span className="text-[#707070]">{t('targetTitles')}:</span>
+                  <span className="text-[#1d1d1f] font-medium truncate">{targetTitles.join(', ')}</span>
+                </div>
+              )}
+              {seniority && (
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-[#707070]">{t('seniority')}:</span>
+                  <span className="text-[#1d1d1f] font-medium">{seniority}</span>
+                </div>
+              )}
+              {profileLocation && (
+                <div className="flex items-center gap-2 text-xs">
+                  <MapPin className="h-3 w-3 text-[#858585] shrink-0" />
+                  <span className="text-[#707070]">{t('location')}:</span>
+                  <span className="text-[#1d1d1f] font-medium">{profileLocation}</span>
+                </div>
+              )}
+              {profileRemote && (
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-[#707070]">{t('remote')}:</span>
+                  <span className="text-[#1d1d1f] font-medium">{profileRemote}</span>
+                </div>
+              )}
+              <p className="text-[10px] text-[#b0b0b0] mt-1">{t('filtersFromSetupDesc')}</p>
+            </div>
+          )}
+
           {/* Portals */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-[#858585] mb-3">
@@ -246,43 +347,6 @@ export default function Scrape() {
             </div>
             <p className="mt-1 text-[11px] text-[#b0b0b0]">{t('keywordsHint')}</p>
           </label>
-
-          {/* Location */}
-          <label className="block text-sm font-medium text-[#1d1d1f]">
-            <span className="flex items-center gap-2">
-              <MapPin className="h-3.5 w-3.5 text-[#858585]" />
-              {t('location')} <span className="text-[#858585] font-normal text-xs">{tc('optional')}</span>
-            </span>
-            <input
-              className="field mt-1.5"
-              placeholder={t('locationPlaceholder')}
-              value={location}
-              onChange={e => setLocation(e.target.value)}
-            />
-          </label>
-
-          {/* Remote toggle */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#858585] mb-3">
-              {t('remote')}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {REMOTE_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setRemote(opt.value)}
-                  className={`rounded-full px-3 py-1.5 text-[12px] font-medium transition-all ${
-                    remote === opt.value
-                      ? 'bg-[#0071e3] text-white'
-                      : 'border border-[#d2d2d7] text-[#707070] hover:border-[#0071e3]/30 hover:text-[#0071e3] bg-white'
-                  }`}
-                >
-                  {t(opt.labelKey)}
-                </button>
-              ))}
-            </div>
-          </div>
 
           <OptionPills
             label={t('postedInLastLabel')}
@@ -316,9 +380,43 @@ export default function Scrape() {
           )}
         </form>
 
-        {/* Right: Results */}
+        {/* Right: Progress + Results */}
         <div className="space-y-3">
-          {result && <ScrapeResultBanner result={result} />}
+          {/* Source progress during scrape */}
+          {isScraping && (
+            <div className="card space-y-1">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-[#858585]">
+                {t('searchingSources', { count: getPlannedSources().length })}
+              </p>
+              <div className="divide-y divide-[#f0f0f0]">
+                {getPlannedSources().map(s => (
+                  <SourceProgress key={s} name={s} status={sourceStatuses[s] || 'pending'} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {result && !isScraping && (
+            <div className="card space-y-2">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[#1d1d1f]">{result.message || t('jobsFound', { count: result.jobs_found ?? 0 })}</p>
+                  <p className="text-[11px] text-[#707070] mt-0.5">
+                    {result.portals_queried?.join(', ') || '—'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3 text-xs text-[#707070]">
+                <span><strong className="text-[#1d1d1f]">{result.jobs_found}</strong> {t('found')}</span>
+                <span><strong className="text-[#1d1d1f]">{result.jobs_new}</strong> {t('new')}</span>
+              </div>
+            </div>
+          )}
 
           {jobs.length > 0 ? (
             <>
@@ -330,7 +428,7 @@ export default function Scrape() {
                 {t('continueToRank')}
               </AppleButton>
             </>
-          ) : (
+          ) : !isScraping ? (
             <PipelineEmptyState
               icon={Search}
               title={t('emptyTitle')}
@@ -345,7 +443,7 @@ export default function Scrape() {
               }}
               prevStepDone={prevStepDone}
             />
-          )}
+          ) : null}
         </div>
       </div>
 
