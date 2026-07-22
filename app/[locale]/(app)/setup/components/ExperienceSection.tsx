@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { CollapsibleCard, CollapsibleCardListWrapper } from '@/components/setup/CollapsibleCard'
+import { TagInput } from '@/components/ui/TagInput'
 
 export interface ExperienceEntry {
   _id: string
@@ -18,7 +19,7 @@ interface Props {
   openCards: Set<string>
   onToggle: (id: string) => void
   onUpdate: (id: string, key: keyof ExperienceEntry, value: any) => void
-  onUpdateBullets: (id: string, raw: string) => void
+  onUpdateBullets: (id: string, bullets: string[]) => void
   onAdd: () => void
   onRemove: (id: string) => void
 }
@@ -118,14 +119,16 @@ export function ExperienceSection({
               />
             </label>
           </div>
-          <label className="block text-sm text-[#1d1d1f]">
+          <label className="block text-sm text-[#1d1d1f] sm:col-span-2">
             {t('achievements')} <span className="text-[#b0b0b0]">{t('onePerLine')}</span>
-            <textarea
-              className="field mt-1.5 h-20 resize-none"
-              placeholder={t('expBulletsPlaceholder')}
-              value={exp.bullets.join('\n')}
-              onChange={(e) => onUpdateBullets(exp._id, e.target.value)}
-            />
+            <div className="mt-1.5">
+              <TagInput
+                tags={exp.bullets}
+                onChange={(tags) => onUpdateBullets(exp._id, tags)}
+                placeholder={t('expBulletsPlaceholder')}
+                color="blue"
+              />
+            </div>
           </label>
         </CollapsibleCard>
       ))}

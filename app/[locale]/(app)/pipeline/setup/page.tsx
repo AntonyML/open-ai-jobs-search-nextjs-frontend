@@ -92,21 +92,21 @@ export default function Setup() {
   const [openEduCards, setOpenEduCards] = useState<Set<string>>(new Set())
   const [openProjectCards, setOpenProjectCards] = useState<Set<string>>(new Set())
 
-  // Pre-fill from saved candidate profile on mount
-  // full_name and email come from User table (single source of truth)
+  // Pre-fill from saved profile on mount
+  // full_name and email come from User table (single source of truth via relationship)
   useEffect(() => {
-    apiFetch<{ full_name?: string; email?: string; phone?: string; location?: string }>('/api/v1/setup/profile')
-      .then((profile) => {
-        if (!profile) return
-        setForm((prev) => ({
-          ...prev,
-          full_name: profile.full_name || prev.full_name,
-          email: profile.email || prev.email,
-          phone: profile.phone || prev.phone,
-          location: profile.location || prev.location,
-        }))
-      })
-      .catch(() => {})
+    Promise.all([
+      apiFetch<{ full_name?: string; email?: string; phone?: string; location?: string }>('/api/v1/setup/profile').catch(() => null),
+      apiFetch<{ full_name?: string; email?: string }>('/api/v1/auth/me').catch(() => null),
+    ]).then(([profile, user]) => {
+      setForm((prev) => ({
+        ...prev,
+        full_name: profile?.full_name || user?.full_name || prev.full_name,
+        email: profile?.email || user?.email || prev.email,
+        phone: profile?.phone || prev.phone,
+        location: profile?.location || prev.location,
+      }))
+    })
   }, [])
 
   function toggleCards(setter: typeof setOpenExpCards, id: string) {
@@ -128,12 +128,10 @@ export default function Setup() {
     )
   }
 
-  function updateBullets(id: string, raw: string) {
+  function updateBullets(id: string, bullets: string[]) {
     setExperiences((prev) =>
       prev.map((e) =>
-        e._id === id
-          ? { ...e, bullets: raw.split('\n').map((s) => s.trim()) }
-          : e
+        e._id === id ? { ...e, bullets } : e
       )
     )
   }
@@ -250,6 +248,26 @@ export default function Setup() {
     setSaving(false)
   }
 
+  async function deleteProfile() {
+    if (!confirm('Are you sure you want to delete your profile? All data will be lost.')) return
+    try {
+      await apiFetch('/api/v1/setup/profile', { method: 'DELETE' })
+      setForm({ full_name: '', email: '', phone: '', location: '', skills_raw: '', profile_statement: '' })
+      setExperiences([emptyExperience()])
+      setEducations([emptyEducation()])
+      setProjects([emptyProject()])
+      setJobTarget(DEFAULT_JOB_TARGET)
+      setSaved(false)
+      showSuccess('Profile deleted')
+    } catch {
+      showError('Failed to delete profile')
+    }
+  }
+
+  function hasRequiredFields(): boolean {
+    return !!form.full_name && !!form.email && !!form.location
+  }
+
   return (
     <section className="mx-auto max-w-3xl">
       <PipelineHeader eyebrow="02 / PROFILE" title={t('title')} subtitle={t('subtitle')} />
@@ -269,7 +287,7 @@ export default function Setup() {
         </div>
       )}
 
-      <form onSubmit={submit} className="space-y-6">
+      <form onSubmit={submit} className="space-y-6" id="setup-form">
         <BasicInfoSection
           full_name={form.full_name}
           email={form.email}
@@ -317,11 +335,29 @@ export default function Setup() {
 
         <SkillsSection form={form} onFieldChange={f} />
 
-        <div className="border-t border-[#d2d2d7] pt-6">
-          <AppleButton disabled={saving} loading={saving} className="w-full">
+        <div className="flex gap-3 border-t border-[#d2d2d7] pt-6">
+          <AppleButton disabled={saving} loading={saving} className="flex-1" type="submit">
             {saving ? t('saving') : t('saveProfile')}
           </AppleButton>
+          <button
+            type="button"
+            onClick={deleteProfile}
+            className="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-rose-500 hover:bg-rose-50 transition-colors"
+          >
+            Delete
+          </button>
         </div>
+
+        {saved && hasRequiredFields() && (
+          <div className="flex justify-center pt-2">
+            <a
+              href={`/${locale}/pipeline/scrape`}
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors shadow-lg"
+            >
+              Continue to Scrape →
+            </a>
+          </div>
+        )}
 
         {error && (
           <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
