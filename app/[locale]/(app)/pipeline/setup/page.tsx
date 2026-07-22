@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { apiFetch } from '@/lib/api'
+import { apiFetch, ApiError } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
@@ -74,6 +74,7 @@ export default function Setup() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
+  const [hasProfile, setHasProfile] = useState(false)
 
   const [form, setForm] = useState<FormState>({
     full_name: '',
@@ -99,6 +100,7 @@ export default function Setup() {
       apiFetch<any>('/api/v1/setup/profile').catch(() => null),
       apiFetch<{ full_name?: string; email?: string }>('/api/v1/auth/me').catch(() => null),
     ]).then(([profile, user]) => {
+      setHasProfile(!!profile)
       if (!profile && !user) return
 
       setForm((prev) => ({
@@ -279,32 +281,26 @@ export default function Setup() {
     setError('')
     try {
       const payload = buildPayload()
+      const method = hasProfile ? 'PATCH' : 'POST'
       await apiFetch<any>('/api/v1/setup/profile', {
-        method: 'POST',
+        method,
         body: JSON.stringify(payload),
       })
     } catch (x: any) {
-      if (x?.status === 409) {
-        try {
-          await apiFetch<any>('/api/v1/setup/profile', {
-            method: 'PATCH',
-            body: JSON.stringify(buildPayload()),
-          })
-        } catch (x2: any) {
-          const msg = x2 instanceof Error ? x2.message : 'Update failed'
-          setError(msg)
-          showError(msg)
-          setSaving(false)
-          return
-        }
+      let msg: string
+      if (x instanceof ApiError && x.status === 409) {
+        msg = hasProfile ? 'Update failed' : 'Profile already exists'
+      } else if (x instanceof ApiError && x.status === 422) {
+        msg = 'Invalid data. Check your fields.'
       } else {
-        const msg = x instanceof Error ? x.message : 'Request failed'
-        setError(msg)
-        showError(msg)
-        setSaving(false)
-        return
+        msg = x instanceof Error ? x.message : 'Request failed'
       }
+      setError(msg)
+      showError(msg)
+      setSaving(false)
+      return
     }
+    setHasProfile(true)
     setSaved(true)
     const steps = getCompletedSteps()
     if (!steps.includes(1)) {
@@ -403,7 +399,7 @@ export default function Setup() {
 
         <div className="flex gap-3 border-t border-[#d2d2d7] pt-6">
           <AppleButton disabled={saving} loading={saving} className="flex-1" type="submit">
-            {saving ? t('saving') : t('saveProfile')}
+            {saving ? t('saving') : hasProfile ? t('updateProfile') : t('saveProfile')}
           </AppleButton>
           <button
             type="button"
