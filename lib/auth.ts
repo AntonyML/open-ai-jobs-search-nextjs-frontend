@@ -75,9 +75,12 @@ export const getCompletedSteps = (): number[] => {
   }
 }
 
+export const COMPLETED_STEPS_UPDATED = 'completed-steps-updated'
+
 export const setCompletedSteps = (steps: number[]) => {
   if (typeof window === 'undefined') return
   localStorage.setItem(userScopedKey(), JSON.stringify(steps))
+  window.dispatchEvent(new CustomEvent(COMPLETED_STEPS_UPDATED, { detail: steps }))
 }
 
 export const clearCompletedSteps = () => {

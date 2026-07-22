@@ -70,7 +70,6 @@ const emptyProject = (): ProjectEntry => ({
 export default function Setup() {
   const { locale } = useParams()
   const t = useTranslations('setup')
-  const tc = useTranslations('common')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
@@ -150,6 +149,18 @@ export default function Setup() {
             description: proj.description || '',
           }))
         )
+      }
+
+      // If profile exists with required fields, show saved state and mark step complete
+      const prefillName = profile?.full_name || user?.full_name || ''
+      const prefillEmail = profile?.email || user?.email || ''
+      const prefillLocation = profile?.location || ''
+      if (!!prefillName && !!prefillEmail && !!prefillLocation) {
+        setSaved(true)
+        const steps = getCompletedSteps()
+        if (!steps.includes(1)) {
+          setCompletedSteps([...steps, 1])
+        }
       }
 
       if (profile?.job_target) {
