@@ -93,20 +93,85 @@ export default function Setup() {
   const [openEduCards, setOpenEduCards] = useState<Set<string>>(new Set())
   const [openProjectCards, setOpenProjectCards] = useState<Set<string>>(new Set())
 
-  // Pre-fill from saved profile on mount
-  // full_name and email come from User table (single source of truth via relationship)
+  // Load full profile on mount
   useEffect(() => {
     Promise.all([
-      apiFetch<{ full_name?: string; email?: string; phone?: string; location?: string }>('/api/v1/setup/profile').catch(() => null),
+      apiFetch<any>('/api/v1/setup/profile').catch(() => null),
       apiFetch<{ full_name?: string; email?: string }>('/api/v1/auth/me').catch(() => null),
     ]).then(([profile, user]) => {
+      if (!profile && !user) return
+
       setForm((prev) => ({
         ...prev,
         full_name: profile?.full_name || user?.full_name || prev.full_name,
         email: profile?.email || user?.email || prev.email,
         phone: profile?.phone || prev.phone,
         location: profile?.location || prev.location,
+        skills_raw: profile?.skills?.software_tools?.join(', ') || prev.skills_raw,
+        profile_statement: profile?.profile_statement || prev.profile_statement,
       }))
+
+      if (profile?.experience?.length) {
+        setExperiences(
+          profile.experience.map((exp: any) => ({
+            _id: generateId(),
+            title: exp.title || '',
+            company: exp.company || '',
+            start_date: exp.start_date || '',
+            end_date: exp.end_date || '',
+            location: exp.location || '',
+            bullets: exp.bullets || [],
+          }))
+        )
+      }
+
+      if (profile?.education?.length) {
+        setEducations(
+          profile.education.map((edu: any) => ({
+            _id: generateId(),
+            degree: edu.degree || '',
+            institution: edu.institution || '',
+            start_date: edu.start_date || '',
+            end_date: edu.end_date || '',
+            key_topics: edu.key_topics
+              ? String(edu.key_topics).split(',').map((s: string) => s.trim()).filter(Boolean)
+              : [],
+          }))
+        )
+      }
+
+      if (profile?.projects?.length) {
+        setProjects(
+          profile.projects.map((proj: any) => ({
+            _id: generateId(),
+            name: proj.name || '',
+            description: proj.description || '',
+          }))
+        )
+      }
+
+      if (profile?.job_target) {
+        const jt = profile.job_target
+        setJobTarget({
+          target_titles: jt.target_titles || [],
+          seniority: jt.seniority ?? null,
+          work_mode: jt.work_mode || [],
+          search_locations: jt.search_locations || [],
+          search_radius_km: jt.search_radius_km ?? null,
+          employment_types: jt.employment_types || [],
+          industry: typeof jt.industry === 'string'
+            ? jt.industry.split(',').map((s: string) => s.trim()).filter(Boolean)
+            : (Array.isArray(jt.industry) ? jt.industry : []),
+          keywords: jt.keywords || [],
+          exclude_keywords: jt.exclude_keywords || [],
+          exclude_companies: jt.exclude_companies || [],
+          salary_min: jt.salary_min ?? null,
+          salary_max: jt.salary_max ?? null,
+          availability: jt.availability ?? null,
+          visa_needed: jt.visa_needed ?? null,
+          relocation_willing: jt.relocation_willing ?? null,
+        })
+      }
     })
   }, [])
 
