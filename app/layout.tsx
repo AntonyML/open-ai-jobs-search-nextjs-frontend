@@ -14,6 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
+      <head>
+        <meta name="google" content="notranslate" />
+      </head>
       <body>
         {children}
         <Toaster
