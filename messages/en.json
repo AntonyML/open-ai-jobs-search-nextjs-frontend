@@ -317,6 +317,8 @@
     "dataStoredReady": "Your data is stored and ready",
     "continueTo": "Continue to {step}",
     "twoThreeSentences": "2-3 sentences",
+    "editName": "Edit name in profile settings",
+    "emailCorrelationNotice": "This email is used as your pipeline correlation ID and cannot be changed. Use the email you will use for job applications.",
     "skillsPlaceholder": "Python, FastAPI, React, PostgreSQL, Docker\u2026",
     "skillsHint": "Press Enter or comma to add each skill",
     "profileStatementPlaceholder": "ML engineer with 5+ years building production systems at scale. Passionate about turning complex problems into elegant solutions.",

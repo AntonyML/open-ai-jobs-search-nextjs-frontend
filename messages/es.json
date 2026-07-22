@@ -316,6 +316,8 @@
     "dataStoredReady": "Tus datos están guardados y listos",
     "continueTo": "Continuar a {step}",
     "twoThreeSentences": "2-3 oraciones",
+    "editName": "Editar nombre en configuración de perfil",
+    "emailCorrelationNotice": "Este correo se usa como ID de correlación del pipeline y no se puede cambiar. Usa el correo que utilizarás para postulaciones laborales.",
     "skillsPlaceholder": "Python, FastAPI, React, PostgreSQL, Docker\u2026",
     "skillsHint": "Presiona Enter o coma para agregar cada habilidad",
     "profileStatementPlaceholder": "Ingeniero de ML con 5+ a\u00f1os construyendo sistemas de producci\u00f3n a escala. Apasionado por convertir problemas complejos en soluciones elegantes.",

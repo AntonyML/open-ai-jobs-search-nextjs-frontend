@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
@@ -91,6 +91,20 @@ export default function Setup() {
   const [openExpCards, setOpenExpCards] = useState<Set<string>>(new Set())
   const [openEduCards, setOpenEduCards] = useState<Set<string>>(new Set())
   const [openProjectCards, setOpenProjectCards] = useState<Set<string>>(new Set())
+
+  // Pre-fill full_name and email from auth/me on mount
+  useEffect(() => {
+    apiFetch<{ full_name?: string; email?: string }>('/api/v1/auth/me')
+      .then((user) => {
+        if (!user) return
+        setForm((prev) => ({
+          ...prev,
+          full_name: user.full_name || prev.full_name,
+          email: user.email || prev.email,
+        }))
+      })
+      .catch(() => {})
+  }, [])
 
   function toggleCards(setter: typeof setOpenExpCards, id: string) {
     setter((prev) => {
@@ -253,7 +267,14 @@ export default function Setup() {
       )}
 
       <form onSubmit={submit} className="space-y-6">
-        <BasicInfoSection form={form} onChange={f} />
+        <BasicInfoSection
+          full_name={form.full_name}
+          email={form.email}
+          phone={form.phone}
+          location={form.location}
+          onChange={f}
+          locale={locale as string}
+        />
 
         <JobTargetSection value={jobTarget} onChange={setJobTarget} />
 
