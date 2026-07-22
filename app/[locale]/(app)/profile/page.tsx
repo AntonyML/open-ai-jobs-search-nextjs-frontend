@@ -191,9 +191,9 @@ export default function ProfilePage() {
                             })
                             setProfile((prev: any) => ({ ...prev, name: nameInput.trim() }))
                             setEditingName(false)
-                            showSuccess('Name updated')
+                            showSuccess(t('nameUpdated'))
                           } catch {
-                            showError('Failed to update name')
+                            showError(t('nameUpdateFailed'))
                           }
                           setSavingName(false)
                         }
@@ -216,16 +216,16 @@ export default function ProfilePage() {
                           })
                           setProfile((prev: any) => ({ ...prev, name: nameInput.trim() }))
                           setEditingName(false)
-                          showSuccess('Name updated')
+                          showSuccess(t('nameUpdated'))
                         } catch {
-                          showError('Failed to update name')
+                          showError(t('nameUpdateFailed'))
                         }
                         setSavingName(false)
                       }}
                       disabled={savingName}
                       className="rounded-lg bg-[#0071e3] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#0077ed] transition-colors disabled:opacity-50"
                     >
-                      {savingName ? '...' : 'Save'}
+                      {savingName ? '...' : t('saveName')}
                     </button>
                     <button
                       type="button"
@@ -235,7 +235,7 @@ export default function ProfilePage() {
                       }}
                       className="rounded-lg border border-[#d2d2d7] px-3 py-1.5 text-xs font-medium text-[#707070] hover:bg-[#f5f5f7] transition-colors"
                     >
-                      Cancel
+                      {t('cancelNameEdit')}
                     </button>
                   </>
                 ) : (
@@ -251,7 +251,7 @@ export default function ProfilePage() {
                       }}
                       className="rounded-lg border border-[#d2d2d7] px-2.5 py-1 text-[11px] font-medium text-[#0071e3] hover:bg-[#f5f5f7] transition-colors"
                     >
-                      Edit
+                      {t('editName')}
                     </button>
                   </>
                 )}

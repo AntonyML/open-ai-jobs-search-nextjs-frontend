@@ -306,7 +306,7 @@ export default function Setup() {
     if (!steps.includes(1)) {
       setCompletedSteps([...steps, 1])
     }
-    showSuccess('Profile saved!')
+    showSuccess(t('saved'))
     setSaving(false)
   }
 
@@ -320,9 +320,9 @@ export default function Setup() {
       setProjects([emptyProject()])
       setJobTarget(DEFAULT_JOB_TARGET)
       setSaved(false)
-      showSuccess('Profile deleted')
+      showSuccess(t('profileDeleted'))
     } catch {
-      showError('Failed to delete profile')
+      showError(t('profileDeleteFailed'))
     }
   }
 
