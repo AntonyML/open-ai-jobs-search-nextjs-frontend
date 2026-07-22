@@ -246,12 +246,10 @@ export default function Rank() {
         <div className="flex items-center gap-4">
           <ReRankToggle value={reRank} onChange={setReRank} t={t} />
           <Tooltip>
-            <TooltipTrigger>
-              <span tabIndex={0}>
-                <AppleButton disabled={loading || atLimit} loading={loading} className="shrink-0">
-                  {loading ? t('ranking') : t('rankJobs')}
-                </AppleButton>
-              </span>
+            <TooltipTrigger render={<span />}>
+              <AppleButton disabled={loading || atLimit} loading={loading} className="shrink-0">
+                {loading ? t('ranking') : t('rankJobs')}
+              </AppleButton>
             </TooltipTrigger>
             {atLimit && (
               <TooltipContent side="top" align="center">
@@ -315,9 +313,9 @@ export default function Rank() {
               </div>
               {result.message && <p className="mt-1.5 text-[11px] text-[#b0b0b0]">{result.message}</p>}
             </div>
-            <button onClick={() => { complete(); router.push('/apply') }} className="btn-secondary shrink-0">
+            <AppleButton variant="secondary" onClick={() => { complete(); router.push('/apply') }}>
               Continue to Apply →
-            </button>
+            </AppleButton>
           </div>
         )}
 
@@ -352,9 +350,9 @@ export default function Rank() {
 
         {!result && items.length > 0 && (
           <div className="flex justify-center pt-2">
-            <button onClick={() => { complete(); router.push('/apply') }} className="btn-secondary">
+            <AppleButton variant="secondary" onClick={() => { complete(); router.push('/apply') }}>
               Continue to Apply →
-            </button>
+            </AppleButton>
           </div>
         )}
       </div>

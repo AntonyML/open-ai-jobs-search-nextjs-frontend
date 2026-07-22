@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { apiFetch, ApiError } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
@@ -69,6 +69,7 @@ const emptyProject = (): ProjectEntry => ({
 
 export default function Setup() {
   const { locale } = useParams()
+  const router = useRouter()
   const t = useTranslations('setup')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -351,12 +352,9 @@ export default function Setup() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
             {t('profileSaved')}
           </div>
-          <a
-            href={`/${locale}/pipeline/scrape`}
-            className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition-colors"
-          >
-            {t('continueToScrape')}
-          </a>
+           <AppleButton variant="secondary" size="sm" onClick={() => router.push(`/${locale}/pipeline/scrape`)}>
+             {t('continueToScrape')}
+           </AppleButton>
         </div>
       )}
 
@@ -423,12 +421,9 @@ export default function Setup() {
 
         {saved && hasRequiredFields() && (
           <div className="flex justify-center pt-2">
-            <a
-              href={`/${locale}/pipeline/scrape`}
-              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors shadow-lg"
-            >
-              {t('continueToScrape')}
-            </a>
+             <AppleButton variant="secondary" onClick={() => router.push(`/${locale}/pipeline/scrape`)}>
+               {t('continueToScrape')}
+             </AppleButton>
           </div>
         )}
 
