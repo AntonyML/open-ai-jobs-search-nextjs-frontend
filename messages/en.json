@@ -219,7 +219,13 @@
     "chooseModelRequired": "Choose or enter a model before saving",
     "noActiveProvider": "No active provider configured. Set up one below to use AI features.",
     "apiBaseRequiredForProvider": "API base is required for this provider",
-    "failedToSave": "Failed to save provider"
+    "failedToSave": "Failed to save provider",
+    "eyebrow": "01 / CONFIGURE",
+    "providerSaved": "Provider saved: {provider} / {model}",
+    "providerDeleted": "Provider deleted: {provider}",
+    "modelsLoaded": "{count} models loaded",
+    "testOk": "Test OK: {provider} / {model}",
+    "activeLabel": "active"
   },
   "dashboard": {
     "title": "Dashboard",

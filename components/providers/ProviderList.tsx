@@ -42,7 +42,7 @@ export function ProviderList({
           <span className="text-sm text-slate-300">
             {p.provider}
             {p.is_active && (
-              <span className="ml-2 text-xs text-emerald-400">(active)</span>
+              <span className="ml-2 text-xs text-emerald-400">({t('activeLabel')})</span>
             )}
           </span>
           <div className="flex gap-2">

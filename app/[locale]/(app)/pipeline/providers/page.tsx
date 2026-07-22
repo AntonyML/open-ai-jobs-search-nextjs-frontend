@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { showSuccess, showError, showWarning } from '@/lib/toasts'
-import { setCompletedSteps, isPremium } from '@/lib/auth'
+import { setCompletedSteps, getCompletedSteps, isPremium } from '@/lib/auth'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleButton } from '@/components/ui/apple-button'
 import { ProviderForm } from '@/components/providers/ProviderForm'
@@ -60,7 +60,12 @@ export default function Providers() {
     apiFetch<any>('/api/v1/providers/me/active')
       .then((x) => {
         setActive(x)
-        if (!x?.provider) {
+        if (x?.provider) {
+          const steps = getCompletedSteps()
+          if (!steps.includes(0)) {
+            setCompletedSteps([...steps, 0])
+          }
+        } else {
           showWarning(t('noActiveProvider'))
         }
       })
@@ -115,7 +120,7 @@ export default function Providers() {
     })
     setActive(updated)
     setSaveError('')
-    showSuccess(`Provider saved: ${updated.provider} / ${updated.model}`)
+    showSuccess(t('providerSaved', { provider: updated.provider, model: updated.model }))
     loadMyProviders()
   }
 
@@ -126,7 +131,10 @@ export default function Providers() {
     })
     const updated = await apiFetch<any>('/api/v1/providers/me/active')
     setActive(updated)
-    setCompletedSteps([0])
+    const steps = getCompletedSteps()
+    if (!steps.includes(0)) {
+      setCompletedSteps([...steps, 0])
+    }
   }
 
   async function remove(p: string) {
@@ -134,7 +142,7 @@ export default function Providers() {
     if (active?.provider === p) {
       setActive(null)
     }
-    showSuccess(`Provider deleted: ${p}`)
+    showSuccess(t('providerDeleted', { provider: p }))
     loadMyProviders()
   }
 
@@ -143,7 +151,7 @@ export default function Providers() {
   return (
     <section className="mx-auto max-w-5xl">
       <PipelineHeader
-        eyebrow="01 / CONFIGURE"
+        eyebrow={t('eyebrow')}
         title={t('title')}
       />
 

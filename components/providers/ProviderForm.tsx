@@ -89,7 +89,7 @@ export function ProviderForm({
       })
       setModels(x.models || [])
       setTested(false)
-      showSuccess(`${(x.models || []).length} models loaded`)
+      showSuccess(t('modelsLoaded', { count: (x.models || []).length }))
     } catch (e) {
       setModels([])
       const msg = e instanceof Error ? e.message : t('couldNotLoadModels')
@@ -119,7 +119,7 @@ export function ProviderForm({
       })
       window.clearTimeout(timeout)
       setTested(true)
-      showSuccess(`Test OK: ${x.provider} / ${x.model}`)
+      showSuccess(t('testOk', { provider: x.provider, model: x.model }))
     } catch (e) {
       setTested(false)
       const raw =

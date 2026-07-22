@@ -218,7 +218,13 @@
     "chooseModelRequired": "Elige o ingresa un modelo antes de guardar",
     "noActiveProvider": "No hay proveedor activo configurado. Configura uno abajo para usar funciones de IA.",
     "apiBaseRequiredForProvider": "Se requiere una API base para este proveedor",
-    "failedToSave": "Error al guardar el proveedor"
+    "failedToSave": "Error al guardar el proveedor",
+    "eyebrow": "01 / CONFIGURAR",
+    "providerSaved": "Proveedor guardado: {provider} / {model}",
+    "providerDeleted": "Proveedor eliminado: {provider}",
+    "modelsLoaded": "{count} modelos cargados",
+    "testOk": "Prueba OK: {provider} / {model}",
+    "activeLabel": "activo"
   },
   "dashboard": {
     "title": "Panel",
