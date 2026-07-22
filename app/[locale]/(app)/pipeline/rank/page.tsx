@@ -46,7 +46,7 @@ export default function Rank() {
   const [customFocus, setCustomFocus] = useState('')
   const [topN, setTopN] = useState(5)
   const [reRank, setReRank] = useState(false)
-  const prevStepDone = getCompletedSteps().includes(2)
+  const [prevStepDone, setPrevStepDone] = useState(getCompletedSteps().includes(2))
 
   // Data state
   const [items, setItems] = useState<any[]>([])
@@ -67,7 +67,15 @@ export default function Rank() {
   // Load existing jobs on mount
   useEffect(() => {
     apiFetch<any>('/api/v1/rank/jobs')
-      .then(x => setItems(Array.isArray(x) ? x : (x.items || x.jobs || [])))
+      .then(x => {
+        const loaded = Array.isArray(x) ? x : (x.items || x.jobs || [])
+        setItems(loaded)
+        if (loaded.length > 0) {
+          setPrevStepDone(true)
+          const steps = getCompletedSteps()
+          if (!steps.includes(2)) setCompletedSteps([...steps, 2])
+        }
+      })
       .catch(() => {})
   }, [])
 

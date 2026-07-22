@@ -427,6 +427,18 @@ export default function Scrape() {
               <AppleButton variant="secondary" className="w-full" onClick={() => router.push('/rank')}>
                 {t('continueToRank')}
               </AppleButton>
+              <AppleButton variant="ghost" size="sm" className="w-full text-[#b0b0b0]" onClick={async () => {
+                if (!window.confirm('Clear all scraped jobs and start fresh?')) return
+                try {
+                  await apiFetch('/api/v1/pipeline-reset/', { method: 'DELETE' })
+                  setJobs([])
+                  setResult(null)
+                  setRunId(null)
+                  showSuccess('Jobs cleared')
+                } catch { showError('Failed to clear jobs') }
+              }}>
+                Clear all jobs
+              </AppleButton>
             </>
           ) : !isScraping ? (
             <PipelineEmptyState
