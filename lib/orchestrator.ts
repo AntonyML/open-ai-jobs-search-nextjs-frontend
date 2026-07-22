@@ -240,8 +240,8 @@ export function useOrchestrator() {
         }
       }
 
-      ws.onerror = () => {
-        // onclose will fire after onerror, so we handle reconnection there
+      ws.onerror = (event) => {
+        console.error('[WS] Connection error:', event)
       }
 
       ws.onclose = () => {

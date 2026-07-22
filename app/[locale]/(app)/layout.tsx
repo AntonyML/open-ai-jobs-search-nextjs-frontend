@@ -34,7 +34,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarInset>
         </div>
       </SidebarProvider>
-      <LLMControlCenter />
+      {['scrape', 'rank', 'apply', 'interview', 'expand', 'upskill'].some(s => path.includes(s)) && <LLMControlCenter />}
       <UpgradeListener />
     </div>
   )

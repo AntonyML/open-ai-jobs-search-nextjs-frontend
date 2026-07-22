@@ -4,7 +4,6 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
-import { useOrchestrator } from '@/lib/orchestrator'
 import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
@@ -59,13 +58,9 @@ export default function Rank() {
   const [elapsed, setElapsed] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
 
-  // Orchestrator
-  const { queue, providers } = useOrchestrator()
-  const jobIdRef = useRef<string | null>(null)
-  const resolveJobRef = useRef<((status: any) => void) | null>(null)
-  const rejectJobRef = useRef<((err: Error) => void) | null>(null)
   const submittingRef = useRef(false)
   const mountedRef = useRef(true)
+  const [runningJob, setRunningJob] = useState<any>(null)
 
   useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false } }, [])
 
@@ -76,33 +71,21 @@ export default function Rank() {
       .catch(() => {})
   }, [])
 
-  // Watch for job completion via WebSocket
-  useEffect(() => {
-    if (!jobIdRef.current || !queue) return
-    const completedJob = queue.recent_completed.find(j => j.id === jobIdRef.current)
-    if (completedJob) {
-      const resolve = resolveJobRef.current
-      resolveJobRef.current = null
-      if (resolve) {
-        fetch(`/api/v1/rank/status/${jobIdRef.current}`)
-          .then(r => r.json()).then(resolve)
-          .catch(() => {
-            apiFetch<any>('/api/v1/rank/jobs').then(x => {
-              const items = Array.isArray(x) ? x : (x.items || x.jobs || [])
-              resolve({ status: 'completed', result: { ranked_count: items.filter((i: any) => i.rank_score != null).length } })
-            }).catch(() => resolve({ status: 'completed' }))
-          })
-      }
-      return
+  // Poll a single job until it completes or fails
+  async function pollJob(jobId: string, timeoutMs: number): Promise<any> {
+    const deadline = Date.now() + timeoutMs
+    while (Date.now() < deadline) {
+      await new Promise(r => setTimeout(r, 2000))
+      try {
+        const job = await apiFetch<any>(`/api/v1/orchestrator/jobs/${jobId}`)
+        if (!mountedRef.current) throw new Error('unmounted')
+        setRunningJob(job)
+        if (job?.status === 'completed') return job
+        if (job?.status === 'failed') return { status: 'failed', error: job.last_error }
+      } catch { /* retry */ }
     }
-    const failedJob = [...queue.recent_completed, ...queue.pending_jobs]
-      .find(j => j.id === jobIdRef.current && j.status === 'failed')
-    if (failedJob) {
-      const reject = rejectJobRef.current
-      rejectJobRef.current = null
-      if (reject) reject(new Error(failedJob.last_error || 'Ranking failed'))
-    }
-  }, [queue])
+    throw new Error('Ranking timed out')
+  }
 
   // Merge salary data
   useEffect(() => {
@@ -156,16 +139,9 @@ export default function Rank() {
       const fa = customFocus.trim() || focusArea
       if (fa) body.focus_area = fa
       const data = await apiFetch<any>('/api/v1/rank/', { method: 'POST', body: JSON.stringify(body) })
-      jobIdRef.current = data.job_id
       if (data.total_jobs != null) setTotalJobs(data.total_jobs)
 
-      const completed = await new Promise<any>((resolve, reject) => {
-        resolveJobRef.current = resolve
-        rejectJobRef.current = reject
-        setTimeout(() => {
-          if (resolveJobRef.current) { resolveJobRef.current = null; rejectJobRef.current = null; reject(new Error('Ranking timed out')) }
-        }, 10 * 60 * 1000)
-      })
+      const completed = await pollJob(data.job_id, 10 * 60 * 1000)
       if (!mountedRef.current) return
 
       if (completed?.status === 'failed') {
@@ -205,8 +181,7 @@ export default function Rank() {
       addNotification({ pipeline: 'rank', description: msg, status: 'error' })
       setError(msg)
     } finally {
-      if (mountedRef.current) { setLoading(false) }
-      jobIdRef.current = null
+      if (mountedRef.current) { setLoading(false); setRunningJob(null) }
       submittingRef.current = false
     }
   }
@@ -241,8 +216,7 @@ export default function Rank() {
   const progressPct = totalCount > 0 ? Math.min(100, Math.round((rankedCount / totalCount) * 100)) : 0
   const remaining = Math.max(0, totalCount - rankedCount)
   const etaSeconds = progressPct > 5 ? Math.round((elapsed / progressPct) * (100 - progressPct)) : null
-  const runningJob = queue?.running_jobs[0] ?? null
-  const activeProvider = providers.find(p => p.provider === runningJob?.provider) ?? null
+  const activeProvider = runningJob?.provider ? { provider: runningJob.provider, health_score: 1, last_error_code: null } : null
 
   return (
     <section className="mx-auto max-w-4xl">
