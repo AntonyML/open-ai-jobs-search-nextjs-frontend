@@ -13,10 +13,25 @@ import { AppleButton } from '@/components/ui/apple-button'
 import { UpgradeBanner } from '@/components/ui/upgrade-banner'
 import { OptionPills } from '@/components/scrape/OptionPills'
 import { PipelineEmptyState } from '@/components/PipelineEmptyState'
-import { Search } from 'lucide-react'
+import { TagInput } from '@/components/ui/TagInput'
+import { Search, MapPin, Briefcase } from 'lucide-react'
 import UpgradeModal from '@/components/UpgradeModal'
 
-const PORTALS = ['linkedin', 'freehire', 'jobbank', 'jobdanmark', 'jobindex', 'jobnet']
+const PORTALS = [
+  { id: 'linkedin', label: 'LinkedIn' },
+  { id: 'freehire', label: 'FreeHire' },
+  { id: 'jobbank', label: 'JobBank' },
+  { id: 'jobdanmark', label: 'JobDanmark' },
+  { id: 'jobindex', label: 'JobIndex' },
+  { id: 'jobnet', label: 'JobNet' },
+]
+
+const REMOTE_OPTIONS = [
+  { value: '', labelKey: 'remoteAll' },
+  { value: 'remote', labelKey: 'remoteRemote' },
+  { value: 'hybrid', labelKey: 'remoteHybrid' },
+  { value: 'onsite', labelKey: 'remoteOnsite' },
+]
 
 function PortalTag({ name, active, onToggle }: { name: string; active: boolean; onToggle: () => void }) {
   return (
@@ -110,8 +125,11 @@ export default function Scrape() {
   const premium = isPremium()
   const [showUpgrade, setShowUpgrade] = useState(false)
 
-  const [focus_area, setFocusArea] = useState('')
-  const [prefilledFromTarget, setPrefilledFromTarget] = useState(false)
+  const [keywords, setKeywords] = useState<string[]>([])
+  const [targetTitles, setTargetTitles] = useState<string[]>([])
+  const [seniority, setSeniority] = useState('')
+  const [location, setLocation] = useState('')
+  const [remote, setRemote] = useState('')
   const [broad, setBroad] = useState(false)
   const [selectedPortals, setSelectedPortals] = useState<string[]>([])
   const prevStepDone = getCompletedSteps().includes(1)
@@ -121,7 +139,6 @@ export default function Scrape() {
   const [error, setError] = useState('')
   const [result, setResult] = useState<any>(null)
   const [jobs, setJobs] = useState<any[]>([])
-
   function loadJobs() {
     apiFetch<any[]>('/api/v1/scrape/jobs').then(x => setJobs(Array.isArray(x) ? x : [])).catch(() => {})
   }
@@ -131,12 +148,17 @@ export default function Scrape() {
     apiFetch<any>('/api/v1/setup/profile').then(profile => {
       if (profile?.job_target) {
         const jt = profile.job_target
-        const parts: string[] = []
-        if (jt.target_titles?.length) parts.push(jt.target_titles[0])
-        if (jt.keywords?.length) parts.push(jt.keywords.join(' '))
-        if (parts.length) {
-          setFocusArea(parts.join(' — '))
-          setPrefilledFromTarget(true)
+        if (jt.target_titles?.length) {
+          setTargetTitles(jt.target_titles)
+        }
+        if (jt.seniority) {
+          setSeniority(jt.seniority)
+        }
+        if (jt.search_locations?.length && !location) {
+          setLocation(jt.search_locations[0])
+        }
+        if (jt.keywords?.length) {
+          setKeywords(jt.keywords)
         }
       }
     }).catch(() => {})
@@ -152,7 +174,11 @@ export default function Scrape() {
     setError('')
     try {
       const payload: Record<string, any> = { jobage_days, limit_per_portal, broad }
-      if (focus_area.trim()) payload.focus_area = focus_area.trim()
+      if (keywords.length > 0) payload.keywords = keywords
+      if (targetTitles.length > 0) payload.target_titles = targetTitles
+      if (seniority) payload.seniority = seniority
+      if (location.trim()) payload.location = location.trim()
+      if (remote) payload.remote = remote
       if (selectedPortals.length > 0) payload.portals = selectedPortals
 
       const data = await apiFetch<any>('/api/v1/scrape/', { method: 'POST', body: JSON.stringify(payload) })
@@ -165,7 +191,7 @@ export default function Scrape() {
       playPipelineSound('scrape')
       const jobCount = data.jobs_found ?? 0
       showSuccess(t('jobsFound', { count: jobCount }))
-      addNotification({ pipeline: 'scrape', description: t('notificationFound', { count: jobCount, focus: focus_area || 'all' }), status: 'success' })
+      addNotification({ pipeline: 'scrape', description: t('notificationFound', { count: jobCount, focus: keywords.join(', ') || 'all' }), status: 'success' })
     } catch (x) {
       const msg = x instanceof Error ? x.message : t('scrapeFailed')
       playErrorSound()
@@ -199,21 +225,64 @@ export default function Scrape() {
             </p>
             <div className="flex flex-wrap gap-2">
               {PORTALS.map(p => (
-                <PortalTag key={p} name={p} active={selectedPortals.includes(p)} onToggle={() => togglePortal(p)} />
+                <PortalTag key={p.id} name={p.label} active={selectedPortals.includes(p.id)} onToggle={() => togglePortal(p.id)} />
               ))}
             </div>
           </div>
 
-          {/* Focus area */}
+          {/* Keywords as tags */}
           <label className="block text-sm font-medium text-[#1d1d1f]">
             <span className="flex items-center gap-2">
-              {t('focusArea')} <span className="text-[#858585] font-normal text-xs">{tc('optional')}</span>
-              {prefilledFromTarget && (
-                <span className="text-[10px] bg-[#0071e3]/10 text-[#0071e3] px-2 py-0.5 rounded-full font-medium">{t('fromJobTarget')}</span>
-              )}
+              <Briefcase className="h-3.5 w-3.5 text-[#858585]" />
+              {t('keywords')}
             </span>
-            <input className="field mt-1.5" placeholder={t('focusAreaPlaceholder')} value={focus_area} onChange={e => { setPrefilledFromTarget(false); setFocusArea(e.target.value); }} />
+            <div className="mt-1.5">
+              <TagInput
+                tags={keywords}
+                onChange={setKeywords}
+                placeholder={t('keywordsPlaceholder')}
+                color="blue"
+              />
+            </div>
+            <p className="mt-1 text-[11px] text-[#b0b0b0]">{t('keywordsHint')}</p>
           </label>
+
+          {/* Location */}
+          <label className="block text-sm font-medium text-[#1d1d1f]">
+            <span className="flex items-center gap-2">
+              <MapPin className="h-3.5 w-3.5 text-[#858585]" />
+              {t('location')} <span className="text-[#858585] font-normal text-xs">{tc('optional')}</span>
+            </span>
+            <input
+              className="field mt-1.5"
+              placeholder={t('locationPlaceholder')}
+              value={location}
+              onChange={e => setLocation(e.target.value)}
+            />
+          </label>
+
+          {/* Remote toggle */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#858585] mb-3">
+              {t('remote')}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {REMOTE_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setRemote(opt.value)}
+                  className={`rounded-full px-3 py-1.5 text-[12px] font-medium transition-all ${
+                    remote === opt.value
+                      ? 'bg-[#0071e3] text-white'
+                      : 'border border-[#d2d2d7] text-[#707070] hover:border-[#0071e3]/30 hover:text-[#0071e3] bg-white'
+                  }`}
+                >
+                  {t(opt.labelKey)}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <OptionPills
             label={t('postedInLastLabel')}
