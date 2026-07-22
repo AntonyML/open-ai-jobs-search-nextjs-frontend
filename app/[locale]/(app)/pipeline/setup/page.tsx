@@ -70,6 +70,7 @@ const emptyProject = (): ProjectEntry => ({
 export default function Setup() {
   const { locale } = useParams()
   const t = useTranslations('setup')
+  const tc = useTranslations('common')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
@@ -249,7 +250,7 @@ export default function Setup() {
   }
 
   async function deleteProfile() {
-    if (!confirm('Are you sure you want to delete your profile? All data will be lost.')) return
+    if (!confirm(t('deleteProfileConfirm'))) return
     try {
       await apiFetch('/api/v1/setup/profile', { method: 'DELETE' })
       setForm({ full_name: '', email: '', phone: '', location: '', skills_raw: '', profile_statement: '' })
@@ -344,7 +345,7 @@ export default function Setup() {
             onClick={deleteProfile}
             className="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-rose-500 hover:bg-rose-50 transition-colors"
           >
-            Delete
+            {t('deleteProfile')}
           </button>
         </div>
 

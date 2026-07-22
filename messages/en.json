@@ -302,6 +302,8 @@
     "saveProfile": "Save profile",
     "saving": "Saving…",
     "saved": "Profile saved!",
+    "deleteProfile": "Delete profile",
+    "deleteProfileConfirm": "Are you sure? All profile data will be lost.",
     "addExperience": "Add experience",
     "addEducation": "Add education",
     "addProject": "Add project",

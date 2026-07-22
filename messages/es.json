@@ -301,6 +301,8 @@
     "saveProfile": "Guardar perfil",
     "saving": "Guardando…",
     "saved": "¡Perfil guardado!",
+    "deleteProfile": "Eliminar perfil",
+    "deleteProfileConfirm": "¿Estás seguro? Todos los datos del perfil se perderán.",
     "addExperience": "Agregar experiencia",
     "addEducation": "Agregar educación",
     "addProject": "Agregar proyecto",
