@@ -50,7 +50,7 @@ export function SkillsSection({ form, onFieldChange }: Props) {
             color="amber"
           />
         </div>
-        <p className="mt-1 text-[11px] text-[#b0b0b0]">Press Enter or comma to add each skill</p>
+        <p className="mt-1 text-[11px] text-[#b0b0b0]">{t('skillsHint')}</p>
       </label>
 
       <label className="block text-sm text-[#1d1d1f]">

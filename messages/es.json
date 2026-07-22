@@ -317,6 +317,7 @@
     "continueTo": "Continuar a {step}",
     "twoThreeSentences": "2-3 oraciones",
     "skillsPlaceholder": "Python, FastAPI, React, PostgreSQL, Docker\u2026",
+    "skillsHint": "Presiona Enter o coma para agregar cada habilidad",
     "profileStatementPlaceholder": "Ingeniero de ML con 5+ a\u00f1os construyendo sistemas de producci\u00f3n a escala. Apasionado por convertir problemas complejos en soluciones elegantes.",
     "basicNamePlaceholder": "Juan P\u00e9rez",
     "basicEmailPlaceholder": "juan@ejemplo.com",

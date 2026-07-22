@@ -11,7 +11,7 @@ export interface JobTarget {
   search_locations: string[]
   search_radius_km: number | null
   employment_types: string[]
-  industry: string
+  industry: string[]
   keywords: string[]
   exclude_keywords: string[]
   exclude_companies: string[]
@@ -29,7 +29,7 @@ const DEFAULT_JOB_TARGET: JobTarget = {
   search_locations: [],
   search_radius_km: null,
   employment_types: [],
-  industry: '',
+  industry: [],
   keywords: [],
   exclude_keywords: [],
   exclude_companies: [],
@@ -193,12 +193,14 @@ export function JobTargetSection({ value, onChange }: Props) {
           <label className="block text-sm text-[#1d1d1f]">
             {t('industry')}
           </label>
-          <input
-            className="field mt-1.5 text-sm"
-            placeholder={t('industryPlaceholder')}
-            value={value.industry}
-            onChange={(e) => update('industry', e.target.value)}
-          />
+          <div className="mt-1.5">
+            <TagInput
+              tags={value.industry}
+              onChange={(tags) => update('industry', tags)}
+              placeholder={t('industryPlaceholder')}
+              color="blue"
+            />
+          </div>
         </div>
 
         <div className="sm:col-span-2">

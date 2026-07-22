@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
@@ -55,8 +56,9 @@ const emptyEducation = (): EducationEntry => ({
   _id: generateId(),
   degree: '',
   institution: '',
-  period: '',
-  key_topics: '',
+  start_date: '',
+  end_date: '',
+  key_topics: [],
 })
 
 const emptyProject = (): ProjectEntry => ({
@@ -66,6 +68,7 @@ const emptyProject = (): ProjectEntry => ({
 })
 
 export default function Setup() {
+  const { locale } = useParams()
   const t = useTranslations('setup')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -112,13 +115,13 @@ export default function Setup() {
     setExperiences((prev) =>
       prev.map((e) =>
         e._id === id
-          ? { ...e, bullets: raw.split('\n').map((s) => s.trim()).filter(Boolean) }
+          ? { ...e, bullets: raw.split('\n').map((s) => s.trim()) }
           : e
       )
     )
   }
 
-  function updateEdu(id: string, key: keyof EducationEntry, value: string) {
+  function updateEdu(id: string, key: keyof EducationEntry, value: any) {
     setEducations((prev) =>
       prev.map((e) => (e._id === id ? { ...e, [key]: value } : e))
     )
@@ -144,7 +147,7 @@ export default function Setup() {
         start_date: e.start_date || undefined,
         end_date: e.end_date || undefined,
         location: e.location.trim() || undefined,
-        bullets: e.bullets,
+        bullets: e.bullets.filter((b: string) => b.trim()),
       }))
 
     const payload: Record<string, any> = {}
@@ -167,8 +170,9 @@ export default function Setup() {
       .map((e) => ({
         degree: e.degree.trim(),
         institution: e.institution.trim(),
-        period: e.period || undefined,
-        key_topics: e.key_topics.trim() || undefined,
+        start_date: e.start_date || undefined,
+        end_date: e.end_date || undefined,
+        key_topics: e.key_topics.filter(Boolean).join(', ') || undefined,
       }))
     if (educationPayload.length) payload.education = educationPayload
     if (skillsList.length)
@@ -179,7 +183,12 @@ export default function Setup() {
       }
     if (form.profile_statement) payload.profile_statement = form.profile_statement
     const hasJobTarget = jobTarget.target_titles.length > 0
-    if (hasJobTarget) payload.job_target = jobTarget
+    if (hasJobTarget) {
+      payload.job_target = {
+        ...jobTarget,
+        industry: jobTarget.industry.filter(Boolean).join(', ') || null,
+      }
+    }
     return payload
   }
 
@@ -189,18 +198,10 @@ export default function Setup() {
     setError('')
     try {
       const payload = buildPayload()
-      let res = await apiFetch<any>('/api/v1/setup/profile', {
+      await apiFetch<any>('/api/v1/setup/profile', {
         method: 'POST',
         body: JSON.stringify(payload),
       })
-      setSaved(true)
-      const steps = getCompletedSteps()
-      if (!steps.includes(1)) {
-        setCompletedSteps([...steps, 1])
-        showSuccess('Profile saved!')
-      } else {
-        showSuccess('Profile updated')
-      }
     } catch (x: any) {
       if (x?.status === 409) {
         try {
@@ -208,21 +209,28 @@ export default function Setup() {
             method: 'PATCH',
             body: JSON.stringify(buildPayload()),
           })
-          setSaved(true)
-          showSuccess('Profile updated')
         } catch (x2: any) {
           const msg = x2 instanceof Error ? x2.message : 'Update failed'
           setError(msg)
           showError(msg)
+          setSaving(false)
+          return
         }
       } else {
         const msg = x instanceof Error ? x.message : 'Request failed'
         setError(msg)
         showError(msg)
+        setSaving(false)
+        return
       }
-    } finally {
-      setSaving(false)
     }
+    setSaved(true)
+    const steps = getCompletedSteps()
+    if (!steps.includes(1)) {
+      setCompletedSteps([...steps, 1])
+    }
+    showSuccess('Profile saved!')
+    setSaving(false)
   }
 
   return (
@@ -230,9 +238,17 @@ export default function Setup() {
       <PipelineHeader eyebrow="02 / PROFILE" title={t('title')} subtitle={t('subtitle')} />
 
       {saved && (
-        <div className="mb-6 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
-          Profile saved
+        <div className="mb-6 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          <div className="flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
+            Profile saved
+          </div>
+          <a
+            href={`/${locale}/pipeline/scrape`}
+            className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition-colors"
+          >
+            Continue to Scrape →
+          </a>
         </div>
       )}
 

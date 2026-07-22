@@ -2,20 +2,22 @@
 
 import { useTranslations } from 'next-intl'
 import { CollapsibleCard, CollapsibleCardListWrapper } from '@/components/setup/CollapsibleCard'
+import { TagInput } from '@/components/ui/TagInput'
 
 export interface EducationEntry {
   _id: string
   degree: string
   institution: string
-  period: string
-  key_topics: string
+  start_date: string
+  end_date: string
+  key_topics: string[]
 }
 
 interface Props {
   educations: EducationEntry[]
   openCards: Set<string>
   onToggle: (id: string) => void
-  onUpdate: (id: string, key: keyof EducationEntry, value: string) => void
+  onUpdate: (id: string, key: keyof EducationEntry, value: any) => void
   onAdd: () => void
   onRemove: (id: string) => void
 }
@@ -87,24 +89,34 @@ export function EducationSection({
               />
             </label>
             <label className="block text-sm text-[#1d1d1f]">
-              {t('period')} <span className="text-[#b0b0b0]">{t('dateFormat')}</span>
+              {t('startDate')} <span className="text-[#b0b0b0]">{t('dateFormat')}</span>
               <input
                 type="month"
                 className="field mt-1.5"
-                placeholder={t('eduPeriodPlaceholder')}
-                value={edu.period}
-                onChange={(e) => onUpdate(edu._id, 'period', e.target.value)}
+                value={edu.start_date}
+                onChange={(e) => onUpdate(edu._id, 'start_date', e.target.value)}
+              />
+            </label>
+            <label className="block text-sm text-[#1d1d1f]">
+              {t('endDate')} <span className="text-[#b0b0b0]">{t('orPresent')}</span>
+              <input
+                type="month"
+                className="field mt-1.5"
+                value={edu.end_date}
+                onChange={(e) => onUpdate(edu._id, 'end_date', e.target.value)}
               />
             </label>
           </div>
           <label className="block text-sm text-[#1d1d1f]">
             {t('keyTopics')} <span className="text-[#b0b0b0]">{tc('optional')} — {t('relevantCoursework')}</span>
-            <textarea
-              className="field mt-1.5 h-16 resize-none"
-              placeholder={t('eduTopicsPlaceholder')}
-              value={edu.key_topics}
-              onChange={(e) => onUpdate(edu._id, 'key_topics', e.target.value)}
-            />
+            <div className="mt-1.5">
+              <TagInput
+                tags={edu.key_topics}
+                onChange={(tags) => onUpdate(edu._id, 'key_topics', tags)}
+                placeholder={t('eduTopicsPlaceholder')}
+                color="violet"
+              />
+            </div>
           </label>
         </CollapsibleCard>
       ))}

@@ -318,6 +318,7 @@
     "continueTo": "Continue to {step}",
     "twoThreeSentences": "2-3 sentences",
     "skillsPlaceholder": "Python, FastAPI, React, PostgreSQL, Docker\u2026",
+    "skillsHint": "Press Enter or comma to add each skill",
     "profileStatementPlaceholder": "ML engineer with 5+ years building production systems at scale. Passionate about turning complex problems into elegant solutions.",
     "basicNamePlaceholder": "Jane Doe",
     "basicEmailPlaceholder": "jane@example.com",
