@@ -26,6 +26,9 @@ export default function ProfilePage() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<ProfileTab>('Experience')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [editingName, setEditingName] = useState(false)
+  const [nameInput, setNameInput] = useState('')
+  const [savingName, setSavingName] = useState(false)
   const [deletePassword, setDeletePassword] = useState('')
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleting, setDeleting] = useState(false)
@@ -170,9 +173,60 @@ export default function ProfilePage() {
               )}
             </div>
             <div className="min-w-0">
-              <h2 className="text-lg font-semibold text-[#1d1d1f] truncate">
-                {profile?.name || profile?.email?.split('@')[0] || t('user')}
-              </h2>
+              {editingName ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    className="field text-lg font-semibold py-1 px-2 w-full"
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    onKeyDown={async (e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        setSavingName(true)
+                        try {
+                          await apiFetch('/api/v1/setup/profile', {
+                            method: 'PATCH',
+                            body: JSON.stringify({ full_name: nameInput.trim() }),
+                          })
+                          setProfile((prev: any) => ({ ...prev, name: nameInput.trim() }))
+                          setEditingName(false)
+                          showSuccess('Name updated')
+                        } catch {
+                          showError('Failed to update name')
+                        }
+                        setSavingName(false)
+                      }
+                      if (e.key === 'Escape') {
+                        setEditingName(false)
+                        setNameInput(profile?.name || '')
+                      }
+                    }}
+                    onBlur={() => {
+                      setEditingName(false)
+                      setNameInput(profile?.name || '')
+                    }}
+                    autoFocus
+                    disabled={savingName}
+                  />
+                  {savingName && (
+                    <svg className="animate-spin size-4 text-[#b0b0b0]" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  )}
+                </div>
+              ) : (
+                <h2 className="text-lg font-semibold text-[#1d1d1f] truncate group flex items-center gap-2 cursor-pointer"
+                    onClick={() => {
+                      setNameInput(profile?.name || '')
+                      setEditingName(true)
+                    }}>
+                  <span>{profile?.name || profile?.email?.split('@')[0] || t('user')}</span>
+                  <svg className="size-3.5 text-[#b0b0b0] opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                  </svg>
+                </h2>
+              )}
               {profile?.email ? (
                 <p className="text-sm text-[#707070] flex items-center gap-1.5 mt-0.5">
                   <svg className="size-3.5 text-[#b0b0b0] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
