@@ -26,7 +26,7 @@ function PortalTag({ name, active, onToggle }: { name: string; active: boolean; 
       className={`rounded-full px-3 py-1.5 text-[12px] font-medium transition-all ${
         active
           ? 'bg-[#0071e3] text-white'
-          : 'border border-[#d2d2d7] text-[#474747] hover:border-[#0071e3]/30 hover:text-[#0071e3] bg-white'
+          : 'border border-[#d2d2d7] text-[#707070] hover:border-[#0071e3]/30 hover:text-[#0071e3] bg-white'
       }`}
     >
       {name}
@@ -39,7 +39,7 @@ function ToggleSwitch({ value, onChange, label, desc }: { value: boolean; onChan
     <div className="flex items-center justify-between rounded-xl border border-[#d2d2d7] bg-white px-4 py-3">
       <div>
         <p className="text-sm text-[#1d1d1f] font-medium">{label}</p>
-        <p className="text-xs text-[#858585] mt-0.5">{desc}</p>
+        <p className="text-xs text-[#707070] mt-0.5">{desc}</p>
       </div>
       <button
         type="button"
@@ -65,9 +65,9 @@ function ScrapeResultBanner({ result }: { result: any }) {
           </svg>
         </div>
         <div>
-          <p className="text-sm font-semibold text-emerald-700">{result.message}</p>
-          <p className="text-[11px] text-[#858585] mt-0.5">
-            Portals: {result.portals_queried?.join(', ') || '—'}
+          <p className="text-sm font-semibold text-[#1d1d1f]">{result.message}</p>
+          <p className="text-[11px] text-[#707070] mt-0.5">
+            {result.portals_queried?.join(', ') || '—'}
           </p>
         </div>
       </div>
@@ -81,7 +81,7 @@ function ScrapeResultBanner({ result }: { result: any }) {
 
 function ScrapeJobCard({ job, index }: { job: any; index: number }) {
   return (
-    <article key={index} className="card hover:border-[#d2d2d7]/80 transition-colors">
+    <article key={index} className="card transition-colors">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-[#1d1d1f] truncate">{job.title}</p>
@@ -89,13 +89,13 @@ function ScrapeJobCard({ job, index }: { job: any; index: number }) {
             {job.company || ''}{job.company && job.location ? ' · ' : ''}{job.location || ''}
           </p>
         </div>
-        <span className="tag-filled shrink-0 bg-[#f5f5f7] text-[#707070]">
+        <span className="shrink-0 rounded-full border border-[#d2d2d7] bg-[#f5f5f7] px-2.5 py-0.5 text-[11px] font-medium text-[#707070]">
           {job.portal}
         </span>
       </div>
       {job.rank_score != null && (
         <div className="mt-2 h-1.5 rounded-full bg-[#e2e2e5]">
-          <div className="h-1.5 rounded-full bg-[#2997ff]" style={{ width: `${job.rank_score}%` }} />
+          <div className="h-1.5 rounded-full bg-[#0071e3]" style={{ width: `${job.rank_score}%` }} />
         </div>
       )}
     </article>
@@ -194,7 +194,7 @@ export default function Scrape() {
         <form onSubmit={submit} className="card space-y-6">
           {/* Portals */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-[#858585] mb-3">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#858585] mb-3">
               {t('portals')} <span className="text-[#b0b0b0] font-normal normal-case">({t('portalsHint')})</span>
             </p>
             <div className="flex flex-wrap gap-2">
@@ -205,9 +205,9 @@ export default function Scrape() {
           </div>
 
           {/* Focus area */}
-          <label className="block text-sm text-[#1d1d1f]">
+          <label className="block text-sm font-medium text-[#1d1d1f]">
             <span className="flex items-center gap-2">
-              {t('focusArea')} <span className="text-[#b0b0b0] font-normal">{tc('optional')}</span>
+              {t('focusArea')} <span className="text-[#858585] font-normal text-xs">{tc('optional')}</span>
               {prefilledFromTarget && (
                 <span className="text-[10px] bg-[#0071e3]/10 text-[#0071e3] px-2 py-0.5 rounded-full font-medium">{t('fromJobTarget')}</span>
               )}
@@ -266,8 +266,6 @@ export default function Scrape() {
               icon={Search}
               title={t('emptyTitle')}
               description={t('emptyDesc')}
-              actionLabel={t('emptyAction')}
-              actionHref="/pipeline/scrape"
               prevStep={{
                 key: 'setup',
                 label: tp('setup'),

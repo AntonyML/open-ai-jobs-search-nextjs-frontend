@@ -16,8 +16,8 @@ interface PipelineEmptyStateProps {
   icon: LucideIcon
   title: string
   description: string
-  actionLabel: string
-  actionHref: string
+  actionLabel?: string
+  actionHref?: string
   steps?: { key: string; label: string; done: boolean }[]
   /** When the required previous step isn't done, show this alternative */
   prevStep?: PrevStepInfo
@@ -81,23 +81,25 @@ export function PipelineEmptyState({
           <p className="text-sm text-[#707070] max-w-sm mx-auto mb-5 leading-relaxed">
             {description}
           </p>
-          <Link
-            href={actionHref}
-            className="inline-flex items-center gap-2 rounded-full bg-[#0071e3] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#0068d2] transition-all"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14" />
-              <path d="m12 5 7 7-7 7" />
-            </svg>
-            {actionLabel}
-          </Link>
+          {actionLabel && actionHref && (
+            <Link
+              href={actionHref}
+              className="inline-flex items-center gap-2 rounded-full bg-[#0071e3] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#0068d2] transition-all"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+              {actionLabel}
+            </Link>
+          )}
         </>
       )}
 
       {steps && steps.length > 0 && (
         <div className="mt-7 pt-5 border-t border-[#e2e2e5]">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-[#858585] mb-3">
-            Pipeline progress
+            {prevStep ? 'Pipeline' : 'Pipeline'} progress
           </p>
           <div className="flex flex-wrap justify-center gap-1.5">
             {steps.map((step) => (
