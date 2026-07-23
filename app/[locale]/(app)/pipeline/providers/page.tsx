@@ -80,8 +80,42 @@ export default function Providers() {
     e.preventDefault()
     setSaveError('')
 
-    // Edit mode with unchanged key — just PATCH model/api_base
-    if (editingProvider && form.api_key === MASKED_KEY) {
+    // ── Always test before save, regardless of how add() was triggered ──
+    if (!form.model.trim()) {
+      showError(t('chooseModelRequired'))
+      return
+    }
+    if ((provider === 'lm_studio' || provider === 'ollama') && !form.api_base.trim()) {
+      showError(t('apiBaseRequiredForProvider'))
+      return
+    }
+    if (form.api_key !== MASKED_KEY) {
+      const keyError = validateApiKey(provider, form.api_key)
+      if (keyError) {
+        showError(keyError)
+        return
+      }
+    }
+
+    // Build test payload — if MASKED_KEY, backend will use stored encrypted key
+    const testPayload = Object.fromEntries(
+      Object.entries({ provider, ...form }).filter(([, v]) => v !== '' && v !== null && v !== undefined)
+    )
+    try {
+      await apiFetch('/api/v1/providers/test', {
+        method: 'POST',
+        body: JSON.stringify(testPayload),
+      })
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : t('testFailed')
+      showError(sanitizeApiError(msg))
+      return
+    }
+
+    // ── Save ──
+    const isNewProvider = !(editingProvider && form.api_key === MASKED_KEY)
+    if (!isNewProvider) {
+      // PATCH — keep existing key, update model/api_base
       const patchPayload: Record<string, string> = {}
       if (form.model) patchPayload.model = form.model
       if (form.api_base) patchPayload.api_base = form.api_base
@@ -103,37 +137,14 @@ export default function Providers() {
       return
     }
 
-    // New provider or changed key — full flow
-    if (!form.model.trim()) {
-      showError(t('chooseModelRequired'))
-      return
-    }
-    if ((provider === 'lm_studio' || provider === 'ollama') && !form.api_base.trim()) {
-      showError(t('apiBaseRequiredForProvider'))
-      return
-    }
-    const keyError = validateApiKey(provider, form.api_key)
-    if (keyError) {
-      showError(keyError)
-      return
-    }
-    const payload = Object.fromEntries(
+    // POST — new provider or upsert with new key + auto-activate
+    const savePayload = Object.fromEntries(
       Object.entries({ provider, ...form }).filter(([, v]) => v !== '' && v !== null && v !== undefined)
     )
     try {
-      await apiFetch('/api/v1/providers/test', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      })
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : t('testFailed')
-      showError(sanitizeApiError(msg))
-      return
-    }
-    try {
       await apiFetch('/api/v1/providers/', {
         method: 'POST',
-        body: JSON.stringify(payload),
+        body: JSON.stringify(savePayload),
       })
     } catch (e) {
       const raw = e instanceof Error ? e.message : t('failedToSave')
@@ -142,6 +153,7 @@ export default function Providers() {
       setSaveError(msg)
       return
     }
+    // Auto-activate the new/updated provider
     const updated = await apiFetch<any>('/api/v1/providers/active', {
       method: 'PUT',
       body: JSON.stringify({ provider }),

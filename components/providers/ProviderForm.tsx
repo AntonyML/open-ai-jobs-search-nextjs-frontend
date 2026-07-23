@@ -134,19 +134,19 @@ export function ProviderForm({
   }
 
   async function testProvider() {
-    if (isEditing && !changingKey) {
-      return
+    // Build payload: if __MASKED__, the backend will use the stored encrypted key
+    let testPayload: any = { provider, ...form }
+
+    if (form.api_key !== MASKED_KEY) {
+      const keyError = validateApiKey(provider, form.api_key)
+      if (keyError) {
+        showError(keyError)
+        return
+      }
     }
-    const keyError = validateApiKey(provider, form.api_key)
-    if (keyError) {
-      showError(keyError)
-      return
-    }
+
     setTesting(true)
     try {
-      const testPayload = Object.fromEntries(
-        Object.entries({ provider, ...form }).filter(([, value]) => value.trim() !== '')
-      )
       const controller = new AbortController()
       const timeout = window.setTimeout(() => controller.abort(), 35000)
       const x = await apiFetch<any>('/api/v1/providers/test', {
@@ -312,8 +312,8 @@ export function ProviderForm({
         </select>
       )}
 
-      {/* Test Provider */}
-      {form.model && !(isEditing && !changingKey) && (
+      {/* Test Provider — visible always when model selected */}
+      {form.model && (
         <AppleButton
           type="button"
           variant="secondary"
@@ -326,8 +326,8 @@ export function ProviderForm({
         </AppleButton>
       )}
 
-      {/* Save Provider */}
-      {(tested || (isEditing && !changingKey)) && (
+      {/* Save Provider — only after successful test */}
+      {tested && (
         <AppleButton type="submit" className="w-full">
           {isEditing ? t('saveChanges') : t('saveProvider')}
         </AppleButton>
