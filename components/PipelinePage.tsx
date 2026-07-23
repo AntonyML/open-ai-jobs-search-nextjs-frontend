@@ -125,7 +125,7 @@ export default function PipelinePage({
 }: PipelinePageProps) {
   const [form, setForm] = useState<Record<string, string>>({})
   const [items, setItems] = useState<any[]>([])
-  const [result, setResult] = useState<any>(null)
+  const [results, setResults] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -139,6 +139,8 @@ export default function PipelinePage({
         .then((x) => setItems(normalize(x)))
         .catch(() => {})
   }, [listEndpoint])
+
+  const hasCompleted = results.length > 0
 
   const complete = () => {
     const a = getCompletedSteps()
@@ -162,7 +164,7 @@ export default function PipelinePage({
         method: 'POST',
         body: JSON.stringify(form),
       })
-      setResult(data)
+      setResults((prev) => [data, ...prev])
       if (listEndpoint)
         setItems(normalize(await apiFetch<any>(listEndpoint)))
       const pipeline = endpoint.replace('/api/v1/', '').replace('/', '')
@@ -230,12 +232,10 @@ export default function PipelinePage({
               </label>
             ))}
             <Tooltip>
-              <TooltipTrigger>
-                <span tabIndex={0}>
-                  <AppleButton disabled={loading || actionDisabled} className="w-full">
-                    {loading ? 'Working…' : actionLabel}
-                  </AppleButton>
-                </span>
+              <TooltipTrigger render={<span tabIndex={0} />}>
+                <AppleButton disabled={loading || actionDisabled} className="w-full">
+                  {loading ? 'Working…' : actionLabel}
+                </AppleButton>
               </TooltipTrigger>
               {actionDisabled && actionDisabledTooltip && (
                 <TooltipContent side="top" align="center">
@@ -259,11 +259,33 @@ export default function PipelinePage({
 
         {/* Right: Results */}
         <div className="space-y-3">
-          {items.length > 0 ? (
+          {results.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-[#1d1d1f]">Generated applications</h3>
+              <div className="space-y-3 max-h-[360px] overflow-y-auto scrollbar-thin pr-1">
+                {results.map((r, i) => (
+                  <div key={i} className="card !p-4">
+                    <p className="text-sm font-medium text-[#1d1d1f]">
+                      {r.job_title || r.title || `Application ${i + 1}`}
+                    </p>
+                    {r.company && (
+                      <p className="text-xs text-[#707070] mt-0.5">{r.company}</p>
+                    )}
+                    <p className="text-xs text-green-600 mt-1">✓ Generated</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {items.length > 0 && results.length === 0 && (
             <div className="space-y-3 max-h-[480px] overflow-y-auto scrollbar-thin pr-1">
+              <h3 className="text-sm font-semibold text-[#1d1d1f]">Available jobs</h3>
               {items.map((x, i) => <ResultCard key={i} item={x} />)}
             </div>
-          ) : (
+          )}
+
+          {items.length === 0 && results.length === 0 && (
             <EmptyState
               title={emptyTitle}
               description={emptyDesc}
@@ -281,17 +303,17 @@ export default function PipelinePage({
             />
           )}
 
-          {result && <RawResult data={result} />}
-
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => { complete(); if (next) router.push(next) }}
-              className="btn-secondary"
-            >
-              {next ? 'Continue' : 'Mark as complete'}
-            </button>
-          </div>
+          {hasCompleted && (
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => { complete(); if (next) router.push(next) }}
+                className="btn-secondary"
+              >
+                {next ? 'Continue' : 'Mark as complete'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </section>

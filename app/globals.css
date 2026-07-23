@@ -32,6 +32,16 @@
   --foreground: var(--color-carbon);
   --border: #d2d2d7;
   --radius: 8px;
+  --popover: var(--color-frost);
+  --popover-foreground: var(--color-carbon);
+  --muted: #f0f0f2;
+  --muted-foreground: var(--color-mist);
+  --accent: #f0f0f2;
+  --accent-foreground: var(--color-carbon);
+  --ring: var(--color-apple-blue);
+  --input: var(--border);
+  --destructive: #e53e3e;
+  --destructive-foreground: #ffffff;
 
   /* Typography Scale — multiplied by --access-font-size */
   --text-caption: 12px;
