@@ -611,6 +611,7 @@ function QueueTab({
   const runningJobs: ExecutionJob[] = queue?.running_jobs ?? []
   const pendingJobs: ExecutionJob[] = queue?.pending_jobs ?? []
   const recentCompleted: ExecutionJob[] = queue?.recent_completed ?? []
+  const recentFailed: ExecutionJob[] = queue?.recent_failed ?? []
 
   return (
     <>
@@ -677,7 +678,39 @@ function QueueTab({
         </Section>
       )}
 
-      {(!queue || (runningJobs.length === 0 && pendingJobs.length === 0 && recentCompleted.length === 0)) && (
+      {recentFailed.length > 0 && (
+        <Section title={t('failed')} count={recentFailed.length} defaultOpen={false}>
+          {recentFailed.slice(0, 5).map((job) => (
+            <div
+              key={job.id}
+              className="flex items-center justify-between rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1.5"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[10px] font-medium text-[#1d1d1f]">
+                  {job.description || job.pipeline}
+                </p>
+                <p className="text-[9px] text-[#858585]">
+                  {job.provider && `${job.provider} · `}
+                  {formatDate(job.finished_at)}
+                </p>
+                {job.last_error && (
+                  <p className="mt-0.5 truncate text-[9px] text-rose-500">
+                    {job.last_error.split('\n')[0].substring(0, 60)}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => retryFailed(job.id)}
+                className="shrink-0 rounded-full border border-[#d2d2d7] bg-white px-2 py-0.5 text-[9px] font-medium text-[#707070] transition-colors hover:border-[#0071e3]/30 hover:text-[#0071e3]"
+              >
+                <Icon name="refresh" />
+              </button>
+            </div>
+          ))}
+        </Section>
+      )}
+
+      {(!queue || (runningJobs.length === 0 && pendingJobs.length === 0 && recentCompleted.length === 0 && recentFailed.length === 0)) && (
         <div className="rounded-lg border border-dashed border-[#d2d2d7] p-4 text-center">
           <p className="text-[10px] text-[#858585]">{t('noJobs')}</p>
           <p className="mt-0.5 text-[9px] text-[#b0b0b0]">{t('startHint')}</p>
@@ -742,7 +775,7 @@ export default function LLMControlCenter() {
     return { text: t('idle'), accent: 'text-[#707070]' as const }
   })()
 
-  const totalJobs = queue ? queue.running_jobs.length + queue.pending_jobs.length : 0
+  const totalJobs = queue ? queue.running_jobs.length + queue.pending_jobs.length + (queue?.recent_failed ?? []).length + (queue?.total_cancelled ?? 0) : 0
 
   return (
     <aside

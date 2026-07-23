@@ -671,6 +671,7 @@
     "rateLimitCount": "429 count",
     "cancel": "Cancel",
     "retry": "Retry",
+    "failed": "Failed",
     "recent": "Recent completed",
     "running": "Running",
     "queued": "Queued"

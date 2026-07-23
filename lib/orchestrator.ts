@@ -86,6 +86,7 @@ export interface QueueStatus {
   pending_jobs: ExecutionJob[]
   running_jobs: ExecutionJob[]
   recent_completed: ExecutionJob[]
+  recent_failed: ExecutionJob[]
 }
 
 export interface OrchestratorState {

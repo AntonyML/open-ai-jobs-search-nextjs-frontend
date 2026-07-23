@@ -671,6 +671,7 @@
     "cancel": "Cancelar",
     "retry": "Reintentar",
     "recent": "Completados recientes",
+    "failed": "Fallidos",
     "running": "Ejecutando",
     "queued": "En cola"
   },
