@@ -51,6 +51,9 @@ export default function Apply() {
         emptyPrevLabel={tp('rank')}
         emptyPrevKey="rank"
         emptyPrevDone={prevStepDone}
+        cardMode
+        actionField="job_posting_id"
+        statusEndpoint="/api/v1/apply"
       />
       <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </>

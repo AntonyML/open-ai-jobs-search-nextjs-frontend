@@ -232,6 +232,9 @@ export interface PipelinePageProps {
   emptyPrevDone?: boolean
   emptyPrevLabel?: string
   emptyPrevKey?: string
+  cardMode?: boolean
+  actionField?: string
+  statusEndpoint?: string
 }
 
 export interface UpgradeBannerProps {
