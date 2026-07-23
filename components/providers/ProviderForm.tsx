@@ -6,6 +6,8 @@ import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { AppleButton } from '@/components/ui/apple-button'
 
+const MASKED_KEY = '__MASKED__'
+
 interface ProviderFormProps {
   premium: boolean
   provider: string
@@ -15,6 +17,7 @@ interface ProviderFormProps {
   onSave: (e: React.FormEvent) => void
   saveError: string
   onUpgrade: () => void
+  editingProvider?: { provider: string; api_base?: string | null; model?: string | null; has_key?: boolean } | null
 }
 
 export function ProviderForm({
@@ -26,10 +29,12 @@ export function ProviderForm({
   onSave,
   saveError,
   onUpgrade,
+  editingProvider,
 }: ProviderFormProps) {
   const t = useTranslations('providers')
 
   function validateApiKey(provider: string, key: string): string | null {
+    if (key === MASKED_KEY) return null
     if (provider === 'lm_studio' || provider === 'ollama') return null
     const trimmed = key.trim()
     if (trimmed.length < 10) {
@@ -58,13 +63,42 @@ export function ProviderForm({
   const [loadingModels, setLoadingModels] = useState(false)
   const [testing, setTesting] = useState(false)
   const [tested, setTested] = useState(false)
+  const [changingKey, setChangingKey] = useState(false)
+
+  const isEditing = editingProvider?.provider === provider && form.api_key === MASKED_KEY
 
   useEffect(() => {
     setModels([])
     setTested(false)
+    setChangingKey(false)
   }, [provider])
 
+  useEffect(() => {
+    if (isEditing) {
+      loadModels()
+    }
+  }, [isEditing, provider])
+
   async function loadModels() {
+    if (isEditing && !changingKey) {
+      // Use stored credentials via GET endpoint
+      setLoadingModels(true)
+      try {
+        const x = await apiFetch<any>(`/api/v1/providers/${provider}/models`, {
+          method: 'GET',
+        })
+        setModels(x.models || [])
+        setTested(false)
+        showSuccess(t('modelsLoaded', { count: (x.models || []).length }))
+      } catch (e) {
+        setModels([])
+        const msg = e instanceof Error ? e.message : t('couldNotLoadModels')
+        showError(sanitizeApiError(msg))
+      } finally {
+        setLoadingModels(false)
+      }
+      return
+    }
     if (!form.api_key.trim() && provider !== 'lm_studio' && provider !== 'ollama') {
       showError(t('apiKeyRequired'))
       return
@@ -100,6 +134,9 @@ export function ProviderForm({
   }
 
   async function testProvider() {
+    if (isEditing && !changingKey) {
+      return
+    }
     const keyError = validateApiKey(provider, form.api_key)
     if (keyError) {
       showError(keyError)
@@ -134,6 +171,23 @@ export function ProviderForm({
     }
   }
 
+  function handleKeyChange(value: string) {
+    if (isEditing && !changingKey) {
+      return
+    }
+    onFormChange({ ...form, api_key: value })
+  }
+
+  function startKeyChange() {
+    setChangingKey(true)
+    onFormChange({ ...form, api_key: '' })
+  }
+
+  function cancelEdit() {
+    setChangingKey(false)
+    onFormChange({ ...form, api_key: MASKED_KEY })
+  }
+
   return (
     <form onSubmit={onSave} className="card space-y-4">
       {/* Provider Select */}
@@ -141,6 +195,7 @@ export function ProviderForm({
         className="field"
         value={provider}
         onChange={(e) => onProviderChange(e.target.value)}
+        disabled={!!editingProvider}
       >
         {['anthropic', 'openai', 'nvidia_nim' /*, 'lm_studio', 'ollama' */]
           .filter((x) => premium || x !== 'nvidia_nim')
@@ -178,24 +233,57 @@ export function ProviderForm({
         </div>
       )}
 
-      {/* API Key + Load Models */}
-      <div className="flex gap-2">
-        <input
-          className="field flex-1"
-          placeholder={t('apiKey')}
-          value={form.api_key}
-          onChange={(e) => onFormChange({ ...form, api_key: e.target.value })}
-        />
-        <AppleButton
-          type="button"
-          variant="secondary"
-          className="shrink-0"
-          loading={loadingModels}
-          onClick={loadModels}
-        >
-          {loadingModels ? t('loadingModels') : t('loadModels')}
-        </AppleButton>
-      </div>
+      {/* API Key */}
+      {isEditing && !changingKey ? (
+        <div className="flex gap-2 items-center">
+          <div className="field flex-1 flex items-center text-slate-500 select-none">
+            {'\u2022'.repeat(20)}
+          </div>
+          <button
+            type="button"
+            onClick={startKeyChange}
+            className="btn-secondary shrink-0 px-3 py-1.5 text-xs"
+          >
+            {t('replaceKey')}
+          </button>
+          <AppleButton
+            type="button"
+            variant="secondary"
+            className="shrink-0"
+            loading={loadingModels}
+            onClick={loadModels}
+          >
+            {loadingModels ? t('loadingModels') : t('loadModels')}
+          </AppleButton>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <input
+            className="field flex-1"
+            placeholder={t('apiKey')}
+            value={form.api_key}
+            onChange={(e) => handleKeyChange(e.target.value)}
+          />
+          {isEditing && changingKey && (
+            <button
+              type="button"
+              onClick={cancelEdit}
+              className="btn-secondary shrink-0 px-3 py-1.5 text-xs"
+            >
+              {t('cancel')}
+            </button>
+          )}
+          <AppleButton
+            type="button"
+            variant="secondary"
+            className="shrink-0"
+            loading={loadingModels}
+            onClick={loadModels}
+          >
+            {loadingModels ? t('loadingModels') : t('loadModels')}
+          </AppleButton>
+        </div>
+      )}
 
       {/* API Base */}
       <input
@@ -225,7 +313,7 @@ export function ProviderForm({
       )}
 
       {/* Test Provider */}
-      {form.model && (
+      {form.model && !(isEditing && !changingKey) && (
         <AppleButton
           type="button"
           variant="secondary"
@@ -239,9 +327,9 @@ export function ProviderForm({
       )}
 
       {/* Save Provider */}
-      {tested && (
+      {(tested || (isEditing && !changingKey)) && (
         <AppleButton type="submit" className="w-full">
-          {t('saveProvider')}
+          {isEditing ? t('saveChanges') : t('saveProvider')}
         </AppleButton>
       )}
 

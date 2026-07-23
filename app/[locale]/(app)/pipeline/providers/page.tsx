@@ -43,12 +43,15 @@ export default function Providers() {
   const router = useRouter()
   const premium = isPremium()
 
+  const MASKED_KEY = '__MASKED__'
+
   const [myProviders, setMyProviders] = useState<any[]>([])
   const [active, setActive] = useState<any>(null)
   const [provider, setProvider] = useState('openai')
   const [form, setForm] = useState({ api_key: '', api_base: '', model: '' })
   const [saveError, setSaveError] = useState('')
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [editingProvider, setEditingProvider] = useState<any>(null)
 
   function loadMyProviders() {
     apiFetch<any[]>('/api/v1/providers/me')
@@ -76,6 +79,31 @@ export default function Providers() {
   async function add(e: React.FormEvent) {
     e.preventDefault()
     setSaveError('')
+
+    // Edit mode with unchanged key — just PATCH model/api_base
+    if (editingProvider && form.api_key === MASKED_KEY) {
+      const patchPayload: Record<string, string> = {}
+      if (form.model) patchPayload.model = form.model
+      if (form.api_base) patchPayload.api_base = form.api_base
+      try {
+        await apiFetch(`/api/v1/providers/${provider}`, {
+          method: 'PATCH',
+          body: JSON.stringify(patchPayload),
+        })
+      } catch (e) {
+        const raw = e instanceof Error ? e.message : t('failedToSave')
+        showError(raw)
+        setSaveError(raw)
+        return
+      }
+      setEditingProvider(null)
+      setSaveError('')
+      showSuccess(t('providerUpdated', { provider }))
+      loadMyProviders()
+      return
+    }
+
+    // New provider or changed key — full flow
     if (!form.model.trim()) {
       showError(t('chooseModelRequired'))
       return
@@ -119,6 +147,7 @@ export default function Providers() {
       body: JSON.stringify({ provider }),
     })
     setActive(updated)
+    setEditingProvider(null)
     setSaveError('')
     showSuccess(t('providerSaved', { provider: updated.provider, model: updated.model }))
     loadMyProviders()
@@ -146,6 +175,24 @@ export default function Providers() {
     loadMyProviders()
   }
 
+  function handleEdit(p: any) {
+    setEditingProvider(p)
+    setProvider(p.provider)
+    setForm({
+      api_key: MASKED_KEY,
+      api_base: p.api_base || '',
+      model: p.model || '',
+    })
+    setSaveError('')
+  }
+
+  function handleCancelEdit() {
+    setEditingProvider(null)
+    setProvider('openai')
+    setForm({ api_key: '', api_base: '', model: '' })
+    setSaveError('')
+  }
+
   const isConfigured = (p: string) => myProviders.some((c) => c.provider === p)
 
   return (
@@ -161,7 +208,11 @@ export default function Providers() {
           premium={premium}
           provider={provider}
           form={form}
-          onProviderChange={setProvider}
+          editingProvider={editingProvider}
+          onProviderChange={(p) => {
+            setProvider(p)
+            if (editingProvider) handleCancelEdit()
+          }}
           onFormChange={setForm}
           onSave={add}
           saveError={saveError}
@@ -178,10 +229,21 @@ export default function Providers() {
             maxFreeProviders={1}
             onActivate={activate}
             onDelete={remove}
+            onEdit={handleEdit}
             onUpgrade={() => setShowUpgrade(true)}
           />
 
-          {isConfigured(provider) && active?.provider !== provider && (
+          {editingProvider && (
+            <AppleButton
+              variant="secondary"
+              className="w-full"
+              onClick={handleCancelEdit}
+            >
+              {t('cancelEdit')}
+            </AppleButton>
+          )}
+
+          {!editingProvider && isConfigured(provider) && active?.provider !== provider && (
             <AppleButton
               variant="secondary"
               className="w-full"

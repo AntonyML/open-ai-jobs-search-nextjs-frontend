@@ -4,6 +4,9 @@ import { useTranslations } from 'next-intl'
 
 interface ProviderEntry {
   provider: string
+  api_base?: string | null
+  model?: string | null
+  has_key?: boolean
   is_active: boolean
 }
 
@@ -13,6 +16,7 @@ interface ProviderListProps {
   maxFreeProviders: number
   onActivate: (p: string) => void
   onDelete: (p: string) => void
+  onEdit: (p: ProviderEntry) => void
   onUpgrade: () => void
 }
 
@@ -22,6 +26,7 @@ export function ProviderList({
   maxFreeProviders,
   onActivate,
   onDelete,
+  onEdit,
   onUpgrade,
 }: ProviderListProps) {
   const t = useTranslations('providers')
@@ -46,6 +51,12 @@ export function ProviderList({
             )}
           </span>
           <div className="flex gap-2">
+            <button
+              onClick={() => onEdit(p)}
+              className="btn-secondary px-3 py-1 text-xs"
+            >
+              {t('modify')}
+            </button>
             {!p.is_active && (
               <button
                 onClick={() => onActivate(p.provider)}
