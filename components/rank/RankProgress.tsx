@@ -27,7 +27,7 @@ export function RankProgress({
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#0071e3]/40" />
             <span className="relative inline-flex h-3 w-3 rounded-full bg-[#0071e3]" />
           </span>
-          <span className="font-medium">{runningJob?.description || t('evaluating')}</span>
+          <span className="font-medium">{t('evaluating')}</span>
         </div>
         <span className="text-xs font-semibold text-[#0071e3]">{progressPct}%</span>
       </div>
