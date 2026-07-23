@@ -135,7 +135,10 @@ export function ProviderForm({
 
   async function testProvider() {
     // Build payload: if __MASKED__, the backend will use the stored encrypted key
-    let testPayload: any = { provider, ...form }
+    // Filter empty values to avoid Pydantic HttpUrl validation failures
+    const testPayload = Object.fromEntries(
+      Object.entries({ provider, ...form }).filter(([, value]) => value.trim() !== '')
+    )
 
     if (form.api_key !== MASKED_KEY) {
       const keyError = validateApiKey(provider, form.api_key)
