@@ -249,7 +249,7 @@ export default function PipelinePage({
               {items.map((item, i) => {
                 const id = getItemId(item)
                 const name = getItemName(item, i)
-                const company = item.company || item.company_name || ''
+                const company = item.company || ''
                 const proc = processing[id]
                 const isDone = results.some((r) => {
                   const rid = String(r.job_posting_id || r.application_id || '')
