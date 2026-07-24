@@ -2,11 +2,19 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { usePathname, useRouter } from '@/i18n/routing'
 import { useTranslations } from 'next-intl'
 import { isLoggedIn, clearToken, isAdmin } from '@/lib/auth'
-import NotificationBell from '@/components/NotificationBell'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+
+const NotificationBell = dynamic(
+  () => import('@/components/NotificationBell'),
+  {
+    ssr: false,
+    loading: () => <div className="h-8 w-8" />,
+  },
+)
 
 // ── Subcomponents ─────────────────────────────────────────────────
 
