@@ -1,8 +1,9 @@
-'use client'
-
+import { getTranslations } from 'next-intl/server'
 import { IconBrain, IconSearch, IconBarChart, IconRocket, IconShield, IconSparkles } from './MarketingIcons'
 
-export function FeaturesSection({ t }: { t: (key: string) => string }) {
+export async function FeaturesSection() {
+  const t = await getTranslations('marketing')
+
   const features = [
     { icon: <IconBrain />, title: t('featureMultiProviderTitle'), description: t('featureMultiProviderDesc') },
     { icon: <IconSearch />, title: t('featureDiscoveryTitle'), description: t('featureDiscoveryDesc') },

@@ -1,13 +1,9 @@
-'use client'
+import { getTranslations } from 'next-intl/server'
+import AuthCTAButton from './AuthCTAButton'
 
-import Link from 'next/link'
+export async function CTASection() {
+  const t = await getTranslations('marketing')
 
-interface CTASectionProps {
-  loggedIn: boolean
-  t: (key: string) => string
-}
-
-export function CTASection({ loggedIn, t }: CTASectionProps) {
   return (
     <section className="border-t border-[#d2d2d7] bg-[#f5f5f7]">
       <div className="mx-auto max-w-[1440px] px-5 py-20 text-center md:px-8 md:py-28">
@@ -19,16 +15,11 @@ export function CTASection({ loggedIn, t }: CTASectionProps) {
             {t('ctaSubheading')}
           </p>
           <div className="mt-10 flex items-center justify-center gap-3">
-            <Link
-              href={loggedIn ? '/providers' : '/register'}
+            <AuthCTAButton
+              loggedInKey="ctaOpenDashboard"
+              loggedOutKey="ctaGetStarted"
               className="inline-flex items-center rounded-full bg-[#0071e3] px-7 py-3.5 text-[15px] font-medium text-white shadow-sm transition-all hover:bg-[#0068d2]"
-            >
-              {loggedIn ? t('ctaOpenDashboard') : t('ctaGetStarted')}
-              <svg className="ml-1.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </Link>
+            />
           </div>
         </div>
       </div>

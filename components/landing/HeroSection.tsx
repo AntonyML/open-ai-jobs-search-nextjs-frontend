@@ -1,14 +1,17 @@
-'use client'
+import { getTranslations } from 'next-intl/server'
+import AuthCTAButton from './AuthCTAButton'
+import { STEP_COLORS, STEP_NUMS } from './pipeline-steps'
 
-import Link from 'next/link'
+export async function HeroSection() {
+  const t = await getTranslations('marketing')
 
-interface HeroSectionProps {
-  loggedIn: boolean
-  pipelineSteps: { num: string; label: string; desc: string; color: string }[]
-  t: (key: string) => string
-}
+  const pipelineSteps = STEP_NUMS.map((num, i) => ({
+    num,
+    label: t(`step${num}Label`),
+    desc: t(`step${num}Desc`),
+    color: STEP_COLORS[i],
+  }))
 
-export function HeroSection({ loggedIn, pipelineSteps, t }: HeroSectionProps) {
   return (
     <section className="relative overflow-hidden bg-[#f5f5f7]">
       <div className="mx-auto max-w-[1440px] px-5 pt-20 pb-24 text-center md:px-8 md:pt-28 md:pb-32">
@@ -34,16 +37,11 @@ export function HeroSection({ loggedIn, pipelineSteps, t }: HeroSectionProps) {
 
         {/* CTA buttons */}
         <div className="mt-10 flex items-center justify-center gap-3">
-          <Link
-            href={loggedIn ? '/providers' : '/register'}
+          <AuthCTAButton
+            loggedInKey="ctaDashboard"
+            loggedOutKey="ctaTryFree"
             className="inline-flex items-center rounded-full bg-[#0071e3] px-6 py-3 text-[15px] font-medium text-white shadow-sm transition-all hover:bg-[#0068d2]"
-          >
-            {loggedIn ? t('ctaDashboard') : t('ctaTryFree')}
-            <svg className="ml-1.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </Link>
+          />
         </div>
 
         {/* Pipeline visualization */}

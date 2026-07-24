@@ -1,5 +1,3 @@
-'use client'
-
 /**
  * Shared marketing icons used across the landing page sections.
  */

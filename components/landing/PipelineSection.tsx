@@ -1,4 +1,5 @@
-'use client'
+import { getTranslations } from 'next-intl/server'
+import { STEP_COLORS, STEP_NUMS } from './pipeline-steps'
 
 interface PipelineStep {
   num: string
@@ -7,13 +8,16 @@ interface PipelineStep {
   color: string
 }
 
-export function PipelineSection({
-  steps,
-  t,
-}: {
-  steps: PipelineStep[]
-  t: (key: string) => string
-}) {
+export async function PipelineSection() {
+  const t = await getTranslations('marketing')
+
+  const steps: PipelineStep[] = STEP_NUMS.map((num, i) => ({
+    num,
+    label: t(`step${num}Label`),
+    desc: t(`step${num}Desc`),
+    color: STEP_COLORS[i],
+  }))
+
   return (
     <section id="pipeline" className="border-t border-[#d2d2d7] bg-white">
       <div className="mx-auto max-w-[1440px] px-5 py-20 md:px-8 md:py-28">
