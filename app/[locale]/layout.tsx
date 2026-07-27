@@ -1,16 +1,7 @@
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
-import dynamic from 'next/dynamic'
 import { TooltipProvider } from '@/components/ui/tooltip'
-
-const AccessibilityProvider = dynamic(
-  () => import('@/components/AccessibilityProvider'),
-  { ssr: false },
-)
-const SoundProvider = dynamic(
-  () => import('@/components/SoundProvider'),
-  { ssr: false },
-)
+import ClientProviders from './ClientProviders'
 
 export function generateStaticParams() {
   return [{ locale: 'en' }, { locale: 'es' }]
@@ -29,11 +20,9 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <TooltipProvider>
-        <AccessibilityProvider>
-          <SoundProvider>
-            {children}
-          </SoundProvider>
-        </AccessibilityProvider>
+        <ClientProviders>
+          {children}
+        </ClientProviders>
       </TooltipProvider>
     </NextIntlClientProvider>
   )
