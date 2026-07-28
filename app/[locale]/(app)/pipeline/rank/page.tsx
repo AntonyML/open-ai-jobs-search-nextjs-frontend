@@ -47,6 +47,7 @@ export default function Rank() {
   const [topN, setTopN] = useState(5)
   const [reRank, setReRank] = useState(false)
   const [prevStepDone, setPrevStepDone] = useState(getCompletedSteps().includes(2))
+  const [jobIds, setJobIds] = useState<string[] | null>(null)
 
   // Data state
   const [items, setItems] = useState<any[]>([])
@@ -64,8 +65,16 @@ export default function Rank() {
 
   useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false } }, [])
 
-  // Load existing jobs on mount
+  // Load existing jobs + job_ids from search step on mount
   useEffect(() => {
+    const stored = localStorage.getItem("rank_job_ids")
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as string[]
+        if (parsed.length > 0) setJobIds(parsed)
+      } catch { /* ignore */ }
+      localStorage.removeItem("rank_job_ids")
+    }
     apiFetch<any>('/api/v1/rank/jobs')
       .then(x => {
         const loaded = Array.isArray(x) ? x : (x.items || x.jobs || [])
@@ -144,6 +153,7 @@ export default function Rank() {
     setResult(null)
     try {
       const body: any = { top_n: topN, re_rank: reRank }
+      if (jobIds) body.job_ids = jobIds
       const fa = customFocus.trim() || focusArea
       if (fa) body.focus_area = fa
       const data = await apiFetch<any>('/api/v1/rank/', { method: 'POST', body: JSON.stringify(body) })
