@@ -37,7 +37,7 @@ export function StatusPanel({ saved, exists }: StatusPanelProps) {
             <p className="text-[11px] text-[#858585]">{t('dataStoredReady')}</p>
           </div>
         </div>
-        <AppleButton className="w-full" onClick={() => router.push('/scrape')}>
+        <AppleButton className="w-full" onClick={() => router.push('/pipeline/search')}>
           {t('continueTo', { step: 'Scrape' })} →
         </AppleButton>
       </div>

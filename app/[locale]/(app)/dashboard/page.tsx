@@ -39,8 +39,8 @@ import {
 } from 'recharts'
 
 const QUICK_ACTIONS = [
-  { labelKey: 'scrape', href: '/pipeline/scrape', icon: Search, descKey: 'scrapeDesc', requireStep: 'setup' },
-  { labelKey: 'rank', href: '/pipeline/rank', icon: BarChart3, descKey: 'rankDesc', requireStep: 'scrape' },
+  { labelKey: 'search', href: '/pipeline/search', icon: Search, descKey: 'searchDesc', requireStep: 'setup' },
+  { labelKey: 'rank', href: '/pipeline/rank', icon: BarChart3, descKey: 'rankDesc', requireStep: 'search' },
   { labelKey: 'createCv', href: '/pipeline/apply', icon: FileText, descKey: 'createCvDesc', requireStep: 'rank' },
   { labelKey: 'prepare', href: '/pipeline/interview', icon: TrendingUp, descKey: 'prepareDesc', requireStep: 'apply' },
 ]
@@ -48,7 +48,7 @@ const QUICK_ACTIONS = [
 const PIPELINE_STEPS = [
   { key: 'providers', href: '/pipeline/providers', icon: User },
   { key: 'setup', href: '/pipeline/setup', icon: FileText },
-  { key: 'scrape', href: '/pipeline/scrape', icon: Search },
+  { key: 'search', href: '/pipeline/search', icon: Search },
   { key: 'rank', href: '/pipeline/rank', icon: BarChart3 },
   { key: 'apply', href: '/pipeline/apply', icon: FileText },
   { key: 'interview', href: '/pipeline/interview', icon: TrendingUp },

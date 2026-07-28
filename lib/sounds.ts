@@ -53,7 +53,7 @@ export function initSounds(): () => void {
  * which process completed without looking at the screen.
  */
 const PIPELINE_SOUNDS: Record<string, 'sparkle' | 'success' | 'bloom' | 'chime' | 'toggle'> = {
-  scrape: 'sparkle',    // bright ascending twinkle — discovery
+  search: 'sparkle',    // bright ascending twinkle — discovery
   rank: 'success',      // warm three-note confirmation — evaluation done
   expand: 'bloom',      // warm swelling pad — skills growing
   upskill: 'chime',     // soft two-note bell — clean learning

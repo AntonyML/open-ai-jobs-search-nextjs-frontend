@@ -12,7 +12,7 @@ import {
 
 const PIPELINE_LABELS: Record<string, string> = {
   rank: 'Ranking',
-  scrape: 'Scraping',
+  search: 'Search',
   expand: 'Skill expansion',
   upskill: 'Upskill',
   apply: 'Application',

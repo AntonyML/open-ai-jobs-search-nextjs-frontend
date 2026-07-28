@@ -14,7 +14,7 @@ import { Progress, ProgressIndicator, ProgressLabel } from '@/components/ui/prog
 const STEP_LABELS: Record<string, string> = {
   providers: 'Providers',
   setup: 'Setup',
-  scrape: 'Scrape',
+  search: 'Search',
   rank: 'Rank',
   apply: 'Apply',
   interview: 'Interview',
@@ -23,7 +23,7 @@ const STEP_LABELS: Record<string, string> = {
   upskill: 'Upskill',
 }
 
-const PIPELINE_ORDER = ['providers', 'setup', 'scrape', 'rank', 'apply', 'interview', 'outcome']
+const PIPELINE_ORDER = ['providers', 'setup', 'search', 'rank', 'apply', 'interview', 'outcome']
 
 export default function PipelineLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()

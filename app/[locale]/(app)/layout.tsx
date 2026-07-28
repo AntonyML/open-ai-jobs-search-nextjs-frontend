@@ -11,7 +11,7 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar'
 
-const routes = ['providers', 'setup', 'scrape', 'rank', 'apply', 'interview', 'outcome']
+const routes = ['providers', 'setup', 'search', 'rank', 'apply', 'interview', 'outcome']
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const path = usePathname(), router = useRouter(), [ready, setReady] = useState(false), [done, setDone] = useState<number[]>([])
@@ -40,7 +40,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarInset>
         </div>
       </SidebarProvider>
-      {['scrape', 'rank', 'apply', 'interview', 'expand', 'upskill'].some(s => path.includes(s)) && <LLMControlCenter />}
+      {['search', 'rank', 'apply', 'interview', 'expand', 'upskill'].some(s => path.includes(s)) && <LLMControlCenter />}
       <UpgradeListener />
     </div>
   )

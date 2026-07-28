@@ -344,10 +344,10 @@ export default function Rank() {
             title={t('emptyTitle')}
             description={t('emptyDesc')}
             actionLabel={t('emptyAction')}
-            actionHref="/pipeline/scrape"            prevStep={{
-                key: 'scrape',
-                label: tp('scrape'),
-              href: '/pipeline/scrape',
+            actionHref="/pipeline/search"            prevStep={{
+                key: 'search',
+                label: tp('search'),
+              href: '/pipeline/search',
               title: t('prevStepTitle'),
               description: t('prevStepDesc'),
               action: t('prevStepAction'),
