@@ -66,7 +66,7 @@ export interface JobPosting {
 
 // ── Pipeline Steps ─────────────────────────────────────────────
 
-export type PipelineStep = 'providers' | 'setup' | 'scrape' | 'rank' | 'apply' | 'interview' | 'outcome'
+export type PipelineStep = 'providers' | 'setup' | 'search' | 'rank' | 'apply' | 'interview' | 'outcome'
 export type ExtraStep = 'expand' | 'upskill'
 
 export interface PipelineStepMeta {
@@ -80,7 +80,7 @@ export interface PipelineStepMeta {
 export const PIPELINE_STEPS: PipelineStepMeta[] = [
   { key: 'providers', label: 'Providers', eyebrow: '01 / CONFIGURE', href: '/pipeline/providers', order: 0 },
   { key: 'setup',     label: 'Setup',     eyebrow: '02 / PROFILE',   href: '/pipeline/setup',     order: 1 },
-  { key: 'scrape',    label: 'Scrape',    eyebrow: '03 / DISCOVER',  href: '/pipeline/scrape',    order: 2 },
+  { key: 'search',    label: 'Search',    eyebrow: '03 / DISCOVER',  href: '/pipeline/search',    order: 2 },
   { key: 'rank',      label: 'Rank',      eyebrow: '04 / EVALUATE',  href: '/pipeline/rank',      order: 3 },
   { key: 'apply',     label: 'Apply',     eyebrow: '05 / APPLY',     href: '/pipeline/apply',     order: 4 },
   { key: 'interview', label: 'Interview',  eyebrow: '06 / PREP',      href: '/pipeline/interview', order: 5 },

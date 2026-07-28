@@ -42,7 +42,7 @@ const debugSlideMenu = process.env.NEXT_PUBLIC_DEBUG_SLIDE_MENU === 'true'
 const steps = [
   { labelKey: 'providers', subKey: 'providersDesc', href: '/pipeline/providers', icon: User },
   { labelKey: 'setup', subKey: 'setupDesc', href: '/pipeline/setup', icon: FileText },
-  { labelKey: 'scrape', subKey: 'scrapeDesc', href: '/pipeline/scrape', icon: Globe },
+  { labelKey: 'search', subKey: 'searchDesc', href: '/pipeline/search', icon: Search },
   { labelKey: 'rank', subKey: 'rankDesc', href: '/pipeline/rank', icon: BarChart3 },
   { labelKey: 'apply', subKey: 'applyDesc', href: '/pipeline/apply', icon: Search },
   { labelKey: 'interview', subKey: 'interviewDesc', href: '/pipeline/interview', icon: Mic },
