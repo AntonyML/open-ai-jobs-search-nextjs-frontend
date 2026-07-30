@@ -151,17 +151,23 @@ export function JobTargetSection({ value, onChange }: Props) {
 
   return (
     <div className="card space-y-5">
-      <div className="flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 text-rose-600">
+      <div className="flex items-start gap-2.5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <path d="M12 6v6l4 2" />
           </svg>
         </div>
-        <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#707070]">{t('jobTarget')}</p>
-          <p className="text-[11px] text-[#858585]">{t('jobTargetDesc')}</p>
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-widest text-[#1d1d1f]">{t('jobTarget')}</p>
+          <p className="mt-0.5 text-[11px] text-[#707070] leading-relaxed">{t('jobTargetDesc')}</p>
         </div>
+      </div>
+
+      <div className="rounded-lg border border-amber-200 bg-amber-50/50 px-3.5 py-2.5">
+        <p className="text-[11px] text-amber-800 leading-relaxed">
+          {t('jobTargetRequired')}
+        </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

@@ -343,7 +343,7 @@ export default function Dashboard() {
                 <div className="h-64">
                   <ChartContainer
                     config={{
-                      scraped: { label: 'Scraped', color: '#e2e2e5' },
+                      scraped: { label: 'Found', color: '#e2e2e5' },
                       ranked: { label: 'Ranked', color: '#2997ff' },
                       applied: { label: 'Applied', color: '#0071e3' },
                       interviewed: { label: 'Interviewed', color: '#5856d6' },

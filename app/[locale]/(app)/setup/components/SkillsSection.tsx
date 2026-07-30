@@ -28,15 +28,15 @@ export function SkillsSection({ form, onFieldChange }: Props) {
 
   return (
     <div className="card space-y-5">
-      <div className="flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+      <div className="flex items-start gap-2.5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
           </svg>
         </div>
-        <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#707070]">{t('skillsAndSummary')}</p>
-          <p className="text-[11px] text-[#858585]">{t('skillsAndSummaryDesc')}</p>
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-widest text-[#1d1d1f]">{t('skillsAndSummary')}</p>
+          <p className="mt-0.5 text-[11px] text-[#707070] leading-relaxed">{t('skillsAndSummaryDesc')}</p>
         </div>
       </div>
 

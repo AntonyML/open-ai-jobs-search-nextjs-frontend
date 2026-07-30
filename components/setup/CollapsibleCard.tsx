@@ -121,11 +121,11 @@ export function CollapsibleCardListWrapper({
 }: CollapsibleCardListWrapperProps) {
   return (
     <div className="card space-y-5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
+      <div className="flex items-start justify-between">
+        <div className="flex items-start gap-2.5">
           {icon}
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-[#707070]">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#1d1d1f]">
               {title}
             </p>
             <p className="text-[11px] text-[#858585]">

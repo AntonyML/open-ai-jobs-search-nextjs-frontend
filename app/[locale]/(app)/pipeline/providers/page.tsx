@@ -1,19 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
-import { useRouter } from 'next/navigation'
 import { showSuccess, showError, showWarning } from '@/lib/toasts'
 import { setCompletedSteps, getCompletedSteps, isPremium } from '@/lib/auth'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleButton } from '@/components/ui/apple-button'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { ProviderForm } from '@/components/providers/ProviderForm'
 import { ActiveProviderCard } from '@/components/providers/ActiveProviderCard'
 import { ProviderList } from '@/components/providers/ProviderList'
 import UpgradeModal from '@/components/UpgradeModal'
 
 export default function Providers() {
+  const { locale } = useParams()
   const t = useTranslations('providers')
 
   function validateApiKey(provider: string, key: string): string | null {
@@ -273,9 +275,16 @@ export default function Providers() {
           )}
 
           {active?.has_credential && (
-            <AppleButton className="w-full" onClick={() => router.push('/setup')}>
-              {t('continueSetup')}
-            </AppleButton>
+            <Tooltip>
+              <TooltipTrigger render={
+                <AppleButton variant="secondary" className="w-full" onClick={() => router.push(`/${locale}/pipeline/setup`)}>
+                  {t('continueSetup')} →
+                </AppleButton>
+              } />
+              <TooltipContent side="top" className="px-3 py-1.5 text-xs">
+                {t('continueSetupTooltip')}
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
       </div>

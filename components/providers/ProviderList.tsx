@@ -35,13 +35,22 @@ export function ProviderList({
 
   return (
     <div className="card">
-      <p className="mb-3 text-sm text-[#707070]">{t('yourProviders')}</p>
+      <div className="flex items-start gap-2.5 mb-4">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-600">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3" />
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+          </svg>
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-widest text-[#1d1d1f]">{t('yourProviders')}</p>
+          <p className="mt-0.5 text-[11px] text-[#707070]">{t('addProviderHint') || 'Completa el formulario de la izquierda y guarda tu primer proveedor.'}</p>
+        </div>
+      </div>
 
       {providers.length === 0 && (
-        <div>
-          <p className="text-sm text-[#474747]">{t('noneSaved')}</p>
-          <p className="mt-1 text-xs text-[#707070]">{t('addProviderHint') || 'Completa el formulario de la izquierda y guarda tu primer proveedor.'}</p>
-        </div>
+        <p className="text-sm text-[#474747]">{t('noneSaved')}</p>
       )}
 
       {providers.map((p, i) => (
@@ -53,7 +62,7 @@ export function ProviderList({
             <span className="text-sm font-medium text-[#1d1d1f]">
               {p.display_name || p.provider}
               {p.is_active && (
-                <span className="ml-2 text-xs text-emerald-400">({t('activeLabel')})</span>
+                <span className="ml-2 text-xs text-emerald-600">({t('activeLabel')})</span>
               )}
             </span>
             {(p.model || p.api_base) && (
@@ -90,25 +99,25 @@ export function ProviderList({
       ))}
 
       {!premium && providers.length >= maxFreeProviders && (
-        <div className="mt-3 flex items-center gap-2 rounded-lg border border-amber-200/20 bg-amber-50/10 px-3 py-2">
+        <div className="mt-3 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/50 px-3 py-2">
           <svg
             width="14"
             height="14"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#f59e0b"
+            stroke="#d97706"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           >
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
           </svg>
-          <span className="flex-1 text-xs text-amber-400/80">
+          <span className="flex-1 text-xs text-amber-700">
             {t('maxProvidersReached') || 'Max 1 provider on Free. Upgrade for more.'}
           </span>
           <button
             onClick={onUpgrade}
-            className="shrink-0 text-xs font-medium text-amber-400 underline-offset-2 hover:text-amber-300 hover:underline"
+            className="shrink-0 text-xs font-medium text-amber-700 underline-offset-2 hover:text-amber-800 hover:underline"
           >
             {t('upgrade') || 'Upgrade'}
           </button>

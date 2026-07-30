@@ -202,6 +202,18 @@ export function ProviderForm({
 
   return (
     <form onSubmit={onSave} className="card space-y-4">
+      <div className="flex items-start gap-2.5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0071e3]/10 text-[#0071e3]">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+          </svg>
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-widest text-[#1d1d1f]">{t('providerConfig') || 'Provider'}</p>
+          <p className="mt-0.5 text-[11px] text-[#707070] leading-relaxed">{t('providerDesc') || 'Conecta un proveedor de IA para alimentar cada etapa del pipeline'}</p>
+        </div>
+      </div>
+
       {/* Provider Select */}
       <select
         className="field"
@@ -218,13 +230,13 @@ export function ProviderForm({
 
       {/* Premium lock for NVIDIA */}
       {!premium && (
-        <div className="flex items-center gap-2 rounded-lg border border-amber-200/20 bg-amber-50/10 px-3 py-2">
+        <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/50 px-3 py-2">
           <svg
             width="14"
             height="14"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#f59e0b"
+            stroke="#d97706"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -232,13 +244,13 @@ export function ProviderForm({
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
-          <span className="flex-1 text-xs text-amber-400/80">
+          <span className="flex-1 text-xs text-amber-700">
             {t('nvidiaLocked') || 'NVIDIA NIM is only available on Premium'}
           </span>
           <button
             type="button"
             onClick={onUpgrade}
-            className="shrink-0 text-xs font-medium text-amber-400 underline-offset-2 hover:text-amber-300 hover:underline"
+            className="shrink-0 text-xs font-medium text-amber-700 underline-offset-2 hover:text-amber-800 hover:underline"
           >
             {t('upgrade') || 'Upgrade'}
           </button>
@@ -379,12 +391,12 @@ export function ProviderForm({
 
       {/* Inline error with upgrade CTA */}
       {saveError && (
-        <div className="space-y-2 rounded-lg border border-amber-200/30 bg-amber-50/10 px-4 py-3">
-          <p className="text-xs leading-relaxed text-amber-400/90">{saveError}</p>
+        <div className="space-y-2 rounded-lg border border-amber-200 bg-amber-50/50 px-4 py-3">
+          <p className="text-xs leading-relaxed text-amber-700">{saveError}</p>
           <button
             type="button"
             onClick={onUpgrade}
-            className="text-xs font-medium text-amber-400 underline-offset-2 hover:text-amber-300 hover:underline"
+            className="text-xs font-medium text-amber-700 underline-offset-2 hover:text-amber-800 hover:underline"
           >
             {t('upgrade')}
           </button>

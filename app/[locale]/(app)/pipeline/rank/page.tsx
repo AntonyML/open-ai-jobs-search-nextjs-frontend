@@ -348,6 +348,18 @@ export default function Rank() {
             </div>
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={goToPage} />
           </div>
+        ) : jobIds && jobIds.length > 0 ? (
+          <div className="rounded-2xl border border-[#d2d2d7] bg-white p-8 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#f5f5f7]">
+              <BarChart3 className="h-6 w-6 text-[#707070]" />
+            </div>
+            <p className="mt-4 text-[15px] font-medium text-[#1d1d1f]">
+              {t('readyTitle', { count: jobIds.length })}
+            </p>
+            <p className="mt-1 text-sm text-[#6e6e73]">
+              {t('readyDesc')}
+            </p>
+          </div>
         ) : (
           <PipelineEmptyState
             icon={BarChart3}

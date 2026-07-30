@@ -345,7 +345,13 @@ export default function Setup() {
   }
 
   function hasRequiredFields(): boolean {
+    const hasTargetTitles = jobTarget.target_titles.some(t => t.trim().length > 0)
+    const hasExperience = experiences.some(e => e.title.trim().length > 0)
+    const hasSkills = form.skills_raw.split(',').some(s => s.trim().length > 0)
     return !!form.full_name && !!form.email && !!form.location
+      && hasTargetTitles
+      && hasExperience
+      && hasSkills
   }
 
   return (
@@ -359,13 +365,6 @@ export default function Setup() {
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
         {t('backToProviders')}
       </a>
-
-      {saved && hasRequiredFields() && (
-        <div className="mb-6 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-700">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-          {t('profileSaved')}
-        </div>
-      )}
 
       <form onSubmit={submit} className="space-y-6" id="setup-form">
         <BasicInfoSection
@@ -460,7 +459,7 @@ export default function Setup() {
                 </Tooltip>
               )}
             </div>
-            <AppleButton disabled={saving || deleting} loading={saving} className="w-full sm:w-auto" type="submit">
+            <AppleButton disabled={saving || deleting} loading={saving} className="w-full sm:w-auto" type="submit" form="setup-form">
               {saving ? t('saving') : hasProfile ? t('updateProfile') : t('saveProfile')}
             </AppleButton>
           </div>

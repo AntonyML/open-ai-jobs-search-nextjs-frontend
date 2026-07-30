@@ -18,16 +18,16 @@ export function BasicInfoSection({ full_name, email, phone, location, onChange, 
 
   return (
     <div className="card space-y-5">
-      <div className="flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0071e3]/10 text-[#0071e3]">
+      <div className="flex items-start gap-2.5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0071e3]/10 text-[#0071e3]">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
             <circle cx="12" cy="7" r="4" />
           </svg>
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#707070]">{t('basicInfoSection')}</p>
-          <p className="text-[11px] text-[#858585]">{t('basicInfoDesc')}</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#1d1d1f]">{t('basicInfoSection')}</p>
+          <p className="mt-0.5 text-[11px] text-[#707070] leading-relaxed">{t('basicInfoDesc')}</p>
         </div>
       </div>
 

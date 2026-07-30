@@ -10,8 +10,9 @@ import { playPipelineSound, playErrorSound } from "@/lib/sounds";
 import { getCompletedSteps, setCompletedSteps, isPremium } from "@/lib/auth";
 import { PipelineHeader } from "@/components/ui/pipeline-header";
 import { AppleButton } from "@/components/ui/apple-button";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { UpgradeBanner } from "@/components/ui/upgrade-banner";
-import { Search, MapPin, ArrowRight, ExternalLink, RotateCcw, Check, X } from "lucide-react";
+import { Search, MapPin, ExternalLink, RotateCcw } from "lucide-react";
 import UpgradeModal from "@/components/UpgradeModal";
 
 type PageState = "loading" | "incomplete" | "briefing" | "searching" | "results" | "error" | "adjusting";
@@ -98,7 +99,7 @@ export default function SearchPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [ingestJobId, setIngestJobId] = useState<string | null>(null);
   const [currentMsgIdx, setCurrentMsgIdx] = useState(0);
-  const [adjustKeywords, setAdjustKeywords] = useState("");
+  const [adjustKeywords, setAdjustKeywords] = useState<string[]>([]);
   const [adjustLocation, setAdjustLocation] = useState("");
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const msgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -252,23 +253,26 @@ export default function SearchPage() {
     });
     const steps = getCompletedSteps();
     if (!steps.includes(2)) setCompletedSteps([...steps, 2]);
-    router.push("/pipeline/rank");
+    router.push(`/${locale}/pipeline/rank`);
   };
 
   const startAdjust = () => {
-    setAdjustKeywords(keywords);
+    setAdjustKeywords(profile?.job_target?.target_titles?.length
+      ? [...profile.job_target.target_titles]
+      : keywords ? keywords.split(" ").filter(Boolean) : [""]
+    );
     setAdjustLocation(location);
     setPageState("adjusting");
   };
 
   const saveAdjust = () => {
-    setKeywords(adjustKeywords);
+    setKeywords(adjustKeywords.filter(t => t.trim()).join(" "));
     setLocation(adjustLocation);
     setPageState("briefing");
   };
 
   const completeProfile = () => {
-    router.push("/pipeline/setup");
+    router.push(`/${locale}/pipeline/setup`);
   };
 
   // Derived data
@@ -286,7 +290,6 @@ export default function SearchPage() {
       <PipelineHeader
         eyebrow={t("eyebrow")}
         title={pageState === "results" ? t("resultsTitle", { count: jobs.length }) : t("briefingTitle")}
-        subtitle={pageState === "searching" ? undefined : t("briefingSubtitle")}
       />
 
       {!premium && (
@@ -295,6 +298,26 @@ export default function SearchPage() {
           onUpgrade={() => setShowUpgrade(true)}
           upgradeLabel={t("upgrade")}
         />
+      )}
+
+      {(pageState === "briefing" || pageState === "adjusting") && (
+        <a
+          href={`/${locale}/pipeline/setup`}
+          className="mb-6 inline-flex items-center gap-1 text-xs font-medium text-[#707070] hover:text-[#1d1d1f] transition-colors"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
+          {t("backToSetup")}
+        </a>
+      )}
+
+      {pageState === "results" && (
+        <button
+          onClick={() => setPageState("briefing")}
+          className="mb-6 inline-flex items-center gap-1 text-xs font-medium text-[#707070] hover:text-[#1d1d1f] transition-colors"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
+          {t("newSearch")}
+        </button>
       )}
 
       {/* ===== STATE: LOADING ===== */}
@@ -310,13 +333,20 @@ export default function SearchPage() {
       {pageState === "incomplete" && (
         <div className="mt-16 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#f5f5f7]">
-            <Search className="h-7 w-7 text-[#86868b]" />
+            <Search className="h-7 w-7 text-[#707070]" />
           </div>
           <h2 className="mt-6 text-2xl font-semibold text-[#1d1d1f]">{t("incompleteTitle")}</h2>
           <p className="mt-3 text-[15px] leading-relaxed text-[#6e6e73] max-w-md mx-auto">{t("incompleteDesc")}</p>
-          <AppleButton className="mt-8" onClick={completeProfile}>
-            {t("incompleteButton")}
-          </AppleButton>
+          <Tooltip>
+            <TooltipTrigger render={
+              <AppleButton className="mt-8" onClick={completeProfile}>
+                {t("incompleteButton")} →
+              </AppleButton>
+            } />
+            <TooltipContent side="top" className="px-3 py-1.5 text-xs">
+              {t("incompleteButtonTooltip") || 'Go to profile setup'}
+            </TooltipContent>
+          </Tooltip>
         </div>
       )}
 
@@ -324,31 +354,65 @@ export default function SearchPage() {
       {pageState === "adjusting" && (
         <div className="mt-10">
           <div className="rounded-2xl border border-[#d2d2d7] bg-white p-6 space-y-5">
+            <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/50 px-3.5 py-2.5">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              <p className="text-[11px] text-amber-700">{t("adjustHint")}</p>
+            </div>
             <div>
               <label className="block text-sm font-medium text-[#1d1d1f] mb-2">{t("role")}</label>
-              <input
-                value={adjustKeywords}
-                onChange={e => setAdjustKeywords(e.target.value)}
-                className="w-full rounded-xl border border-[#d2d2d7] bg-[#f5f5f7] px-4 py-3 text-[15px] text-[#1d1d1f] outline-none transition-colors focus:border-[#0071e3] focus:bg-white"
-                placeholder={jt?.target_titles?.[0] ?? ""}
-              />
+              <div className="space-y-2">
+                {adjustKeywords.map((title, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <input
+                      value={title}
+                      onChange={e => {
+                        const next = [...adjustKeywords];
+                        next[i] = e.target.value;
+                        setAdjustKeywords(next);
+                      }}
+                      className="field flex-1 text-sm"
+                      placeholder={jt?.target_titles?.[0] || "Software Engineer"}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setAdjustKeywords(adjustKeywords.filter((_, j) => j !== i))}
+                      className="shrink-0 text-[#707070] hover:text-rose-500 transition-colors"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setAdjustKeywords([...adjustKeywords, ""])}
+                  className="text-[11px] font-medium text-[#0066cc] hover:underline"
+                >
+                  + {t("addTitle") || "Agregar cargo"}
+                </button>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-[#1d1d1f] mb-2">{t("zone")}</label>
               <input
                 value={adjustLocation}
                 onChange={e => setAdjustLocation(e.target.value)}
-                className="w-full rounded-xl border border-[#d2d2d7] bg-[#f5f5f7] px-4 py-3 text-[15px] text-[#1d1d1f] outline-none transition-colors focus:border-[#0071e3] focus:bg-white"
+                className="field text-sm"
                 placeholder={jt?.search_locations?.[0] ?? ""}
               />
             </div>
             <div className="flex gap-3 pt-2">
-              <AppleButton className="flex-1" onClick={saveAdjust}>
+              <AppleButton size="sm" onClick={saveAdjust}>
                 {t("adjustSave")}
               </AppleButton>
-              <AppleButton variant="ghost" className="flex-none" onClick={() => { setAdjustKeywords(keywords); setAdjustLocation(location); setPageState("briefing"); }}>
-                <X className="h-4 w-4" />
-              </AppleButton>
+              <button
+                type="button"
+                onClick={() => { setAdjustKeywords(profile?.job_target?.target_titles || [""]); setAdjustLocation(location); setPageState("briefing"); }}
+                className="text-xs font-medium text-[#707070] hover:text-[#1d1d1f] transition-colors"
+              >
+                {t("cancel")}
+              </button>
             </div>
           </div>
         </div>
@@ -358,34 +422,48 @@ export default function SearchPage() {
       {pageState === "briefing" && (
         <div className="mt-10 animate-[fadeIn_0.4s_ease-out]">
           <div className="rounded-2xl border border-[#d2d2d7] bg-white p-8 space-y-6">
-            {/* Role — large, prominent */}
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-[#858585]">{t("role")}</p>
-              <p className="mt-1.5 text-2xl font-semibold text-[#1d1d1f]">
-                {jt?.target_titles?.join(" · ") || t("noValue")}
-              </p>
+            {/* Profile source hint */}
+            <div className="flex items-center gap-2 rounded-lg border border-[#e2e2e5] bg-[#fafafa] px-4 py-2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#707070" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              <p className="text-[11px] text-[#707070]">{t("briefingSubtitle")}</p>
             </div>
 
+            {/* Target titles as chips */}
+            {jt?.target_titles?.length > 0 && (
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-[#707070]">{t("role")}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {jt.target_titles.map((r, i) => (
+                    <span key={i} className="rounded-full border border-[#d2d2d7] bg-white px-3.5 py-1.5 text-sm font-medium text-[#1d1d1f] shadow-sm">
+                      {r}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Details grid */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
               {(jt?.search_locations?.length || location) && (
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-[#858585]">{t("zone")}</p>
+                <div className="col-span-2 sm:col-span-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-[#707070]">{t("zone")}</p>
                   <p className="mt-1 text-sm font-medium text-[#1d1d1f] flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-[#858585]" />
-                    {location || jt?.search_locations?.join(" · ") || t("noValue")}
+                    <MapPin className="h-3.5 w-3.5 text-[#707070]" />
+                    {location || jt?.search_locations?.join(", ") || t("noValue")}
                   </p>
                 </div>
               )}
               {seniorityLabel && (
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-[#858585]">{t("level")}</p>
+                <div className="col-span-2 sm:col-span-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-[#707070]">{t("level")}</p>
                   <p className="mt-1 text-sm font-medium text-[#1d1d1f]">{seniorityLabel}</p>
                 </div>
               )}
               {modeLabel && (
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-[#858585]">{t("mode")}</p>
+                <div className="col-span-2 sm:col-span-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-[#707070]">{t("mode")}</p>
                   <p className="mt-1 text-sm font-medium text-[#1d1d1f]">{modeLabel}</p>
                 </div>
               )}
@@ -394,7 +472,7 @@ export default function SearchPage() {
             {/* Skills as chips */}
             {allSkills.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-[#858585]">{t("keySkills")}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-[#707070]">{t("keySkills")}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {allSkills.map(s => (
                     <span key={s} className="rounded-full border border-[#d2d2d7] bg-[#f5f5f7] px-3 py-1 text-xs font-medium text-[#1d1d1f]">{s}</span>
@@ -405,10 +483,10 @@ export default function SearchPage() {
 
             {/* Actions */}
             <div className="flex items-center gap-3 pt-2">
-              <AppleButton className="flex-1" onClick={() => handleSearch()}>
-                <Search className="mr-2 h-4 w-4" /> {t("startSearching")}
+              <AppleButton size="sm" onClick={() => handleSearch()}>
+                {t("startSearchingShort")}
               </AppleButton>
-              <AppleButton variant="ghost" onClick={startAdjust}>
+              <AppleButton variant="ghost" size="sm" onClick={startAdjust}>
                 {t("adjustSearch")}
               </AppleButton>
             </div>
@@ -470,9 +548,6 @@ export default function SearchPage() {
             <p className="text-[15px] font-medium text-[#1d1d1f]">
               {jobs.length === 1 ? t("oneResultTitle") : t("resultsTitle", { count: jobs.length })}
             </p>
-            <button onClick={() => setPageState("briefing")} className="text-sm text-[#0066cc] hover:underline">
-              {t("newSearch")}
-            </button>
           </div>
 
           {/* Job list */}
@@ -491,7 +566,7 @@ export default function SearchPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-3">
                     <p className="truncate font-medium text-[#1d1d1f]">{job.title}</p>
-                    <span className="shrink-0 text-xs text-[#86868b]">{timeAgo(job.ingested_at, locale)}</span>
+                    <span className="shrink-0 text-xs text-[#707070]">{timeAgo(job.ingested_at, locale)}</span>
                   </div>
                   <p className="mt-0.5 truncate text-sm text-[#6e6e73]">
                     {job.company ?? t("noValue")}
@@ -519,20 +594,30 @@ export default function SearchPage() {
             ))}
           </div>
 
-          {/* Sticky CTA */}
-          <div className="sticky bottom-6 mt-8 flex items-center justify-between rounded-full border border-[#d2d2d7] bg-white/95 px-6 py-4 backdrop-blur shadow-sm">
-            <p className="text-sm text-[#6e6e73]">
-              {selected.size === jobs.length
-                ? t("allSelected", { count: jobs.length })
-                : t("selectedCount", { selected: selected.size, total: jobs.length })}
-            </p>
-            <AppleButton
-              onClick={proceedToRank}
-              disabled={selected.size === 0}
-            >
-              {t("continueToRank")}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </AppleButton>
+          {/* Sticky action panel */}
+          <div className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-[#d2d2d7] bg-white/95 px-4 py-4 backdrop-blur sm:-mx-0 sm:rounded-t-xl sm:border sm:border-b-0 sm:px-5 sm:py-4 sm:shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-[#707070]">
+                {selected.size === jobs.length
+                  ? t("allSelected", { count: jobs.length })
+                  : t("selectedCount", { selected: selected.size, total: jobs.length })}
+              </p>
+              <Tooltip>
+                <TooltipTrigger render={
+                  <AppleButton
+                    variant="secondary"
+                    onClick={proceedToRank}
+                    disabled={selected.size === 0}
+                    className="w-full sm:w-auto"
+                  >
+                    {t("continueToRank")} →
+                  </AppleButton>
+                } />
+                <TooltipContent side="top" className="px-3 py-1.5 text-xs">
+                  {t("continueToRankTooltip")}
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
         </div>
       )}
@@ -541,7 +626,7 @@ export default function SearchPage() {
       {pageState === "error" && (
         <div className="mt-16 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#f5f5f7]">
-            <RotateCcw className="h-7 w-7 text-[#86868b]" />
+            <RotateCcw className="h-7 w-7 text-[#707070]" />
           </div>
           <h2 className="mt-6 text-2xl font-semibold text-[#1d1d1f]">{t("noResultsTitle")}</h2>
           <p className="mt-3 text-[15px] leading-relaxed text-[#6e6e73] max-w-md mx-auto">{t("noResultsHint")}</p>
