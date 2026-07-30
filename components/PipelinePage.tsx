@@ -1,6 +1,7 @@
 'use client'
 
 import { FormEvent, useEffect, useRef, useState } from 'react'
+import { useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
@@ -99,7 +100,12 @@ export default function PipelinePage({
   cardMode,
   actionField = 'job_posting_id',
   statusEndpoint,
+  backHref,
+  backLabel,
+  continueTooltip,
+  continueLabel = 'Continue',
 }: PipelinePageProps) {
+  const locale = useLocale()
   const [form, setForm] = useState<Record<string, string>>({})
   const [items, setItems] = useState<any[]>([])
   const [results, setResults] = useState<any[]>([])
@@ -241,6 +247,16 @@ export default function PipelinePage({
   if (cardMode) {
     return (
       <section className="mx-auto max-w-5xl">
+        {backHref && (
+          <a
+            href={`/${locale}${backHref}`}
+            className="mb-6 inline-flex items-center gap-1 text-xs font-medium text-[#707070] hover:text-[#1d1d1f] transition-colors"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
+            {backLabel || 'Back'}
+          </a>
+        )}
+
         <PipelineHeader eyebrow={eyebrow} title={title} subtitle={subtitle} />
 
         <div className="mt-8">
@@ -298,7 +314,7 @@ export default function PipelinePage({
                           <div className="h-1 rounded-full bg-[#e2e2e5]">
                             <div className="h-1 rounded-full bg-[#2997ff] transition-all duration-500" style={{ width: `${Math.max(5, Math.min(95, proc.progress))}%` }} />
                           </div>
-                          <p className="text-[11px] text-[#858585]">{proc.stage} · {proc.progress}%</p>
+                          <p className="text-[11px] text-[#707070]">{proc.stage} · {proc.progress}%</p>
                         </div>
                       ) : (
                         <AppleButton onClick={() => handleGenerate(id)} disabled={loading} size="sm" className="w-full">
@@ -329,14 +345,24 @@ export default function PipelinePage({
           )}
 
           {hasCompleted && (
-            <div className="mt-6 flex justify-center">
-              <button
-                type="button"
-                onClick={() => { complete(); if (next) router.push(next) }}
-                className="btn-secondary"
-              >
-                {next ? 'Continue' : 'Mark as complete'}
-              </button>
+            <div className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-[#d2d2d7] bg-white/95 px-4 py-4 backdrop-blur sm:-mx-0 sm:rounded-t-xl sm:border sm:border-b-0 sm:px-5 sm:py-4 sm:shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+              <div className="flex justify-center">
+                <Tooltip>
+                  <TooltipTrigger render={
+                    <AppleButton
+                      variant="secondary"
+                      onClick={() => { complete(); if (next) router.push(`/${locale}${next}`) }}
+                    >
+                      {continueLabel} →
+                    </AppleButton>
+                  } />
+                  {continueTooltip && (
+                    <TooltipContent side="top" className="px-3 py-1.5 text-xs">
+                      {continueTooltip}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </div>
             </div>
           )}
         </div>

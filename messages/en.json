@@ -569,7 +569,10 @@
     "emptyAction": "Go to Rank",
     "prevStepTitle": "Rank jobs first",
     "prevStepDesc": "Before generating applications, you need to rank your jobs. Ranking identifies the best matches for your profile so you can apply strategically.",
-    "prevStepAction": "Go to Rank"
+    "prevStepAction": "Go to Rank",
+    "backToRank": "Back to evaluation",
+    "continueToInterview": "Continue to Interview",
+    "continueToInterviewTooltip": "Go to interview preparation"
   },
   "interview": {
     "title": "Walk into the interview prepared",

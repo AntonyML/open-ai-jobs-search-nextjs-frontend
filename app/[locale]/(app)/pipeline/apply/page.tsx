@@ -36,7 +36,7 @@ export default function Apply() {
         listEndpoint="/api/v1/apply/available-jobs?limit=200"
         fields={[{ name: 'job_posting_id', label: t('selectJob'), type: 'select' }]}
         step={4}
-        next="/interview"
+        next="/pipeline/interview"
         actionLabel={t('generate')}
         actionDisabled={atLimit}
         actionDisabledTooltip={atLimit ? t('limitReached') || 'Upgrade para más aplicaciones' : ''}
@@ -54,6 +54,10 @@ export default function Apply() {
         cardMode
         actionField="job_posting_id"
         statusEndpoint="/api/v1/apply"
+        backHref="/pipeline/rank"
+        backLabel={t('backToRank')}
+        continueLabel={t('continueToInterview') || 'Continue to Interview'}
+        continueTooltip={t('continueToInterviewTooltip')}
       />
       <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </>

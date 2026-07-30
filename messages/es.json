@@ -567,8 +567,11 @@
     "emptyDesc": "Genera CVs y cartas de presentación personalizadas para tus empleos mejor rankeados. Primero rankea empleos para encontrar los mejores candidatos.",
     "emptyAction": "Ir a Rank",
     "prevStepTitle": "Rankea empleos primero",
-    "prevStepDesc": "Antes de generar postulaciones, debes rankear tus empleos scapeados. El ranking identifica las mejores coincidencias para tu perfil.",
-    "prevStepAction": "Ir a Rank"
+    "prevStepDesc": "Antes de generar postulaciones, debes rankear tus empleos. El ranking identifica las mejores coincidencias para tu perfil.",
+    "prevStepAction": "Ir a Rank",
+    "backToRank": "Volver a evaluación",
+    "continueToInterview": "Continuar a Entrevista",
+    "continueToInterviewTooltip": "Ir a preparación de entrevistas"
   },
   "interview": {
     "title": "Llega preparado a la entrevista",
