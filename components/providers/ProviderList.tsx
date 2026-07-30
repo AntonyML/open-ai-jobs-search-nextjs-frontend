@@ -37,7 +37,10 @@ export function ProviderList({
       <p className="mb-3 text-sm text-[#707070]">{t('yourProviders')}</p>
 
       {providers.length === 0 && (
-        <p className="text-sm text-[#474747]">{t('noneSaved')}</p>
+        <div>
+          <p className="text-sm text-[#474747]">{t('noneSaved')}</p>
+          <p className="mt-1 text-xs text-[#707070]">{t('addProviderHint') || 'Completa el formulario de la izquierda y guarda tu primer proveedor.'}</p>
+        </div>
       )}
 
       {providers.map((p, i) => (
@@ -76,7 +79,7 @@ export function ProviderList({
             )}
             <button
               onClick={() => onDelete(p.provider)}
-              className="btn-secondary px-3 py-1 text-xs text-rose-400"
+              className="btn-secondary px-3 py-1 text-xs text-rose-600"
             >
               {t('delete')}
             </button>

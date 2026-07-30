@@ -8,6 +8,12 @@ import { AppleButton } from '@/components/ui/apple-button'
 
 const MASKED_KEY = '__MASKED__'
 
+const PROVIDER_LABELS: Record<string, string> = {
+  anthropic: 'Anthropic (Claude)',
+  openai: 'OpenAI (GPT)',
+  nvidia_nim: 'NVIDIA NIM',
+}
+
 interface ProviderFormProps {
   premium: boolean
   provider: string
@@ -32,6 +38,7 @@ export function ProviderForm({
   editingProvider,
 }: ProviderFormProps) {
   const t = useTranslations('providers')
+  const tc = useTranslations('common')
 
   function validateApiKey(provider: string, key: string): string | null {
     if (key === MASKED_KEY) return null
@@ -64,6 +71,7 @@ export function ProviderForm({
   const [testing, setTesting] = useState(false)
   const [tested, setTested] = useState(false)
   const [changingKey, setChangingKey] = useState(false)
+  const [modelSearch, setModelSearch] = useState('')
 
   const isEditing = editingProvider?.provider === provider && form.api_key === MASKED_KEY
 
@@ -71,6 +79,7 @@ export function ProviderForm({
     setModels([])
     setTested(false)
     setChangingKey(false)
+    setModelSearch('')
   }, [provider])
 
   useEffect(() => {
@@ -200,11 +209,11 @@ export function ProviderForm({
         onChange={(e) => onProviderChange(e.target.value)}
         disabled={!!editingProvider}
       >
-        {['anthropic', 'openai', 'nvidia_nim' /*, 'lm_studio', 'ollama' */]
-          .filter((x) => premium || x !== 'nvidia_nim')
-          .map((x) => (
-            <option key={x}>{x}</option>
-          ))}
+          {['anthropic', 'openai', 'nvidia_nim']
+            .filter((x) => premium || x !== 'nvidia_nim')
+            .map((x) => (
+              <option key={x} value={x}>{PROVIDER_LABELS[x] || x}</option>
+            ))}
       </select>
 
       {/* Premium lock for NVIDIA */}
@@ -239,8 +248,8 @@ export function ProviderForm({
       {/* API Key */}
       {isEditing && !changingKey ? (
         <div className="flex gap-2 items-center">
-          <div className="field flex-1 flex items-center text-slate-500 select-none">
-            {'\u2022'.repeat(20)}
+          <div className="field flex-1 flex items-center text-[#707070] select-none text-xs">
+            {(prefixes[provider] || '') + '\u2022'.repeat(12)}
           </div>
           <button
             type="button"
@@ -298,21 +307,47 @@ export function ProviderForm({
 
       {/* Model Select */}
       {models.length > 0 && (
-        <select
-          className="field"
-          value={form.model}
-          onChange={(e) => {
-            onFormChange({ ...form, model: e.target.value })
-            setTested(false)
-          }}
-        >
-          <option value="">{t('chooseModel')}</option>
-          {models.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.id}
-            </option>
-          ))}
-        </select>
+        <div className="space-y-2">
+          {models.length > 10 && (
+            <input
+              className="field"
+              placeholder={t('searchModels') || 'Buscar modelo…'}
+              value={modelSearch}
+              onChange={(e) => setModelSearch(e.target.value)}
+            />
+          )}
+          <div className="max-h-48 overflow-y-auto">
+            {models
+              .filter((m) => !modelSearch || m.id.toLowerCase().includes(modelSearch.toLowerCase()))
+              .map((m) => (
+                <label
+                  key={m.id}
+                  className={`flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors ${
+                    form.model === m.id
+                      ? 'bg-[#0071e3]/10 text-[#0071e3] font-medium'
+                      : 'text-[#1d1d1f] hover:bg-[#f5f5f7]'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="model"
+                    value={m.id}
+                    checked={form.model === m.id}
+                    onChange={(e) => {
+                      onFormChange({ ...form, model: e.target.value })
+                      setTested(false)
+                    }}
+                    className="accent-[#0071e3]"
+                  />
+                  {m.id}
+                </label>
+              ))}
+            {models.filter((m) => !modelSearch || m.id.toLowerCase().includes(modelSearch.toLowerCase())).length ===
+              0 && (
+              <p className="px-3 py-2 text-xs text-[#707070]">{tc('noResults')}</p>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Test Provider — visible always when model selected */}
@@ -325,16 +360,22 @@ export function ProviderForm({
           loading={testing}
           onClick={testProvider}
         >
-          {testing ? t('testing') : t('testProvider')}
+          {testing
+            ? t('testing')
+            : tested
+              ? t('testOkSimple') || '✓ Test OK'
+              : t('testProvider')}
         </AppleButton>
       )}
 
-      {/* Save Provider — only after successful test */}
-      {tested && (
-        <AppleButton type="submit" className="w-full">
-          {isEditing ? t('saveChanges') : t('saveProvider')}
-        </AppleButton>
-      )}
+      {/* Save Provider — always visible, disabled until test passes */}
+      <AppleButton
+        type="submit"
+        className="w-full"
+        disabled={!tested}
+      >
+        {isEditing ? t('saveChanges') : t('saveProvider')}
+      </AppleButton>
 
       {/* Inline error with upgrade CTA */}
       {saveError && (

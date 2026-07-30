@@ -102,6 +102,7 @@ export default function SearchPage() {
   const [adjustLocation, setAdjustLocation] = useState("");
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const msgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isSearchingRef = useRef(false);
 
   const applyResults = useCallback((list: Job[]) => {
     setJobs(list);
@@ -146,8 +147,17 @@ export default function SearchPage() {
 
   // Main search function
   const handleSearch = useCallback(async (kw?: string, loc?: string) => {
+    // ── Debounce: evitar búsquedas simultáneas ──
+    if (isSearchingRef.current) {
+      return;
+    }
+    isSearchingRef.current = true;
+
     const q = (kw ?? keywords).trim() || (profile?.job_target?.target_titles?.join(" ") ?? "");
-    if (!q) return;
+    if (!q) {
+      isSearchingRef.current = false;
+      return;
+    }
     if (kw) setKeywords(kw);
     if (loc !== undefined) setLocation(loc);
 
@@ -178,6 +188,8 @@ export default function SearchPage() {
     } catch {
       stopMessageRotation();
       setPageState("error");
+    } finally {
+      isSearchingRef.current = false;
     }
   }, [keywords, location, profile, startMessageRotation, stopMessageRotation, applyResults]);
 
@@ -211,7 +223,13 @@ export default function SearchPage() {
         }
       } catch { /* keep polling */ }
     }, 3000);
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+    return () => {
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+      isSearchingRef.current = false;
+    };
   }, [ingestJobId, keywords, location, profile, applyResults, jobs.length]);
 
   const toggleJob = (id: string) => {

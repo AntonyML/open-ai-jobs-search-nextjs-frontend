@@ -212,28 +212,35 @@ export default function Providers() {
       <PipelineHeader
         eyebrow={t('eyebrow')}
         title={t('title')}
+        subtitle={t('subtitle')}
       />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         {/* Left: Form */}
-        <ProviderForm
-          premium={premium}
-          provider={provider}
-          form={form}
-          editingProvider={editingProvider}
-          onProviderChange={(p) => {
-            setProvider(p)
-            if (editingProvider) handleCancelEdit()
-          }}
-          onFormChange={setForm}
-          onSave={add}
-          saveError={saveError}
-          onUpgrade={() => setShowUpgrade(true)}
-        />
+        <div className="order-2 lg:order-1">
+          <ProviderForm
+            premium={premium}
+            provider={provider}
+            form={form}
+            editingProvider={editingProvider}
+            onProviderChange={(p) => {
+              setProvider(p)
+              if (editingProvider) handleCancelEdit()
+            }}
+            onFormChange={setForm}
+            onSave={add}
+            saveError={saveError}
+            onUpgrade={() => setShowUpgrade(true)}
+          />
+        </div>
 
         {/* Right: Info & Actions */}
-        <div className="space-y-4">
-          <ActiveProviderCard activeProvider={active?.provider || null} />
+        <div className="order-1 lg:order-2 space-y-4">
+          <ActiveProviderCard
+            activeProvider={active?.provider || null}
+            activeModel={active?.model || null}
+            displayName={active?.display_name || null}
+          />
 
           <ProviderList
             providers={myProviders}
@@ -261,7 +268,7 @@ export default function Providers() {
               className="w-full"
               onClick={() => activate(provider)}
             >
-              {t('setProviderActive', { provider })}
+              {t('setProviderActive', { provider: active?.display_name || provider })}
             </AppleButton>
           )}
 
