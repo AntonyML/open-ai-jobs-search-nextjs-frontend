@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 
 interface ProviderEntry {
   provider: string
+  display_name?: string | null
   api_base?: string | null
   model?: string | null
   has_key?: boolean
@@ -44,13 +45,21 @@ export function ProviderList({
           key={i}
           className="flex items-center justify-between border-b border-[#e2e2e5] py-2 last:border-0"
         >
-          <span className="text-sm text-[#1d1d1f]">
-            {p.provider}
-            {p.is_active && (
-              <span className="ml-2 text-xs text-emerald-400">({t('activeLabel')})</span>
+          <div className="min-w-0 flex-1">
+            <span className="text-sm font-medium text-[#1d1d1f]">
+              {p.display_name || p.provider}
+              {p.is_active && (
+                <span className="ml-2 text-xs text-emerald-400">({t('activeLabel')})</span>
+              )}
+            </span>
+            {(p.model || p.api_base) && (
+              <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-[#707070]">
+                {p.model && <span>{t('model')}: {p.model}</span>}
+                {p.api_base && <span>API: {p.api_base}</span>}
+              </div>
             )}
-          </span>
-          <div className="flex gap-2">
+          </div>
+          <div className="flex shrink-0 gap-2 ml-3">
             <button
               onClick={() => onEdit(p)}
               className="btn-secondary px-3 py-1 text-xs"
