@@ -33,18 +33,18 @@ export function ProviderList({
 
   return (
     <div className="card">
-      <p className="mb-3 text-sm text-slate-400">{t('yourProviders')}</p>
+      <p className="mb-3 text-sm text-[#707070]">{t('yourProviders')}</p>
 
       {providers.length === 0 && (
-        <p className="text-sm text-slate-500">{t('noneSaved')}</p>
+        <p className="text-sm text-[#474747]">{t('noneSaved')}</p>
       )}
 
       {providers.map((p, i) => (
         <div
           key={i}
-          className="flex items-center justify-between border-b border-slate-800 py-2 last:border-0"
+          className="flex items-center justify-between border-b border-[#e2e2e5] py-2 last:border-0"
         >
-          <span className="text-sm text-slate-300">
+          <span className="text-sm text-[#1d1d1f]">
             {p.provider}
             {p.is_active && (
               <span className="ml-2 text-xs text-emerald-400">({t('activeLabel')})</span>

@@ -231,7 +231,7 @@ function JobRow({
         <StatusBadge status={job.status} pulse={isRunning || isRetrying} />
       </div>
 
-      <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-[#858585]">
+      <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-[#707070]">
         {job.provider && <span className="font-medium text-[#474747]">{job.provider}</span>}
         {job.model && <span>{job.model}</span>}
         {job.retry_count > 0 && (
@@ -552,7 +552,7 @@ function StatusTab({
 
       <Section title={t('providers')} count={providers.length}>
         {providers.length === 0 ? (
-          <p className="text-[10px] italic text-[#858585]">{tc('noResults')}</p>
+          <p className="text-[10px] italic text-[#707070]">{tc('noResults')}</p>
         ) : (
           providers.map((p) => <ProviderCard key={p.provider} provider={p} />)
         )}
@@ -560,7 +560,7 @@ function StatusTab({
 
       <Section title={t('models')} count={models.length} defaultOpen={false}>
         {models.length === 0 ? (
-          <p className="text-[10px] italic text-[#858585]">{tc('noResults')}</p>
+          <p className="text-[10px] italic text-[#707070]">{tc('noResults')}</p>
         ) : (
           models.slice(0, 8).map((m) => (
             <div
@@ -569,12 +569,12 @@ function StatusTab({
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[11px] font-medium text-[#1d1d1f]">{m.model_name}</p>
-                <p className="text-[9px] text-[#858585]">{m.provider}</p>
+                <p className="text-[9px] text-[#707070]">{m.provider}</p>
               </div>
               <div className="flex items-center gap-2">
                 <StatusBadge status={m.state} pulse={m.state === 'COOLDOWN'} />
                 {m.average_latency_ms != null && (
-                  <span className="text-[9px] text-[#858585]">{formatMs(m.average_latency_ms)}</span>
+                  <span className="text-[9px] text-[#707070]">{formatMs(m.average_latency_ms)}</span>
                 )}
               </div>
             </div>
@@ -713,7 +713,7 @@ function QueueTab({
       {(!queue || (runningJobs.length === 0 && pendingJobs.length === 0 && recentCompleted.length === 0 && recentFailed.length === 0)) && (
         <div className="rounded-lg border border-dashed border-[#d2d2d7] p-4 text-center">
           <p className="text-[10px] text-[#858585]">{t('noJobs')}</p>
-          <p className="mt-0.5 text-[9px] text-[#b0b0b0]">{t('startHint')}</p>
+          <p className="mt-0.5 text-[9px] text-[#858585]">{t('startHint')}</p>
         </div>
       )}
 
@@ -849,7 +849,7 @@ export default function LLMControlCenter() {
                 <p className={`text-[13px] font-semibold ${topStatus.accent}`}>{topStatus.text}</p>
               </div>
               {activeProvider && (
-                <p className="mt-0.5 text-[11px] text-[#858585]">
+                <p className="mt-0.5 text-[11px] text-[#707070]">
                   {activeProvider.provider} ·{' '}
                   {models.find((m) => m.provider === activeProvider.provider)?.model_name ?? '—'}
                 </p>

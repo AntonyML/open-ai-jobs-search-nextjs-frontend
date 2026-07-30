@@ -306,7 +306,7 @@ export default function ProfilePage() {
           ) : (
             <div>
               <p className="text-[13px] text-[#707070]">{t('noProvider')}</p>
-              <p className="text-[11px] text-[#b0b0b0] mt-0.5">{t('noProviderHint')}</p>
+              <p className="text-[11px] text-[#707070] mt-0.5">{t('noProviderHint')}</p>
             </div>
           )}
         </div>

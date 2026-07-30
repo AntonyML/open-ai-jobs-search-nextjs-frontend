@@ -11,8 +11,8 @@ export function ActiveProviderCard({ activeProvider }: ActiveProviderCardProps) 
 
   return (
     <div className="card">
-      <p className="text-sm text-slate-400">{t('activeProvider')}</p>
-      <p className="mt-2 text-xl font-bold text-white">
+      <p className="text-sm text-[#707070]">{t('activeProvider')}</p>
+      <p className="mt-2 text-xl font-bold text-[#1d1d1f]">
         {activeProvider || t('notConfigured')}
       </p>
     </div>
