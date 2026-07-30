@@ -346,15 +346,10 @@ export default function Setup() {
     <section className="mx-auto max-w-3xl">
       <PipelineHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
 
-      {saved && (
-        <div className="mb-6 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-          <div className="flex items-center gap-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
-            {t('profileSaved')}
-          </div>
-           <AppleButton variant="secondary" size="sm" onClick={() => router.push(`/${locale}/pipeline/search`)}>
-             {t('continueToSearch')}
-           </AppleButton>
+      {saved && hasRequiredFields() && (
+        <div className="mb-6 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-700">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+          {t('profileSaved')}
         </div>
       )}
 
@@ -406,15 +401,6 @@ export default function Setup() {
 
         <SkillsSection form={form} onFieldChange={f} />
 
-        <div className="flex gap-6 border-t border-[#d2d2d7] pt-6 items-start">
-          <AppleButton disabled={saving} loading={saving} className="flex-1" type="submit">
-            {saving ? t('saving') : hasProfile ? t('updateProfile') : t('saveProfile')}
-          </AppleButton>
-          <AppleButton variant="danger" disabled={saving} onClick={deleteProfile}>
-            {t('deleteProfile')}
-          </AppleButton>
-        </div>
-
         {error && (
           <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -426,6 +412,25 @@ export default function Setup() {
           </div>
         )}
       </form>
+
+      {/* ── Sticky action panel ───────────────────────────── */}
+      <div className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-[#d2d2d7] bg-white/95 px-4 py-4 backdrop-blur sm:-mx-0 sm:rounded-xl sm:border sm:px-5 sm:py-4 sm:shadow-sm">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <AppleButton variant="danger" size="sm" disabled={saving} onClick={deleteProfile}>
+              {t('deleteProfile')}
+            </AppleButton>
+            {saved && hasRequiredFields() && (
+              <AppleButton variant="secondary" size="sm" onClick={() => router.push(`/${locale}/pipeline/search`)}>
+                {t('continueToSearch')} →
+              </AppleButton>
+            )}
+          </div>
+          <AppleButton disabled={saving} loading={saving} className="w-full sm:w-auto" type="submit">
+            {saving ? t('saving') : hasProfile ? t('updateProfile') : t('saveProfile')}
+          </AppleButton>
+        </div>
+      </div>
     </section>
   )
 }
