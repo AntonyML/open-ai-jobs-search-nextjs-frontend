@@ -1,5 +1,6 @@
 'use client'
 
+import { AppleButton } from '@/components/ui/apple-button'
 import { useTranslations } from 'next-intl'
 
 interface ProviderEntry {
@@ -77,12 +78,13 @@ export function ProviderList({
                 {t('setActive')}
               </button>
             )}
-            <button
+            <AppleButton
+              variant="danger"
+              size="sm"
               onClick={() => onDelete(p.provider)}
-              className="btn-secondary px-3 py-1 text-xs text-rose-600"
             >
               {t('delete')}
-            </button>
+            </AppleButton>
           </div>
         </div>
       ))}

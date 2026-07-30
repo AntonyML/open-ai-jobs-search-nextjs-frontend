@@ -406,26 +406,14 @@ export default function Setup() {
 
         <SkillsSection form={form} onFieldChange={f} />
 
-        <div className="flex gap-3 border-t border-[#d2d2d7] pt-6">
+        <div className="flex gap-6 border-t border-[#d2d2d7] pt-6 items-start">
           <AppleButton disabled={saving} loading={saving} className="flex-1" type="submit">
             {saving ? t('saving') : hasProfile ? t('updateProfile') : t('saveProfile')}
           </AppleButton>
-          <button
-            type="button"
-            onClick={deleteProfile}
-            className="rounded-xl border border-rose-300 bg-white px-4 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors"
-          >
+          <AppleButton variant="danger" disabled={saving} onClick={deleteProfile}>
             {t('deleteProfile')}
-          </button>
+          </AppleButton>
         </div>
-
-        {saved && hasRequiredFields() && (
-          <div className="flex justify-center pt-2">
-             <AppleButton variant="secondary" onClick={() => router.push(`/${locale}/pipeline/search`)}>
-               {t('continueToSearch')}
-             </AppleButton>
-          </div>
-        )}
 
         {error && (
           <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">

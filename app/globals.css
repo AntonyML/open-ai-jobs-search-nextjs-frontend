@@ -235,6 +235,15 @@ html.access-font-sans-serif {
   .btn-secondary:hover { background: var(--color-ice); }
   .btn-secondary:disabled { @apply cursor-not-allowed opacity-50; }
 
+  /* Danger variant (matches AppleButton variant="danger") */
+  .btn-danger {
+    @apply rounded-[980px] border px-3 py-1.5 text-xs font-medium transition-all;
+    border-color: #fda4af;
+    color: #e11d48;
+  }
+  .btn-danger:hover { background: #fff1f2; }
+  .btn-danger:disabled { @apply cursor-not-allowed opacity-50; }
+
   /* Ghost link — no background, just #0066cc text */
   .btn-ghost {
     @apply inline-flex items-center gap-1 text-sm font-normal transition-all;
