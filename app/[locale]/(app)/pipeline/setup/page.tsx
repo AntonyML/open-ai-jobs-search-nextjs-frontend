@@ -8,6 +8,7 @@ import { showSuccess, showError } from '@/lib/toasts'
 import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleButton } from '@/components/ui/apple-button'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 
 import { BasicInfoSection } from '@/app/[locale]/(app)/setup/components/BasicInfoSection'
 import {
@@ -72,6 +73,8 @@ export default function Setup() {
   const router = useRouter()
   const t = useTranslations('setup')
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
   const [hasProfile, setHasProfile] = useState(false)
@@ -323,7 +326,7 @@ export default function Setup() {
   }
 
   async function deleteProfile() {
-    if (!confirm(t('deleteProfileConfirm'))) return
+    setDeleting(true)
     try {
       await apiFetch('/api/v1/setup/profile', { method: 'DELETE' })
       setForm({ full_name: '', email: '', phone: '', location: '', skills_raw: '', profile_statement: '' })
@@ -332,9 +335,12 @@ export default function Setup() {
       setProjects([emptyProject()])
       setJobTarget(DEFAULT_JOB_TARGET)
       setSaved(false)
+      setConfirmDelete(false)
       showSuccess(t('profileDeleted'))
     } catch {
       showError(t('profileDeleteFailed'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -345,6 +351,14 @@ export default function Setup() {
   return (
     <section className="mx-auto max-w-3xl">
       <PipelineHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
+
+      <a
+        href={`/${locale}/pipeline/providers`}
+        className="mb-5 inline-flex items-center gap-1 text-xs font-medium text-[#707070] hover:text-[#1d1d1f] transition-colors"
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
+        {t('backToProviders')}
+      </a>
 
       {saved && hasRequiredFields() && (
         <div className="mb-6 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-700">
@@ -414,22 +428,43 @@ export default function Setup() {
       </form>
 
       {/* ── Sticky action panel ───────────────────────────── */}
-      <div className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-[#d2d2d7] bg-white/95 px-4 py-4 backdrop-blur sm:-mx-0 sm:rounded-xl sm:border sm:px-5 sm:py-4 sm:shadow-sm">
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <AppleButton variant="danger" size="sm" disabled={saving} onClick={deleteProfile}>
-              {t('deleteProfile')}
-            </AppleButton>
-            {saved && hasRequiredFields() && (
-              <AppleButton variant="secondary" size="sm" onClick={() => router.push(`/${locale}/pipeline/search`)}>
-                {t('continueToSearch')} →
+      <div className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-[#d2d2d7] bg-white/95 px-4 py-4 backdrop-blur sm:-mx-0 sm:rounded-t-xl sm:border sm:border-b-0 sm:px-5 sm:py-4 sm:shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+        {confirmDelete ? (
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-[#1d1d1f]">{t('deleteProfileConfirm')}</p>
+            <div className="flex gap-2">
+              <AppleButton variant="ghost" size="sm" onClick={() => setConfirmDelete(false)}>
+                {t('cancel')}
               </AppleButton>
-            )}
+              <AppleButton variant="danger" size="sm" loading={deleting} disabled={deleting} onClick={deleteProfile}>
+                {t('deleteProfile')}
+              </AppleButton>
+            </div>
           </div>
-          <AppleButton disabled={saving} loading={saving} className="w-full sm:w-auto" type="submit">
-            {saving ? t('saving') : hasProfile ? t('updateProfile') : t('saveProfile')}
-          </AppleButton>
-        </div>
+        ) : (
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <AppleButton variant="danger" size="sm" disabled={saving || deleting} onClick={() => setConfirmDelete(true)}>
+                {t('deleteProfile')}
+              </AppleButton>
+              {saved && hasRequiredFields() && (
+                <Tooltip>
+                  <TooltipTrigger render={
+                    <AppleButton variant="secondary" size="sm" onClick={() => router.push(`/${locale}/pipeline/search`)}>
+                      {t('continueToSearch')} →
+                    </AppleButton>
+                  } />
+                  <TooltipContent side="top" className="px-3 py-1.5 text-xs">
+                    {t('continueToSearchTooltip')}
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+            <AppleButton disabled={saving || deleting} loading={saving} className="w-full sm:w-auto" type="submit">
+              {saving ? t('saving') : hasProfile ? t('updateProfile') : t('saveProfile')}
+            </AppleButton>
+          </div>
+        )}
       </div>
     </section>
   )
