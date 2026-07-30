@@ -413,7 +413,7 @@ export default function Setup() {
           <button
             type="button"
             onClick={deleteProfile}
-            className="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-rose-500 hover:bg-rose-50 transition-colors"
+            className="rounded-xl border border-rose-300 bg-white px-4 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors"
           >
             {t('deleteProfile')}
           </button>

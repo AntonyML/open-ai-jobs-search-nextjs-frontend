@@ -106,7 +106,7 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
             <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">
               {t('behavioralProfile')}
             </p>
-            <p className="mt-0.5 text-[11px] text-[#b0b0b0]">
+            <p className="mt-0.5 text-[11px] text-[#858585]">
               {bp.profile_type || bp.drives?.length ? t('bpProfileDefined') : t('bpDesc')}
             </p>
           </div>
@@ -126,7 +126,7 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
         <div className="animate-fade-in-up space-y-4 border-t border-[#f0f0f2] px-6 pb-6 pt-4">
           <label className="block text-sm text-[#1d1d1f]">
             {t('bpProfileType')}{' '}
-            <span className="text-[#b0b0b0]">{t('bpProfileTypeHint')}</span>
+            <span className="text-[#858585]">{t('bpProfileTypeHint')}</span>
             <input
               className="field mt-1.5"
               placeholder={t('bpProfileTypePlaceholder')}
@@ -180,7 +180,7 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
                       drives: (prev.drives || []).filter((_, j) => j !== i),
                     }))
                   }
-                  className="mt-1.5 shrink-0 text-[#b0b0b0] hover:text-rose-400"
+                  className="mt-1.5 shrink-0 text-[#858585] hover:text-rose-400"
                 >
                   ✕
                 </button>
@@ -224,7 +224,7 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
                       behaviors: (prev.behaviors || []).filter((_, j) => j !== i),
                     }))
                   }
-                  className="mt-1.5 shrink-0 text-[#b0b0b0] hover:text-rose-400"
+                  className="mt-1.5 shrink-0 text-[#858585] hover:text-rose-400"
                 >
                   ✕
                 </button>
@@ -234,7 +234,7 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
 
           <label className="block text-sm text-[#1d1d1f]">
             {t('bpWorkPreferences')}{' '}
-            <span className="text-[#b0b0b0]">{t('bpCommaSeparated')}</span>
+            <span className="text-[#858585]">{t('bpCommaSeparated')}</span>
             <input
               className="field mt-1.5"
               placeholder="Autonomous, Fast-paced, Collaborative..."
@@ -287,7 +287,7 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
                       growth_areas: (prev.growth_areas || []).filter((_, j) => j !== i),
                     }))
                   }
-                  className="mt-1.5 shrink-0 text-[#b0b0b0] hover:text-rose-400"
+                  className="mt-1.5 shrink-0 text-[#858585] hover:text-rose-400"
                 >
                   ✕
                 </button>
@@ -298,7 +298,7 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
           <div className="grid grid-cols-2 gap-3">
             <label className="block text-sm text-[#1d1d1f]">
               {t('bpStrongFitKeywords')}{' '}
-              <span className="text-[#b0b0b0]">{t('bpCommaSeparated')}</span>
+              <span className="text-[#858585]">{t('bpCommaSeparated')}</span>
               <input
                 className="field mt-1.5"
                 placeholder="Autonomy, Innovation..."
@@ -316,7 +316,7 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
             </label>
             <label className="block text-sm text-[#1d1d1f]">
               {t('bpFrictionKeywords')}{' '}
-              <span className="text-[#b0b0b0]">{t('bpCommaSeparated')}</span>
+              <span className="text-[#858585]">{t('bpCommaSeparated')}</span>
               <input
                 className="field mt-1.5"
                 placeholder="Micromanagement..."

@@ -84,7 +84,7 @@ export function TagInput({ tags, onChange, placeholder = '', color = 'blue', max
         </span>
       ))}
       <input
-        className="min-w-[80px] flex-1 border-0 bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
+        className="min-w-[80px] flex-1 border-0 bg-transparent text-sm outline-none placeholder:text-[#858585]"
         placeholder={tags.length === 0 ? placeholder : ''}
         value={input}
         onChange={(e) => setInput(e.target.value)}

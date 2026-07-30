@@ -104,7 +104,7 @@ export function JobTargetSection({ value, onChange }: Props) {
             <button
               type="button"
               onClick={() => removeTag(field, i)}
-              className="shrink-0 text-[#b0b0b0] hover:text-rose-400 transition-colors"
+              className="shrink-0 text-[#858585] hover:text-rose-500 transition-colors"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -159,8 +159,8 @@ export function JobTargetSection({ value, onChange }: Props) {
           </svg>
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">{t('jobTarget')}</p>
-          <p className="text-[11px] text-[#b0b0b0]">{t('jobTargetDesc')}</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#707070]">{t('jobTarget')}</p>
+          <p className="text-[11px] text-[#858585]">{t('jobTargetDesc')}</p>
         </div>
       </div>
 
@@ -168,7 +168,7 @@ export function JobTargetSection({ value, onChange }: Props) {
         <div className="sm:col-span-2">
           <label className="block text-sm text-[#1d1d1f]">
             {t('targetTitles')} <span className="text-rose-400">*</span>
-            <span className="ml-1 text-[11px] text-[#b0b0b0]">{t('targetTitlesHint')}</span>
+            <span className="ml-1 text-[11px] text-[#858585]">{t('targetTitlesHint')}</span>
           </label>
           {renderTagList('target_titles', 'targetTitlesPlaceholder', t('targetTitles'))}
         </div>
@@ -215,7 +215,7 @@ export function JobTargetSection({ value, onChange }: Props) {
         <div className="sm:col-span-2">
           <label className="block text-sm text-[#1d1d1f]">
             {t('searchLocations')} <span className="text-rose-400">*</span>
-            <span className="ml-1 text-[11px] text-[#b0b0b0]">{t('searchLocationsHint')}</span>
+            <span className="ml-1 text-[11px] text-[#858585]">{t('searchLocationsHint')}</span>
           </label>
           {renderTagList('search_locations', 'searchLocationsPlaceholder', t('searchLocations'))}
         </div>
@@ -298,7 +298,7 @@ export function JobTargetSection({ value, onChange }: Props) {
               value={value.salary_min ?? ''}
               onChange={(e) => update('salary_min', e.target.value ? parseInt(e.target.value) : null)}
             />
-            <span className="text-xs text-[#b0b0b0]">—</span>
+            <span className="text-xs text-[#858585]">—</span>
             <input
               type="number"
               min="0"

@@ -89,7 +89,7 @@ export function EducationSection({
               />
             </label>
             <label className="block text-sm text-[#1d1d1f]">
-              {t('startDate')} <span className="text-[#b0b0b0]">{t('dateFormat')}</span>
+              {t('startDate')} <span className="text-[#858585]">{t('dateFormat')}</span>
               <input
                 type="month"
                 className="field mt-1.5"
@@ -98,7 +98,7 @@ export function EducationSection({
               />
             </label>
             <label className="block text-sm text-[#1d1d1f]">
-              {t('endDate')} <span className="text-[#b0b0b0]">{t('orPresent')}</span>
+              {t('endDate')} <span className="text-[#858585]">{t('orPresent')}</span>
               <input
                 type="month"
                 className="field mt-1.5"
@@ -108,7 +108,7 @@ export function EducationSection({
             </label>
           </div>
           <label className="block text-sm text-[#1d1d1f]">
-            {t('keyTopics')} <span className="text-[#b0b0b0]">{tc('optional')} — {t('relevantCoursework')}</span>
+            {t('keyTopics')} <span className="text-[#858585]">{tc('optional')} — {t('relevantCoursework')}</span>
             <div className="mt-1.5">
               <TagInput
                 tags={edu.key_topics}

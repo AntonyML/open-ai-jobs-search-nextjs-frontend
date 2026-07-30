@@ -68,7 +68,7 @@ export function StatusPanel({ saved, exists }: StatusPanelProps) {
           <p className="text-sm font-medium text-[#707070]">
             {exists ? t('profileLoaded') : t('noProfileYet')}
           </p>
-          <p className="text-[11px] text-[#b0b0b0]">
+          <p className="text-[11px] text-[#858585]">
             {exists ? t('editAndSave') : t('fillFormToStart')}
           </p>
         </div>

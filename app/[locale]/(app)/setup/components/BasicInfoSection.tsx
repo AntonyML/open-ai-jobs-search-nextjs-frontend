@@ -26,8 +26,8 @@ export function BasicInfoSection({ full_name, email, phone, location, onChange, 
           </svg>
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">{t('basicInfoSection')}</p>
-          <p className="text-[11px] text-[#b0b0b0]">{t('basicInfoDesc')}</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#707070]">{t('basicInfoSection')}</p>
+          <p className="text-[11px] text-[#858585]">{t('basicInfoDesc')}</p>
         </div>
       </div>
 
@@ -38,7 +38,7 @@ export function BasicInfoSection({ full_name, email, phone, location, onChange, 
             <input
               required
               autoComplete="name"
-              className="field w-full pr-9 bg-[#f5f5f7] text-[#707070] cursor-default"
+              className="field w-full pr-9 bg-[#f5f5f7] text-[#1d1d1f] cursor-default"
               placeholder={t('basicNamePlaceholder')}
               value={full_name}
               readOnly
@@ -46,10 +46,10 @@ export function BasicInfoSection({ full_name, email, phone, location, onChange, 
             />
             <a
               href={`/${locale}/profile`}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#b0b0b0] hover:text-[#0071e3] transition-colors"
-              title={t('editName') || 'Edit name'}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#0071e3] hover:text-[#0068d2] transition-colors"
+              title={t('editName') || 'Edit name in profile'}
             >
-              <Pencil className="h-3.5 w-3.5" />
+              <Pencil className="h-4 w-4" />
             </a>
           </div>
         </label>
@@ -59,7 +59,7 @@ export function BasicInfoSection({ full_name, email, phone, location, onChange, 
             required
             type="email"
             autoComplete="email"
-            className="field mt-1.5 bg-[#f5f5f7] text-[#707070] cursor-default"
+            className="field mt-1.5 bg-[#f5f5f7] text-[#1d1d1f] cursor-default"
             placeholder={t('basicEmailPlaceholder')}
             value={email}
             readOnly
@@ -75,7 +75,7 @@ export function BasicInfoSection({ full_name, email, phone, location, onChange, 
           </p>
         </label>
         <label className="block text-sm text-[#1d1d1f]">
-          {t('phone')} <span className="text-[#b0b0b0]">{tc('optional')}</span>
+          {t('phone')} <span className="text-[#858585]">{tc('optional')}</span>
           <input
             className="field mt-1.5"
             autoComplete="tel"

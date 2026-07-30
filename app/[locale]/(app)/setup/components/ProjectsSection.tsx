@@ -74,7 +74,7 @@ export function ProjectsSection({
             />
           </label>
           <label className="block text-sm text-[#1d1d1f]">
-            {t('description')} <span className="text-[#b0b0b0]">{tc('optional')}</span>
+            {t('description')} <span className="text-[#858585]">{tc('optional')}</span>
             <textarea
               className="field mt-1.5 h-20 resize-none"
               placeholder={t('projectDescPlaceholder')}

@@ -35,8 +35,8 @@ export function SkillsSection({ form, onFieldChange }: Props) {
           </svg>
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">{t('skillsAndSummary')}</p>
-          <p className="text-[11px] text-[#b0b0b0]">{t('skillsAndSummaryDesc')}</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#707070]">{t('skillsAndSummary')}</p>
+          <p className="text-[11px] text-[#858585]">{t('skillsAndSummaryDesc')}</p>
         </div>
       </div>
 
@@ -50,11 +50,11 @@ export function SkillsSection({ form, onFieldChange }: Props) {
             color="amber"
           />
         </div>
-        <p className="mt-1 text-[11px] text-[#b0b0b0]">{t('skillsHint')}</p>
+        <p className="mt-1 text-[11px] text-[#858585]">{t('skillsHint')}</p>
       </label>
 
       <label className="block text-sm text-[#1d1d1f]">
-        {t('profileStatement')} <span className="text-[#b0b0b0]">{tc('optional')} — {t('twoThreeSentences')}</span>
+        {t('profileStatement')} <span className="text-[#858585]">{tc('optional')} — {t('twoThreeSentences')}</span>
         <textarea
           className="field mt-1.5 h-24 resize-none"
           placeholder={t('profileStatementPlaceholder')}
@@ -63,7 +63,7 @@ export function SkillsSection({ form, onFieldChange }: Props) {
         />
       </label>
 
-      <div className="flex items-center gap-2 text-[11px] text-[#b0b0b0]">
+      <div className="flex items-center gap-2 text-[11px] text-[#858585]">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />
           <line x1="12" y1="16" x2="12" y2="12" />

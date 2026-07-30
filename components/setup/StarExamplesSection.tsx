@@ -97,7 +97,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
             <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">
               {t('starExamples')}
             </p>
-            <p className="mt-0.5 text-[11px] text-[#b0b0b0]">
+            <p className="mt-0.5 text-[11px] text-[#858585]">
               {t('starCount', { count: stars.length })}
             </p>
           </div>
@@ -137,7 +137,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
                   </div>
                   <button
                     onClick={() => deleteStar(s.id)}
-                    className="mt-0.5 shrink-0 text-[#b0b0b0] hover:text-rose-400"
+                    className="mt-0.5 shrink-0 text-[#858585] hover:text-rose-400"
                     title={t('starDelete')}
                   >
                     ✕
@@ -161,7 +161,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
                 />
               </label>
               <label className="block text-sm text-[#1d1d1f]">
-                {t('starSkill')} <span className="text-[#b0b0b0]">{t('starSkillOpt')}</span>
+                {t('starSkill')} <span className="text-[#858585]">{t('starSkillOpt')}</span>
                 <input
                   className="field mt-1.5"
                   placeholder="Machine Learning, Leadership..."
@@ -218,7 +218,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
             </div>
             <label className="block text-sm text-[#1d1d1f]">
               {t('starUseFor')}{' '}
-              <span className="text-[#b0b0b0]">{t('starUseForHint')}</span>
+              <span className="text-[#858585]">{t('starUseForHint')}</span>
               <input
                 className="field mt-1.5"
                 placeholder="Teamwork, Python, System Design..."

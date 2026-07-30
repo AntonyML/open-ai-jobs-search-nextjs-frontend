@@ -54,7 +54,7 @@ export function CollapsibleCard({
           </span>
           <span className="text-[13px] font-medium text-[#474747]">{title}</span>
           {!isFilled && (
-            <span className="text-[11px] text-[#b0b0b0]">{t('notFilled')}</span>
+            <span className="text-[11px] text-[#858585]">{t('notFilled')}</span>
           )}
         </div>
         <div className="flex items-center gap-1.5">
@@ -73,7 +73,7 @@ export function CollapsibleCard({
               e.stopPropagation()
               onRemove(id)
             }}
-            className="flex h-6 w-6 items-center justify-center rounded-full text-[#b0b0b0] transition-all hover:bg-rose-50 hover:text-rose-400"
+            className="flex h-6 w-6 items-center justify-center rounded-full text-[#858585] transition-all hover:bg-rose-50 hover:text-rose-500"
             title="Remove"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -125,10 +125,10 @@ export function CollapsibleCardListWrapper({
         <div className="flex items-center gap-2.5">
           {icon}
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-[#858585]">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#707070]">
               {title}
             </p>
-            <p className="text-[11px] text-[#b0b0b0]">
+            <p className="text-[11px] text-[#858585]">
               {countLabel}
             </p>
           </div>
