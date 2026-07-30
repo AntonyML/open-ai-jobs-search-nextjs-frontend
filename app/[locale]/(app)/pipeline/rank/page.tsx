@@ -224,7 +224,7 @@ export default function Rank() {
   useEffect(() => {
     if (!loading) return
     fetchCounts()
-    const timer = setInterval(fetchCounts, 4000)
+    const timer = setInterval(fetchCounts, 10000)
     return () => clearInterval(timer)
   }, [loading, fetchCounts])
 
