@@ -14,6 +14,12 @@ const PROVIDER_LABELS: Record<string, string> = {
   nvidia_nim: 'NVIDIA NIM',
 }
 
+const API_KEY_PREFIXES: Record<string, string> = {
+  openai: 'sk-',
+  anthropic: 'sk-ant-',
+  nvidia_nim: 'nvapi-',
+}
+
 interface ProviderFormProps {
   premium: boolean
   provider: string
@@ -47,12 +53,7 @@ export function ProviderForm({
     if (trimmed.length < 10) {
       return t('apiKeyTooShort')
     }
-    const prefixes: Record<string, string> = {
-      openai: 'sk-',
-      anthropic: 'sk-ant-',
-      nvidia_nim: 'nvapi-',
-    }
-    const expected = prefixes[provider]
+    const expected = API_KEY_PREFIXES[provider]
     if (expected && !trimmed.startsWith(expected)) {
       return t('invalidKeyFormat', { provider, prefix: expected })
     }
@@ -261,7 +262,7 @@ export function ProviderForm({
       {isEditing && !changingKey ? (
         <div className="flex gap-2 items-center">
           <div className="field flex-1 flex items-center text-[#707070] select-none text-xs">
-            {(prefixes[provider] || '') + '\u2022'.repeat(12)}
+            {(API_KEY_PREFIXES[provider] || '') + '\u2022'.repeat(12)}
           </div>
           <button
             type="button"

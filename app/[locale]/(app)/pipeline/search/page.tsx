@@ -431,11 +431,11 @@ export default function SearchPage() {
             </div>
 
             {/* Target titles as chips */}
-            {jt?.target_titles?.length > 0 && (
+            {(jt?.target_titles?.length ?? 0) > 0 && (
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-[#707070]">{t("role")}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {jt.target_titles.map((r, i) => (
+                  {jt?.target_titles?.map((r, i) => (
                     <span key={i} className="rounded-full border border-[#d2d2d7] bg-white px-3.5 py-1.5 text-sm font-medium text-[#1d1d1f] shadow-sm">
                       {r}
                     </span>
