@@ -78,15 +78,16 @@ Este repositorio es **el frontend** (Next.js 15 + React 19 + Tailwind CSS v4). T
 
 | Paso | Ruta | Descripción |
 |------|------|-------------|
-| 1 | `/pipeline/providers` | Conectar proveedor IA (OpenAI, Anthropic, NVIDIA, Groq, OpenRouter, LM Studio, Ollama) |
+| 1 | `/pipeline/providers` | Conectar proveedor IA (Anthropic, OpenAI, NVIDIA NIM, LM Studio, Ollama) |
 | 2 | `/pipeline/setup` | Perfil candidato + conductual (DISC) + ejemplos STAR |
-| 3 | `/pipeline/scrape` | Scraping multi-portal (LinkedIn, FreeHire, JobBank, JobDanmark, JobIndex, JobNet) |
+| 3 | `/pipeline/search` | Búsqueda de empleos — jobs de `ingested_jobs`, alimentada por el **microservicio de ingesta** (Telegram → parse → DB) |
 | 4 | `/pipeline/rank` | Evaluación y ranking de ofertas con orquestación multi-proveedor |
 | 5 | `/pipeline/apply` | Generación CV + cover letter (pipeline drafter-reviewer-revise) |
 | 6 | `/pipeline/interview` | Prep pack + mock interview (chat interactivo) |
 | 7 | `/pipeline/outcome` | Tracker de resultados + calibración de fit |
 | — | `/pipeline/expand` | Expansión de competencias desde fuentes públicas |
 | — | `/pipeline/upskill` | Análisis de gaps + plan de aprendizaje |
+| — | `/pipeline/scrape` | **Legacy** — página antigua del paso (mismo endpoint `/jobs/search`, sin polling de ingesta). Solo `/scrape` redirige a `/pipeline/search` |
 
 ---
 
@@ -97,7 +98,7 @@ flowchart LR
   A[Landing / About / Pricing] --> B[Login / Register]
   B --> C[Providers]
   C --> D[Setup]
-  D --> E[Scrape]
+  D --> E[Search]
   E --> F[Rank]
   F --> G[Apply]
   G --> H[Interview]
@@ -109,11 +110,11 @@ flowchart LR
 
 1. **Landing**: el usuario llega a `/`, ve la propuesta de valor.
 2. **Login/Register**: crea cuenta o inicia sesión. JWT se guarda en `localStorage`.
-3. **Providers**: conecta su proveedor de IA (Anthropic, OpenAI, NVIDIA, Groq, OpenRouter, LM Studio, Ollama).
+3. **Providers**: conecta su proveedor de IA (Anthropic, OpenAI, NVIDIA NIM, LM Studio, Ollama).
 4. **Setup**: construye su perfil (datos personales, experiencia, skills, **perfil conductual DISC**, **ejemplos STAR**).
-5. **Scrape**: lanza búsquedas en portales de empleo.
+5. **Search**: busca empleos en `ingested_jobs` (tabla alimentada por el **microservicio de ingesta** desde Telegram). Si hay pocos resultados, dispara una ingesta al microservicio y hace **polling del estado** (`/jobs/search/{id}/status`) hasta que haya datos nuevos.
 6. **Rank**: la IA + analizador determinista evalúan y ordenan las ofertas.
-7. **Apply**: genera CV + cover letter en LaTeX con el pipeline drafter-reviewer-revise.
+7. **Apply**: genera CV + cover letter (JSON) con el pipeline drafter-reviewer-revise, compilados a PDF con **Typst**.
 8. **Interview**: preparación personalizada + **mock interview** (chat interactivo con IA como entrevistador).
 9. **Outcome**: registra resultados (entrevista, oferta, rechazo) y calibra el fit.
 10. **Upskill** (opcional): análisis de gaps de skills + plan de aprendizaje.
@@ -147,7 +148,8 @@ app/
 │           ├── layout.tsx           # Breadcrumb + Progress bar
 │           ├── providers/page.tsx   # Paso 1: proveedores IA
 │           ├── setup/page.tsx       # Paso 2: perfil candidato
-│           ├── scrape/page.tsx      # Paso 3: scraping
+│           ├── search/page.tsx      # Paso 3: búsqueda de empleos (ingesta)
+│           ├── scrape/page.tsx      # Paso 3 (legacy) — mismo endpoint, sin polling de ingesta
 │           ├── rank/page.tsx        # Paso 4: ranking
 │           ├── apply/page.tsx       # Paso 5: CV + cover letter
 │           ├── interview/page.tsx   # Paso 6: entrevistas
@@ -175,7 +177,7 @@ components/
 ├── about/                           # Secciones de about page
 ├── providers/                       # Componentes de configuración de proveedores
 ├── setup/                           # Componentes de perfil candidato
-├── scrape/                          # Componentes de scraping
+├── scrape/                          # Componentes del paso de búsqueda (OptionPills, formulario)
 ├── rank/                            # Componentes de ranking
 ├── interview/                       # Componentes de entrevistas
 ├── outcome/                         # Componentes de tracking
@@ -342,18 +344,19 @@ El frontend consume la API REST de Open Ai Jobs Search (FastAPI backend).
 | Auth | `POST /auth/login`, `POST /auth/register`, `GET /auth/me`, `POST /auth/upgrade`, `POST /auth/donate` |
 | Providers | `GET /providers/`, `POST /providers/`, `GET /providers/me`, `PUT /providers/active`, `POST /providers/test` |
 | Setup | `POST /setup/profile`, `GET /setup/profile`, `PUT /setup/behavioral-profile`, `POST /setup/star-examples` |
-| Scrape | `POST /scrape/`, `GET /scrape/runs`, `GET /scrape/jobs` |
+| Jobs (ingesta) | `POST /jobs/search`, `GET /jobs/search/{id}/status` |
 | Rank | `POST /rank/`, `GET /rank/jobs`, `GET /rank/jobs/{id}/evaluation` |
 | Apply | `POST /apply/`, `GET /apply/`, `GET /apply/{id}`, `GET /apply/{id}/status` |
 | Interview | `POST /interview/`, `GET /interview/{id}`, `POST /interview/{id}/mock` |
 | Outcome | `POST /outcome/`, `PATCH /outcome/{id}`, `GET /outcome/tracker/rows` |
 | Upskill | `POST /upskill/`, `GET /upskill/{id}`, `GET /upskill/` |
 | Expand | `POST /expand/`, `GET /expand/{id}` |
-| Salary | `POST /salary/data`, `GET /salary/data`, `DELETE /salary/data` |
+| Salary | `POST /profile/salary-data`, `GET /profile/salary-data`, `DELETE /profile/salary-data` |
 | Dashboard | `GET /dashboard/stats`, `GET /dashboard/pipeline`, `GET /analytics/funnel` |
-| Orchestrator | `GET /orchestrator/status`, `GET /orchestrator/providers`, `GET /orchestrator/queue`, `POST /orchestrator/pause`, `POST /orchestrator/resume`, `POST /orchestrator/cancel/{id}`, `POST /orchestrator/retry/{id}` |
+| Orchestrator | `GET /orchestrator/queue`, `POST /orchestrator/queue/control`, `GET /orchestrator/providers`, `GET /orchestrator/models`, WS `/orchestrator/ws?token=` |
 | Pipeline | `DELETE /pipeline-reset` |
-| Users (admin) | `GET /users/`, `PATCH /users/{id}`, `DELETE /users/{id}` |
+| Users | `GET /users/usage` |
+| Admin | `GET /admin/users`, `PATCH /admin/users/{id}`, `DELETE /admin/users/{id}` |
 
 ---
 
