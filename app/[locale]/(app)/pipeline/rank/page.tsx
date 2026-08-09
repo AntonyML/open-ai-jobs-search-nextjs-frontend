@@ -99,6 +99,9 @@ export default function Rank() {
         setRunningJob(job)
         if (job?.status === 'completed') return job
         if (job?.status === 'failed') return { status: 'failed', error: job.last_error }
+        // Fail fast on other terminal states instead of polling until timeout
+        if (job?.status === 'cancelled') return { status: 'failed', error: 'Ranking was cancelled' }
+        if (job?.status === 'skipped') return { status: 'failed', error: 'No jobs to rank' }
       } catch { /* retry */ }
     }
     throw new Error('Ranking timed out')
@@ -159,7 +162,22 @@ export default function Rank() {
       const data = await apiFetch<any>('/api/v1/rank/', { method: 'POST', body: JSON.stringify(body) })
       if (data.total_jobs != null) setTotalJobs(data.total_jobs)
 
-      const completed = await pollJob(data.job_id, 10 * 60 * 1000)
+      // The backend may skip the run entirely (e.g. no ingested jobs) and
+      // return job_id: null — don't poll a non-existent job for 10 minutes.
+      if (data.status === 'skipped' || !data.job_id) {
+        const msg = data.message || 'No jobs to rank'
+        playErrorSound()
+        showError(msg)
+        addNotification({ pipeline: 'rank', description: msg, status: 'error' })
+        setError(msg)
+        return
+      }
+
+      // Ranking runs on a separate worker process, one LLM call per job.
+      // Scale the deadline by the number of accepted jobs (~30s each) so
+      // large batches don't hit the fixed 10-minute timeout.
+      const pollTimeout = Math.max(10 * 60 * 1000, (data.accepted_jobs || 0) * 30_000)
+      const completed = await pollJob(data.job_id, pollTimeout)
       if (!mountedRef.current) return
 
       if (completed?.status === 'failed') {
