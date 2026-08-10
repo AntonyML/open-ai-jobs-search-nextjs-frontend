@@ -36,4 +36,51 @@ test.describe('Search', () => {
     await expect(searchPage.incompleteHeading).toBeVisible()
     await expect(searchPage.completeProfileButton).toBeVisible()
   })
+
+  test('se traduce al español en /es/pipeline/search', async ({ page }) => {
+    await mockSearchApi(page)
+    await page.goto('/es/pipeline/search')
+
+    // Header
+    await expect(page.locator('section').getByText('03 / BUSCAR')).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Tu búsqueda está lista' }),
+    ).toBeVisible()
+
+    // Volver a configuración de perfil
+    await expect(
+      page.getByRole('link', { name: 'Volver a configuración de perfil' }),
+    ).toBeVisible()
+
+    // Briefing desde el perfil mockeado
+    await expect(
+      page.getByText('Según tu perfil, estos son los parámetros de búsqueda', {
+        exact: true,
+      }),
+    ).toBeVisible()
+    await expect(page.getByText('Rol', { exact: true })).toBeVisible()
+    await expect(page.getByText('Software Engineer', { exact: true })).toBeVisible()
+    await expect(page.getByText('Zona', { exact: true })).toBeVisible()
+    await expect(page.getByText('Remote', { exact: true })).toBeVisible()
+    await expect(page.getByText('Nivel', { exact: true })).toBeVisible()
+    await expect(page.getByText('Senior', { exact: true })).toBeVisible()
+    await expect(page.getByText('Modalidad', { exact: true })).toBeVisible()
+    await expect(page.getByText('Remoto', { exact: true })).toBeVisible()
+    await expect(page.getByText('Skills clave', { exact: true })).toBeVisible()
+    await expect(page.getByText('Python', { exact: true })).toBeVisible()
+
+    // Acciones del briefing
+    await expect(page.getByRole('button', { name: 'Buscar', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Ajustar búsqueda' })).toBeVisible()
+
+    // Búsqueda mockeada → resultados en español
+    await page.getByRole('button', { name: 'Buscar', exact: true }).click()
+    await expect(
+      page.getByRole('heading', {
+        name: 'Encontramos 2 trabajos que encajan contigo',
+      }),
+    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText('Senior Frontend Engineer', { exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Ir a evaluar trabajos/ })).toBeVisible()
+  })
 })
