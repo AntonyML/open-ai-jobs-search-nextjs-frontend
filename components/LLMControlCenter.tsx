@@ -311,28 +311,20 @@ function MetricsGrid({
   totalEnqueued,
   completionRate,
   failed,
-  activeWorkers,
-  maxConcurrency,
-  rateLimitCount,
   tc,
-  t,
 }: {
   completed: number
   totalEnqueued: number
   completionRate: number
   failed: number
-  activeWorkers: number
-  maxConcurrency: number
-  rateLimitCount: number
   tc: (key: string) => string
-  t: (key: string) => string
 }) {
   return (
     <div className="mb-3 grid grid-cols-2 gap-1.5">
       <MetricCard
         label={tc('done')}
         value={completed}
-        sub={totalEnqueued > 0 ? `${completionRate}% rate` : undefined}
+        sub={completed > 0 ? `${completionRate}% rate` : undefined}
         accent="emerald"
       />
       <MetricCard
@@ -340,13 +332,6 @@ function MetricsGrid({
         value={failed}
         accent={failed > 0 ? 'rose' : undefined}
       />
-      <MetricCard
-        label={t('activeWorkers')}
-        value={activeWorkers}
-        sub={`of ${maxConcurrency}`}
-        accent={activeWorkers > 0 ? 'cyan' : undefined}
-      />
-      <MetricCard label={t('rateLimitCount')} value={rateLimitCount} accent="amber" />
     </div>
   )
 }
@@ -527,11 +512,7 @@ function StatusTab({
         totalEnqueued={totalEnqueued}
         completionRate={completionRate}
         failed={queue?.total_failed ?? 0}
-        activeWorkers={queue?.active_workers ?? 0}
-        maxConcurrency={queue?.max_concurrency ?? 4}
-        rateLimitCount={providers.reduce((s, p) => s + p.rate_limit_count, 0)}
         tc={tc}
-        t={t}
       />
 
       {Object.keys(providerErrors).length > 0 && (
@@ -550,19 +531,15 @@ function StatusTab({
         </div>
       )}
 
-      <Section title={t('providers')} count={providers.length}>
-        {providers.length === 0 ? (
-          <p className="text-[10px] italic text-[#707070]">{tc('noResults')}</p>
-        ) : (
-          providers.map((p) => <ProviderCard key={p.provider} provider={p} />)
-        )}
-      </Section>
+      {providers.length > 0 && (
+        <Section title={t('providers')} count={providers.length}>
+          {providers.map((p) => <ProviderCard key={p.provider} provider={p} />)}
+        </Section>
+      )}
 
-      <Section title={t('models')} count={models.length} defaultOpen={false}>
-        {models.length === 0 ? (
-          <p className="text-[10px] italic text-[#707070]">{tc('noResults')}</p>
-        ) : (
-          models.slice(0, 8).map((m) => (
+      {models.length > 0 && (
+        <Section title={t('models')} count={models.length} defaultOpen={false}>
+          {models.slice(0, 8).map((m) => (
             <div
               key={`${m.provider}/${m.model_name}`}
               className="flex items-center justify-between rounded-lg border border-[#e2e2e5] px-2.5 py-1.5"
@@ -578,9 +555,9 @@ function StatusTab({
                 )}
               </div>
             </div>
-          ))
-        )}
-      </Section>
+          ))}
+        </Section>
+      )}
     </>
   )
 }
@@ -746,7 +723,6 @@ export default function LLMControlCenter() {
     loading,
     error,
     providerErrors,
-    wsConnected,
     pauseQueue,
     resumeQueue,
     cancelJob,
@@ -808,30 +784,13 @@ export default function LLMControlCenter() {
                 <p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#0071e3]">
                   {t('title')}
                 </p>
-                <div className="flex items-center gap-1">
-                  <span
-                    className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 transition-all ${
-                      wsConnected ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
-                    }`}
-                    title={wsConnected ? t('live') : t('polling')}
-                  >
-                    <span
-                      className={`inline-block h-1.5 w-1.5 rounded-full ${
-                        wsConnected ? 'bg-emerald-400' : 'animate-pulse bg-amber-400'
-                      }`}
-                    />
-                    <span className="text-[8px] font-medium leading-none">
-                      {wsConnected ? t('live') : t('polling')}
-                    </span>
-                  </span>
-                  <button
-                    onClick={refresh}
-                    className="rounded-full p-1 text-[#858585] transition-colors hover:bg-[#f5f5f7] hover:text-[#1d1d1f]"
-                    title={tc('refresh')}
-                  >
-                    <Icon name="refresh" />
-                  </button>
-                </div>
+                <button
+                  onClick={refresh}
+                  className="rounded-full p-1 text-[#858585] transition-colors hover:bg-[#f5f5f7] hover:text-[#1d1d1f]"
+                  title={tc('refresh')}
+                >
+                  <Icon name="refresh" />
+                </button>
               </div>
 
               <div className="flex items-center gap-2">
