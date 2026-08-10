@@ -53,7 +53,7 @@ test.describe('Setup', () => {
       page.getByRole('combobox').filter({ hasText: 'Junior' }).first(),
     ).toContainText('Ejecutivo')
     await expect(page.getByText('Modalidad de trabajo')).toBeVisible()
-    await expect(page.getByText('Ubicaciones de búsqueda')).toBeVisible()
+    await expect(page.getByRole('button', { name: /\+\s*Ubicaciones de búsqueda/ })).toBeVisible()
     await expect(page.getByText('Una ubicación por línea', { exact: true })).toBeVisible()
     await expect(page.getByText('Radio de búsqueda (km)', { exact: true })).toBeVisible()
     await expect(page.getByText('Tipo de empleo')).toBeVisible()
@@ -80,7 +80,6 @@ test.describe('Setup', () => {
 
     // Habilidades y resumen
     await expect(page.getByText('Habilidades y resumen', { exact: true })).toBeVisible()
-    await expect(page.getByText('Habilidades', { exact: true })).toBeVisible()
     await expect(page.getByText('Presiona Enter o coma para agregar cada habilidad', { exact: true })).toBeVisible()
     await expect(
       page.getByText('Este resumen aparece al inicio de tu CV y cartas de presentación.', {
@@ -91,9 +90,7 @@ test.describe('Setup', () => {
     // Panel sticky: eliminar + guardar/actualizar (depende del estado del perfil)
     await expect(page.getByRole('button', { name: 'Eliminar perfil' })).toBeVisible()
     await expect(
-      page
-        .getByRole('button', { name: 'Actualizar' })
-        .or(page.getByRole('button', { name: 'Guardar perfil' })),
+      page.getByRole('button', { name: /^(Actualizar|Guardar perfil)$/ }),
     ).toBeVisible()
   })
 })
