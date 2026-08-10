@@ -237,7 +237,12 @@
     "providerDeleted": "Provider deleted: {provider}",
     "modelsLoaded": "{count} models loaded",
     "testOk": "Test OK: {provider} / {model}",
-    "activeLabel": "active"
+    "activeLabel": "active",
+    "savedTitle": "Provider connected",
+    "savedDesc": "{provider} is ready to power your pipeline with {model}.",
+    "savedSync": "Synced with your provider list",
+    "addAnother": "Add another provider",
+    "testRequiredHint": "Run the test to enable saving"
   },
   "dashboard": {
     "title": "Dashboard",

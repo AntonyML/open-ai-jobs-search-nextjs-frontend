@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { AppleButton } from '@/components/ui/apple-button'
+import { cn } from '@/lib/utils'
 
 const MASKED_KEY = '__MASKED__'
 
@@ -30,6 +31,9 @@ interface ProviderFormProps {
   saveError: string
   onUpgrade: () => void
   editingProvider?: { provider: string; api_base?: string | null; model?: string | null; has_key?: boolean } | null
+  saving?: boolean
+  saved?: { provider: string; model?: string } | null
+  onAddAnother?: () => void
 }
 
 export function ProviderForm({
@@ -42,6 +46,9 @@ export function ProviderForm({
   saveError,
   onUpgrade,
   editingProvider,
+  saving,
+  saved,
+  onAddAnother,
 }: ProviderFormProps) {
   const t = useTranslations('providers')
   const tc = useTranslations('common')
@@ -215,6 +222,34 @@ export function ProviderForm({
         </div>
       </div>
 
+      {/* Saved — collapse the form into a confirmation state */}
+      {saved ? (
+        <div key={`saved-${saved.provider}`} className="animate-fade-in-up">
+          <div className="flex flex-col items-center gap-3 rounded-[8px] border border-emerald-200 bg-emerald-50/60 px-6 py-8 text-center">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white animate-pop-in">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-base font-semibold text-[#1d1d1f]">{t('savedTitle')}</p>
+              <p className="mt-1 text-sm text-[#707070]">
+                {t('savedDesc', {
+                  provider: PROVIDER_LABELS[saved.provider] || saved.provider,
+                  model: saved.model || '—',
+                })}
+              </p>
+              <p className="mt-1 text-[11px] font-medium text-emerald-600">{t('savedSync')}</p>
+            </div>
+          </div>
+          {onAddAnother && (
+            <AppleButton type="button" variant="secondary" className="mt-4 w-full" onClick={onAddAnother}>
+              {t('addAnother')}
+            </AppleButton>
+          )}
+        </div>
+      ) : (
+        <>
       {/* Provider Select */}
       <select
         className="field"
@@ -320,7 +355,7 @@ export function ProviderForm({
 
       {/* Model Select */}
       {models.length > 0 && (
-        <div className="space-y-2">
+        <div className="animate-fade-in-up space-y-2">
           {models.length > 10 && (
             <input
               className="field"
@@ -368,7 +403,10 @@ export function ProviderForm({
         <AppleButton
           type="button"
           variant="secondary"
-          className="w-full"
+          className={cn(
+            'w-full',
+            tested && 'animate-pop-in border-emerald-400 text-emerald-600 hover:bg-emerald-50'
+          )}
           disabled={testing}
           loading={testing}
           onClick={testProvider}
@@ -381,14 +419,22 @@ export function ProviderForm({
         </AppleButton>
       )}
 
-      {/* Save Provider — always visible, disabled until test passes */}
-      <AppleButton
-        type="submit"
-        className="w-full"
-        disabled={!tested}
-      >
-        {isEditing ? t('saveChanges') : t('saveProvider')}
-      </AppleButton>
+      {/* Save Provider — disabled until the test passes */}
+      <div key={String(tested)} className="animate-fade-in-up space-y-2">
+        <AppleButton
+          type="submit"
+          className="w-full"
+          disabled={!tested}
+          loading={saving}
+        >
+          {isEditing ? t('saveChanges') : t('saveProvider')}
+        </AppleButton>
+        {!tested && !saving && (form.api_key || form.model) && (
+          <p className="text-center text-[11px] text-[#858585]">
+            {t('testRequiredHint')}
+          </p>
+        )}
+      </div>
 
       {/* Inline error with upgrade CTA */}
       {saveError && (
@@ -402,6 +448,8 @@ export function ProviderForm({
             {t('upgrade')}
           </button>
         </div>
+      )}
+        </>
       )}
     </form>
   )

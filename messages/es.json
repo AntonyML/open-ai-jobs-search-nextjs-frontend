@@ -236,7 +236,12 @@
     "providerDeleted": "Proveedor eliminado: {provider}",
     "modelsLoaded": "{count} modelos cargados",
     "testOk": "Prueba OK: {provider} / {model}",
-    "activeLabel": "activo"
+    "activeLabel": "activo",
+    "savedTitle": "Proveedor conectado",
+    "savedDesc": "{provider} está listo para alimentar tu pipeline con {model}.",
+    "savedSync": "Sincronizado con tu lista de proveedores",
+    "addAnother": "Agregar otro proveedor",
+    "testRequiredHint": "Pasa la prueba para habilitar el guardado"
   },
   "dashboard": {
     "title": "Panel",

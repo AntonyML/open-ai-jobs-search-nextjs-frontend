@@ -54,6 +54,8 @@ export default function Providers() {
   const [saveError, setSaveError] = useState('')
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [editingProvider, setEditingProvider] = useState<any>(null)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState<{ provider: string; model?: string } | null>(null)
 
   function loadMyProviders() {
     apiFetch<any[]>('/api/v1/providers/me')
@@ -81,7 +83,8 @@ export default function Providers() {
   async function add(e: React.FormEvent) {
     e.preventDefault()
     setSaveError('')
-
+    setSaving(true)
+    try {
     // ── Always test before save, regardless of how add() was triggered ──
     if (!form.model.trim()) {
       showError(t('chooseModelRequired'))
@@ -134,6 +137,7 @@ export default function Providers() {
       }
       setEditingProvider(null)
       setSaveError('')
+      setSaved({ provider, model: form.model })
       showSuccess(t('providerUpdated', { provider }))
       loadMyProviders()
       return
@@ -155,16 +159,28 @@ export default function Providers() {
       setSaveError(msg)
       return
     }
-    // Auto-activate the new/updated provider
-    const updated = await apiFetch<any>('/api/v1/providers/active', {
-      method: 'PUT',
-      body: JSON.stringify({ provider }),
-    })
+    // Auto-activate the new/updated provider — if it fails, the provider is
+    // still saved; the user can activate it later from the list.
+    let updated: any = null
+    try {
+      updated = await apiFetch<any>('/api/v1/providers/active', {
+        method: 'PUT',
+        body: JSON.stringify({ provider }),
+      })
+    } catch {
+      // ignore — activation is not critical, the POST already persisted it
+    }
+    const savedProvider = updated?.provider || provider
+    const savedModel = updated?.model || form.model
     setActive(updated)
     setEditingProvider(null)
     setSaveError('')
-    showSuccess(t('providerSaved', { provider: updated.provider, model: updated.model }))
+    setSaved({ provider: savedProvider, model: savedModel })
+    showSuccess(t('providerSaved', { provider: savedProvider, model: savedModel }))
     loadMyProviders()
+    } finally {
+      setSaving(false)
+    }
   }
 
   async function activate(p: string) {
@@ -198,6 +214,7 @@ export default function Providers() {
       model: p.model || '',
     })
     setSaveError('')
+    setSaved(null)
   }
 
   function handleCancelEdit() {
@@ -205,6 +222,11 @@ export default function Providers() {
     setProvider('openai')
     setForm({ api_key: '', api_base: '', model: '' })
     setSaveError('')
+    setSaved(null)
+  }
+
+  function handleAddAnother() {
+    handleCancelEdit()
   }
 
   const isConfigured = (p: string) => myProviders.some((c) => c.provider === p)
@@ -225,8 +247,12 @@ export default function Providers() {
             provider={provider}
             form={form}
             editingProvider={editingProvider}
+            saving={saving}
+            saved={saved}
+            onAddAnother={handleAddAnother}
             onProviderChange={(p) => {
               setProvider(p)
+              setSaved(null)
               if (editingProvider) handleCancelEdit()
             }}
             onFormChange={setForm}

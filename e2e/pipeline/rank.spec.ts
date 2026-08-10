@@ -1,6 +1,7 @@
 import { test, expect } from '../fixtures/pages'
 import { AUTH_STATE_PATH } from '../config'
 import { mockRankApi } from '../mocks/api'
+import { rankJobRunning, rankJobCompleted } from '../mocks/data'
 
 test.use({ storageState: AUTH_STATE_PATH })
 
@@ -73,5 +74,60 @@ test.describe('Rank', () => {
     await expect(
       page.locator('#rank-results').getByText(/jobs evaluated/),
     ).toBeVisible({ timeout: 30_000 })
+  })
+
+  test('reanuda un job en ejecución al refrescar la página', async ({
+    page,
+    rankPage,
+  }) => {
+    // El job de rank ya está running en la cola del orquestador cuando la
+    // página se monta (refresco a mitad de ranking). El mock por defecto la
+    // devuelve idle — lo sobreescribimos para simular el caso real.
+    await mockRankApi(page)
+    await page.route('**/api/v1/orchestrator/queue', (route) =>
+      route.fulfill({
+        json: {
+          paused: false,
+          status: 'running',
+          running_jobs: [{ ...rankJobRunning, pipeline: 'rank' }],
+          pending_jobs: [],
+        },
+      }),
+    )
+
+    await rankPage.gotoWithJobIds(['job-1', 'job-2'])
+
+    // En lugar del botón normal, la página retoma el seguimiento del job:
+    // muestra progreso + un botón para cancelar.
+    await expect(page.getByText('Ranking…')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Cancel', exact: true })).toBeVisible()
+
+    // El poll retoma running → completed y muestra el resumen
+    await expect(rankPage.resultSummary).toBeVisible({ timeout: 30_000 })
+    await expect(rankPage.continueToApplyButton).toBeVisible()
+  })
+
+  test('cancela un job en ejecución desde la página', async ({ page, rankPage }) => {
+    await mockRankApi(page)
+    let cancelled = false
+    await page.route('**/api/v1/orchestrator/queue/control', (route) => {
+      cancelled = true
+      const body = route.request().postDataJSON()
+      expect(body?.action).toBe('cancel')
+      expect(body?.job_id).toBe('job-run-1')
+      return route.fulfill({
+        json: { action: 'cancel', affected_jobs: 1, message: 'Job cancelled' },
+      })
+    })
+
+    await rankPage.gotoWithJobIds(['job-1', 'job-2'])
+    await rankPage.rank()
+    // Espera el progreso y cancela desde la página
+    await expect(page.getByRole('button', { name: 'Cancel', exact: true })).toBeVisible({ timeout: 30_000 })
+    await page.getByRole('button', { name: 'Cancel', exact: true }).click()
+
+    // Cancelar corta el poll y vuelve al formulario sin resumen
+    await expect(page.getByRole('button', { name: 'Rank jobs', exact: true })).toBeVisible()
+    expect(cancelled).toBe(true)
   })
 })

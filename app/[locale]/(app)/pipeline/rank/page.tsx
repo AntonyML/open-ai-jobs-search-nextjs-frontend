@@ -88,11 +88,6 @@ export default function Rank() {
         }
       })
       .catch(() => {})
-
-    // Resume an active rank job if one exists in the orchestrator queue. The
-    // ranking runs on a separate worker process, so refreshing the page must
-    // not reset to a fresh form while the ExecutionJob is still queued/running.
-    resumeActiveRankJob()
   }, [])
 
   // Poll a single job until it completes or fails
@@ -188,7 +183,7 @@ export default function Rank() {
   }
 
   // Track an active job (freshly submitted or resumed on mount) until terminal
-  async function trackJob(jobId: string, timeoutMs: number, onStart?: (job: any) => void) {
+  async function trackJob(jobId: string, timeoutMs: number) {
     setLoading(true)
     setElapsed(0)
     setError('')
@@ -254,11 +249,24 @@ export default function Rank() {
     await trackJob(activeJob.id, 10 * 60 * 1000)
   }
 
+  // On mount: if the orchestrator queue still has an active rank job for this
+  // user (page was refreshed mid-ranking), resume tracking it so the UI and the
+  // backend stay in sync instead of showing a fresh form.
+  useEffect(() => {
+    // Run once on mount; resumeActiveRankJob deliberately reads fresh state.
+    resumeActiveRankJob()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Submit ranking
   async function submit(e: FormEvent) {
     e.preventDefault()
     if (submittingRef.current) return
     submittingRef.current = true
+    setResult(null)
+    setLoading(true)
+    setElapsed(0)
+    setError('')
     try {
       const body: any = { top_n: topN, re_rank: reRank }
       if (jobIds) body.job_ids = jobIds
@@ -277,6 +285,7 @@ export default function Rank() {
         addNotification({ pipeline: 'rank', description: msg, status: 'error' })
         setError(msg)
         submittingRef.current = false
+        if (mountedRef.current) setLoading(false)
         return
       }
 
@@ -294,6 +303,7 @@ export default function Rank() {
       addNotification({ pipeline: 'rank', description: msg, status: 'error' })
       setError(msg)
       submittingRef.current = false
+      setLoading(false)
     }
   }
 
