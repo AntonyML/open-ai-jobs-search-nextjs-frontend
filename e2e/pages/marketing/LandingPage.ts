@@ -4,9 +4,19 @@ import { expect, type Page } from '@playwright/test'
 export class LandingPage {
   readonly heroHeading = this.page.getByRole('heading', { level: 1 })
   readonly tryFreeLink = this.page.getByRole('link', { name: 'Try it free' })
-  /** El link About existe en navbar y footer; cualquiera navega igual. */
-  readonly aboutLink = this.page.getByRole('link', { name: 'About' }).first()
   readonly signInLink = this.page.getByRole('link', { name: 'Sign in' })
+  /** El link About existe en navbar y footer; el del navbar lleva igual. */
+  readonly aboutLink = this.page.locator('header').getByRole('link', { name: 'About' })
+
+  /** Links de navegación del navbar (marketing). */
+  readonly navFeatures = this.page.locator('header').getByRole('link', { name: 'Features' })
+  readonly navPipeline = this.page.locator('header').getByRole('link', { name: 'Pipeline' })
+  readonly navAbout = this.page.locator('header').getByRole('link', { name: 'About' })
+
+  /** Headings de las secciones de la landing (EN default). */
+  readonly featuresHeading = this.page.getByRole('heading', { name: 'Everything you need to land your next role' })
+  readonly pipelineHeading = this.page.getByRole('heading', { name: 'From discovery to offer' })
+  readonly aboutHeading = this.page.getByRole('heading', { name: 'Enterprise-grade AI for your job search' })
 
   constructor(private readonly page: Page) {}
 
