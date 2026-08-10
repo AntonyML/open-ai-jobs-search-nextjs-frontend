@@ -13,16 +13,6 @@ export default function Footer() {
       links: [
         { label: t('features'), href: '/#features' },
         { label: t('pipeline'), href: '/#pipeline' },
-        { label: t('search'), href: '/pipeline/search' },
-        { label: t('rank'), href: '/pipeline/rank' },
-        { label: t('apply'), href: '/pipeline/apply' },
-        { label: t('interview'), href: '/pipeline/interview' },
-        { label: t('outcome'), href: '/pipeline/outcome' },
-      ],
-    },
-    {
-      title: t('company'),
-      links: [
         { label: t('about'), href: '/about' },
       ],
     },
@@ -38,7 +28,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-[#d2d2d7] bg-[#f5f5f7]">
       <div className="mx-auto max-w-[1440px] px-5 md:px-8 py-10 md:py-14">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
+        <div className="grid grid-cols-2 gap-8">
           {FOOTER_LINKS.map(section => (
             <div key={section.title}>
               <p className="text-[11px] font-semibold uppercase tracking-wider text-[#1d1d1f] mb-3">
@@ -70,7 +60,7 @@ export default function Footer() {
             </div>
 
             <p className="text-[11px] text-[#858585]">
-              &copy; {t('allRightsReserved', { year })}
+              {t('allRightsReserved', { year })}
             </p>
 
             <div className="flex items-center gap-3">

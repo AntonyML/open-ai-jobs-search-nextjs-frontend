@@ -69,4 +69,59 @@ test.describe('Landing', () => {
       page.getByRole('heading', { name: 'IA de nivel empresarial para tu búsqueda de empleo' }),
     ).toBeVisible()
   })
+
+  /**
+   * CTAs de conversión: cada uno lleva a su destino de auth.
+   * "Iniciar sesión" → /login, "Comenzar" / "Pruébalo gratis" / "Comienza gratis" → /register.
+   */
+  test('Iniciar sesión navega al login', async ({ page, landingPage }) => {
+    await landingPage.goto()
+
+    await landingPage.signInLink.click()
+
+    await expect(page).toHaveURL(/\/login/, { timeout: 15_000 })
+    await expect(landingPage.loginHeading).toBeVisible()
+  })
+
+  test('Comenzar (navbar) navega al registro', async ({ page, landingPage }) => {
+    await landingPage.goto()
+
+    await landingPage.getStartedNav.click()
+
+    await expect(page).toHaveURL(/\/register/, { timeout: 15_000 })
+    await expect(landingPage.registerHeading).toBeVisible()
+  })
+
+  test('Pruébalo gratis (hero) navega al registro', async ({ page, landingPage }) => {
+    await landingPage.goto()
+
+    await landingPage.tryFreeLink.click()
+
+    await expect(page).toHaveURL(/\/register/, { timeout: 15_000 })
+    await expect(landingPage.registerHeading).toBeVisible()
+  })
+
+  test('Comienza gratis (CTA final) navega al registro', async ({ page, landingPage }) => {
+    await landingPage.goto()
+
+    await landingPage.getStartedFreeCta.click()
+
+    await expect(page).toHaveURL(/\/register/, { timeout: 15_000 })
+    await expect(landingPage.registerHeading).toBeVisible()
+  })
+
+  test('las CTAs se traducen al español y navegan en /es', async ({ page, landingPage }) => {
+    await landingPage.goto()
+    await landingPage.switchLanguage('ES')
+
+    const nav = page.locator('header')
+    await expect(nav.getByRole('link', { name: 'Comenzar', exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Pruébalo gratis', exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Comienza gratis', exact: true })).toBeVisible()
+
+    // "Pruébalo gratis" navega a /es/register
+    await page.getByRole('link', { name: 'Pruébalo gratis', exact: true }).click()
+    await expect(page).toHaveURL(/\/es\/register/, { timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: 'Crea tu cuenta' })).toBeVisible()
+  })
 })

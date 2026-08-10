@@ -8,6 +8,14 @@ export class LandingPage {
   /** El link About existe en navbar y footer; el del navbar lleva igual. */
   readonly aboutLink = this.page.locator('header').getByRole('link', { name: 'About' })
 
+  /** CTAs de la landing (logged-out, EN default). */
+  readonly getStartedNav = this.page.locator('header').getByRole('link', { name: 'Get started', exact: true })
+  readonly getStartedFreeCta = this.page.getByRole('link', { name: 'Get started free', exact: true })
+
+  /** Headings de las páginas de destino de auth. */
+  readonly loginHeading = this.page.getByRole('heading', { name: 'Welcome back' })
+  readonly registerHeading = this.page.getByRole('heading', { name: 'Create your account' })
+
   /** Links de navegación del navbar (marketing). */
   readonly navFeatures = this.page.locator('header').getByRole('link', { name: 'Features' })
   readonly navPipeline = this.page.locator('header').getByRole('link', { name: 'Pipeline' })
