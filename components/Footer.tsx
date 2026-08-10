@@ -13,25 +13,17 @@ export default function Footer() {
       links: [
         { label: t('features'), href: '/#features' },
         { label: t('pipeline'), href: '/#pipeline' },
-        { label: t('changelog'), href: '#' },
-      ],
-    },
-    {
-      title: t('resources'),
-      links: [
-        { label: t('documentation'), href: '#' },
-        { label: t('apiReference'), href: '#' },
-        { label: t('guides'), href: '#' },
-        { label: t('support'), href: '#' },
+        { label: t('search'), href: '/pipeline/search' },
+        { label: t('rank'), href: '/pipeline/rank' },
+        { label: t('apply'), href: '/pipeline/apply' },
+        { label: t('interview'), href: '/pipeline/interview' },
+        { label: t('outcome'), href: '/pipeline/outcome' },
       ],
     },
     {
       title: t('company'),
       links: [
         { label: t('about'), href: '/about' },
-        { label: t('blog'), href: '#' },
-        { label: t('careers'), href: '#' },
-        { label: t('contact'), href: '#' },
       ],
     },
     {
@@ -39,8 +31,6 @@ export default function Footer() {
       links: [
         { label: t('privacy'), href: '/privacy' },
         { label: t('terms'), href: '/terms' },
-        { label: t('cookies'), href: '#' },
-        { label: t('licenses'), href: '#' },
       ],
     },
   ]
@@ -48,7 +38,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-[#d2d2d7] bg-[#f5f5f7]">
       <div className="mx-auto max-w-[1440px] px-5 md:px-8 py-10 md:py-14">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
           {FOOTER_LINKS.map(section => (
             <div key={section.title}>
               <p className="text-[11px] font-semibold uppercase tracking-wider text-[#1d1d1f] mb-3">
