@@ -669,6 +669,7 @@
     "startHint": "Start a ranking to see progress here.",
     "pausedHint": "Queue paused. Resume to continue processing.",
     "loading": "Loading…",
+    "cooldown": "Cooling down…",
     "idle": "Idle",
     "providers": "Providers",
     "models": "Models",

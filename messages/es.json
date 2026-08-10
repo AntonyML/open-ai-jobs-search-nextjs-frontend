@@ -668,6 +668,7 @@
     "startHint": "Inicia un ranking para ver el progreso aquí.",
     "pausedHint": "Cola pausada. Reanuda para continuar procesando.",
     "loading": "Cargando…",
+    "cooldown": "Enfriando…",
     "idle": "Inactivo",
     "providers": "Proveedores",
     "models": "Modelos",

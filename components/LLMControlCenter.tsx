@@ -308,13 +308,11 @@ function MetricCard({
 
 function MetricsGrid({
   completed,
-  totalEnqueued,
   completionRate,
   failed,
   tc,
 }: {
   completed: number
-  totalEnqueued: number
   completionRate: number
   failed: number
   tc: (key: string) => string
@@ -509,7 +507,6 @@ function StatusTab({
     <>
       <MetricsGrid
         completed={queue?.total_completed ?? 0}
-        totalEnqueued={totalEnqueued}
         completionRate={completionRate}
         failed={queue?.total_failed ?? 0}
         tc={tc}
@@ -745,7 +742,7 @@ export default function LLMControlCenter() {
     if (isWorking)
       return { text: `${t('status')} · ${queue?.running_jobs.length ?? 0}`, accent: 'text-cyan-500' as const }
     if (queue?.paused) return { text: t('pause'), accent: 'text-amber-500' as const }
-    if (isCooldown) return { text: t('loading'), accent: 'text-blue-500' as const }
+    if (isCooldown) return { text: t('cooldown'), accent: 'text-blue-500' as const }
     if (queue?.pending_jobs.length)
       return { text: `${queue.pending_jobs.length} ${t('queued').toLowerCase()}`, accent: 'text-[#707070]' as const }
     return { text: t('idle'), accent: 'text-[#707070]' as const }
