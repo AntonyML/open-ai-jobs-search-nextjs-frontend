@@ -822,11 +822,16 @@
   },
   "footer": {
     "product": "Product",
-    "company": "Company",
+    "resources": "Resources",
     "legal": "Legal",
     "features": "Features",
     "pipeline": "Pipeline",
     "about": "About",
+    "github": "GitHub",
+    "docs": "Documentation",
+    "backend": "Backend API",
+    "searchService": "Search Service",
+    "rankService": "Rank Service",
     "privacy": "Privacy",
     "terms": "Terms",
     "allRightsReserved": "© {year} Open Ai Jobs Search. All rights reserved."

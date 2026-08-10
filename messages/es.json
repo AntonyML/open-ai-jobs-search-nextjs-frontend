@@ -821,11 +821,16 @@
   },
   "footer": {
     "product": "Producto",
-    "company": "Empresa",
+    "resources": "Recursos",
     "legal": "Legal",
     "features": "Características",
     "pipeline": "Pipeline",
     "about": "Acerca de",
+    "github": "GitHub",
+    "docs": "Documentación",
+    "backend": "API Backend",
+    "searchService": "Servicio de Búsqueda",
+    "rankService": "Servicio de Ranking",
     "privacy": "Privacidad",
     "terms": "Términos",
     "allRightsReserved": "© {year} Open Ai Jobs Search. Todos los derechos reservados."

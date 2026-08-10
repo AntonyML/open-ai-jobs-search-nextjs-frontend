@@ -17,6 +17,31 @@ export default function Footer() {
       ],
     },
     {
+      title: t('resources'),
+      links: [
+        {
+          label: t('github'),
+          href: 'https://github.com/AntonyML/open-ai-jobs-search-nextjs-frontend',
+        },
+        {
+          label: t('docs'),
+          href: 'https://github.com/AntonyML/open-ai-jobs-search-nextjs-frontend#readme',
+        },
+        {
+          label: t('backend'),
+          href: 'https://github.com/AntonyML/open-ai-jobs-search-FastAPI-backend',
+        },
+        {
+          label: t('searchService'),
+          href: 'https://github.com/AntonyML/open-ai-jobs-search-microservice-searchjobs-backend',
+        },
+        {
+          label: t('rankService'),
+          href: 'https://github.com/AntonyML/open-ai-jobs-search-microservice-rankjobs-backend',
+        },
+      ],
+    },
+    {
       title: t('legal'),
       links: [
         { label: t('privacy'), href: '/privacy' },
@@ -28,7 +53,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-[#d2d2d7] bg-[#f5f5f7]">
       <div className="mx-auto max-w-[1440px] px-5 md:px-8 py-10 md:py-14">
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
           {FOOTER_LINKS.map(section => (
             <div key={section.title}>
               <p className="text-[11px] font-semibold uppercase tracking-wider text-[#1d1d1f] mb-3">
@@ -40,6 +65,9 @@ export default function Footer() {
                     <Link
                       href={link.href}
                       className="text-[12px] text-[#707070] hover:text-[#1d1d1f] transition-colors"
+                      {...(link.href.startsWith('http')
+                        ? { target: '_blank', rel: 'noopener noreferrer' }
+                        : {})}
                     >
                       {link.label}
                     </Link>

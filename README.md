@@ -164,7 +164,7 @@ components/
 ├── PipelineSidebar.tsx              # Navegación lateral con progreso del pipeline
 ├── PipelinePage.tsx                 # Formulario reutilizable para pasos del pipeline
 ├── Navbar.tsx                       # Barra de navegación superior
-├── Footer.tsx                       # Footer de 4 columnas
+├── Footer.tsx                       # Footer de 3 columnas
 ├── LanguageSwitcher.tsx             # Toggle EN/ES
 ├── AccessibilityProvider.tsx        # Aplica settings de accesibilidad al mount
 ├── AccessibilitySettings.tsx        # Controles UI de accesibilidad
