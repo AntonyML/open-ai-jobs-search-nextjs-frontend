@@ -10,8 +10,23 @@ Este repositorio es **el frontend** (Next.js 15 + React 19 + Tailwind CSS v4). T
 
 ---
 
+## Repositorios del ecosistema
+
+Open Ai Jobs Search es un **sistema multi-repositorio**: el proyecto completo
+está compuesto por 4 repositorios que comparten la base de datos (Supabase).
+
+| Repositorio | Rol | Puerto |
+|---|---|---|
+| [**Frontend (Next.js)**](https://github.com/AntonyML/open-ai-jobs-search-nextjs-frontend) | UI de usuario — **este repo** | `:3000` |
+| [**Backend FastAPI**](https://github.com/AntonyML/open-ai-jobs-search-FastAPI-backend) | API principal + LLM Orchestrator | `:8000` |
+| [**Microservicio de Ingesta**](https://github.com/AntonyML/open-ai-jobs-search-microservice-searchjobs-backend) | Telegram → `ingested_jobs` (sin LLM) | `:8001` |
+| [**Microservicio de Ranking**](https://github.com/AntonyML/open-ai-jobs-search-microservice-rankjobs-backend) | Cola de ranking con LLM (LOAD/RANK/SAVE) | `:8002` |
+
+---
+
 ## Tabla de contenidos
 
+- [Repositorios del ecosistema](#repositorios-del-ecosistema)
 - [Stack técnico](#stack-técnico)
 - [Páginas y rutas](#páginas-y-rutas)
 - [Flujo del usuario](#flujo-del-usuario)
