@@ -61,6 +61,8 @@ export default function Rank() {
 
   const submittingRef = useRef(false)
   const mountedRef = useRef(true)
+  const cancelledRef = useRef(false)
+  const activeJobIdRef = useRef<string | null>(null)
   const [runningJob, setRunningJob] = useState<any>(null)
 
   useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false } }, [])
@@ -86,6 +88,11 @@ export default function Rank() {
         }
       })
       .catch(() => {})
+
+    // Resume an active rank job if one exists in the orchestrator queue. The
+    // ranking runs on a separate worker process, so refreshing the page must
+    // not reset to a fresh form while the ExecutionJob is still queued/running.
+    resumeActiveRankJob()
   }, [])
 
   // Poll a single job until it completes or fails
@@ -93,6 +100,7 @@ export default function Rank() {
     const deadline = Date.now() + timeoutMs
     while (Date.now() < deadline) {
       await new Promise(r => setTimeout(r, 2000))
+      if (cancelledRef.current) return { status: 'cancelled' }
       try {
         const job = await apiFetch<any>(`/api/v1/orchestrator/jobs/${jobId}`)
         if (!mountedRef.current) throw new Error('unmounted')
@@ -100,7 +108,7 @@ export default function Rank() {
         if (job?.status === 'completed') return job
         if (job?.status === 'failed') return { status: 'failed', error: job.last_error }
         // Fail fast on other terminal states instead of polling until timeout
-        if (job?.status === 'cancelled') return { status: 'failed', error: 'Ranking was cancelled' }
+        if (job?.status === 'cancelled') return { status: 'cancelled' }
         if (job?.status === 'skipped') return { status: 'failed', error: 'No jobs to rank' }
       } catch { /* retry */ }
     }
@@ -145,21 +153,119 @@ export default function Rank() {
     setCustomFocus('')
   }
 
+  // Apply the shared result handling after a job reaches a terminal state
+  async function applyRankResult(completed: any) {
+    if (completed?.status === 'cancelled') return
+    if (completed?.status === 'failed') {
+      playErrorSound()
+      const errMsg = completed.error || 'Ranking failed'
+      showError('Ranking failed: ' + errMsg)
+      addNotification({ pipeline: 'rank', description: errMsg, status: 'error' })
+      setError(errMsg)
+      return
+    }
+
+    playPipelineSound('rank')
+    const rankData = completed?.result || completed
+    setResult(rankData)
+    showSuccess(rankData?.ranked_count != null ? `Ranking complete! ${rankData.ranked_count} jobs evaluated` : 'Ranking complete!')
+    addNotification({ pipeline: 'rank', description: `Evaluated jobs · focus=${focusArea || customFocus || 'all'}`, status: 'success' })
+
+    const x = await apiFetch<any>('/api/v1/rank/jobs')
+    const freshItems = Array.isArray(x) ? x : (x.items || x.jobs || [])
+    if (rankData?.shortlist) {
+      const salaryMap = new Map<string, any>()
+      for (const entry of rankData.shortlist) {
+        if (entry.salary && entry.job?.id) salaryMap.set(entry.job.id, entry.salary)
+      }
+      setItems(salaryMap.size > 0 ? freshItems.map((item: any) => {
+        const salary = salaryMap.get(item.id)
+        return salary ? { ...item, salary } : item
+      }) : freshItems)
+    } else {
+      setItems(freshItems)
+    }
+  }
+
+  // Track an active job (freshly submitted or resumed on mount) until terminal
+  async function trackJob(jobId: string, timeoutMs: number, onStart?: (job: any) => void) {
+    setLoading(true)
+    setElapsed(0)
+    setError('')
+    setResult(null)
+    try {
+      const completed = await pollJob(jobId, timeoutMs)
+      if (!mountedRef.current) return
+      await applyRankResult(completed)
+    } catch (x) {
+      if (!mountedRef.current) return
+      playErrorSound()
+      const msg = x instanceof Error ? x.message : 'Request failed'
+      showError(msg)
+      addNotification({ pipeline: 'rank', description: msg, status: 'error' })
+      setError(msg)
+    } finally {
+      if (mountedRef.current) { setLoading(false); setRunningJob(null) }
+      submittingRef.current = false
+      cancelledRef.current = false
+      activeJobIdRef.current = null
+    }
+  }
+
+  // Cancel the active rank job via the orchestrator queue control endpoint
+  async function cancelRanking() {
+    const jobId = runningJob?.id || activeJobIdRef.current
+    if (!jobId) return
+    cancelledRef.current = true
+    setLoading(false)
+    setRunningJob(null)
+    setElapsed(0)
+    submittingRef.current = false
+    activeJobIdRef.current = null
+    try {
+      await apiFetch('/api/v1/orchestrator/queue/control', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'cancel', job_id: jobId }),
+      })
+      setError('')
+    } catch {
+      if (mountedRef.current) setError('Failed to cancel ranking')
+    }
+  }
+
+  // On mount: if the orchestrator queue still has an active rank job for this
+  // user (page was refreshed mid-ranking), resume tracking it so the UI and the
+  // backend stay in sync instead of showing a fresh form.
+  async function resumeActiveRankJob() {
+    if (submittingRef.current) return
+    let activeJob: any = null
+    try {
+      const qs = await apiFetch<any>('/api/v1/orchestrator/queue')
+      if (!mountedRef.current) return
+      const jobs = [...(qs?.running_jobs || []), ...(qs?.pending_jobs || [])]
+      activeJob = jobs.find((j: any) => j?.pipeline === 'rank' && (j.status === 'running' || j.status === 'queued')) || null
+    } catch { /* backend unreachable — leave the form in its normal state */ }
+    if (!activeJob) return
+
+    submittingRef.current = true
+    activeJobIdRef.current = activeJob.id
+    setRunningJob(activeJob)
+    // Unknown batch size on resume — fall back to the fixed 10-minute deadline
+    await trackJob(activeJob.id, 10 * 60 * 1000)
+  }
+
   // Submit ranking
   async function submit(e: FormEvent) {
     e.preventDefault()
     if (submittingRef.current) return
     submittingRef.current = true
-    setLoading(true)
-    setElapsed(0)
-    setError('')
-    setResult(null)
     try {
       const body: any = { top_n: topN, re_rank: reRank }
       if (jobIds) body.job_ids = jobIds
       const fa = customFocus.trim() || focusArea
       if (fa) body.focus_area = fa
       const data = await apiFetch<any>('/api/v1/rank/', { method: 'POST', body: JSON.stringify(body) })
+      if (!mountedRef.current) return
       if (data.total_jobs != null) setTotalJobs(data.total_jobs)
 
       // The backend may skip the run entirely (e.g. no ingested jobs) and
@@ -170,45 +276,16 @@ export default function Rank() {
         showError(msg)
         addNotification({ pipeline: 'rank', description: msg, status: 'error' })
         setError(msg)
+        submittingRef.current = false
         return
       }
 
+      activeJobIdRef.current = data.job_id
       // Ranking runs on a separate worker process, one LLM call per job.
       // Scale the deadline by the number of accepted jobs (~30s each) so
       // large batches don't hit the fixed 10-minute timeout.
       const pollTimeout = Math.max(10 * 60 * 1000, (data.accepted_jobs || 0) * 30_000)
-      const completed = await pollJob(data.job_id, pollTimeout)
-      if (!mountedRef.current) return
-
-      if (completed?.status === 'failed') {
-        playErrorSound()
-        const errMsg = completed.error || 'Ranking failed'
-        showError('Ranking failed: ' + errMsg)
-        addNotification({ pipeline: 'rank', description: errMsg, status: 'error' })
-        setError(errMsg)
-        return
-      }
-
-      playPipelineSound('rank')
-      const rankData = completed?.result || completed
-      setResult(rankData)
-      showSuccess(rankData?.ranked_count != null ? `Ranking complete! ${rankData.ranked_count} jobs evaluated` : 'Ranking complete!')
-      addNotification({ pipeline: 'rank', description: `Evaluated jobs · focus=${focusArea || customFocus || 'all'}`, status: 'success' })
-
-      const x = await apiFetch<any>('/api/v1/rank/jobs')
-      const freshItems = Array.isArray(x) ? x : (x.items || x.jobs || [])
-      if (rankData?.shortlist) {
-        const salaryMap = new Map<string, any>()
-        for (const entry of rankData.shortlist) {
-          if (entry.salary && entry.job?.id) salaryMap.set(entry.job.id, entry.salary)
-        }
-        setItems(salaryMap.size > 0 ? freshItems.map((item: any) => {
-          const salary = salaryMap.get(item.id)
-          return salary ? { ...item, salary } : item
-        }) : freshItems)
-      } else {
-        setItems(freshItems)
-      }
+      await trackJob(data.job_id, pollTimeout)
     } catch (x) {
       if (!mountedRef.current) return
       playErrorSound()
@@ -216,8 +293,6 @@ export default function Rank() {
       showError(msg)
       addNotification({ pipeline: 'rank', description: msg, status: 'error' })
       setError(msg)
-    } finally {
-      if (mountedRef.current) { setLoading(false); setRunningJob(null) }
       submittingRef.current = false
     }
   }
@@ -296,18 +371,25 @@ export default function Rank() {
         </div>
 
         {loading && (
-          <RankProgress
-            rankedCount={rankedCount}
-            totalCount={totalCount}
-            remaining={remaining}
-            progressPct={progressPct}
-            elapsed={elapsed}
-            etaSeconds={etaSeconds}
-            runningJob={runningJob ? { description: runningJob.description, provider: runningJob.provider, model: runningJob.model } : null}
-            activeProvider={activeProvider}
-            recentEvals={items.filter(x => x.rank_score != null)}
-            t={t}
-          />
+          <>
+            <RankProgress
+              rankedCount={rankedCount}
+              totalCount={totalCount}
+              remaining={remaining}
+              progressPct={progressPct}
+              elapsed={elapsed}
+              etaSeconds={etaSeconds}
+              runningJob={runningJob ? { description: runningJob.description, provider: runningJob.provider, model: runningJob.model } : null}
+              activeProvider={activeProvider}
+              recentEvals={items.filter(x => x.rank_score != null)}
+              t={t}
+            />
+            <div className="flex justify-start">
+              <AppleButton variant="danger" size="sm" onClick={cancelRanking} className="shrink-0">
+                {t('cancel')}
+              </AppleButton>
+            </div>
+          </>
         )}
 
         {error && (
