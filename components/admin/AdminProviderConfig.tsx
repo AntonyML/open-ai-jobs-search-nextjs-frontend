@@ -134,6 +134,9 @@ export function AdminProviderConfig() {
     setModel(info?.default_model || '')
     setModels(info?.static_models ?? [])
     setApiBase(info?.example_base_url || '')
+    // Never carry the masked key to a different provider — the stored key
+    // belongs to the previously selected provider.
+    setApiKey('')
     setTestResult(null)
     setError('')
   }
