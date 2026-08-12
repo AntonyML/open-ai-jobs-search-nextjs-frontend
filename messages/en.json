@@ -1250,6 +1250,9 @@
     "activated": "Subscription activated",
     "activateError": "Could not activate",
     "manualActivation": "Manual activation by admin",
+    "quickTitle": "Quick activation",
+    "cycleMonthly": "Monthly",
+    "cycleYearly": "Yearly",
     "active": "Active",
     "noSubs": "No subscriptions yet",
     "refresh": "Refresh"

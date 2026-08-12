@@ -20,6 +20,15 @@ export interface ServerNotification {
   body: string | null
   is_read: boolean
   created_at: string | null
+  /** Structured payload for deep-link actions (e.g. purchase_request). */
+  payload: {
+    user_id?: string
+    user_email?: string
+    user_name?: string | null
+    plan_key?: string
+    billing_cycle?: string
+    correlation_id?: string
+  } | null
 }
 
 /** Shape accepted by `addNotification` (kept for pipeline callers). */

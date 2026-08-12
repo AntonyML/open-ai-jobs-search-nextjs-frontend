@@ -103,3 +103,7 @@ export async function adminSearchUsers(search: string): Promise<AdminUserSearchR
   const data = await apiFetch<{ items: AdminUserSearchResult[] }>(`/api/v1/admin/users?${qs.toString()}`)
   return data.items
 }
+
+export async function adminGetUser(userId: string): Promise<AdminUserSearchResult> {
+  return apiFetch<AdminUserSearchResult>(`/api/v1/admin/users/${encodeURIComponent(userId)}`)
+}

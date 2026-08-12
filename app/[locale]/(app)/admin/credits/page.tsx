@@ -10,11 +10,13 @@ import {
 } from 'lucide-react'
 import {
   adminSearchUsers,
+  adminGetUser,
   adminAdjustCredits,
   adminListSubscriptions,
   adminActivateSubscription,
   adminUserTransactions,
 } from '@/lib/billing'
+import { getBillingCatalog } from '@/lib/billing'
 import type { CreditTransaction, SubscriptionAdmin } from '@/types/billing'
 import styles from './CreditsAdmin.module.css'
 
@@ -40,10 +42,32 @@ export default function AdminCreditsPage() {
   const [subsLoading, setSubsLoading] = useState(true)
   const [activating, setActivating] = useState<string | null>(null)
 
+  // ── Quick-activation form (pre-filled from purchase-request deep-link) ──
+  const [plans, setPlans] = useState<Array<{ key: string; name: string }>>([])
+  const [quickPlan, setQuickPlan] = useState('pro')
+  const [quickCycle, setQuickCycle] = useState<'monthly' | 'yearly'>('monthly')
+  const [quickCorrelation, setQuickCorrelation] = useState('')
+  const [quickPending, setQuickPending] = useState(false)
+
   useEffect(() => {
     if (!isLoggedIn()) { router.replace('/login'); return }
     if (!isAdmin()) { router.replace('/dashboard'); return }
     void loadSubs()
+    // Load plans for the quick-activation form.
+    getBillingCatalog()
+      .then((c) => setPlans(c.plans.filter((p) => p.key !== 'free').map((p) => ({ key: p.key, name: p.name }))))
+      .catch(() => {})
+    // Deep-link from the notification bell: ?user=<id>&plan=<key>&cycle=&cid=
+    const params = new URLSearchParams(window.location.search)
+    const userId = params.get('user')
+    if (userId) {
+      void adminGetUser(userId)
+        .then((u) => setSelected({ id: u.id, email: u.email, full_name: u.full_name, tier: u.tier }))
+        .catch(() => {})
+      setQuickPlan(params.get('plan') || 'pro')
+      if (params.get('cycle') === 'yearly') setQuickCycle('yearly')
+      setQuickCorrelation(params.get('cid') || '')
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -111,6 +135,30 @@ export default function AdminCreditsPage() {
       showError(x instanceof Error ? x.message : t('activateError'))
     } finally {
       setActivating(null)
+    }
+  }
+
+  async function quickActivate() {
+    if (!selected || !quickPlan) return
+    setQuickPending(true)
+    try {
+      await adminActivateSubscription({
+        user_id: selected.id,
+        plan_key: quickPlan,
+        billing_cycle: quickCycle,
+        auto_renew: quickPlan === 'max',
+        note: quickCorrelation
+          ? `${t('manualActivation')} — ${t('correlation')}: ${quickCorrelation}`
+          : t('manualActivation'),
+      })
+      showSuccess(`${t('activated')} · ${quickPlan.toUpperCase()}`)
+      setQuickCorrelation('')
+      await loadSubs()
+      window.dispatchEvent(new Event('notifications:refresh'))
+    } catch (x) {
+      showError(x instanceof Error ? x.message : t('activateError'))
+    } finally {
+      setQuickPending(false)
     }
   }
 
@@ -243,6 +291,46 @@ export default function AdminCreditsPage() {
                 ))}
               </div>
             )}
+
+            {/* ── Quick activation (pre-filled from purchase-request deep-link) ── */}
+            <div className="mt-3 rounded-xl border border-emerald-200/70 bg-emerald-50/60 p-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">{t('quickTitle')}</p>
+              </div>
+              <div className="mt-2.5 flex flex-col gap-2 sm:flex-row sm:items-center">
+                <select
+                  value={quickPlan}
+                  onChange={(e) => setQuickPlan(e.target.value)}
+                  className="rounded-lg border border-[#d2d2d7] bg-white px-2.5 py-1.5 text-[11px] font-medium text-[#474747] outline-none transition-all focus:border-[#0071e3]"
+                >
+                  {plans.map((p) => (
+                    <option key={p.key} value={p.key}>{p.name}</option>
+                  ))}
+                </select>
+                <select
+                  value={quickCycle}
+                  onChange={(e) => setQuickCycle(e.target.value as 'monthly' | 'yearly')}
+                  className="rounded-lg border border-[#d2d2d7] bg-white px-2.5 py-1.5 text-[11px] font-medium text-[#474747] outline-none transition-all focus:border-[#0071e3]"
+                >
+                  <option value="monthly">{t('cycleMonthly')}</option>
+                  <option value="yearly">{t('cycleYearly')}</option>
+                </select>
+                {quickCorrelation && (
+                  <code className="truncate rounded-md bg-white px-2 py-1 text-[10px] text-[#474747] ring-1 ring-emerald-200" title={quickCorrelation}>
+                    {quickCorrelation.slice(0, 16)}…
+                  </code>
+                )}
+                <button
+                  onClick={quickActivate}
+                  disabled={quickPending || !quickPlan}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-1.5 text-[11px] font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+                >
+                  {quickPending ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
+                  {t('activate')}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </section>

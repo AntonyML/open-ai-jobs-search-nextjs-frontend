@@ -132,11 +132,36 @@ function formatTimestamp(ts: string | null): string {
   return d.toLocaleDateString()
 }
 
+// ── Deep-link target for purchase requests ─────────────────────────
+
+function purchaseHref(notif: ServerNotification): string {
+  const p = notif.payload ?? {}
+  const qs = new URLSearchParams()
+  if (p.user_id) qs.set('user', p.user_id)
+  if (p.plan_key) qs.set('plan', p.plan_key)
+  if (p.billing_cycle) qs.set('cycle', p.billing_cycle)
+  if (p.correlation_id) qs.set('cid', p.correlation_id)
+  const suffix = qs.toString() ? `?${qs.toString()}` : ''
+  return `/admin/credits${suffix}`
+}
+
 // ── Notification item ─────────────────────────────────────────────
 
-function NotificationItem({ notif, onRead }: { notif: ServerNotification; onRead: () => void }) {
+function NotificationItem({
+  notif,
+  onRead,
+  onActivate,
+  isAdminUser,
+}: {
+  notif: ServerNotification
+  onRead: () => void
+  onActivate?: () => void
+  isAdminUser: boolean
+}) {
   const error = isErrorType(notif.type)
   const unread = !notif.is_read
+  const isPurchase = notif.type === 'purchase_request'
+  const actionable = isAdminUser && isPurchase && !!notif.payload?.user_id
   return (
     <button
       type="button"
@@ -158,8 +183,37 @@ function NotificationItem({ notif, onRead }: { notif: ServerNotification; onRead
           <p className="mt-0.5 text-[11px] leading-snug text-[#707070] line-clamp-2">{notif.body}</p>
         )}
         <p className="mt-1 text-[10px] text-[#858585]">{formatTimestamp(notif.created_at)}</p>
+        {actionable && onActivate && (
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={(e) => {
+              e.stopPropagation()
+              onActivate()
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.stopPropagation()
+                onActivate()
+              }
+            }}
+            className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#0071e3] to-[#0060c0] px-2.5 py-1 text-[10px] font-semibold text-white transition-all hover:brightness-110"
+          >
+            Activate
+            <ArrowRightMini />
+          </span>
+        )}
       </div>
     </button>
+  )
+}
+
+function ArrowRightMini() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </svg>
   )
 }
 
@@ -324,10 +378,21 @@ export default function NotificationBell() {
                   <NotificationItem
                     key={notif.id}
                     notif={notif}
+                    isAdminUser={isAdmin()}
                     onRead={() => {
                       void markAsRead(notif.id)
                       window.dispatchEvent(new Event('notifications:refresh'))
                     }}
+                    onActivate={
+                      notif.type === 'purchase_request' && isAdmin() && notif.payload?.user_id
+                        ? () => {
+                            setOpen(false)
+                            void markAsRead(notif.id)
+                            window.dispatchEvent(new Event('notifications:refresh'))
+                            router.push(purchaseHref(notif))
+                          }
+                        : undefined
+                    }
                   />
                 ))
               )}
