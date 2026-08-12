@@ -42,10 +42,7 @@ export function useAdminNotifications(enabled: boolean, intervalMs = 15000) {
     async function load() {
       try {
         const rows = await fetchNotifications()
-        if (!cancelled) {
-          setNotifs(rows)
-          window.dispatchEvent(new Event('notifications:updated'))
-        }
+        if (!cancelled) setNotifs(rows)
       } catch {
         // silent — backend may be down
       } finally {
@@ -54,18 +51,15 @@ export function useAdminNotifications(enabled: boolean, intervalMs = 15000) {
     }
 
     void load()
-    const onUpdated = () => void load()
-    const onFocus = () => void load()
+    const onRefresh = () => void load()
     const timer = window.setInterval(() => void load(), intervalMs)
-    window.addEventListener('billing:updated', onUpdated)
-    window.addEventListener('notifications:refresh', onUpdated)
-    window.addEventListener('focus', onFocus)
+    window.addEventListener('notifications:refresh', onRefresh)
+    window.addEventListener('billing:updated', onRefresh)
     return () => {
       cancelled = true
       window.clearInterval(timer)
-      window.removeEventListener('billing:updated', onUpdated)
-      window.removeEventListener('notifications:refresh', onUpdated)
-      window.removeEventListener('focus', onFocus)
+      window.removeEventListener('notifications:refresh', onRefresh)
+      window.removeEventListener('billing:updated', onRefresh)
     }
   }, [enabled, intervalMs])
 

@@ -17,6 +17,14 @@ const NotificationBell = dynamic(
   },
 )
 
+const AdminNotificationBell = dynamic(
+  () => import('@/components/AdminNotificationBell'),
+  {
+    ssr: false,
+    loading: () => <div className="h-8 w-8" />,
+  },
+)
+
 // ── Credit chip (plan + balance) ───────────────────────────────────
 
 function NavbarCreditChip() {
@@ -113,10 +121,10 @@ function MobileMarketingLinks({ t }: { t: (key: string) => string }) {
 function LoggedInNav({ t }: { t: (key: string) => string }) {
   const router = useRouter()
 
-  return (
-    <>
-      <NotificationBell />
-      <NavLink href="/dashboard">{t('nav.dashboard')}</NavLink>
+  return (            <>
+              {isAdmin() && <AdminNotificationBell />}
+              <NotificationBell />
+              <NavLink href="/dashboard">{t('nav.dashboard')}</NavLink>
       <NavLink href="/pipeline/setup">{t('nav.pipeline')}</NavLink>
       {isAdmin() && (
         <NavLink href="/admin" className="text-amber-600 hover:bg-amber-50 hover:text-amber-700">
@@ -258,6 +266,7 @@ export default function Navbar() {
                 <LoggedInNav t={t} />
               </div>
               <div className="flex md:hidden">
+                {isAdmin() && <AdminNotificationBell />}
                 <NotificationBell />
               </div>
             </>

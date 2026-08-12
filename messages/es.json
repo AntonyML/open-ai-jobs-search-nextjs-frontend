@@ -1146,6 +1146,15 @@
     "feature.expand": "Descubrir skills",
     "feature.upskill": "Plan de formación"
   },
+  "adminNotifs": {
+    "label": "Notificaciones de admin ({count} sin leer)",
+    "title": "Bandeja del admin",
+    "subtitle": "Solicitudes de compra y alertas del sistema",
+    "markAll": "Marcar todo leído",
+    "empty": "Sin notificaciones. Las nuevas solicitudes de compra aparecerán aquí.",
+    "manage": "Gestionar suscripciones",
+    "error": "No se pudo actualizar la notificación"
+  },
   "billingPage": {
     "title": "Mi plan y créditos",
     "subtitle": "Tu suscripción, balance de créditos e historial de gastos.",
