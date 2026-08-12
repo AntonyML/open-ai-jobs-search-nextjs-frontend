@@ -11,6 +11,8 @@ interface SceneDynamicProps {
   fallback?: ReactNode
   className?: string
   activeFrameloop?: 'always' | 'demand'
+  /** Allow pointer events to reach the canvas (e.g. hoverable meshes). */
+  interactive?: boolean
 }
 
 /**
@@ -30,6 +32,7 @@ export function SceneDynamic({
   fallback,
   className,
   activeFrameloop = 'always',
+  interactive = false,
 }: SceneDynamicProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const visible = useSceneVisibility(containerRef)
@@ -49,16 +52,18 @@ export function SceneDynamic({
 
   const placeholder = fallback ?? <StaticSceneFallback />
 
+  const containerStyle = { pointerEvents: interactive ? ('auto' as const) : ('none' as const) }
+
   if (webglOk === null || !webglOk) {
     return (
-      <div ref={containerRef} aria-hidden="true" className={className}>
+      <div ref={containerRef} aria-hidden="true" className={className} style={containerStyle}>
         {placeholder}
       </div>
     )
   }
 
   return (
-    <div ref={containerRef} aria-hidden="true" className={className}>
+    <div ref={containerRef} aria-hidden="true" className={className} style={containerStyle}>
       {mounted ? (
         <Suspense fallback={placeholder}>
           <SceneCanvas activeFrameloop={activeFrameloop} visible={visible}>

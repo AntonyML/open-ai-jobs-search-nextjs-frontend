@@ -1,15 +1,23 @@
 import { getTranslations } from 'next-intl/server'
-import { IconBrain, IconSearch, IconBarChart, IconRocket, IconShield, IconSparkles } from './MarketingIcons'
+import { SceneDynamic } from '@/components/three/SceneDynamic'
+import { FeatureShowcase3D } from '@/components/three/FeatureShowcase3D'
+import {
+  IconBarChart,
+  IconBrain,
+  IconCoins,
+  IconFileText,
+  IconRocket,
+  IconSparkles,
+} from './MarketingIcons'
 
 export async function FeaturesSection() {
   const t = await getTranslations('marketing')
 
   const features = [
-    { icon: <IconBrain />, title: t('featureMultiProviderTitle'), description: t('featureMultiProviderDesc') },
-    { icon: <IconSearch />, title: t('featureDiscoveryTitle'), description: t('featureDiscoveryDesc') },
-    { icon: <IconBarChart />, title: t('featureRankingTitle'), description: t('featureRankingDesc') },
+    { icon: <IconFileText />, title: t('featureCvTitle'), description: t('featureCvDesc') },
+    { icon: <IconBarChart />, title: t('featureRankTitle'), description: t('featureRankDesc') },
+    { icon: <IconCoins />, title: t('featureCreditsTitle'), description: t('featureCreditsDesc') },
     { icon: <IconRocket />, title: t('featureApplyTitle'), description: t('featureApplyDesc') },
-    { icon: <IconShield />, title: t('featurePrivacyTitle'), description: t('featurePrivacyDesc') },
     { icon: <IconSparkles />, title: t('featureInterviewTitle'), description: t('featureInterviewDesc') },
   ]
 
@@ -24,9 +32,31 @@ export async function FeaturesSection() {
           <h2 className="text-[36px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[48px]">
             {t('featuresHeading')}
           </h2>
-          <p className="mt-4 text-[17px] font-light text-[#707070]">
-            {t('featuresSubheading')}
-          </p>
+          <p className="mt-4 text-[17px] font-light text-[#707070]">{t('featuresSubheading')}</p>
+        </div>
+
+        {/* 3D spotlight: resilient AI orchestration */}
+        <div className="mb-6 overflow-hidden rounded-2xl border border-[#d2d2d7] bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe] md:grid md:grid-cols-2">
+          <div className="flex flex-col justify-center p-8 md:p-12">
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-sm">
+              <IconBrain />
+            </div>
+            <h3 className="text-[24px] font-semibold tracking-tight text-[#1d1d1f] md:text-[28px]">
+              {t('featureOrchTitle')}
+            </h3>
+            <p className="mt-3 max-w-md text-[15px] font-light leading-relaxed text-[#707070]">
+              {t('featureOrchDesc')}
+            </p>
+          </div>
+          <div className="relative min-h-[260px] md:min-h-[320px]">
+            <SceneDynamic
+              className="absolute inset-0"
+              activeFrameloop="always"
+              interactive
+            >
+              <FeatureShowcase3D />
+            </SceneDynamic>
+          </div>
         </div>
 
         {/* Feature cards grid */}

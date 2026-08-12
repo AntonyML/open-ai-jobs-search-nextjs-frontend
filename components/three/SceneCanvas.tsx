@@ -50,6 +50,9 @@ export function SceneCanvas({
       onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
     >
       <PerformanceMonitor onDecline={() => setDpr(1)} onIncline={() => setDpr(2)} />
+      {/* Default lighting for mesh-based scenes (points materials ignore it). */}
+      <ambientLight intensity={0.7} />
+      <directionalLight position={[5, 8, 5]} intensity={1.2} />
       {children}
     </Canvas>
   )
