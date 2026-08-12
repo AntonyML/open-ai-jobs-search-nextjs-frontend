@@ -1,33 +1,100 @@
-import { getTranslations } from 'next-intl/server'
+'use client'
+
+import { useTranslations } from 'next-intl'
 import AuthCTAButton from './AuthCTAButton'
 import { SceneDynamic } from '@/components/three/SceneDynamic'
 import { CtaAurora } from '@/components/three/CtaAurora'
+import { useReducedMotion } from '@/components/three/useReducedMotion'
+import { useInViewOnce } from '@/hooks/use-in-view'
 
-export async function CTASection() {
-  const t = await getTranslations('marketing')
+export function CTASection() {
+  const t = useTranslations('marketing')
+  const reducedMotion = useReducedMotion()
+  const { ref, shown } = useInViewOnce<HTMLDivElement>(0.2)
 
   return (
     <section className="relative overflow-hidden border-t border-[#d2d2d7] bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe]">
-      {/* Low-density 3D background */}
-      <SceneDynamic className="absolute inset-0" activeFrameloop="always">
+      {/* Calibrated 3D background — same constellation language as pricing.
+          Transparent fallback: the blue gradient placeholder is for boxes. */}
+      <SceneDynamic
+        className="pointer-events-none absolute inset-0 z-0"
+        activeFrameloop="always"
+        fallback={<div aria-hidden="true" className="h-full w-full" />}
+      >
         <CtaAurora />
       </SceneDynamic>
 
-      <div className="relative z-10 mx-auto max-w-[1440px] px-5 py-20 text-center md:px-8 md:py-28">
+      <div ref={ref} className="relative z-10 mx-auto max-w-[1440px] px-5 py-20 text-center md:px-8 md:py-28">
         <div className="mx-auto max-w-2xl">
-          <h2 className="text-[36px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[48px]">
+          <p
+            className={`mb-4 text-[11px] font-semibold uppercase tracking-widest text-[#0071e3] transition-all duration-700 ${
+              shown && !reducedMotion ? 'cta-reveal cta-reveal-1' : ''
+            }`}
+          >
+            {t('ctaLabel')}
+          </p>
+          <h2
+            className={`text-[36px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[48px] transition-all duration-700 ${
+              shown && !reducedMotion ? 'cta-reveal cta-reveal-2' : ''
+            }`}
+          >
             {t('ctaHeading')}
           </h2>
-          <p className="mt-4 text-[17px] font-light text-[#707070]">{t('ctaSubheading')}</p>
-          <div className="mt-10 flex items-center justify-center gap-3">
+          <p
+            className={`mt-4 text-[17px] font-light text-[#707070] transition-all duration-700 ${
+              shown && !reducedMotion ? 'cta-reveal cta-reveal-3' : ''
+            }`}
+          >
+            {t('ctaSubheading')}
+          </p>
+          <div
+            className={`mt-10 flex items-center justify-center gap-3 transition-all duration-700 ${
+              shown && !reducedMotion ? 'cta-reveal cta-reveal-4' : ''
+            }`}
+          >
             <AuthCTAButton
               loggedInKey="ctaOpenDashboard"
               loggedOutKey="ctaGetStarted"
-              className="inline-flex items-center rounded-full bg-[#0071e3] px-7 py-3.5 text-[15px] font-medium text-white shadow-sm transition-all hover:bg-[#0068d2]"
+              className="inline-flex items-center rounded-full bg-[#0071e3] px-7 py-3.5 text-[15px] font-medium text-white shadow-[0_10px_30px_-12px_rgba(0,113,227,0.6)] transition-all hover:-translate-y-0.5 hover:bg-[#0068d2] hover:shadow-[0_14px_36px_-12px_rgba(0,113,227,0.7)]"
             />
           </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes cta-in {
+          from {
+            opacity: 0;
+            transform: translateY(14px);
+            filter: blur(4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+          }
+        }
+        .cta-reveal {
+          animation: cta-in 0.7s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+        }
+        .cta-reveal-1 {
+          animation-delay: 0ms;
+        }
+        .cta-reveal-2 {
+          animation-delay: 90ms;
+        }
+        .cta-reveal-3 {
+          animation-delay: 180ms;
+        }
+        .cta-reveal-4 {
+          animation-delay: 270ms;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .cta-reveal {
+            animation: none;
+          }
+        }
+      `}</style>
     </section>
   )
 }

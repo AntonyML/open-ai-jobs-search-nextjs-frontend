@@ -111,6 +111,7 @@
     "planCtaMax": "Get Max",
     "planFreeNote": "No credit card required",
     "planMaxNote": "Everything included · cancel anytime",
+    "ctaLabel": "Ready when you are",
     "ctaHeading": "Ready to land your next role?",
     "ctaSubheading": "Start free today. Upgrade when you need more power.",
     "ctaTryFree": "Try it free",
@@ -810,7 +811,8 @@
     "privacy": "Privacy",
     "terms": "Terms",
     "allRightsReserved": "© {year} Open Ai Jobs Search. All rights reserved.",
-    "limits": "Usage limits"
+    "limits": "Usage limits",
+    "pricing": "Pricing"
   },
   "upgrade": {
     "title": "Upgrade to Premium",

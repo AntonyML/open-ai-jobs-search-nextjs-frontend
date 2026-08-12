@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
@@ -9,36 +9,9 @@ import { isLoggedIn } from '@/lib/auth'
 import { SceneDynamic } from '@/components/three/SceneDynamic'
 import { PricingGlow } from '@/components/three/PricingGlow'
 import { useReducedMotion } from '@/components/three/useReducedMotion'
+import { useInViewOnce } from '@/hooks/use-in-view'
 
 type Billing = 'monthly' | 'annual'
-
-/** One-shot in-view hook: element fades/rises in when it enters the viewport. */
-function useInViewOnce<T extends HTMLElement>(threshold = 0.15) {
-  const ref = useRef<T>(null)
-  const [shown, setShown] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    if (typeof IntersectionObserver === 'undefined') {
-      setShown(true)
-      return
-    }
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShown(true)
-          io.disconnect()
-        }
-      },
-      { threshold },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [threshold])
-
-  return { ref, shown }
-}
 
 /** Paid-plan CTA: logged-in users open the purchase modal, visitors go to /register. */
 function PlanCta({ ctaKey, solid = false }: { ctaKey: string; solid?: boolean }) {
@@ -166,7 +139,7 @@ export default function PricingSection() {
 
         {/* Cards — each reveals with its own stagger delay; the delay is
             dropped once shown so hover transitions stay instant. */}
-        <div ref={cardsRef} className="mx-auto grid max-w-5xl gap-5 lg:grid-cols-3">
+        <div ref={cardsRef} className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-3 lg:gap-8">
           {plans.map((key, idx) => {
             const prefix = planLabel(key)
             const isMax = key === 'max'

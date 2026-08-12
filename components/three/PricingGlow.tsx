@@ -7,8 +7,8 @@ import { mulberry32 } from './random'
 import { useSoftParticleTexture } from './textures'
 import { useIsMobile } from '@/hooks/use-mobile'
 
-const DUST_COUNT = 160
-const MOBILE_DUST_COUNT = 80
+const DUST_COUNT = 280
+const MOBILE_DUST_COUNT = 140
 const RING_COUNT = 16
 const MOBILE_RING_COUNT = 10
 
@@ -33,6 +33,7 @@ export function PricingGlow() {
   const ringBRef = useRef<THREE.Group>(null)
   const dustRef = useRef<THREE.Points>(null)
   const nucleusRef = useRef<THREE.Points>(null)
+  const raysRef = useRef<THREE.LineSegments>(null)
 
   const rand = useMemo(() => mulberry32(4242), [])
   const dustCount = isMobile ? MOBILE_DUST_COUNT : DUST_COUNT
@@ -97,6 +98,38 @@ export function PricingGlow() {
     return arr
   }, [ringCount, isMobile])
 
+  // Radial rays: nucleus → inner ring points (constellation spokes). These are
+  // the most perceptible element — thin blue lines rotating with the ring.
+  const rayPositions = useMemo(() => {
+    const arr = new Float32Array(ringCount * 6)
+    const radius = isMobile ? 2.4 : 4.2
+    for (let i = 0; i < ringCount; i++) {
+      const angle = (i / ringCount) * Math.PI * 2
+      arr[i * 6] = 0
+      arr[i * 6 + 1] = 0
+      arr[i * 6 + 2] = -0.6
+      arr[i * 6 + 3] = Math.cos(angle) * radius
+      arr[i * 6 + 4] = Math.sin(angle) * radius * 0.3
+      arr[i * 6 + 5] = -0.6
+    }
+    return arr
+  }, [ringCount, isMobile])
+
+  const rayColors = useMemo(() => {
+    const arr = new Float32Array(ringCount * 6)
+    const center = new THREE.Color('#0071e3')
+    const tip = new THREE.Color('#a8c9f5')
+    for (let i = 0; i < ringCount; i++) {
+      arr[i * 6] = center.r
+      arr[i * 6 + 1] = center.g
+      arr[i * 6 + 2] = center.b
+      arr[i * 6 + 3] = tip.r
+      arr[i * 6 + 4] = tip.g
+      arr[i * 6 + 5] = tip.b
+    }
+    return arr
+  }, [ringCount])
+
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime
     const group = groupRef.current
@@ -107,14 +140,18 @@ export function PricingGlow() {
     group.rotation.x = THREE.MathUtils.lerp(group.rotation.x, -state.pointer.y * 0.05, 0.03)
     group.position.y = Math.sin(t * 0.22) * 0.2
 
-    // Rings rotate in opposite directions
+    // Rings rotate in opposite directions; the rays follow the inner ring
     if (ringARef.current) ringARef.current.rotation.z = t * 0.1
     if (ringBRef.current) ringBRef.current.rotation.z = -t * 0.06
+    if (raysRef.current) {
+      const mat = raysRef.current.material as THREE.LineBasicMaterial
+      mat.opacity = 0.45 + Math.sin(t * 0.9) * 0.12
+    }
 
     // Nucleus pulses
     if (nucleusRef.current) {
       const mat = nucleusRef.current.material as THREE.PointsMaterial
-      mat.opacity = 0.22 + Math.sin(t * 1.2) * 0.08
+      mat.opacity = 0.36 + Math.sin(t * 1.2) * 0.1
       const s = 1 + Math.sin(t * 1.2) * 0.15
       nucleusRef.current.scale.setScalar(s)
     }
@@ -137,7 +174,7 @@ export function PricingGlow() {
     // Dust opacity shimmer — subtle breathing over time
     if (dust) {
       const mat = dust.material as THREE.PointsMaterial
-      mat.opacity = 0.55 + Math.sin(t * 0.6) * 0.1
+      mat.opacity = 0.78 + Math.sin(t * 0.6) * 0.08
     }
   })
 
@@ -153,16 +190,16 @@ export function PricingGlow() {
         <pointsMaterial
           map={softTexture}
           color="#0071e3"
-          size={isMobile ? 1.4 : 2.2}
+          size={isMobile ? 2.4 : 3.6}
           sizeAttenuation
           transparent
-          opacity={0.24}
+          opacity={0.5}
           depthWrite={false}
           blending={THREE.NormalBlending}
         />
       </points>
 
-      {/* Inner ring (clockwise) */}
+      {/* Inner ring (clockwise) + radial rays rotating with it */}
       <group ref={ringARef}>
         <points>
           <bufferGeometry>
@@ -171,14 +208,28 @@ export function PricingGlow() {
           <pointsMaterial
             map={softTexture}
             color="#0a84ff"
-            size={isMobile ? 0.09 : 0.12}
+            size={isMobile ? 0.16 : 0.22}
             sizeAttenuation
             transparent
-            opacity={0.5}
+            opacity={0.8}
             depthWrite={false}
             blending={THREE.NormalBlending}
           />
         </points>
+
+        {/* Radial constellation rays (nucleus → ring points) */}
+        <lineSegments ref={raysRef}>
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" args={[rayPositions, 3]} />
+            <bufferAttribute attach="attributes-color" args={[rayColors, 3]} />
+          </bufferGeometry>
+          <lineBasicMaterial
+            vertexColors
+            transparent
+            opacity={0.6}
+            depthWrite={false}
+          />
+        </lineSegments>
       </group>
 
       {/* Outer ring (counter-clockwise) */}
@@ -190,10 +241,10 @@ export function PricingGlow() {
           <pointsMaterial
             map={softTexture}
             color="#5ac8fa"
-            size={isMobile ? 0.06 : 0.08}
+            size={isMobile ? 0.12 : 0.16}
             sizeAttenuation
             transparent
-            opacity={0.4}
+            opacity={0.7}
             depthWrite={false}
             blending={THREE.NormalBlending}
           />
@@ -209,10 +260,10 @@ export function PricingGlow() {
         <pointsMaterial
           map={softTexture}
           vertexColors
-          size={isMobile ? 0.1 : 0.12}
+          size={isMobile ? 0.2 : 0.28}
           sizeAttenuation
           transparent
-          opacity={0.55}
+          opacity={0.95}
           depthWrite={false}
           blending={THREE.NormalBlending}
         />
