@@ -90,7 +90,7 @@
     "featureRankTitle": "Ofertas rankeadas por fit",
     "featureRankDesc": "Cada oferta se puntúa contra tu perfil — skills, experiencia y salario — para postularte donde mejor encajas.",
     "featureOrchTitle": "Orquestación de IA resiliente",
-    "featureOrchDesc": "Anthropic, OpenAI, NVIDIA, LM Studio y Ollama. Si uno llega a su límite, el siguiente toma el control al instante.",
+    "featureOrchDesc": "Anthropic, OpenAI, NVIDIA, LM Studio y Ollama. Si uno falla o llega a su límite, el siguiente responde automáticamente.",
     "featureCreditsTitle": "Créditos a tu medida",
     "featureCreditsDesc": "Compra créditos y úsalos cuando los necesites. El plan gratis te permite empezar sin tarjeta.",
     "featureApplyTitle": "Postulaciones a medida",
@@ -136,7 +136,9 @@
     "heroBadgeAts": "Listo para ATS",
     "heroBadgeCvAdapted": "CV adaptado a cada oferta",
     "heroBadgeCoverLetter": "Carta de presentación lista",
-    "heroBadgeInterview": "Prep de entrevista"
+    "heroBadgeInterview": "Prep de entrevista",
+    "featurePrivacyTitle": "Privacidad y control",
+    "featurePrivacyDesc": "Tus datos se cifran y nunca se usan para entrenar modelos. Tú decides qué comparte cada postulación."
   },
   "about": {
     "label": "Acerca de",

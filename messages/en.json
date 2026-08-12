@@ -90,7 +90,7 @@
     "featureRankTitle": "Fit-ranked jobs",
     "featureRankDesc": "Every offer is scored against your profile — skills, experience and salary — so you apply where you fit best.",
     "featureOrchTitle": "Resilient AI orchestration",
-    "featureOrchDesc": "Anthropic, OpenAI, NVIDIA, LM Studio and Ollama. If one hits a limit, the next takes over instantly.",
+    "featureOrchDesc": "Anthropic, OpenAI, NVIDIA, LM Studio and Ollama. If one fails or hits a limit, the next one responds automatically.",
     "featureCreditsTitle": "Credits that fit you",
     "featureCreditsDesc": "Buy credits and spend them when you need them. A free plan gets you started with no card required.",
     "featureApplyTitle": "Tailored applications",
@@ -136,7 +136,9 @@
     "heroBadgeAts": "ATS-ready",
     "heroBadgeCvAdapted": "CV tailored to each offer",
     "heroBadgeCoverLetter": "Cover letter ready",
-    "heroBadgeInterview": "Interview prep"
+    "heroBadgeInterview": "Interview prep",
+    "featurePrivacyTitle": "Privacy by design",
+    "featurePrivacyDesc": "Your data is encrypted and never used to train models. You decide what each application shares."
   },
   "about": {
     "label": "About",

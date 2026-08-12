@@ -7,6 +7,7 @@ import {
   IconCoins,
   IconFileText,
   IconRocket,
+  IconShield,
   IconSparkles,
 } from './MarketingIcons'
 
@@ -19,6 +20,7 @@ export async function FeaturesSection() {
     { icon: <IconCoins />, title: t('featureCreditsTitle'), description: t('featureCreditsDesc') },
     { icon: <IconRocket />, title: t('featureApplyTitle'), description: t('featureApplyDesc') },
     { icon: <IconSparkles />, title: t('featureInterviewTitle'), description: t('featureInterviewDesc') },
+    { icon: <IconShield />, title: t('featurePrivacyTitle'), description: t('featurePrivacyDesc') },
   ]
 
   return (
