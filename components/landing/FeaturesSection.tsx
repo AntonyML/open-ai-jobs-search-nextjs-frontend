@@ -23,15 +23,14 @@ export async function FeaturesSection() {
   return (
     <section id="features" className="border-t border-[#d2d2d7] bg-white">
       <div className="mx-auto max-w-[1440px] px-5 py-20 md:px-8 md:py-28">
-        {/* Section header */}
-        <div className="mx-auto mb-14 max-w-2xl text-center">
+        {/* Section header — compact: the list below speaks for itself */}
+        <div className="mx-auto mb-12 max-w-2xl text-center">
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[#0071e3]">
             {t('featuresLabel')}
           </p>
           <h2 className="text-[36px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[48px]">
             {t('featuresHeading')}
           </h2>
-          <p className="mt-4 text-[17px] font-light text-[#707070]">{t('featuresSubheading')}</p>
         </div>
 
         {/* Editorial numbered list — no cards, hairline rows (Linear/Stripe style) */}
