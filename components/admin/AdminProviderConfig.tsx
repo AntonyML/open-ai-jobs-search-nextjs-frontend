@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import Link from 'next/link'
 import {
   Server,
   KeyRound,
@@ -10,13 +9,10 @@ import {
   Trash2,
   CheckCircle2,
   XCircle,
-  ArrowRight,
-  Globe,
 } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
-import { AppleButton } from '@/components/ui/apple-button'
-import { cn } from '@/lib/utils'
+import styles from './AdminProviderConfig.module.css'
 
 const MASKED_KEY = '__MASKED__'
 
@@ -224,255 +220,183 @@ export function AdminProviderConfig() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-[#d2d2d7]/60 bg-white p-6">
-        <div className="flex items-center justify-center py-10">
-          <RefreshCw className="h-5 w-5 animate-spin text-[#858585]" />
+      <div className={styles.card}>
+        <div className={styles.stateStrip}>
+          <div className={`${styles.shimmer} h-[64px]`} />
+          <div className={`${styles.shimmer} h-[64px]`} />
+          <div className={`${styles.shimmer} h-[64px]`} />
+          <div className={`${styles.shimmer} h-[64px]`} />
         </div>
       </div>
     )
   }
 
   return (
-    <div className="rounded-xl border border-[#d2d2d7]/60 bg-white p-5 sm:p-6">
-      <div className="mb-5 flex items-start gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#0071e3]/10 text-[#0071e3]">
-          <Server className="size-5" />
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold text-[#1d1d1f]">{t('providerConfigTitle')}</h3>
-          <p className="mt-0.5 text-xs leading-5 text-[#707070]">{t('providerConfigDesc')}</p>
+    <div className={styles.card}>
+      <div className="flex items-start gap-3 p-6 pb-0 sm:items-center">
+        <span className={styles.iconWrap}>
+          <Server size={20} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className={styles.cardTitle}>{t('providerConfigTitle')}</h3>
+          <p className={styles.cardSubtitle}>{t('providerConfigDesc')}</p>
         </div>
       </div>
 
-      {/* ── Current state strip ── */}
-      <div className="mb-5 grid grid-cols-2 gap-3 rounded-xl border border-[#e2e2e5] bg-[#fafafa] p-4 sm:grid-cols-4">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858585]">{t('providerConfigProvider')}</p>
-          <p className="mt-1 text-sm font-medium text-[#1d1d1f]">{config?.display_name || config?.provider || t('providerConfigNone')}</p>
-        </div>
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858585]">{t('providerConfigModel')}</p>
-          <p className="mt-1 truncate text-sm font-medium text-[#1d1d1f]">{config?.model || '—'}</p>
-        </div>
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858585]">{t('providerConfigKey')}</p>
-          <p className="mt-1 flex items-center gap-1 text-sm font-medium text-[#1d1d1f]">
-            <KeyRound className="size-3.5 text-[#b0b0b0]" />
-            {config?.has_key ? t('providerConfigKeySet') : t('providerConfigKeyEmpty')}
-          </p>
-        </div>
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858585]">{t('providerConfigStatus')}</p>
-          {config?.last_status ? (
-            <p className={cn(
-              'mt-1 flex items-center gap-1 text-sm font-medium',
-              config.last_status === 'ok' ? 'text-emerald-600' : 'text-rose-600'
-            )}>
-              {config.last_status === 'ok'
-                ? <CheckCircle2 className="size-3.5" />
-                : <XCircle className="size-3.5" />}
-              {config.last_status === 'ok' ? t('providerConfigStatusOk') : t('providerConfigStatusFail')}
+      <div className="space-y-5 p-6">
+        {/* ── Current state strip ── */}
+        <div className={styles.stateStrip}>
+          <div className="min-w-0">
+            <p className={styles.stateLabel}>{t('providerConfigProvider')}</p>
+            <p className={styles.stateValue}>{config?.display_name || config?.provider || t('providerConfigNone')}</p>
+          </div>
+          <div className="min-w-0">
+            <p className={styles.stateLabel}>{t('providerConfigModel')}</p>
+            <p className={styles.stateValue}>{config?.model || '—'}</p>
+          </div>
+          <div className="min-w-0">
+            <p className={styles.stateLabel}>{t('providerConfigKey')}</p>
+            <p className={`${styles.stateValue} flex items-center gap-1`}>
+              <KeyRound className="size-3.5 shrink-0 text-[#b0b0b0]" />
+              <span className="min-w-0 overflow-hidden text-ellipsis">
+                {config?.has_key ? t('providerConfigKeySet') : t('providerConfigKeyEmpty')}
+              </span>
             </p>
-          ) : (
-            <p className="mt-1 text-sm font-medium text-[#858585]">—</p>
-          )}
+          </div>
+          <div className="min-w-0">
+            <p className={styles.stateLabel}>{t('providerConfigStatus')}</p>
+            {config?.last_status ? (
+              <p className={`${styles.stateValue} flex items-center gap-1 ${
+                config.last_status === 'ok' ? 'text-emerald-600' : 'text-rose-600'
+              }`}>
+                {config.last_status === 'ok'
+                  ? <CheckCircle2 className="size-3.5 shrink-0" />
+                  : <XCircle className="size-3.5 shrink-0" />}
+                <span className="min-w-0 overflow-hidden text-ellipsis">
+                  {config.last_status === 'ok' ? t('providerConfigStatusOk') : t('providerConfigStatusFail')}
+                </span>
+              </p>
+            ) : (
+              <p className={styles.stateValue}>—</p>
+            )}
+          </div>
         </div>
-      </div>
 
-      {config?.last_error && (
-        <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-600">
-          {config.last_error}
-        </div>
-      )}
+        {config?.last_error && (
+          <p className={styles.errorStrip}>{config.last_error}</p>
+        )}
 
-      {error && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-600">
-          <XCircle className="size-3.5 shrink-0" />
-          {error}
-        </div>
-      )}
+        {error && (
+          <p className={`${styles.errorStrip} flex items-start gap-2`}>
+            <XCircle className="mt-0.5 size-3.5 shrink-0" />
+            <span className="min-w-0">{error}</span>
+          </p>
+        )}
 
-      {/* ── Form ── */}
-      <div className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('providerConfigProvider')}
-            <select
-              value={provider}
-              onChange={(e) => handleProviderChange(e.target.value)}
-              className="field mt-1.5 h-10"
-            >
-              {catalog.map((p) => (
-                <option key={p.name} value={p.name}>{p.display_name}</option>
-              ))}
-            </select>
-          </label>
-
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('providerConfigModel')}
-            <div className="mt-1.5 flex gap-2">
+        {/* ── Form ── */}
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className={styles.formLabel}>
+              {t('providerConfigProvider')}
               <select
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                className="field h-10 flex-1"
+                value={provider}
+                onChange={(e) => handleProviderChange(e.target.value)}
+                className="field mt-1.5 h-10"
               >
-                {(models.length > 0 ? models : [model]).map((m) => (
-                  <option key={m} value={m}>{m}</option>
+                {catalog.map((p) => (
+                  <option key={p.name} value={p.name}>{p.display_name}</option>
                 ))}
               </select>
-              <AppleButton
-                type="button"
-                variant="secondary"
-                onClick={() => loadModels(provider)}
-                loading={loadingModels}
-                disabled={loadingModels || !provider}
-                className="h-10 shrink-0 px-3 text-xs"
-              >
-                <RefreshCw className="mr-1.5 size-3.5" />
-                {loadingModels ? t('providerConfigLoadingModels') : t('providerConfigLoadModels')}
-              </AppleButton>
-            </div>
-          </label>
-        </div>
+            </label>
 
-        <label className="block text-sm text-[#1d1d1f]">
-          {t('providerConfigApiKey')}
-          <span className="ml-2 text-[11px] text-[#b0b0b0]">{t('providerConfigApiKeyHint')}</span>
-          <input
-            type="password"
-            value={apiKey === MASKED_KEY ? '' : apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder={config?.has_key ? t('providerConfigApiKeyMasked') : ''}
-            autoComplete="off"
-            className="field mt-1.5"
-          />
-        </label>
+            <label className={styles.formLabel}>
+              {t('providerConfigModel')}
+              <div className={styles.modelRow}>
+                <select
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  className={`field h-10 ${styles.modelSelect}`}
+                >
+                  {(models.length > 0 ? models : [model]).map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => loadModels(provider)}
+                  disabled={loadingModels || !provider}
+                  className={styles.loadModelsBtn}
+                >
+                  {loadingModels ? (
+                    <span className={styles.spinner} />
+                  ) : (
+                    <RefreshCw className="size-3.5" />
+                  )}
+                  {loadingModels ? t('providerConfigLoadingModels') : t('providerConfigLoadModels')}
+                </button>
+              </div>
+            </label>
+          </div>
 
-        {currentInfo?.supports_custom_base && (
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('providerConfigApiBase')}
+          <label className={styles.formLabel}>
+            {t('providerConfigApiKey')}
+            <span className={styles.hint}>{t('providerConfigApiKeyHint')}</span>
             <input
-              value={apiBase}
-              onChange={(e) => setApiBase(e.target.value)}
-              placeholder={currentInfo.example_base_url || ''}
+              type="password"
+              value={apiKey === MASKED_KEY ? '' : apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder={config?.has_key ? t('providerConfigApiKeyMasked') : ''}
+              autoComplete="off"
               className="field mt-1.5"
             />
           </label>
-        )}
-      </div>
 
-      {/* ── Actions ── */}
-      <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
-        <AppleButton onClick={save} loading={saving} disabled={saving || testing} className="w-full sm:w-auto">
-          {t('providerConfigSave')}
-        </AppleButton>
-        <AppleButton variant="secondary" onClick={test} loading={testing} disabled={saving || testing} className="w-full sm:w-auto">
-          <RefreshCw className="mr-1.5 size-3.5" />
-          {t('providerConfigTest')}
-        </AppleButton>
-        <AppleButton variant="ghost" onClick={clear} disabled={saving || testing} className="w-full sm:w-auto">
-          <Trash2 className="mr-1.5 size-3.5" />
-          {t('providerConfigClear')}
-        </AppleButton>
-      </div>
-
-      {testResult && (
-        <div className={cn(
-          'mt-4 rounded-lg border px-3 py-2.5 text-xs',
-          testResult.ok ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-600'
-        )}>
-          {testResult.ok ? (
-            <p className="flex items-center gap-1.5">
-              <CheckCircle2 className="size-3.5" />
-              {t('providerConfigTestOk')}
-            </p>
-          ) : (
-            <p className="flex items-start gap-1.5">
-              <XCircle className="mt-0.5 size-3.5 shrink-0" />
-              <span className="break-words">{testResult.error || t('providerConfigTestFail')}</span>
-            </p>
+          {currentInfo?.supports_custom_base && (
+            <label className={styles.formLabel}>
+              {t('providerConfigApiBase')}
+              <input
+                value={apiBase}
+                onChange={(e) => setApiBase(e.target.value)}
+                placeholder={currentInfo.example_base_url || ''}
+                className="field mt-1.5"
+              />
+            </label>
           )}
         </div>
-      )}
-    </div>
-  )
-}
 
-/**
- * Compact summary table of the global provider config — used on the
- * /pipeline/providers page, visible only to admins. Shows basic info plus
- * a direct link to the full admin panel.
- */
-export function AdminProviderSummary() {
-  const t = useTranslations('admin')
-  const [config, setConfig] = useState<AdminConfig | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    apiFetch<AdminConfig>('/api/v1/admin/providers')
-      .then((c) => setConfig(c))
-      .catch(() => setConfig(null))
-      .finally(() => setLoading(false))
-  }, [])
-
-  return (
-    <div className="rounded-xl border border-[#d2d2d7]/60 bg-white p-5">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Globe className="size-4 text-[#0071e3]" />
-          <p className="text-sm font-medium text-[#1d1d1f]">{t('providerSummaryTitle')}</p>
+        {/* ── Actions ── */}
+        <div className={styles.actionRow}>
+          <button type="button" onClick={save} disabled={saving || testing} className={styles.btnPrimary}>
+            {saving && <span className={styles.spinner} />}
+            {t('providerConfigSave')}
+          </button>
+          <button type="button" onClick={test} disabled={saving || testing} className={styles.btnSecondary}>
+            {testing && <span className={styles.spinner} />}
+            {!testing && <RefreshCw className="size-3.5" />}
+            {t('providerConfigTest')}
+          </button>
+          <button type="button" onClick={clear} disabled={saving || testing} className={styles.btnGhost}>
+            <Trash2 className="size-3.5" />
+            {t('providerConfigClear')}
+          </button>
         </div>
-        <Link
-          href="/admin/providers"
-          className="inline-flex items-center gap-1 text-xs font-medium text-[#0071e3] hover:underline"
-        >
-          {t('providerSummaryGo')}
-          <ArrowRight className="size-3" />
-        </Link>
+
+        {testResult && (
+          <div className={testResult.ok ? styles.resultOk : styles.resultFail}>
+            {testResult.ok ? (
+              <p className="flex items-center gap-1.5">
+                <CheckCircle2 className="size-3.5 shrink-0" />
+                {t('providerConfigTestOk')}
+              </p>
+            ) : (
+              <p className="flex items-start gap-1.5">
+                <XCircle className="mt-0.5 size-3.5 shrink-0" />
+                <span className="min-w-0">{testResult.error || t('providerConfigTestFail')}</span>
+              </p>
+            )}
+          </div>
+        )}
       </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center py-6">
-          <RefreshCw className="h-4 w-4 animate-spin text-[#b0b0b0]" />
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-lg border border-[#e2e2e5]">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-[#e2e2e5] bg-[#f5f5f7] text-left text-[10px] font-semibold uppercase tracking-widest text-[#858585]">
-                <th className="px-3 py-2">{t('providerConfigProvider')}</th>
-                <th className="px-3 py-2">{t('providerConfigModel')}</th>
-                <th className="px-3 py-2">{t('providerConfigKey')}</th>
-                <th className="px-3 py-2">{t('providerConfigStatus')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b border-[#e2e2e5] last:border-0">
-                <td className="px-3 py-2.5 font-medium text-[#1d1d1f]">
-                  {config?.display_name || config?.provider || t('providerConfigNone')}
-                </td>
-                <td className="max-w-[160px] truncate px-3 py-2.5 text-[#707070]">{config?.model || '—'}</td>
-                <td className="px-3 py-2.5 text-[#707070]">
-                  {config?.has_key ? t('providerConfigKeySet') : t('providerConfigKeyEmpty')}
-                </td>
-                <td className="px-3 py-2.5">
-                  {config?.last_status === 'ok' ? (
-                    <span className="inline-flex items-center gap-1 text-emerald-600">
-                      <CheckCircle2 className="size-3" /> {t('providerConfigStatusOk')}
-                    </span>
-                  ) : config?.last_status ? (
-                    <span className="inline-flex items-center gap-1 text-rose-600">
-                      <XCircle className="size-3" /> {t('providerConfigStatusFail')}
-                    </span>
-                  ) : (
-                    <span className="text-[#b0b0b0]">—</span>
-                  )}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   )
 }

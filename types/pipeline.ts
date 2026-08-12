@@ -79,7 +79,7 @@ export interface PipelineStepMeta {
 }
 
 export const PIPELINE_STEPS: PipelineStepMeta[] = [
-  { key: 'providers', label: 'Providers', eyebrow: '01 / CONFIGURE', href: '/pipeline/providers', order: 0 },
+  { key: 'providers', label: 'Providers', eyebrow: '01 / CONFIGURE', href: '/admin/providers', order: 0 },
   { key: 'setup',     label: 'Setup',     eyebrow: '02 / PROFILE',   href: '/pipeline/setup',     order: 1 },
   { key: 'search',    label: 'Search',    eyebrow: '03 / DISCOVER',  href: '/pipeline/search',    order: 2 },
   { key: 'rank',      label: 'Rank',      eyebrow: '04 / EVALUATE',  href: '/pipeline/rank',      order: 3 },

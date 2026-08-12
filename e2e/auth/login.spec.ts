@@ -13,8 +13,8 @@ test.describe('Login', () => {
     await loginPage.goto()
     await loginPage.signIn(E2E_EMAIL, E2E_PASSWORD)
 
-    // El login redirige a /providers → que server-redirige a /pipeline/providers
-    await expect(page).toHaveURL(/\/pipeline\/providers/, { timeout: 20_000 })
+    // El login redirige al dashboard
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 20_000 })
     // Navbar autenticado visible
     await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible()
   })

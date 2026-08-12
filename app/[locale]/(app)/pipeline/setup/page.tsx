@@ -359,7 +359,7 @@ export default function Setup() {
       <PipelineHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
 
       <a
-        href={`/${locale}/pipeline/providers`}
+        href={`/${locale}/admin/providers`}
         className="mb-5 inline-flex items-center gap-1 text-xs font-medium text-[#707070] hover:text-[#1d1d1f] transition-colors"
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>

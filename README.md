@@ -153,7 +153,7 @@ app/
 │   │   ├── login/page.tsx
 │   │   └── register/page.tsx
 │   └── (app)/                       # Rutas autenticadas
-│       ├── layout.tsx               # Auth guard + PipelineSidebar + LLMControlCenter
+│       ├── layout.tsx               # Auth guard + AppSidebar + LLMControlCenter
 │       ├── dashboard/page.tsx       # Dashboard con stats y funnel
 │       ├── analytics/page.tsx       # Analíticas detalladas
 │       ├── admin/page.tsx           # Admin panel (CRUD usuarios)
@@ -176,7 +176,12 @@ app/
 
 components/
 ├── LLMControlCenter.tsx             # Sidebar derecha sticky (proveedores, modelos, cola, métricas)
-├── PipelineSidebar.tsx              # Navegación lateral con progreso del pipeline
+├── AppSidebar.tsx                   # Menú lateral (compone navigation/)
+├── navigation/                      # Config + estado + ítems del sidebar
+│   ├── sidebar-config.ts            # Datos del menú (secciones, ítems, bloqueos)
+│   ├── sidebar-state.ts             # Hook con estado reactivo (CV base, admin, tier)
+│   ├── SidebarLinkItem.tsx          # Ítem del menú (link o bloqueado)
+│   └── SidebarGroupSection.tsx      # Sección agrupada del menú
 ├── PipelinePage.tsx                 # Formulario reutilizable para pasos del pipeline
 ├── Navbar.tsx                       # Barra de navegación superior
 ├── Footer.tsx                       # Footer de 3 columnas

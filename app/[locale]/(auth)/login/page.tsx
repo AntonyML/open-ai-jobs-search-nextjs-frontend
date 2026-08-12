@@ -26,7 +26,7 @@ export default function Login() {
         body: JSON.stringify({ email, password }),
       })
       setToken(data.access_token)
-      router.push('/providers')      } catch (x) {
+      router.push('/dashboard')      } catch (x) {
       const msg = x instanceof Error ? x.message : 'Unable to sign in'
       setError(msg)
       showError(msg)

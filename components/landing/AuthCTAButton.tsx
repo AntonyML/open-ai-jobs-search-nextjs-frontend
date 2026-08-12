@@ -33,7 +33,7 @@ export default function AuthCTAButton({
 
   return (
     <Link
-      href={loggedIn ? '/providers' : '/register'}
+      href={loggedIn ? '/dashboard' : '/register'}
       className={className}
     >
       {loggedIn ? t(loggedInKey) : t(loggedOutKey)}

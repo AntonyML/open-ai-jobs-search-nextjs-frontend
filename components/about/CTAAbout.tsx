@@ -13,7 +13,7 @@ export function CTAAbout({ loggedIn, t }: { loggedIn: boolean; t: (key: string) 
           <p className="mt-4 text-[17px] font-light text-[#707070]">{t('ctaDesc')}</p>
           <div className="mt-8 flex items-center justify-center gap-3">
             <Link
-              href={loggedIn ? '/providers' : '/register'}
+              href={loggedIn ? '/dashboard' : '/register'}
               className="inline-flex items-center rounded-full bg-[#0071e3] px-6 py-3 text-[15px] font-medium text-white transition-all hover:bg-[#0068d2]"
             >
               {loggedIn ? t('ctaDashboard') : t('ctaGetStarted')}

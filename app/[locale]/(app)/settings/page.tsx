@@ -233,7 +233,7 @@ export default function Settings() {
                     <p className="text-xs text-[#858585]">{t('providers.notConfigured')}</p>
                   </div>
                   <Link
-                    href="/pipeline/providers"
+                    href="/admin/providers"
                     className="flex items-center gap-1 text-[12px] font-medium text-[#0071e3] hover:text-[#0077ed] transition-colors"
                   >
                     {t('providers.goToProviders')}

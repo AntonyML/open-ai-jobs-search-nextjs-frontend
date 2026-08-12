@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -8,140 +8,23 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarSeparator,
 } from '@/components/ui/sidebar'
-import {
-  LayoutDashboard,
-  FileText,
-  FolderOpen,
-  Briefcase,
-  Search,
-  BarChart3,
-  Send,
-  Mic,
-  TrendingUp,
-  User,
-  Settings,
-  CreditCard,
-  LogOut,
-  Lock,
-  Shield,
-  Server,
-} from 'lucide-react'
+import { FileText, LogOut } from 'lucide-react'
 import { useRouter } from '@/i18n/routing'
-import { clearToken, isAdmin } from '@/lib/auth'
-import { apiFetch } from '@/lib/api'
+import { clearToken } from '@/lib/auth'
 import { showWarning } from '@/lib/toasts'
-
-interface SidebarLink {
-  labelKey: string
-  href: string
-  icon: React.ComponentType<{ className?: string }>
-}
-
-const principal: SidebarLink[] = [
-  { labelKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
-]
-
-const documents: SidebarLink[] = [
-  { labelKey: 'cvBuilder', href: '/cv-builder', icon: FileText },
-  { labelKey: 'myCvs', href: '/cv-builder/documents', icon: FolderOpen },
-]
-
-const adaptCvLink: SidebarLink = {
-  labelKey: 'adaptCv',
-  href: '/cv-builder/adapt',
-  icon: Briefcase,
-}
-
-const pipeline: SidebarLink[] = [
-  { labelKey: 'offers', href: '/scrape', icon: Search },
-  { labelKey: 'rankings', href: '/rank', icon: BarChart3 },
-  { labelKey: 'applications', href: '/apply', icon: Send },
-  { labelKey: 'interviews', href: '/interview', icon: Mic },
-  { labelKey: 'upskill', href: '/upskill', icon: TrendingUp },
-]
-
-const account: SidebarLink[] = [
-  { labelKey: 'profile', href: '/profile', icon: User },
-  { labelKey: 'settings', href: '/settings', icon: Settings },
-  { labelKey: 'providers', href: '/providers', icon: CreditCard },
-]
-
-const adminLink: SidebarLink = {
-  labelKey: 'admin',
-  href: '/admin',
-  icon: Shield,
-}
-
-const adminProvidersLink: SidebarLink = {
-  labelKey: 'adminProviders',
-  href: '/admin/providers',
-  icon: Server,
-}
-
-function SidebarLinkItem({
-  link,
-  pathname,
-  locked,
-  onLockedClick,
-}: {
-  link: SidebarLink
-  pathname: string
-  locked?: boolean
-  onLockedClick?: () => void
-}) {
-  const t = useTranslations('appSidebar')
-  const isActive = pathname === link.href || pathname.endsWith(`${link.href}`)
-  const Icon = link.icon
-  return (
-    <SidebarMenuItem>
-      <SidebarMenuButton
-        render={locked ? undefined : <Link href={link.href} />}
-        isActive={locked ? false : isActive}
-        tooltip={locked ? t('adaptCvLockedTooltip') : t(link.labelKey)}
-        onClick={locked ? onLockedClick : undefined}
-      >
-        <div className="flex items-center gap-2">
-          <Icon className="size-4" />
-          <span className="text-sm">{t(link.labelKey)}</span>
-          {locked && <Lock className="ml-auto size-3.5 text-[#b0b0b0]" aria-label={t('adaptCvLockedTooltip')} />}
-        </div>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  )
-}
-
-function SidebarGroupSection({
-  labelKey,
-  links,
-  pathname,
-}: {
-  labelKey: string
-  links: SidebarLink[]
-  pathname: string
-}) {
-  const t = useTranslations('appSidebar')
-  return (
-    <SidebarGroup>
-      <SidebarGroupLabel>{t(labelKey)}</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {links.map((link) => (
-            <SidebarLinkItem key={link.href} link={link} pathname={pathname} />
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  )
-}
+import {
+  NAV_SECTIONS,
+  isItemLocked,
+  type NavItem,
+  type ResolvedItem,
+} from '@/components/navigation/sidebar-config'
+import { useSidebarState } from '@/components/navigation/sidebar-state'
+import { SidebarGroupSection } from '@/components/navigation/SidebarGroupSection'
+import UpgradeModal from '@/components/UpgradeModal'
 
 function SignOutButton() {
   const t = useTranslations('nav')
@@ -166,38 +49,25 @@ function SignOutButton() {
 export default function AppSidebar() {
   const t = useTranslations('appSidebar')
   const pathname = usePathname()
-  const [hasBaseCv, setHasBaseCv] = useState<boolean | null>(null)
+  const state = useSidebarState()
+  const [showUpgrade, setShowUpgrade] = useState(false)
 
-  // The "Adapt CV to a job offer" entry is only unlocked once a base CV
-  // has been generated (Regla 4). Re-check on mount, on route change, and
-  // when the window regains focus so it unlocks right after generation.
-  useEffect(() => {
-    let cancelled = false
-    async function check() {
-      const cvs = await apiFetch<Array<{ cv_type: string }>>('/api/v1/cv/').catch(() => [])
-      if (!cancelled) setHasBaseCv(Array.isArray(cvs) && cvs.some((c) => c.cv_type === 'base'))
+  const resolveItem = (item: NavItem): ResolvedItem => {
+    if (!isItemLocked(item, state)) return { ...item, locked: false }
+    if (item.requiredTier) {
+      return {
+        ...item,
+        locked: true,
+        lockedTooltip: t('premiumLockedTooltip'),
+        onLockedClick: () => setShowUpgrade(true),
+      }
     }
-    check()
-    const onFocus = () => check()
-    // Instant refresh: pages that generate a base CV dispatch this event
-    // right after a successful generation, so we don't wait for focus/nav.
-    const onBaseGenerated = () => check()
-    window.addEventListener('focus', onFocus)
-    document.addEventListener('visibilitychange', onFocus)
-    window.addEventListener('cv:base-generated', onBaseGenerated)
-    return () => {
-      cancelled = true
-      window.removeEventListener('focus', onFocus)
-      document.removeEventListener('visibilitychange', onFocus)
-      window.removeEventListener('cv:base-generated', onBaseGenerated)
+    return {
+      ...item,
+      locked: true,
+      lockedTooltip: item.lockedTooltipKey ? t(item.lockedTooltipKey) : t(item.labelKey),
+      onLockedClick: item.lockedToastKey ? () => showWarning(t(item.lockedToastKey!)) : undefined,
     }
-  }, [pathname])
-
-  // Treat the unknown (still loading) state as locked so the item never
-  // flashes as available before we know a base CV exists.
-  const adaptLocked = hasBaseCv !== true
-  const handleAdaptLocked = () => {
-    if (adaptLocked) showWarning(t('adaptLockedToast'))
   }
 
   return (
@@ -213,43 +83,21 @@ export default function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroupSection labelKey="principal" links={principal} pathname={pathname} />
-        <SidebarSeparator />
-        <SidebarGroup>
-          <SidebarGroupLabel>{t('documents')}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {documents.map((link) => (
-                <SidebarLinkItem key={link.href} link={link} pathname={pathname} />
-              ))}
-              <SidebarLinkItem
-                link={adaptCvLink}
-                pathname={pathname}
-                locked={adaptLocked}
-                onLockedClick={handleAdaptLocked}
-              />
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarSeparator />
-        <SidebarGroupSection labelKey="pipeline" links={pipeline} pathname={pathname} />
-        <SidebarSeparator />
-        <SidebarGroup>
-          <SidebarGroupLabel>{t('account')}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {account.map((link) => (
-                <SidebarLinkItem key={link.href} link={link} pathname={pathname} />
-              ))}
-              {isAdmin() && (
-                <>
-                  <SidebarLinkItem link={adminLink} pathname={pathname} />
-                  <SidebarLinkItem link={adminProvidersLink} pathname={pathname} />
-                </>
-              )}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {NAV_SECTIONS.map((section) => {
+          const items = section.items
+            .filter((item) => !item.adminOnly || state.isAdminUser)
+            .map(resolveItem)
+          if (items.length === 0) return null
+          return (
+            <SidebarGroupSection
+              key={section.labelKey ?? section.items[0].href}
+              labelKey={section.labelKey}
+              items={items}
+              pathname={pathname}
+              separatorBefore={section.separatorBefore}
+            />
+          )
+        })}
       </SidebarContent>
 
       <SidebarFooter className="p-2">
@@ -257,6 +105,8 @@ export default function AppSidebar() {
           <SignOutButton />
         </SidebarMenu>
       </SidebarFooter>
+
+      <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </Sidebar>
   )
 }

@@ -46,7 +46,7 @@ const QUICK_ACTIONS = [
 ]
 
 const PIPELINE_STEPS = [
-  { key: 'providers', href: '/pipeline/providers', icon: User },
+  { key: 'providers', href: '/admin/providers', icon: User },
   { key: 'setup', href: '/pipeline/setup', icon: FileText },
   { key: 'search', href: '/pipeline/search', icon: Search },
   { key: 'rank', href: '/pipeline/rank', icon: BarChart3 },
@@ -213,7 +213,7 @@ export default function Dashboard() {
             {t('emptyDesc')}
           </p>
           <Link
-            href="/pipeline/providers"
+            href="/pipeline/setup"
             className="inline-flex items-center gap-2 rounded-full bg-[#0071e3] px-6 py-3 text-sm font-medium text-white hover:bg-[#0068d2] transition-all"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

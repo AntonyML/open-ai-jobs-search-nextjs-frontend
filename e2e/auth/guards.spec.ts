@@ -4,7 +4,7 @@ import { AUTH_STATE_PATH } from '../config'
 /** Guards de rutas — el layout de (app) redirige a /login sin sesión. */
 test.describe('Guards de rutas', () => {
   test('redirige visitantes sin sesión a /login', async ({ page }) => {
-    await page.goto('/pipeline/providers')
+    await page.goto('/admin/providers')
     await expect(page).toHaveURL(/\/login/, { timeout: 15_000 })
   })
 
@@ -17,19 +17,17 @@ test.describe('Guards de rutas', () => {
 test.describe('Guards de rutas (autenticado)', () => {
   test.use({ storageState: AUTH_STATE_PATH })
 
-  test('permite el acceso a la app con sesión activa', async ({
-    page,
-    providersPage,
-  }) => {
-    await providersPage.goto()
-    await expect(providersPage.heading).toBeVisible()
+  test('permite el acceso a la app con sesión activa', async ({ page }) => {
+    await page.goto('/dashboard')
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /Dashboard|Panel/ })).toBeVisible()
   })
 
   test('sign out limpia la sesión y vuelve a la landing', async ({
     page,
     appShell,
   }) => {
-    await page.goto('/pipeline/providers')
+    await page.goto('/dashboard')
     await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible()
 
     await appShell.signOut()

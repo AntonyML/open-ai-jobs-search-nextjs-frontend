@@ -309,7 +309,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-3">
             <p className="eyebrow !text-[#0071e3]">{t('activeProvider')}</p>
             <Link
-              href="/pipeline/providers"
+              href="/admin/providers"
               className="btn-ghost text-[11px]"
             >
               {hasProvider ? t('change') : t('connect')}
