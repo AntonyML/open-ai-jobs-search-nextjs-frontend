@@ -63,14 +63,20 @@ export default function AdminPlansPage() {
   async function load() {
     setLoading(true)
     try {
-      const [p, c, ttl] = await Promise.all([adminListPlans(), adminGetCreditCosts(), adminGetNotificationTtl()])
+      const [p, c] = await Promise.all([adminListPlans(), adminGetCreditCosts()])
       setPlans(p)
       setCosts(c)
-      setTtlDays(ttl.days)
     } catch (x) {
       showError(x instanceof Error ? x.message : t('loadError'))
     } finally {
       setLoading(false)
+    }
+    // Load the TTL separately so a failure here never blocks the plans page.
+    try {
+      const ttl = await adminGetNotificationTtl()
+      setTtlDays(ttl.days)
+    } catch {
+      setTtlDays(30)
     }
   }
 

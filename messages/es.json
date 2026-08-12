@@ -823,8 +823,7 @@
     "compareTrackedOutcomes": "Resultados registrados",
     "compareExpand": "Expand",
     "compareUpskill": "Upskill",
-    "compareUnlimited": "Ilimitado",
-    "compareLocked": "Bloqueado"
+    "compareUnlimited": "Ilimitado"
   },
   "language": {
     "label": "Idioma",
@@ -1145,11 +1144,13 @@
     "waPlan": "Plan",
     "waCode": "Código",
     "upgradeShort": "Más créditos",
-    "feature.cv_base": "CV base",
-    "feature.cv_adapted": "CV adaptado",
-    "feature.pipeline": "Pipeline completo",
-    "feature.expand": "Descubrir skills",
-    "feature.upskill": "Plan de formación"
+    "feature": {
+      "cv_base": "CV base",
+      "cv_adapted": "CV adaptado",
+      "pipeline": "Pipeline completo",
+      "expand": "Descubrir skills",
+      "upskill": "Plan de formación"
+    }
   },
   "billingPage": {
     "title": "Mi plan y créditos",
@@ -1178,16 +1179,20 @@
     "thCode": "Código",
     "thDate": "Fecha",
     "thAmount": "Monto",
-    "action.refill": "Recarga",
-    "action.expiry": "Expirado",
-    "action.purchase": "Compra",
-    "action.topup": "Recarga extra",
-    "action.adjust": "Ajuste",
-    "feature.cv_base": "CV base",
-    "feature.cv_adapted": "CV adaptado",
-    "feature.pipeline": "Pipeline completo",
-    "feature.expand": "Descubrir skills",
-    "feature.upskill": "Plan de formación",
+    "action": {
+      "refill": "Recarga",
+      "expiry": "Expirado",
+      "purchase": "Compra",
+      "topup": "Recarga extra",
+      "adjust": "Ajuste"
+    },
+    "feature": {
+      "cv_base": "CV base",
+      "cv_adapted": "CV adaptado",
+      "pipeline": "Pipeline completo",
+      "expand": "Descubrir skills",
+      "upskill": "Plan de formación"
+    },
     "copy": "Copiar",
     "copyFailed": "No se pudo copiar"
   },
@@ -1199,9 +1204,11 @@
     "deleteError": "No se pudo eliminar",
     "costsTitle": "Costos de créditos (calibración)",
     "costsDesc": "Cuántos créditos consume cada acción de IA. Ajusta para calibrar tu margen.",
-    "cost.cv_base": "CV base",
-    "cost.cv_adapted": "CV adaptado",
-    "cost.pipeline": "Acción de pipeline",
+    "cost": {
+      "cv_base": "CV base",
+      "cv_adapted": "CV adaptado",
+      "pipeline": "Acción de pipeline"
+    },
     "saveCosts": "Guardar costos",
     "costsSaved": "Costos de créditos guardados",
     "ttlTitle": "Retención de notificaciones",

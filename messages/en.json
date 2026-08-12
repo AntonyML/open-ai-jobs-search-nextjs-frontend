@@ -20,8 +20,7 @@
     "or": "or",
     "done": "Done",
     "error": "Error",
-    "refresh": "Refresh",
-    "retryAgain": "Retry"
+    "refresh": "Refresh"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -1145,11 +1144,13 @@
     "waPlan": "Plan",
     "waCode": "Code",
     "upgradeShort": "Get more",
-    "feature.cv_base": "Base CV",
-    "feature.cv_adapted": "Adapted CV",
-    "feature.pipeline": "Full pipeline",
-    "feature.expand": "Discover skills",
-    "feature.upskill": "Learning plan"
+    "feature": {
+      "cv_base": "Base CV",
+      "cv_adapted": "Adapted CV",
+      "pipeline": "Full pipeline",
+      "expand": "Discover skills",
+      "upskill": "Learning plan"
+    }
   },
   "billingPage": {
     "title": "My plan & credits",
@@ -1178,16 +1179,20 @@
     "thCode": "Code",
     "thDate": "Date",
     "thAmount": "Amount",
-    "action.refill": "Refill",
-    "action.expiry": "Expired",
-    "action.purchase": "Purchase",
-    "action.topup": "Top-up",
-    "action.adjust": "Adjustment",
-    "feature.cv_base": "Base CV",
-    "feature.cv_adapted": "Adapted CV",
-    "feature.pipeline": "Full pipeline",
-    "feature.expand": "Discover skills",
-    "feature.upskill": "Learning plan",
+    "action": {
+      "refill": "Refill",
+      "expiry": "Expired",
+      "purchase": "Purchase",
+      "topup": "Top-up",
+      "adjust": "Adjustment"
+    },
+    "feature": {
+      "cv_base": "Base CV",
+      "cv_adapted": "Adapted CV",
+      "pipeline": "Full pipeline",
+      "expand": "Discover skills",
+      "upskill": "Learning plan"
+    },
     "copy": "Copy",
     "copyFailed": "Could not copy"
   },
@@ -1199,9 +1204,11 @@
     "deleteError": "Could not delete",
     "costsTitle": "Credit costs (calibration)",
     "costsDesc": "How many credits each AI action consumes. Adjust to calibrate your margin.",
-    "cost.cv_base": "Base CV",
-    "cost.cv_adapted": "Adapted CV",
-    "cost.pipeline": "Pipeline action",
+    "cost": {
+      "cv_base": "Base CV",
+      "cv_adapted": "Adapted CV",
+      "pipeline": "Pipeline action"
+    },
     "saveCosts": "Save costs",
     "costsSaved": "Credit costs saved",
     "ttlTitle": "Notification retention",
