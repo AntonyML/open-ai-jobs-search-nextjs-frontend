@@ -1,13 +1,44 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
 import AuthCTAButton from './AuthCTAButton'
 import { isLoggedIn } from '@/lib/auth'
+import { SceneDynamic } from '@/components/three/SceneDynamic'
+import { PricingGlow } from '@/components/three/PricingGlow'
+import { useReducedMotion } from '@/components/three/useReducedMotion'
 
 type Billing = 'monthly' | 'annual'
+
+/** One-shot in-view hook: element fades/rises in when it enters the viewport. */
+function useInViewOnce<T extends HTMLElement>(threshold = 0.15) {
+  const ref = useRef<T>(null)
+  const [shown, setShown] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (typeof IntersectionObserver === 'undefined') {
+      setShown(true)
+      return
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true)
+          io.disconnect()
+        }
+      },
+      { threshold },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [threshold])
+
+  return { ref, shown }
+}
 
 /** Paid-plan CTA: logged-in users open the purchase modal, visitors go to /register. */
 function PlanCta({ ctaKey, solid = false }: { ctaKey: string; solid?: boolean }) {
@@ -25,9 +56,9 @@ function PlanCta({ ctaKey, solid = false }: { ctaKey: string; solid?: boolean })
   return (
     <button
       onClick={onClick}
-      className={`inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-[14px] font-medium transition-all ${
+      className={`inline-flex w-full items-center justify-center rounded-full px-5 py-2.5 text-[14px] font-medium transition-all ${
         solid
-          ? 'bg-[#0071e3] text-white hover:bg-[#0068d2]'
+          ? 'bg-[#0071e3] text-white shadow-[0_8px_24px_-8px_rgba(0,113,227,0.6)] hover:bg-[#0068d2] hover:shadow-[0_10px_28px_-8px_rgba(0,113,227,0.7)]'
           : 'border border-[#d2d2d7] bg-white text-[#1d1d1f] hover:border-[#0071e3]/40 hover:text-[#0071e3]'
       }`}
     >
@@ -60,119 +91,164 @@ function CheckIcon({ className = '' }: { className?: string }) {
 export default function PricingSection() {
   const t = useTranslations('marketing')
   const [billing, setBilling] = useState<Billing>('monthly')
+  const reducedMotion = useReducedMotion()
 
   const featureCounts: Record<PlanKey, number> = { free: 4, pro: 5, max: 7 }
   const plans: PlanKey[] = ['free', 'pro', 'max']
 
   const planLabel = (key: PlanKey) => `plan${key.charAt(0).toUpperCase()}${key.slice(1)}`
 
+  const { ref: cardsRef, shown } = useInViewOnce<HTMLDivElement>(0.08)
+
   return (
-    <section id="pricing" className="border-t border-[#d2d2d7] bg-white">
-      <div className="mx-auto max-w-[1440px] px-5 py-20 md:px-8 md:py-28">
-        <div className="mx-auto mb-16 max-w-2xl text-center">
+    <section id="pricing" className="relative overflow-hidden border-t border-[#d2d2d7] bg-white">
+      {/* Ambient 3D background — pure visual layer, no pointer events.
+          Transparent fallback: the blue gradient placeholder is for hero-style
+          boxes, it must not wash the whole section when WebGL is missing. */}
+      <SceneDynamic
+        className="pointer-events-none absolute inset-0 z-0"
+        activeFrameloop="always"
+        fallback={<div aria-hidden="true" className="h-full w-full" />}
+      >
+        <PricingGlow />
+      </SceneDynamic>
+
+      <div className="relative z-10 mx-auto max-w-[1440px] px-5 py-16 md:px-8 md:py-24">
+        {/* Header — label + heading only; the subheading moved beside the toggle */}
+        <div className="mx-auto mb-10 max-w-2xl text-center">
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[#0071e3]">
             {t('pricingLabel')}
           </p>
-          <h2 className="text-[36px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[48px]">
+          <h2 className="text-[34px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[42px]">
             {t('pricingHeading')}
           </h2>
-          <p className="mt-4 text-[17px] font-light text-[#707070]">{t('pricingSubheading')}</p>
         </div>
 
-        {/* Billing toggle */}
-        <div className="mb-12 flex items-center justify-center gap-3">
+        {/* Billing toggle — sliding thumb */}
+        <div className="mb-9 flex flex-col items-center gap-2.5">
           <div
             role="group"
             aria-label={t('pricingBillingLabel')}
-            className="inline-flex items-center rounded-full border border-[#d2d2d7] bg-[#f5f5f7] p-1"
+            className="relative inline-flex items-center rounded-full border border-[#d2d2d7] bg-[#f5f5f7] p-1"
           >
+            {/* Sliding thumb */}
+            <span
+              aria-hidden="true"
+              className={`absolute left-1 top-1 h-[calc(100%-8px)] w-[calc(50%-4px)] rounded-full bg-white shadow-sm transition-transform duration-300 ease-out ${
+                billing === 'annual' ? 'translate-x-full' : ''
+              }`}
+            />
             {(['monthly', 'annual'] as Billing[]).map((option) => (
               <button
                 key={option}
                 type="button"
                 aria-pressed={billing === option}
                 onClick={() => setBilling(option)}
-                className={`rounded-full px-5 py-1.5 text-[13px] font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3]/40 ${
-                  billing === option
-                    ? 'bg-white text-[#1d1d1f] shadow-sm'
-                    : 'text-[#707070] hover:text-[#1d1d1f]'
+                className={`relative z-10 rounded-full px-5 py-1.5 text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3]/40 ${
+                  billing === option ? 'text-[#1d1d1f]' : 'text-[#707070] hover:text-[#1d1d1f]'
                 }`}
               >
                 {t(option === 'monthly' ? 'pricingMonthly' : 'pricingAnnual')}
               </button>
             ))}
           </div>
-          <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
-            {t('pricingAnnualSave')}
-          </span>
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+              {t('pricingAnnualSave')}
+            </span>
+            <span className="text-[12px] font-light text-[#858585]">{t('pricingSubheading')}</span>
+          </div>
         </div>
 
-        <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-3">
-          {plans.map((key) => {
+        {/* Cards — each reveals with its own stagger delay; the delay is
+            dropped once shown so hover transitions stay instant. */}
+        <div ref={cardsRef} className="mx-auto grid max-w-5xl gap-5 lg:grid-cols-3">
+          {plans.map((key, idx) => {
             const prefix = planLabel(key)
             const isMax = key === 'max'
             const isFree = key === 'free'
             const isAnnual = billing === 'annual'
 
+            const hover = reducedMotion
+              ? ''
+              : isMax
+                ? 'hover:-translate-y-1 hover:shadow-[0_28px_70px_-25px_rgba(0,113,227,0.5)]'
+                : 'hover:-translate-y-1 hover:border-[#0071e3]/40 hover:shadow-[0_18px_45px_-28px_rgba(0,0,0,0.25)]'
+
             return (
               <div
                 key={key}
-                className={`relative flex flex-col rounded-2xl p-8 ${
+                style={{
+                  transitionDelay: reducedMotion || shown ? '0ms' : `${idx * 90}ms`,
+                }}
+                className={`group relative flex flex-col rounded-2xl p-7 transition-all duration-500 ${
+                  shown ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
+                } ${
                   isMax
                     ? 'border-2 border-[#0071e3] bg-gradient-to-br from-[#f4f8fb] to-white shadow-[0_20px_60px_-25px_rgba(0,113,227,0.4)]'
                     : 'border border-[#d2d2d7] bg-white'
-                }`}
+                } ${hover}`}
               >
                 {isMax && (
-                  <div className="absolute right-5 top-5 rounded-full bg-[#0071e3] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-[#0071e3] px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-[0_4px_14px_-4px_rgba(0,113,227,0.7)]">
                     {t('planPopularBadge')}
                   </div>
                 )}
 
                 {/* Name */}
-                <h3 className="text-[17px] font-semibold text-[#1d1d1f]">{t(`${prefix}Name`)}</h3>
-                <p className="mt-1 text-[13px] font-light text-[#707070]">{t(`${prefix}Desc`)}</p>
+                <h3 className="text-[16px] font-semibold text-[#1d1d1f]">{t(`${prefix}Name`)}</h3>
+                <p className="mt-1 text-[12.5px] font-light text-[#707070]">{t(`${prefix}Desc`)}</p>
 
-                {/* Price */}
-                <div className="mt-6 flex items-baseline gap-1.5">
+                {/* Price — key forces a crossfade when the billing changes */}
+                <div className="mt-5 flex items-baseline gap-1.5">
                   {!isFree && isAnnual && (
-                    <s className="text-[20px] font-light text-[#c8c8cc]">{t(`${prefix}Price`)}</s>
+                    <s className="text-[19px] font-light text-[#c8c8cc]">{t(`${prefix}Price`)}</s>
                   )}
-                  <span className={`text-[44px] font-semibold leading-none tracking-tight ${isMax ? 'text-[#0071e3]' : 'text-[#1d1d1f]'}`}>
+                  <span
+                    key={`${key}-${billing}`}
+                    className={`animate-price-in text-[40px] font-semibold leading-none tracking-tight ${
+                      isMax ? 'text-[#0071e3]' : 'text-[#1d1d1f]'
+                    }`}
+                  >
                     {isFree ? t(`${prefix}Price`) : isAnnual ? t(`${prefix}AnnualPrice`) : t(`${prefix}Price`)}
                   </span>
-                  {!isFree && <span className="text-[15px] font-light text-[#707070]">{t(`${prefix}Period`)}</span>}
+                  {!isFree && <span className="text-[14px] font-light text-[#707070]">{t(`${prefix}Period`)}</span>}
                 </div>
                 {!isFree && (
-                  <p className="mt-1.5 text-[12px] font-light text-[#858585]">
+                  <p className="mt-1.5 text-[11.5px] font-light text-[#858585]">
                     {isAnnual ? t(`${prefix}AnnualNote`) : t(`${prefix}Yearly`)}
                   </p>
                 )}
 
                 {/* Features */}
-                <ul className="mt-7 flex-1 space-y-3">
+                <ul className="mt-6 flex-1 space-y-2.5">
                   {Array.from({ length: featureCounts[key] }, (_, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-[14px] text-[#474747]">
-                      <CheckIcon className={isFree ? 'text-emerald-500' : 'text-[#0071e3]'} />
+                    <li
+                      key={i}
+                      className="flex items-start gap-2.5 text-[13.5px] text-[#474747] transition-colors duration-200 group-hover:text-[#3a3a3c]"
+                    >
+                      <span className={`mt-0.5 transition-transform duration-200 group-hover:scale-110 ${isFree ? 'text-emerald-500' : 'text-[#0071e3]'}`}>
+                        <CheckIcon />
+                      </span>
                       <span>{t(`${prefix}Feature${i + 1}`)}</span>
                     </li>
                   ))}
                 </ul>
 
                 {/* CTA */}
-                <div className="mt-8">
+                <div className="mt-7">
                   {isFree ? (
                     <AuthCTAButton
                       loggedInKey="ctaDashboard"
                       loggedOutKey="planCtaFree"
-                      className="inline-flex w-full items-center justify-center rounded-full border border-[#d2d2d7] bg-white px-5 py-3 text-[14px] font-medium text-[#1d1d1f] transition-all hover:border-[#0071e3]/40 hover:text-[#0071e3]"
+                      className="inline-flex w-full items-center justify-center rounded-full border border-[#d2d2d7] bg-white px-5 py-2.5 text-[14px] font-medium text-[#1d1d1f] transition-all hover:border-[#0071e3]/40 hover:text-[#0071e3]"
                     />
                   ) : isMax ? (
                     <PlanCta ctaKey="planCtaMax" solid />
                   ) : (
                     <PlanCta ctaKey="planCtaPro" />
                   )}
-                  <p className="mt-3 text-center text-[11px] text-[#858585]">{t(`${prefix}Note`)}</p>
+                  <p className="mt-2.5 text-center text-[11px] text-[#858585]">{t(`${prefix}Note`)}</p>
                 </div>
               </div>
             )
@@ -180,7 +256,7 @@ export default function PricingSection() {
         </div>
 
         {/* Disclaimer — like Anthropic's pricing footer: honest, links to details */}
-        <p className="mx-auto mt-12 max-w-3xl text-center text-[12px] font-light leading-relaxed text-[#858585]">
+        <p className="mx-auto mt-10 max-w-3xl text-center text-[12px] font-light leading-relaxed text-[#858585]">
           {t('pricingDisclaimer')}{' '}
           <Link
             href="/limits"
@@ -190,6 +266,27 @@ export default function PricingSection() {
           </Link>
         </p>
       </div>
+
+      <style jsx global>{`
+        @keyframes price-in {
+          from {
+            opacity: 0;
+            transform: translateY(6px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-price-in {
+          animation: price-in 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-price-in {
+            animation: none;
+          }
+        }
+      `}</style>
     </section>
   )
 }
