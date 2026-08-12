@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { isLoggedIn } from '@/lib/auth'
 import { apiFetch } from '@/lib/api'
+import { ActivityUsage } from '@/components/dashboard/ActivityUsage'
 import {
   Search,
   User,

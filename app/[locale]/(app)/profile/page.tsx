@@ -1,7 +1,6 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
@@ -61,11 +60,6 @@ export default function ProfilePage() {
         if (cancelled) return
 
         setProfile({
-          activeProvider: active?.provider || null,
-          activeModel: active?.model || null,
-          // A provider is always resolved (falls back to .env); the dot/card
-          // only show "connected" when the admin stored a global API key.
-          hasProvider: !!active?.has_key,
           setup: setupProfile,
           email: setupProfile?.email || me?.email || null,
           name: setupProfile?.full_name || me?.full_name || null,
@@ -150,7 +144,6 @@ export default function ProfilePage() {
 
   const setup = profile?.setup
   const hasSetup = !!setup
-  const hasProvider = !!profile?.hasProvider
 
   return (
     <section className="mx-auto max-w-3xl py-8 md:py-12">
@@ -186,9 +179,6 @@ export default function ProfilePage() {
               <div className="size-14 rounded-full bg-[#0071e3] flex items-center justify-center text-white text-xl font-semibold select-none shadow-sm">
                 {(profile?.name || profile?.email || '?').charAt(0).toUpperCase()}
               </div>
-              {hasProvider && (
-                <span className="absolute -bottom-0.5 -right-0.5 size-4 rounded-full bg-[#30d158] border-2 border-white" role="status" aria-label="Provider connected" title="Provider connected" />
-              )}
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
@@ -303,31 +293,8 @@ export default function ProfilePage() {
 
       {/* ── Provider & Setup Quick Status ──────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-7">
-        {/* Provider card */}
-        <div className="card animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          <div className="flex items-center justify-between mb-3">
-            <p className="eyebrow !text-[#0071e3]">{t('activeProvider')}</p>
-            <Link
-              href="/admin/providers"
-              className="btn-ghost text-[11px]"
-            >
-              {hasProvider ? t('change') : t('connect')}
-            </Link>
-          </div>
-          {hasProvider ? (
-            <div>
-              <p className="text-[15px] font-medium text-[#1d1d1f]">{profile.activeProvider}</p>
-              {profile.activeModel && (
-                <p className="text-[13px] text-[#707070] mt-0.5">{t('modelLabel')} {profile.activeModel}</p>
-              )}
-            </div>
-          ) : (
-            <div>
-              <p className="text-[13px] text-[#707070]">{t('noProvider')}</p>
-              <p className="text-[11px] text-[#707070] mt-0.5">{t('noProviderHint')}</p>
-            </div>
-          )}
-        </div>
+        {/* Profile snapshot — pure profile visualization */}
+        <ProfileSnapshot setup={setup} hasSetup={hasSetup} t={t} />
 
         {/* Profile setup progress */}
         <ProfileProgress hasSetup={hasSetup} setup={setup} t={t} />
@@ -566,6 +533,90 @@ function UsageMeter({ label, used, max, icon, color }: {
           }}
         />
       </div>
+    </div>
+  )
+}
+
+/* ── Profile Snapshot (pure profile visualization) ── */
+
+function ProfileSnapshot({ setup, hasSetup, t }: { setup: any; hasSetup: boolean; t: (key: string) => string }) {
+  const sections = [
+    {
+      key: 'experience',
+      label: t('experience'),
+      count: setup?.experience?.length ?? 0,
+      color: '#0071e3',
+    },
+    {
+      key: 'education',
+      label: t('education'),
+      count: setup?.education?.length ?? 0,
+      color: '#30d158',
+    },
+    {
+      key: 'projects',
+      label: t('projects'),
+      count: setup?.projects?.length ?? 0,
+      color: '#ff9f0a',
+    },
+    {
+      key: 'skills',
+      label: t('skills'),
+      count: [
+        ...(setup?.skills?.software_tools ?? []),
+        ...(setup?.skills?.programming_ml ?? []),
+        ...(setup?.skills?.domain_expertise ?? []),
+      ].length,
+      color: '#bf5af2',
+    },
+    {
+      key: 'jobTarget',
+      label: t('jobTarget'),
+      count: setup?.job_target?.target_titles?.length ?? 0,
+      color: '#ff375f',
+    },
+  ]
+  const max = Math.max(1, ...sections.map((s) => s.count))
+  const total = sections.reduce((acc, s) => acc + s.count, 0)
+
+  return (
+    <div className="card animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+      <div className="flex items-center justify-between mb-4">
+        <p className="eyebrow !text-[#0071e3]">{t('snapshotTitle')}</p>
+        {hasSetup && (
+          <span className="inline-flex items-baseline gap-0.5 rounded-full bg-[#f5f5f7] px-2.5 py-1 text-[11px] font-medium text-[#474747]">
+            <span className="text-[13px] font-bold text-[#1d1d1f]">{total}</span>
+            {t('snapshotTotal')}
+          </span>
+        )}
+      </div>
+
+      {!hasSetup ? (
+        <p className="text-[13px] text-[#707070]">{t('snapshotEmpty')}</p>
+      ) : (
+        <div className="space-y-3">
+          {sections.map((s) => {
+            const pct = Math.round((s.count / max) * 100)
+            return (
+              <div key={s.key} className="min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[12px] font-medium text-[#707070]">{s.label}</span>
+                  <span className="text-[12px] font-semibold tabular-nums text-[#1d1d1f]">{s.count}</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-[#e2e2e5] overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      width: `${Math.max(s.count > 0 ? 4 : 0, pct)}%`,
+                      backgroundColor: s.color,
+                    }}
+                  />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
