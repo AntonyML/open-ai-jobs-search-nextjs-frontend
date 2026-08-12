@@ -92,7 +92,7 @@ export default function PricingSection() {
                 type="button"
                 aria-pressed={billing === option}
                 onClick={() => setBilling(option)}
-                className={`rounded-full px-5 py-1.5 text-[13px] font-medium transition-all ${
+                className={`rounded-full px-5 py-1.5 text-[13px] font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3]/40 ${
                   billing === option
                     ? 'bg-white text-[#1d1d1f] shadow-sm'
                     : 'text-[#707070] hover:text-[#1d1d1f]'
@@ -135,6 +135,9 @@ export default function PricingSection() {
 
                 {/* Price */}
                 <div className="mt-6 flex items-baseline gap-1.5">
+                  {!isFree && isAnnual && (
+                    <s className="text-[20px] font-light text-[#c8c8cc]">{t(`${prefix}Price`)}</s>
+                  )}
                   <span className={`text-[44px] font-semibold leading-none tracking-tight ${isMax ? 'text-[#0071e3]' : 'text-[#1d1d1f]'}`}>
                     {isFree ? t(`${prefix}Price`) : isAnnual ? t(`${prefix}AnnualPrice`) : t(`${prefix}Price`)}
                   </span>

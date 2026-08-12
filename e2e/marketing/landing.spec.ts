@@ -41,6 +41,31 @@ test.describe('Landing', () => {
     await expect(landingPage.pricingHeading).toBeVisible()
   })
 
+  /**
+   * Rutas públicas fuera de la landing: renderizan el navbar de marketing
+   * (links del producto) en vez del navbar de app, y muestran su heading.
+   */
+  for (const { path, heading } of [
+    { path: '/limits', heading: 'Usage limits' },
+    { path: '/terms', heading: 'Términos de Servicio' },
+    { path: '/privacy', heading: 'Política de Privacidad' },
+  ]) {
+    test(`la página ${path} usa el navbar de marketing y muestra su contenido`, async ({
+      page,
+    }) => {
+      await page.goto(path)
+
+      // Navbar de marketing: links del producto + límites.
+      const nav = page.locator('header')
+      await expect(nav.getByRole('link', { name: 'Features', exact: true })).toBeVisible()
+      await expect(nav.getByRole('link', { name: 'About', exact: true })).toBeVisible()
+      await expect(nav.getByRole('link', { name: 'Usage limits', exact: true })).toBeVisible()
+
+      // Contenido de la página.
+      await expect(page.getByRole('heading', { name: heading })).toBeVisible()
+    })
+  }
+
   test('monta el canvas 3D en el hero', async ({ page }) => {
     await page.goto('/')
 
