@@ -724,7 +724,8 @@
       "deleteAccountConfirm": "Escribe CONFIRMAR para eliminar tu cuenta",
       "deleteAccountButton": "Eliminar mi cuenta",
       "deleting": "Eliminando cuenta…"
-    }
+    },
+    "appearanceDesc": "Ajusta el tamaño del texto, los espacios, el contraste y el movimiento para que la app te resulte cómoda."
   },
   "accessibility": {
     "title": "Accesibilidad",

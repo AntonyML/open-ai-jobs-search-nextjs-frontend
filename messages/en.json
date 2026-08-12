@@ -724,7 +724,8 @@
       "deleteAccountConfirm": "Type CONFIRM to delete your account",
       "deleteAccountButton": "Delete my account",
       "deleting": "Deleting account…"
-    }
+    },
+    "appearanceDesc": "Adjust text size, spacing, contrast and motion to make the app comfortable for you."
   },
   "accessibility": {
     "title": "Accessibility",
