@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { isLoggedIn, isAdmin } from '@/lib/auth'
@@ -26,39 +26,78 @@ interface AdminUser {
 type SortKey = 'full_name' | 'email' | 'role' | 'tier' | 'created_at'
 type SortDir = 'asc' | 'desc'
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 5
+
+interface AdminUserListResponse {
+  items: AdminUser[]
+  total: number
+  page: number
+  page_size: number
+  stats: { total: number; admins: number; premium: number }
+}
+
+/** Number of page buttons shown in the carousel at once. */
+const CAROUSEL_PAGES = 5
 
 export default function AdminPage() {
   const t = useTranslations()
   const router = useRouter()
   const [users, setUsers] = useState<AdminUser[]>([])
+  const [total, setTotal] = useState(0)
+  const [stats, setStats] = useState({ total: 0, admins: 0, premium: 0 })
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'client'>('all')
   const [tierFilter, setTierFilter] = useState<'all' | 'free' | 'premium'>('all')
   const [sortKey, setSortKey] = useState<SortKey>('created_at')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
-  const [page, setPage] = useState(0)
+  const [page, setPage] = useState(1)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!isLoggedIn()) { router.replace('/login'); return }
-    if (!isAdmin()) { router.replace('/dashboard'); return }
-    loadUsers()
-  }, [router])
-
-  async function loadUsers() {
+  async function loadUsers(overrides?: {
+    page?: number
+    search?: string
+    role?: string
+    tier?: string
+    sort?: SortKey
+    order?: SortDir
+  }) {
     setLoading(true)
+    const params = new URLSearchParams()
+    params.set('page', String(overrides?.page ?? page))
+    params.set('page_size', String(PAGE_SIZE))
+    if (overrides?.search !== undefined ? overrides.search : search) {
+      params.set('search', overrides?.search !== undefined ? overrides.search : search)
+    }
+    if ((overrides?.role !== undefined ? overrides.role : roleFilter) !== 'all') {
+      params.set('role', overrides?.role !== undefined ? overrides.role : roleFilter)
+    }
+    if ((overrides?.tier !== undefined ? overrides.tier : tierFilter) !== 'all') {
+      params.set('tier', overrides?.tier !== undefined ? overrides.tier : tierFilter)
+    }
+    params.set('sort', overrides?.sort ?? sortKey)
+    params.set('order', overrides?.order ?? sortDir)
     try {
-      const data = await apiFetch<AdminUser[]>('/api/v1/admin/users')
-      setUsers(data)
+      const data = await apiFetch<AdminUserListResponse>(`/api/v1/admin/users?${params.toString()}`)
+      setUsers(data.items)
+      setTotal(data.total)
+      setStats(data.stats)
+      if (overrides?.page) setPage(overrides.page)
     } catch (x) {
       showError(t('admin.toastLoadError'))
     } finally {
       setLoading(false)
     }
   }
+
+  // Debounced search: re-query from page 1 as the admin types.
+  useEffect(() => {
+    if (!isLoggedIn()) { router.replace('/login'); return }
+    if (!isAdmin()) { router.replace('/dashboard'); return }
+    const id = setTimeout(() => loadUsers({ page: 1, search }), 250)
+    return () => clearTimeout(id)
+  }, [search, roleFilter, tierFilter, sortKey, sortDir])
 
   async function updateUser(userId: string, updates: { tier?: string; role?: string }) {
     setUpdatingId(userId)
@@ -93,31 +132,14 @@ export default function AdminPage() {
   function toggleSort(key: SortKey) {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
     else { setSortKey(key); setSortDir('asc') }
-    setPage(0)
   }
 
-  const filtered = useMemo(() => {
-    const q = search.toLowerCase().trim()
-    let data = users
-    if (q) data = data.filter(u => (u.full_name || '').toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
-    if (roleFilter !== 'all') data = data.filter(u => u.role === roleFilter)
-    if (tierFilter !== 'all') data = data.filter(u => u.tier === tierFilter)
-    data.sort((a, b) => {
-      const aVal = (a[sortKey] || '').toString().toLowerCase()
-      const bVal = (b[sortKey] || '').toString().toLowerCase()
-      return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal)
-    })
-    return data
-  }, [users, search, roleFilter, tierFilter, sortKey, sortDir])
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
-  const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
-
-  const stats = useMemo(() => ({
-    total: users.length,
-    admins: users.filter(u => u.role === 'admin').length,
-    premium: users.filter(u => u.tier === 'premium').length,
-  }), [users])
+  function goToPage(p: number) {
+    if (p < 1 || p > totalPages) return
+    loadUsers({ page: p })
+  }
 
   function SortIcon(key: SortKey) {
     if (sortKey !== key) return <ArrowUpDown className="ml-1 h-3 w-3 opacity-30" />
@@ -136,7 +158,7 @@ export default function AdminPage() {
           <p className="mt-0.5 text-sm text-[#707070]">{t('admin.subtitle')}</p>
         </div>
         <button
-          onClick={loadUsers}
+          onClick={() => loadUsers()}
           disabled={loading}
           className="inline-flex items-center gap-1.5 self-start rounded-full border border-[#d2d2d7] px-4 py-2 text-xs font-medium text-[#474747] transition-all hover:bg-[#f5f5f7] disabled:opacity-50"
         >
@@ -189,7 +211,7 @@ export default function AdminPage() {
           <input
             type="text"
             value={search}
-            onChange={e => { setSearch(e.target.value); setPage(0) }}
+            onChange={e => setSearch(e.target.value)}
             placeholder={t('admin.searchPlaceholder')}
             className="w-full rounded-full border border-[#d2d2d7] bg-white py-2 pl-9 pr-4 text-sm text-[#1d1d1f] outline-none transition-all placeholder:text-[#858585] focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
           />
@@ -201,7 +223,7 @@ export default function AdminPage() {
         </div>
         <select
           value={roleFilter}
-          onChange={e => { setRoleFilter(e.target.value as 'all' | 'admin' | 'client'); setPage(0) }}
+          onChange={e => setRoleFilter(e.target.value as 'all' | 'admin' | 'client')}
           className="rounded-full border border-[#d2d2d7] bg-white px-4 py-2 text-xs font-medium text-[#474747] outline-none transition-all focus:border-[#0071e3]"
         >
           <option value="all">{t('admin.allRoles')}</option>
@@ -210,7 +232,7 @@ export default function AdminPage() {
         </select>
         <select
           value={tierFilter}
-          onChange={e => { setTierFilter(e.target.value as 'all' | 'free' | 'premium'); setPage(0) }}
+          onChange={e => setTierFilter(e.target.value as 'all' | 'free' | 'premium')}
           className="rounded-full border border-[#d2d2d7] bg-white px-4 py-2 text-xs font-medium text-[#474747] outline-none transition-all focus:border-[#0071e3]"
         >
           <option value="all">{t('admin.allTiers')}</option>
@@ -219,7 +241,7 @@ export default function AdminPage() {
         </select>
         {(search || roleFilter !== 'all' || tierFilter !== 'all') && (
           <button
-            onClick={() => { setSearch(''); setRoleFilter('all'); setTierFilter('all'); setPage(0) }}
+            onClick={() => { setSearch(''); setRoleFilter('all'); setTierFilter('all') }}
             className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-xs font-medium text-[#707070] transition-all hover:bg-[#f5f5f7]"
           >
             <FilterX className="h-3.5 w-3.5" /> {t('admin.clear')}
@@ -247,7 +269,7 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {paged.map((u) => (
+                {users.map((u) => (
                   <tr key={u.id} className="border-b border-[#d2d2d7]/40 transition-colors hover:bg-[#f5f5f7]/50">
                     <td className="px-4 py-3 font-medium text-[#1d1d1f]">{u.full_name || '—'}</td>
                     <td className="px-4 py-3 text-[#707070]">{u.email}</td>
@@ -265,7 +287,7 @@ export default function AdminPage() {
                     </td>
                   </tr>
                 ))}
-                {paged.length === 0 && (
+                {users.length === 0 && (
                   <tr><td colSpan={6} className="py-12 text-center text-sm text-[#858585]">{t('admin.noResults')}</td></tr>
                 )}
               </tbody>
@@ -274,7 +296,7 @@ export default function AdminPage() {
 
           {/* ── Mobile cards ── */}
           <div className="space-y-3 sm:hidden">
-            {paged.map((u) => (
+            {users.map((u) => (
               <div key={u.id} className="rounded-xl border border-[#d2d2d7]/60 bg-white p-4">
                 <div className="mb-3 flex items-start justify-between">
                   <div>
@@ -296,43 +318,46 @@ export default function AdminPage() {
                 />
               </div>
             ))}
-            {paged.length === 0 && (
+            {users.length === 0 && (
               <p className="py-12 text-center text-sm text-[#858585]">{t('admin.noResults')}</p>
             )}
           </div>
 
-          {/* ── Pagination ── */}
+          {/* ── Pagination (carousel, 5 per page) ── */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex flex-col items-center justify-between gap-3 sm:flex-row text-sm">
               <p className="text-xs text-[#858585]">
-                {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}
+                {total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of {total}
               </p>
               <div className="flex items-center gap-1">
                 <button
-                  onClick={() => setPage(p => Math.max(0, p - 1))}
-                  disabled={page === 0}
+                  onClick={() => goToPage(page - 1)}
+                  disabled={page <= 1}
                   className="rounded-full p-2 text-[#707070] transition-all hover:bg-[#f5f5f7] disabled:opacity-30"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
-                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                  const start = Math.max(0, Math.min(page - 2, totalPages - 5))
+                {Array.from({ length: Math.min(totalPages, CAROUSEL_PAGES) }, (_, i) => {
+                  // Carousel window around the current page (clamped to both bounds).
+                  const half = Math.floor(CAROUSEL_PAGES / 2)
+                  let start = page - half
+                  start = Math.max(1, Math.min(start, totalPages - CAROUSEL_PAGES + 1))
                   const p = start + i
                   return (
                     <button
                       key={p}
-                      onClick={() => setPage(p)}
+                      onClick={() => goToPage(p)}
                       className={`h-8 w-8 rounded-full text-xs font-medium transition-all ${
                         p === page ? 'bg-[#0071e3] text-white' : 'text-[#707070] hover:bg-[#f5f5f7]'
                       }`}
                     >
-                      {p + 1}
+                      {p}
                     </button>
                   )
                 })}
                 <button
-                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-                  disabled={page >= totalPages - 1}
+                  onClick={() => goToPage(page + 1)}
+                  disabled={page >= totalPages}
                   className="rounded-full p-2 text-[#707070] transition-all hover:bg-[#f5f5f7] disabled:opacity-30"
                 >
                   <ChevronRight className="h-4 w-4" />
