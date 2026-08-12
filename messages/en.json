@@ -836,6 +836,7 @@
     "snapshotTitle": "Profile snapshot",
     "snapshotTotal": "items",
     "snapshotEmpty": "Add experience, education, projects and skills to see your profile snapshot.",
+    "snapshotEmptyShort": "Set up your profile to see progress",
     "projects": "Projects",
     "jobTarget": "Job target",
     "experience": "Experience",

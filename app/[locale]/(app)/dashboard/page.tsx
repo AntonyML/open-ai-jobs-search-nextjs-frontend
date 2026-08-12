@@ -198,6 +198,9 @@ export default function Dashboard() {
         </Card>
       </div>
 
+      {/* ── Activity & Usage ─────────────────────────────────── */}
+      <ActivityUsage stats={loading ? null : stats} />
+
       {/* ── Empty state: no progress yet ──────────────────────── */}
       {!hasProgress && !loading && (
         <div className="rounded-xl border border-[#d2d2d7]/60 bg-white p-8 md:p-12 text-center">
