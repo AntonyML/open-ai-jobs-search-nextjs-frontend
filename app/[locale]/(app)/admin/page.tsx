@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { isLoggedIn, isAdmin } from '@/lib/auth'
 import { apiFetch } from '@/lib/api'
@@ -9,9 +10,8 @@ import { showSuccess, showError, showWarning } from '@/lib/toasts'
 import {
   Shield, User, Star, Trash2, RefreshCw, Search,
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
-  Users, Crown, FilterX, ArrowUpDown, AlertTriangle, X
+  Users, Crown, FilterX, ArrowUpDown, AlertTriangle, X, Server
 } from 'lucide-react'
-import { AdminProviderConfig } from '@/components/admin/AdminProviderConfig'
 
 interface AdminUser {
   id: string
@@ -157,14 +157,23 @@ export default function AdminPage() {
           </h1>
           <p className="mt-0.5 text-sm text-[#707070]">{t('admin.subtitle')}</p>
         </div>
-        <button
-          onClick={() => loadUsers()}
-          disabled={loading}
-          className="inline-flex items-center gap-1.5 self-start rounded-full border border-[#d2d2d7] px-4 py-2 text-xs font-medium text-[#474747] transition-all hover:bg-[#f5f5f7] disabled:opacity-50"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
-          {t('admin.refresh')}
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/providers"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] px-4 py-2 text-xs font-medium text-[#474747] transition-all hover:bg-[#f5f5f7]"
+          >
+            <Server className="h-3.5 w-3.5" />
+            {t('admin.goToProviders')}
+          </Link>
+          <button
+            onClick={() => loadUsers()}
+            disabled={loading}
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] px-4 py-2 text-xs font-medium text-[#474747] transition-all hover:bg-[#f5f5f7] disabled:opacity-50"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            {t('admin.refresh')}
+          </button>
+        </div>
       </div>
 
       {/* ── Stats cards ── */}
@@ -367,9 +376,6 @@ export default function AdminPage() {
           )}
         </>
       )}
-
-      {/* ── Global provider configuration (admin only) ── */}
-      <AdminProviderConfig />
 
       {/* ── Delete confirmation modal ── */}
       {confirmDelete && (

@@ -59,6 +59,7 @@ export function AdminProviderConfig() {
   const [model, setModel] = useState('')
   const [models, setModels] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingModels, setLoadingModels] = useState(false)
   const [saving, setSaving] = useState(false)
   const [testing, setTesting] = useState(false)
   const [testResult, setTestResult] = useState<{ ok: boolean; error?: string; response?: string } | null>(null)
@@ -100,33 +101,36 @@ export function AdminProviderConfig() {
     [catalog, provider]
   )
 
-  // Fetch live/static models whenever the provider changes.
-  useEffect(() => {
-    if (!provider) return
-    let cancelled = false
-    apiFetch<{ models: Array<{ id: string }> }>(`/api/v1/admin/providers/${provider}/models`, {
-      method: 'POST',
-      body: JSON.stringify({}),
-    })
-      .then((res) => {
-        if (cancelled) return
-        const ids = (res?.models ?? []).map((m) => m.id)
-        if (ids.length > 0) {
-          setModels(ids)
-          // Keep current model if present in list, else fall back to first.
-          setModel((prev) => (ids.includes(prev) ? prev : currentInfo?.static_models?.includes(prev) ? prev : ids[0]))
-        } else {
-          setModels(currentInfo?.static_models ?? [])
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setModels(currentInfo?.static_models ?? [])
-      })
-    return () => {
-      cancelled = true
+  // Load the model list for a provider (live fetch or static fallback).
+  const loadModels = useCallback(async (providerName: string) => {
+    if (!providerName) return
+    setLoadingModels(true)
+    const info = catalog.find((p) => p.name === providerName)
+    try {
+      const res = await apiFetch<{ models: Array<{ id: string }> }>(
+        `/api/v1/admin/providers/${providerName}/models`,
+        { method: 'POST', body: JSON.stringify({}) }
+      )
+      const ids = (res?.models ?? []).map((m) => m.id)
+      if (ids.length > 0) {
+        setModels(ids)
+        // Keep current model if present in list, else fall back to first.
+        setModel((prev) => (ids.includes(prev) ? prev : info?.static_models?.includes(prev) ? prev : ids[0]))
+        showSuccess(t('providerConfigModelsLoaded', { count: ids.length }))
+      } else {
+        setModels(info?.static_models ?? [])
+      }
+    } catch {
+      setModels(info?.static_models ?? [])
+    } finally {
+      setLoadingModels(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [provider])
+  }, [catalog, t])
+
+  // Auto-load models when the provider changes (or once the catalog arrives).
+  useEffect(() => {
+    if (provider) loadModels(provider)
+  }, [provider, loadModels])
 
   function handleProviderChange(name: string) {
     setProvider(name)
@@ -306,15 +310,28 @@ export function AdminProviderConfig() {
 
           <label className="block text-sm text-[#1d1d1f]">
             {t('providerConfigModel')}
-            <select
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              className="field mt-1.5 h-10"
-            >
-              {(models.length > 0 ? models : [model]).map((m) => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
+            <div className="mt-1.5 flex gap-2">
+              <select
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                className="field h-10 flex-1"
+              >
+                {(models.length > 0 ? models : [model]).map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+              <AppleButton
+                type="button"
+                variant="secondary"
+                onClick={() => loadModels(provider)}
+                loading={loadingModels}
+                disabled={loadingModels || !provider}
+                className="h-10 shrink-0 px-3 text-xs"
+              >
+                <RefreshCw className="mr-1.5 size-3.5" />
+                {loadingModels ? t('providerConfigLoadingModels') : t('providerConfigLoadModels')}
+              </AppleButton>
+            </div>
           </label>
         </div>
 
@@ -406,7 +423,7 @@ export function AdminProviderSummary() {
           <p className="text-sm font-medium text-[#1d1d1f]">{t('providerSummaryTitle')}</p>
         </div>
         <Link
-          href="/admin"
+          href="/admin/providers"
           className="inline-flex items-center gap-1 text-xs font-medium text-[#0071e3] hover:underline"
         >
           {t('providerSummaryGo')}

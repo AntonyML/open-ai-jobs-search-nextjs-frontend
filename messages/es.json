@@ -936,8 +936,15 @@
     "providerConfigTestFail": "No se pudo conectar con el proveedor",
     "providerConfigCleared": "Configuración global restablecida (se usará .env)",
     "providerConfigLoadError": "No se pudo cargar la configuración global",
+    "providerConfigLoadModels": "Cargar modelos",
+    "providerConfigLoadingModels": "Cargando…",
+    "providerConfigModelsLoaded": "{count} modelos cargados",
     "providerSummaryTitle": "Proveedor global",
-    "providerSummaryGo": "Configurar"
+    "providerSummaryGo": "Configurar",
+    "providersTitle": "Proveedor de IA global",
+    "providersSubtitle": "Configura el proveedor LLM que usa todo el sistema y carga sus modelos disponibles.",
+    "backToUsers": "Volver a usuarios",
+    "goToProviders": "Proveedor IA"
   },
   "appSidebar": {
     "title": "Navegación",
@@ -973,7 +980,8 @@
     "adaptCv": "Adaptar CV a una oferta laboral",
     "adaptCvLockedTooltip": "Primero genera tu CV base",
     "adaptLockedToast": "Primero debes generar tu CV base para poder adaptarlo a una oferta laboral.",
-    "admin": "Admin"
+    "admin": "Admin",
+    "adminProviders": "Proveedor IA"
   },
   "cvBuilder": {
     "eyebrow": "DOCUMENTOS PROFESIONALES",

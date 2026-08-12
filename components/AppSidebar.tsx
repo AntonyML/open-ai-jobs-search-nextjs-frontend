@@ -33,6 +33,7 @@ import {
   LogOut,
   Lock,
   Shield,
+  Server,
 } from 'lucide-react'
 import { useRouter } from '@/i18n/routing'
 import { clearToken, isAdmin } from '@/lib/auth'
@@ -78,6 +79,12 @@ const adminLink: SidebarLink = {
   labelKey: 'admin',
   href: '/admin',
   icon: Shield,
+}
+
+const adminProvidersLink: SidebarLink = {
+  labelKey: 'adminProviders',
+  href: '/admin/providers',
+  icon: Server,
 }
 
 function SidebarLinkItem({
@@ -234,7 +241,12 @@ export default function AppSidebar() {
               {account.map((link) => (
                 <SidebarLinkItem key={link.href} link={link} pathname={pathname} />
               ))}
-              {isAdmin() && <SidebarLinkItem link={adminLink} pathname={pathname} />}
+              {isAdmin() && (
+                <>
+                  <SidebarLinkItem link={adminLink} pathname={pathname} />
+                  <SidebarLinkItem link={adminProvidersLink} pathname={pathname} />
+                </>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

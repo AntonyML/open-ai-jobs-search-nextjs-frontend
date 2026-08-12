@@ -936,8 +936,15 @@
     "providerConfigTestFail": "Could not connect to the provider",
     "providerConfigCleared": "Global configuration reset (will use .env)",
     "providerConfigLoadError": "Could not load the global configuration",
+    "providerConfigLoadModels": "Load models",
+    "providerConfigLoadingModels": "Loading…",
+    "providerConfigModelsLoaded": "{count} models loaded",
     "providerSummaryTitle": "Global provider",
-    "providerSummaryGo": "Configure"
+    "providerSummaryGo": "Configure",
+    "providersTitle": "Global AI provider",
+    "providersSubtitle": "Configure the LLM provider used by the whole system and load its available models.",
+    "backToUsers": "Back to users",
+    "goToProviders": "AI provider"
   },
   "appSidebar": {
     "title": "Navigation",
@@ -973,7 +980,8 @@
     "adaptCv": "Adapt CV to a job offer",
     "adaptCvLockedTooltip": "Generate your base CV first",
     "adaptLockedToast": "You need to generate your base CV first before adapting it to a job offer.",
-    "admin": "Admin"
+    "admin": "Admin",
+    "adminProviders": "AI provider"
   },
   "cvBuilder": {
     "eyebrow": "PROFESSIONAL DOCUMENTS",
