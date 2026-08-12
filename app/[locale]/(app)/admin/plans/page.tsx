@@ -269,7 +269,7 @@ export default function AdminPlansPage() {
               </button>
               <button
                 onClick={savePlan}
-                disabled={saving || (editing !== 'new' && !editing.key)}
+                disabled={saving || editing === 'new' || !editing.key || !editing.name}
                 className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#0071e3] to-[#0060c0] px-5 py-2 text-xs font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
               >
                 <Save className="h-3.5 w-3.5" />

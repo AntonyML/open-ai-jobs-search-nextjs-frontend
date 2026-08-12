@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -25,7 +24,6 @@ import {
 import { useSidebarState } from '@/components/navigation/sidebar-state'
 import { SidebarGroupSection } from '@/components/navigation/SidebarGroupSection'
 import CreditWidget from '@/components/CreditWidget'
-import PurchaseModal from '@/components/PurchaseModal'
 
 function SignOutButton() {
   const t = useTranslations('nav')
@@ -51,7 +49,6 @@ export default function AppSidebar() {
   const t = useTranslations('appSidebar')
   const pathname = usePathname()
   const state = useSidebarState()
-  const [showUpgrade, setShowUpgrade] = useState(false)
 
   const resolveItem = (item: NavItem): ResolvedItem => {
     if (!isItemLocked(item, state)) return { ...item, locked: false }
@@ -59,8 +56,9 @@ export default function AppSidebar() {
       return {
         ...item,
         locked: true,
-        lockedTooltip: t('premiumLockedTooltip'),
-        onLockedClick: () => setShowUpgrade(true),
+        lockedTooltip: t('maxLockedTooltip'),
+        onLockedClick: () =>
+          window.dispatchEvent(new CustomEvent('purchase:required', { detail: { status: 403 } })),
       }
     }
     return {
@@ -107,8 +105,6 @@ export default function AppSidebar() {
           <SignOutButton />
         </SidebarMenu>
       </SidebarFooter>
-
-      <PurchaseModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </Sidebar>
   )
 }

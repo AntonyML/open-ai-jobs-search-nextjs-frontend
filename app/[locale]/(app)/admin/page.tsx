@@ -6,9 +6,9 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { isLoggedIn, isAdmin } from '@/lib/auth'
 import { apiFetch } from '@/lib/api'
-import { showSuccess, showError, showWarning } from '@/lib/toasts'
+import { showSuccess, showError } from '@/lib/toasts'
 import {
-  Shield, User, Star, Trash2, RefreshCw, Search,
+  Shield, Star, Trash2, RefreshCw, Search,
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
   Users, Crown, FilterX, ArrowUpDown, AlertTriangle, X, Server
 } from 'lucide-react'
@@ -48,7 +48,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'client'>('all')
-  const [tierFilter, setTierFilter] = useState<'all' | 'free' | 'premium'>('all')
+  const [tierFilter, setTierFilter] = useState<'all' | 'free' | 'pro' | 'max' | 'premium'>('all')
   const [sortKey, setSortKey] = useState<SortKey>('created_at')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [page, setPage] = useState(1)
@@ -84,7 +84,7 @@ export default function AdminPage() {
       setTotal(data.total)
       setStats(data.stats)
       if (overrides?.page) setPage(overrides.page)
-    } catch (x) {
+    } catch {
       showError(t('admin.toastLoadError'))
     } finally {
       setLoading(false)
@@ -97,6 +97,7 @@ export default function AdminPage() {
     if (!isAdmin()) { router.replace('/dashboard'); return }
     const id = setTimeout(() => loadUsers({ page: 1, search }), 250)
     return () => clearTimeout(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, roleFilter, tierFilter, sortKey, sortDir])
 
   async function updateUser(userId: string, updates: { tier?: string; role?: string }) {
@@ -108,7 +109,7 @@ export default function AdminPage() {
       })
       showSuccess(t('admin.toastUpdated'))
       await loadUsers()
-    } catch (x) {
+    } catch {
       showError(t('admin.toastUpdateError'))
     } finally {
       setUpdatingId(null)
@@ -122,7 +123,7 @@ export default function AdminPage() {
       await apiFetch(`/api/v1/admin/users/${userId}`, { method: 'DELETE' })
       showSuccess(t('admin.toastDeleted'))
       await loadUsers()
-    } catch (x) {
+    } catch {
       showError(t('admin.toastDeleteError'))
     } finally {
       setUpdatingId(null)
@@ -241,11 +242,13 @@ export default function AdminPage() {
         </select>
         <select
           value={tierFilter}
-          onChange={e => setTierFilter(e.target.value as 'all' | 'free' | 'premium')}
+          onChange={e => setTierFilter(e.target.value as 'all' | 'free' | 'pro' | 'max' | 'premium')}
           className="rounded-full border border-[#d2d2d7] bg-white px-4 py-2 text-xs font-medium text-[#474747] outline-none transition-all focus:border-[#0071e3]"
         >
           <option value="all">{t('admin.allTiers')}</option>
           <option value="free">Free</option>
+          <option value="pro">Pro</option>
+          <option value="max">Max</option>
           <option value="premium">Premium</option>
         </select>
         {(search || roleFilter !== 'all' || tierFilter !== 'all') && (
@@ -286,13 +289,12 @@ export default function AdminPage() {
                     <td className="px-4 py-3"><TierBadge tier={u.tier} /></td>
                     <td className="whitespace-nowrap px-4 py-3 text-xs text-[#858585]">{formatDate(u.created_at)}</td>
                     <td className="px-4 py-3 text-right">
-                      <ActionCell
-                        user={u}
-                        updating={updatingId === u.id}
-                        onUpdate={updateUser}
-                        onDelete={() => setConfirmDelete(u.id)}
-                        t={t}
-                      />
+                <ActionCell
+                  user={u}
+                  updating={updatingId === u.id}
+                  onUpdate={updateUser}
+                  onDelete={() => setConfirmDelete(u.id)}
+                />
                     </td>
                   </tr>
                 ))}
@@ -323,7 +325,6 @@ export default function AdminPage() {
                   updating={updatingId === u.id}
                   onUpdate={updateUser}
                   onDelete={() => setConfirmDelete(u.id)}
-                  t={t}
                 />
               </div>
             ))}
@@ -440,22 +441,24 @@ function RoleBadge({ role }: { role: string }) {
 }
 
 function TierBadge({ tier }: { tier: string }) {
+  const cls = tier === 'premium' || tier === 'max'
+    ? 'bg-[#f4f8fb] text-[#0071e3]'
+    : tier === 'pro'
+      ? 'bg-amber-50 text-amber-700'
+      : 'bg-[#f5f5f7] text-[#707070]'
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
-      tier === 'premium' ? 'bg-amber-50 text-amber-700' : 'bg-[#f5f5f7] text-[#707070]'
-    }`}>
-      {tier === 'premium' && <Star className="h-2.5 w-2.5" />}
+    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${cls}`}>
+      {(tier === 'premium' || tier === 'max') && <Star className="h-2.5 w-2.5" />}
       {tier}
     </span>
   )
 }
 
-function ActionCell({ user, updating, onUpdate, onDelete, t }: {
+function ActionCell({ user, updating, onUpdate, onDelete }: {
   user: AdminUser
   updating: boolean
   onUpdate: (id: string, data: { tier?: string; role?: string }) => void
   onDelete: () => void
-  t: (key: string) => string
 }) {
   return (
     <div className="flex items-center gap-1.5">
@@ -470,6 +473,8 @@ function ActionCell({ user, updating, onUpdate, onDelete, t }: {
         className="rounded-lg border border-[#d2d2d7] bg-white px-2 py-1.5 text-[11px] font-medium text-[#474747] outline-none transition-all focus:border-[#0071e3] disabled:opacity-40"
       >
         <option value="free">Free</option>
+        <option value="pro">Pro</option>
+        <option value="max">Max</option>
         <option value="premium">Premium</option>
       </select>
 
