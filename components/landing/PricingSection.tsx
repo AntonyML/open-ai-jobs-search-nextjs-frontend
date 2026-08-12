@@ -115,7 +115,11 @@ export default function PricingSection() {
 
       <div className="relative z-10 mx-auto max-w-[1440px] px-5 py-16 md:px-8 md:py-24">
         {/* Header — label + heading only; the subheading moved beside the toggle */}
-        <div className="mx-auto mb-10 max-w-2xl text-center">
+        <div
+          className={`mx-auto mb-10 max-w-2xl text-center transition-all duration-700 ${
+            shown ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+          }`}
+        >
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[#0071e3]">
             {t('pricingLabel')}
           </p>
@@ -179,10 +183,13 @@ export default function PricingSection() {
               <div
                 key={key}
                 style={{
-                  transitionDelay: reducedMotion || shown ? '0ms' : `${idx * 90}ms`,
+                  // Reveal is a CSS animation (fill-mode: backwards) so each
+                  // card holds its hidden state during its own delay; the
+                  // delay is NOT a transition delay, so hover stays instant.
+                  animationDelay: shown && !reducedMotion ? `${idx * 110}ms` : '0ms',
                 }}
-                className={`group relative flex flex-col rounded-2xl p-7 transition-all duration-500 ${
-                  shown ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
+                className={`group relative flex flex-col rounded-2xl p-7 transition-[transform,box-shadow,border-color] duration-300 ${
+                  shown && !reducedMotion ? 'pricing-card-reveal' : ''
                 } ${
                   isMax
                     ? 'border-2 border-[#0071e3] bg-gradient-to-br from-[#f4f8fb] to-white shadow-[0_20px_60px_-25px_rgba(0,113,227,0.4)]'
@@ -190,8 +197,16 @@ export default function PricingSection() {
                 } ${hover}`}
               >
                 {isMax && (
-                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-[#0071e3] px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-[0_4px_14px_-4px_rgba(0,113,227,0.7)]">
+                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#0071e3] px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-[0_4px_14px_-4px_rgba(0,113,227,0.7)]">
                     {t('planPopularBadge')}
+                  </div>
+                )}
+                {isMax && (
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl"
+                  >
+                    <div className="pricing-shimmer absolute inset-y-0 -left-full w-1/2 bg-gradient-to-r from-transparent via-white/50 to-transparent" />
                   </div>
                 )}
 
@@ -281,8 +296,43 @@ export default function PricingSection() {
         .animate-price-in {
           animation: price-in 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        @keyframes pricing-shimmer {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(calc(200% + 400px));
+          }
+        }
+        .pricing-shimmer {
+          animation: pricing-shimmer 4.5s ease-in-out infinite;
+        }
+        /* Card reveal: fill-mode backwards keeps each card hidden during its
+           own animation-delay, so the stagger works and no transition delay
+           leaks into the hover lift. */
+        @keyframes card-in {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+            filter: blur(6px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+          }
+        }
+        .pricing-card-reveal {
+          animation: card-in 0.7s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+        }
         @media (prefers-reduced-motion: reduce) {
           .animate-price-in {
+            animation: none;
+          }
+          .pricing-shimmer {
+            animation: none;
+          }
+          .pricing-card-reveal {
             animation: none;
           }
         }
