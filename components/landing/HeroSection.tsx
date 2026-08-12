@@ -1,16 +1,12 @@
 import { getTranslations } from 'next-intl/server'
 import AuthCTAButton from './AuthCTAButton'
-import { STEP_COLORS, STEP_NUMS } from './pipeline-steps'
 
+/**
+ * Landing hero. The old 7-step pipeline visualization was removed in the
+ * landing redesign (Fase 0); the Three.js particle hero replaces it in Fase 1.
+ */
 export async function HeroSection() {
   const t = await getTranslations('marketing')
-
-  const pipelineSteps = STEP_NUMS.map((num, i) => ({
-    num,
-    label: t(`step${num}Label`),
-    desc: t(`step${num}Desc`),
-    color: STEP_COLORS[i],
-  }))
 
   return (
     <section className="relative overflow-hidden bg-[#f5f5f7]">
@@ -42,21 +38,6 @@ export async function HeroSection() {
             loggedOutKey="ctaTryFree"
             className="inline-flex items-center rounded-full bg-[#0071e3] px-6 py-3 text-[15px] font-medium text-white shadow-sm transition-all hover:bg-[#0068d2]"
           />
-        </div>
-
-        {/* Pipeline visualization */}
-        <div className="mx-auto mt-16 max-w-4xl rounded-2xl border border-[#d2d2d7]/60 bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe] p-8 md:p-12">
-          <div className="grid grid-cols-3 gap-3 md:grid-cols-7">
-            {pipelineSteps.slice(0, 7).map((step, i) => (
-              <div key={step.num} className="flex flex-col items-center gap-2">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br text-[11px] font-bold text-white shadow-sm md:h-12 md:w-12 ${step.color}`}>
-                  {step.num}
-                </div>
-                <p className="text-center text-[10px] font-semibold text-[#1d1d1f] md:text-[11px]">{step.label}</p>
-                {i < 6 && <div className="hidden h-px w-4 bg-[#d2d2d7] md:block" />}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </section>
