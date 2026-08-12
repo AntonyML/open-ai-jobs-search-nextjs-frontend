@@ -9,15 +9,35 @@ export interface CVAnalysis {
   adapted_experience: string[]
 }
 
+export interface CVJobRef {
+  id: string
+  title: string
+  company: string | null
+  location: string | null
+}
+
 export interface CVResponse {
   cv_id: string
   cv_type: 'base' | 'personalized'
   job_url: string | null
+  job_posting_id: string | null
+  job: CVJobRef | null
   job_description_text: string | null
   json_cv: Record<string, unknown>
   pdf_url: string | null
   analysis: CVAnalysis | null
   created_at: string
+}
+
+/** A job posting (offer) available in the system, for adapting a CV. */
+export interface JobOption {
+  id: string
+  title: string
+  company: string | null
+  location: string | null
+  portal: string
+  rank_score: number | null
+  rank_verdict: string | null
 }
 
 /** Build the authenticated download URL for a CV's PDF. */

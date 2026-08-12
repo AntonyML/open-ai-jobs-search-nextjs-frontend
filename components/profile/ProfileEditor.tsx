@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { apiFetch, ApiError } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { AppleButton } from '@/components/ui/apple-button'
@@ -64,8 +64,14 @@ const emptyProject = (): ProjectEntry => ({
   description: '',
 })
 
-export function CvBuilderDatos() {
-  const t = useTranslations('cvBuilder')
+/**
+ * Master professional profile editor — the single source of truth for the
+ * candidate's data. Every downstream feature (CV generation, adaptation,
+ * search, ranking, interviews) reads from the profile saved here.
+ */
+export function ProfileEditor({ onSaved }: { onSaved?: () => void }) {
+  const t = useTranslations('setup')
+  const locale = useLocale()
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -296,6 +302,7 @@ export function CvBuilderDatos() {
     setHasProfile(true)
     showSuccess(t('profileSaved'))
     setSaving(false)
+    onSaved?.()
   }
 
   async function deleteProfile() {
@@ -309,6 +316,7 @@ export function CvBuilderDatos() {
       setJobTarget(DEFAULT_JOB_TARGET)
       setConfirmDelete(false)
       showSuccess(t('profileDeleted'))
+      onSaved?.()
     } catch {
       showError(t('profileDeleteFailed'))
     } finally {
@@ -318,14 +326,14 @@ export function CvBuilderDatos() {
 
   return (
     <div>
-      <form onSubmit={submit} className="space-y-6" id="cv-builder-datos-form">
+      <form onSubmit={submit} className="space-y-6" id="profile-editor-form">
         <BasicInfoSection
           full_name={form.full_name}
           email={form.email}
           phone={form.phone}
           location={form.location}
           onChange={f}
-          locale="es"
+          locale={locale}
         />
 
         <JobTargetSection value={jobTarget} onChange={setJobTarget} />
@@ -381,7 +389,7 @@ export function CvBuilderDatos() {
       <div className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-[#d2d2d7] bg-white/95 px-4 py-4 backdrop-blur sm:-mx-0 sm:rounded-t-xl sm:border sm:border-b-0 sm:px-5 sm:py-4 sm:shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
         {confirmDelete ? (
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-[#1d1d1f]">{t('deleteConfirm')}</p>
+            <p className="text-sm text-[#1d1d1f]">{t('deleteProfileConfirm')}</p>
             <div className="flex gap-2">
               <AppleButton variant="ghost" size="sm" onClick={() => setConfirmDelete(false)}>
                 {t('cancel')}
@@ -398,7 +406,7 @@ export function CvBuilderDatos() {
                 {t('deleteProfile')}
               </AppleButton>
             </div>
-            <AppleButton disabled={saving || deleting} loading={saving} className="w-full sm:w-auto" type="submit" form="cv-builder-datos-form">
+            <AppleButton disabled={saving || deleting} loading={saving} className="w-full sm:w-auto" type="submit" form="profile-editor-form">
               {saving ? t('saving') : hasProfile ? t('updateProfile') : t('saveProfile')}
             </AppleButton>
           </div>

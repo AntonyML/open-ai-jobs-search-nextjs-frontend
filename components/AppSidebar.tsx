@@ -19,8 +19,10 @@ import {
 import {
   LayoutDashboard,
   FileText,
+  FolderOpen,
   Search,
   BarChart3,
+  Send,
   Mic,
   TrendingUp,
   User,
@@ -39,13 +41,18 @@ interface SidebarLink {
 
 const principal: SidebarLink[] = [
   { labelKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { labelKey: 'cvBuilder', href: '/cv-builder', icon: FileText },
 ]
 
-const optional: SidebarLink[] = [
-  { labelKey: 'search', href: '/scrape', icon: Search },
-  { labelKey: 'rank', href: '/rank', icon: BarChart3 },
-  { labelKey: 'interview', href: '/interview', icon: Mic },
+const documents: SidebarLink[] = [
+  { labelKey: 'cvBuilder', href: '/cv-builder', icon: FileText },
+  { labelKey: 'myCvs', href: '/cv-builder/documents', icon: FolderOpen },
+]
+
+const pipeline: SidebarLink[] = [
+  { labelKey: 'offers', href: '/scrape', icon: Search },
+  { labelKey: 'rankings', href: '/rank', icon: BarChart3 },
+  { labelKey: 'applications', href: '/apply', icon: Send },
+  { labelKey: 'interviews', href: '/interview', icon: Mic },
   { labelKey: 'upskill', href: '/upskill', icon: TrendingUp },
 ]
 
@@ -137,7 +144,9 @@ export default function AppSidebar() {
       <SidebarContent>
         <SidebarGroupSection labelKey="principal" links={principal} pathname={pathname} />
         <SidebarSeparator />
-        <SidebarGroupSection labelKey="optional" links={optional} pathname={pathname} />
+        <SidebarGroupSection labelKey="documents" links={documents} pathname={pathname} />
+        <SidebarSeparator />
+        <SidebarGroupSection labelKey="pipeline" links={pipeline} pathname={pathname} />
         <SidebarSeparator />
         <SidebarGroupSection labelKey="account" links={account} pathname={pathname} />
       </SidebarContent>

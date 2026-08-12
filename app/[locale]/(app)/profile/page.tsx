@@ -9,9 +9,7 @@ import { clearCompletedSteps, clearToken } from '@/lib/auth'
 import { showError, showSuccess } from '@/lib/toasts'
 import { cn } from '@/lib/utils'
 import AccessibilitySettings from '@/components/AccessibilitySettings'
-
-const PROFILE_TABS = ['Experience', 'Education', 'Projects', 'Skills'] as const
-type ProfileTab = (typeof PROFILE_TABS)[number]
+import { ProfileEditor } from '@/components/profile/ProfileEditor'
 
 export default function ProfilePage() {
   const t = useTranslations('profile')
@@ -24,7 +22,7 @@ export default function ProfilePage() {
   const [usageData, setUsageData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState<ProfileTab>('Experience')
+  const [noProvider, setNoProvider] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState('')
@@ -45,10 +43,8 @@ export default function ProfilePage() {
         if (cancelled) return
 
         const hasProvider = active?.provider && active.provider !== 'Not configured'
-
         if (!hasProvider) {
-          router.replace('/pipeline/providers')
-          return
+          setNoProvider(true)
         }
 
         let setupProfile: any = null
@@ -90,6 +86,18 @@ export default function ProfilePage() {
   const handleSignOut = () => {
     clearToken()
     router.push('/')
+  }
+
+  // Keep the hero card + progress in sync after the master editor saves.
+  const refreshSetup = async () => {
+    const r = await apiFetch<any>('/api/v1/setup/profile').catch(() => null)
+    if (!r) return
+    setProfile((prev: any) => ({
+      ...prev,
+      setup: r,
+      name: r.full_name || prev?.name || null,
+      email: r.email || prev?.email || null,
+    }))
   }
 
   const deleteAccount = async () => {
@@ -157,6 +165,13 @@ export default function ProfilePage() {
       {error && (
         <div className="mb-6 animate-fade-in-up rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
           {error}
+        </div>
+      )}
+
+      {noProvider && (
+        <div className="mb-6 animate-fade-in-up rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          <span className="font-medium">{t('noProviderAdminTitle')}</span>{' '}
+          {t('noProviderAdminDesc')}
         </div>
       )}
 
@@ -315,162 +330,13 @@ export default function ProfilePage() {
         <ProfileProgress hasSetup={hasSetup} setup={setup} t={t} />
       </div>
 
-      {/* ── Profile Details ────────────────────────────────────── */}
-      {hasSetup && (
-        <div className="card animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-          {/* Section header */}
-          <div className="flex items-center justify-between mb-6">
-            <p className="eyebrow !text-[#0071e3]">{t('profileDetails')}</p>
-          </div>
-
-          {/* Apple-style tab pills */}
-          <div className="tab-group mb-6" role="tablist" aria-label="Profile detail sections">
-            {PROFILE_TABS.map((tab) => (
-              <button
-                key={tab}
-                role="tab"
-                aria-selected={activeTab === tab}
-                aria-controls={`panel-${tab.toLowerCase()}`}
-                onClick={() => setActiveTab(tab)}
-                className={cn('tab-pill', activeTab === tab && 'active')}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab content with transition */}
-          <div className="transition-opacity duration-300">
-            {activeTab === 'Experience' && (
-              <TabContent key="experience" id="panel-experience" role="tabpanel" aria-labelledby="experiences-tab">
-                {setup.experience?.length ? (
-                  <div className="space-y-3">
-                    {setup.experience.map((exp: any, i: number) => (
-                      <div key={i} className="rounded-lg border border-[#e2e2e5] bg-[#fafafa] p-4 hover:bg-white hover:border-[#d2d2d7] transition-all">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-[#1d1d1f]">
-                              {exp.title || '—'}
-                              {exp.company && <span className="text-[#707070] font-normal"> at {exp.company}</span>}
-                            </p>
-                            {(exp.start_date || exp.end_date) && (
-                              <p className="text-[11px] text-[#b0b0b0] mt-1">
-                                {exp.start_date || '?'} — {exp.end_date || 'Present'}
-                              </p>
-                            )}
-                          </div>
-                          {exp.location && (
-                            <span className="text-[11px] text-[#858585] shrink-0 ml-2">{exp.location}</span>
-                          )}
-                        </div>
-                        {exp.bullets?.length > 0 && (
-                          <ul className="mt-2 space-y-1">
-                            {exp.bullets.slice(0, 3).map((b: string, j: number) => (
-                              <li key={j} className="text-[12px] text-[#707070] leading-relaxed pl-3 relative before:absolute before:left-0 before:top-[7px] before:size-1 before:rounded-full before:bg-[#b0b0b0]">
-                                {b}
-                              </li>
-                            ))}
-                            {exp.bullets.length > 3 && (
-                              <li className="text-[11px] text-[#b0b0b0] pl-3">+{exp.bullets.length - 3} more bullet points</li>
-                            )}
-                          </ul>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <EmptySection message="No experience added yet." />
-                )}
-              </TabContent>
-            )}
-
-            {activeTab === 'Education' && (
-              <TabContent key="education" id="panel-education" role="tabpanel" aria-labelledby="education-tab">
-                {setup.education?.length ? (
-                  <div className="space-y-3">
-                    {setup.education.map((edu: any, i: number) => (
-                      <div key={i} className="rounded-lg border border-[#e2e2e5] bg-[#fafafa] p-4 hover:bg-white hover:border-[#d2d2d7] transition-all">
-                        <p className="text-sm font-medium text-[#1d1d1f]">
-                          {edu.degree || '—'}
-                          {edu.institution && <span className="text-[#707070] font-normal"> @ {edu.institution}</span>}
-                        </p>
-                        {edu.period && (
-                          <p className="text-[11px] text-[#b0b0b0] mt-1">{edu.period}</p>
-                        )}
-                        {edu.key_topics && (
-                          <p className="text-[12px] text-[#858585] mt-1.5">{edu.key_topics}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <EmptySection message="No education added yet." />
-                )}
-              </TabContent>
-            )}
-
-            {activeTab === 'Projects' && (
-              <TabContent key="projects" id="panel-projects" role="tabpanel" aria-labelledby="projects-tab">
-                {setup.projects?.length ? (
-                  <div className="space-y-3">
-                    {setup.projects.map((proj: any, i: number) => (
-                      <div key={i} className="rounded-lg border border-[#e2e2e5] bg-[#fafafa] p-4 hover:bg-white hover:border-[#d2d2d7] transition-all">
-                        <p className="text-sm font-medium text-[#1d1d1f]">{proj.name || '—'}</p>
-                        {proj.description && (
-                          <p className="text-[12px] text-[#707070] mt-1.5 leading-relaxed">{proj.description}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <EmptySection message="No projects added yet." />
-                )}
-              </TabContent>
-            )}
-
-            {activeTab === 'Skills' && (
-              <TabContent key="skills" id="panel-skills" role="tabpanel" aria-labelledby="skills-tab">
-                {setup.skills?.software_tools?.length || setup.skills?.programming_ml?.length ? (
-                  <div className="space-y-4">
-                    {setup.skills?.software_tools?.length > 0 && (
-                      <div>
-                        <p className="text-[11px] text-[#858585] uppercase tracking-wider mb-2.5 font-semibold">Software &amp; Tools</p>
-                        <div className="flex flex-wrap gap-2">
-                          {setup.skills.software_tools.map((skill: string) => (
-                            <span
-                              key={skill}
-                              className="tag-filled bg-[#f5f5f7] text-[#474747] border border-[#e2e2e5]"
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {setup.skills?.programming_ml?.length > 0 && (
-                      <div>
-                        <p className="text-[11px] text-[#858585] uppercase tracking-wider mb-2.5 font-semibold">Programming &amp; ML</p>
-                        <div className="flex flex-wrap gap-2">
-                          {setup.skills.programming_ml.map((s: any) => (
-                            <span
-                              key={s.language || s}
-                              className="tag-filled bg-[#f5f5f7] text-[#474747] border border-[#e2e2e5]"
-                            >
-                              {s.language || s}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <EmptySection message="No skills added yet." />
-                )}
-              </TabContent>
-            )}
-          </div>
+      {/* ── Professional Profile (master data) ──────────────────── */}
+      <div className="card animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+        <div className="flex items-center justify-between mb-6">
+          <p className="eyebrow !text-[#0071e3]">{t('profileDetails')}</p>
         </div>
-      )}
+        <ProfileEditor onSaved={refreshSetup} />
+      </div>
 
       {/* ── Activity & Usage ──────────────────────────────────── */}
       <div className="mt-7 animate-fade-in-up" style={{ animationDelay: '0.25s' }}>
@@ -558,7 +424,6 @@ export default function ProfilePage() {
                   label={t('hired')}
                   count={stats.hired}
                   color="#ff375f"
-                  isLast
                 />
               </div>
               {stats.avg_rank_score != null && (
@@ -674,16 +539,6 @@ export default function ProfilePage() {
   )
 }
 
-/* ── Sub-components ─────────────────────────────────────────── */
-
-function TabContent({ children, ...props }: { children: React.ReactNode } & React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div className="animate-fade-in-up" {...props}>
-      {children}
-    </div>
-  )
-}
-
 /* ── Usage & Activity Sub-components ──────────────────────── */
 
 function UsageMeter({ label, used, max, icon, color }: {
@@ -723,48 +578,37 @@ function UsageMeter({ label, used, max, icon, color }: {
   )
 }
 
-function FunnelStage({ label, count, color, isFirst, isLast }: {
+/* ── Profile Progress ──────────────────────────────── */
+
+/* ── Funnel Stage ─────────────────────────────────── */
+
+function FunnelStage({
+  label,
+  count,
+  color,
+  isFirst,
+}: {
   label: string
   count: number
   color: string
   isFirst?: boolean
-  isLast?: boolean
 }) {
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div
-        className={cn(
-          'w-full rounded-lg py-2.5 text-center transition-all hover:opacity-80',
-          isFirst && 'rounded-l-lg',
-          isLast && 'rounded-r-lg'
+    <div className="min-w-0">
+      <div className="flex items-center gap-1.5">
+        {!isFirst && (
+          <svg className="size-3 shrink-0 text-[#d2d2d7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
         )}
-        style={{ backgroundColor: `${color}12` }}
-      >
-        <p className="text-[16px] font-semibold tabular-nums" style={{ color }}>
+        <span className="text-[15px] font-semibold tabular-nums text-[#1d1d1f]" style={{ color }}>
           {count}
-        </p>
+        </span>
       </div>
-      <p className="text-[10px] text-[#858585] uppercase tracking-wider font-medium">
-        {label}
-      </p>
+      <p className="mt-0.5 truncate text-[10px] text-[#858585]">{label}</p>
     </div>
   )
 }
-
-function EmptySection({ message }: { message: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-8 text-center">
-      <div className="size-10 rounded-full bg-[#f5f5f7] flex items-center justify-center mb-3">
-        <svg className="size-5 text-[#b0b0b0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
-        </svg>
-      </div>
-      <p className="text-[13px] text-[#b0b0b0]">{message}</p>
-    </div>
-  )
-}
-
-/* ── Profile Progress ──────────────────────────────── */
 
 function ProfileProgress({ hasSetup, setup, t }: { hasSetup: boolean; setup: any; t: (key: string) => string }) {
   const sections = [
