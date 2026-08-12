@@ -156,10 +156,18 @@ function buildDocumentTexture(variant: DocumentVariant): THREE.Texture {
   return texture
 }
 
-/** The three document textures (base CV → adapted CV → cover letter). */
+/**
+ * The three document textures (base CV → adapted CV → cover letter).
+ *
+ * Note: this builder must be a stable module-level reference — `useCanvasTexture`
+ * re-runs its effect when the builder identity changes, so an inline arrow
+ * function here would cause an infinite render loop.
+ */
+const buildDocumentTextures = () => {
+  const variants: DocumentVariant[] = ['base', 'adapted', 'cover']
+  return variants.map(buildDocumentTexture)
+}
+
 export function useDocumentTextures(): THREE.Texture[] | null {
-  return useCanvasTexture(() => {
-    const variants: DocumentVariant[] = ['base', 'adapted', 'cover']
-    return variants.map(buildDocumentTexture)
-  })
+  return useCanvasTexture(buildDocumentTextures)
 }
