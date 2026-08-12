@@ -1,18 +1,11 @@
 import type { Page } from '@playwright/test'
 
-/** Espejo de app/[locale]/(app)/pipeline/providers — formulario de proveedores de IA. */
+/** Espejo de app/[locale]/(app)/pipeline/providers — vista del proveedor global de IA. */
 export class ProvidersPage {
   readonly heading = this.page.getByRole('heading', {
-    name: 'Configure AI providers',
+    name: 'AI Provider',
   })
-  readonly providerSelect = this.page.getByRole('combobox')
-  readonly apiKeyInput = this.page.getByPlaceholder('API Key')
-  readonly loadModelsButton = this.page.getByRole('button', {
-    name: 'Load models',
-  })
-  readonly saveProviderButton = this.page.getByRole('button', {
-    name: 'Save provider',
-  })
+  readonly globalProviderCard = this.page.getByText('Global provider', { exact: true })
 
   constructor(private readonly page: Page) {}
 

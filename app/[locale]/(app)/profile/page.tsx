@@ -37,13 +37,14 @@ export default function ProfilePage() {
     async function load() {
       try {
         const [active, me] = await Promise.all([
-          apiFetch<any>('/api/v1/providers/me/active').catch(() => null),
+          apiFetch<any>('/api/v1/providers/active').catch(() => null),
           apiFetch<any>('/api/v1/auth/me').catch(() => null),
         ])
         if (cancelled) return
 
-        const hasProvider = active?.provider && active.provider !== 'Not configured'
-        if (!hasProvider) {
+        // The system always resolves a provider (falls back to .env); the banner
+        // only appears when the admin has not stored a global API key yet.
+        if (!active?.has_key) {
           setNoProvider(true)
         }
 
@@ -63,6 +64,9 @@ export default function ProfilePage() {
         setProfile({
           activeProvider: active?.provider || null,
           activeModel: active?.model || null,
+          // A provider is always resolved (falls back to .env); the dot/card
+          // only show "connected" when the admin stored a global API key.
+          hasProvider: !!active?.has_key,
           setup: setupProfile,
           email: setupProfile?.email || me?.email || null,
           name: setupProfile?.full_name || me?.full_name || null,
@@ -147,7 +151,7 @@ export default function ProfilePage() {
 
   const setup = profile?.setup
   const hasSetup = !!setup
-  const hasProvider = !!profile?.activeProvider
+  const hasProvider = !!profile?.hasProvider
 
   return (
     <section className="mx-auto max-w-3xl py-8 md:py-12">
