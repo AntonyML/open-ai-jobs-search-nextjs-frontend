@@ -7,7 +7,7 @@ import { isLoggedIn, isAdmin } from '@/lib/auth'
 import { showSuccess, showError } from '@/lib/toasts'
 import {
   CreditCard, Plus, Trash2, Save, RefreshCw, X, Coins, DollarSign,
-  CalendarDays, Layers, ShieldCheck, Pencil,
+  CalendarDays, Layers, ShieldCheck, Pencil, Bell, Trash,
 } from 'lucide-react'
 import {
   adminListPlans,
@@ -15,6 +15,8 @@ import {
   adminDeletePlan,
   adminGetCreditCosts,
   adminSetCreditCosts,
+  adminGetNotificationTtl,
+  adminSetNotificationTtl,
 } from '@/lib/billing'
 import type { PlanAdmin } from '@/types/billing'
 import styles from './PlansAdmin.module.css'
@@ -43,8 +45,10 @@ export default function AdminPlansPage() {
   const router = useRouter()
   const [plans, setPlans] = useState<PlanAdmin[]>([])
   const [costs, setCosts] = useState({ cv_base: 1, cv_adapted: 1, pipeline: 1 })
+  const [ttlDays, setTtlDays] = useState(30)
   const [loading, setLoading] = useState(true)
   const [savingCosts, setSavingCosts] = useState(false)
+  const [savingTtl, setSavingTtl] = useState(false)
   const [editing, setEditing] = useState<PlanAdmin | 'new' | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -59,13 +63,27 @@ export default function AdminPlansPage() {
   async function load() {
     setLoading(true)
     try {
-      const [p, c] = await Promise.all([adminListPlans(), adminGetCreditCosts()])
+      const [p, c, ttl] = await Promise.all([adminListPlans(), adminGetCreditCosts(), adminGetNotificationTtl()])
       setPlans(p)
       setCosts(c)
+      setTtlDays(ttl.days)
     } catch (x) {
       showError(x instanceof Error ? x.message : t('loadError'))
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function saveTtl() {
+    setSavingTtl(true)
+    try {
+      const next = await adminSetNotificationTtl(ttlDays)
+      setTtlDays(next.days)
+      showSuccess(t('ttlSaved'))
+    } catch (x) {
+      showError(x instanceof Error ? x.message : t('saveError'))
+    } finally {
+      setSavingTtl(false)
     }
   }
 
@@ -178,6 +196,40 @@ export default function AdminPlansPage() {
               >
                 <Save className="h-3.5 w-3.5" />
                 {t('saveCosts')}
+              </button>
+            </div>
+          </section>
+
+          {/* ── Notification retention TTL ── */}
+          <section className={`${styles.glassCard} rounded-2xl p-5`}>
+            <div className="mb-4 flex items-center gap-2">
+              <Bell className="h-5 w-5 text-[#0071e3]" />
+              <h2 className="text-sm font-bold text-[#1d1d1f]">{t('ttlTitle')}</h2>
+            </div>
+            <p className="mb-4 text-xs text-[#707070]">{t('ttlDesc')}</p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <label className="block sm:max-w-xs sm:flex-1">
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[#707070]">
+                  {t('ttlDaysLabel')}
+                </span>
+                <div className="relative">
+                  <Trash className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#858585]" />
+                  <input
+                    type="number"
+                    min={1}
+                    value={ttlDays}
+                    onChange={(e) => setTtlDays(Math.max(1, parseInt(e.target.value || '0', 10)))}
+                    className="w-full rounded-xl border border-[#d2d2d7] bg-white py-2 pl-9 pr-3 text-sm font-medium text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
+                  />
+                </div>
+              </label>
+              <button
+                onClick={saveTtl}
+                disabled={savingTtl}
+                className="inline-flex items-center gap-1.5 self-start rounded-full bg-gradient-to-r from-[#0071e3] to-[#0060c0] px-5 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:brightness-110 disabled:opacity-50 active:scale-[.98] sm:self-auto"
+              >
+                <Save className="h-3.5 w-3.5" />
+                {t('saveTtl')}
               </button>
             </div>
           </section>

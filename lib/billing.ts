@@ -65,6 +65,17 @@ export async function adminSetCreditCosts(
   })
 }
 
+export async function adminGetNotificationTtl(): Promise<{ days: number }> {
+  return apiFetch('/api/v1/admin/notification-ttl')
+}
+
+export async function adminSetNotificationTtl(days: number): Promise<{ days: number }> {
+  return apiFetch('/api/v1/admin/notification-ttl', {
+    method: 'PUT',
+    body: JSON.stringify({ days }),
+  })
+}
+
 export async function adminAdjustCredits(payload: AdminCreditAdjust): Promise<{ user_id: string; balance: number }> {
   return apiFetch('/api/v1/admin/credits/adjust', {
     method: 'POST',
