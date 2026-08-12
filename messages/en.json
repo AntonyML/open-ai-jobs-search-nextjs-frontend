@@ -1028,8 +1028,6 @@
     "profileDeleted": "Profile deleted.",
     "profileDeleteFailed": "Could not delete the profile.",
     "cancel": "Cancel",
-    "continueToBase": "Continue to Base CV",
-    "continueToBaseTooltip": "With a complete profile you can generate your base CV.",
     "baseInfoTitle": "Base CV from your profile",
     "baseInfoSubtitle": "Generate a general-purpose CV using the data saved in the Profile tab.",
     "baseGenerate": "Generate base CV",

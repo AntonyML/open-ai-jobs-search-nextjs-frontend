@@ -4,9 +4,7 @@ import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { apiFetch, ApiError } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
-import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
 import { AppleButton } from '@/components/ui/apple-button'
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 
 import { BasicInfoSection } from '@/app/[locale]/(app)/setup/components/BasicInfoSection'
 import {
@@ -66,13 +64,12 @@ const emptyProject = (): ProjectEntry => ({
   description: '',
 })
 
-export function CvBuilderDatos({ onContinue }: { onContinue?: () => void }) {
+export function CvBuilderDatos() {
   const t = useTranslations('cvBuilder')
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [error, setError] = useState('')
-  const [saved, setSaved] = useState(false)
   const [hasProfile, setHasProfile] = useState(false)
 
   const [form, setForm] = useState<FormState>({
@@ -148,17 +145,6 @@ export function CvBuilderDatos({ onContinue }: { onContinue?: () => void }) {
             description: proj.description || '',
           }))
         )
-      }
-
-      const prefillName = profile?.full_name || user?.full_name || ''
-      const prefillEmail = profile?.email || user?.email || ''
-      const prefillLocation = profile?.location || ''
-      if (!!prefillName && !!prefillEmail && !!prefillLocation) {
-        setSaved(true)
-        const steps = getCompletedSteps()
-        if (!steps.includes(1)) {
-          setCompletedSteps([...steps, 1])
-        }
       }
 
       if (profile?.job_target) {
@@ -308,11 +294,6 @@ export function CvBuilderDatos({ onContinue }: { onContinue?: () => void }) {
       return
     }
     setHasProfile(true)
-    setSaved(true)
-    const steps = getCompletedSteps()
-    if (!steps.includes(1)) {
-      setCompletedSteps([...steps, 1])
-    }
     showSuccess(t('profileSaved'))
     setSaving(false)
   }
@@ -326,7 +307,6 @@ export function CvBuilderDatos({ onContinue }: { onContinue?: () => void }) {
       setEducations([emptyEducation()])
       setProjects([emptyProject()])
       setJobTarget(DEFAULT_JOB_TARGET)
-      setSaved(false)
       setConfirmDelete(false)
       showSuccess(t('profileDeleted'))
     } catch {
@@ -334,20 +314,6 @@ export function CvBuilderDatos({ onContinue }: { onContinue?: () => void }) {
     } finally {
       setDeleting(false)
     }
-  }
-
-  function hasRequiredFields(): boolean {
-    const hasTargetTitles = jobTarget.target_titles.some((tt) => tt.trim().length > 0)
-    const hasExperience = experiences.some((exp) => exp.title.trim().length > 0)
-    const hasSkills = form.skills_raw.split(',').some((s) => s.trim().length > 0)
-    return (
-      !!form.full_name &&
-      !!form.email &&
-      !!form.location &&
-      hasTargetTitles &&
-      hasExperience &&
-      hasSkills
-    )
   }
 
   return (
@@ -431,18 +397,6 @@ export function CvBuilderDatos({ onContinue }: { onContinue?: () => void }) {
               <AppleButton variant="danger" size="sm" disabled={saving || deleting} onClick={() => setConfirmDelete(true)}>
                 {t('deleteProfile')}
               </AppleButton>
-              {saved && hasRequiredFields() && (
-                <Tooltip>
-                  <TooltipTrigger render={
-                    <AppleButton variant="secondary" size="sm" onClick={onContinue}>
-                      {t('continueToBase')} →
-                    </AppleButton>
-                  } />
-                  <TooltipContent side="top" className="px-3 py-1.5 text-xs">
-                    {t('continueToBaseTooltip')}
-                  </TooltipContent>
-                </Tooltip>
-              )}
             </div>
             <AppleButton disabled={saving || deleting} loading={saving} className="w-full sm:w-auto" type="submit" form="cv-builder-datos-form">
               {saving ? t('saving') : hasProfile ? t('updateProfile') : t('saveProfile')}

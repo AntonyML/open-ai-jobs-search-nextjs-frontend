@@ -1028,8 +1028,6 @@
     "profileDeleted": "Perfil eliminado.",
     "profileDeleteFailed": "No se pudo eliminar el perfil.",
     "cancel": "Cancelar",
-    "continueToBase": "Continuar a Base",
-    "continueToBaseTooltip": "Con los datos completos puedes generar tu CV base.",
     "baseInfoTitle": "CV base desde tu perfil",
     "baseInfoSubtitle": "Genera un CV de propósito general usando los datos guardados en la pestaña Datos.",
     "baseGenerate": "Generar CV base",

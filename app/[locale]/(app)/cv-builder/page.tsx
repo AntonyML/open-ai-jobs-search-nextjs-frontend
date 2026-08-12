@@ -26,7 +26,7 @@ export default function CvBuilderPage() {
         <AppleTabs tabs={tabs} active={tab} onChange={setTab} />
       </div>
 
-      {tab === 'datos' && <CvBuilderDatos onContinue={() => setTab('base')} />}
+      {tab === 'datos' && <CvBuilderDatos />}
       {tab === 'base' && <CvBuilderBase />}
       {tab === 'oferta' && <CvBuilderOferta />}
     </section>
