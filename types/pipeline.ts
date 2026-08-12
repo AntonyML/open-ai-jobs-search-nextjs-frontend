@@ -1,4 +1,5 @@
 /** Shared types for the job search pipeline */
+import type { LucideIcon } from 'lucide-react'
 
 // ── User & Auth ─────────────────────────────────────────────────
 
@@ -251,4 +252,5 @@ export interface UpgradeBannerProps {
 export interface TabOption {
   key: string
   label: string
+  icon?: LucideIcon
 }

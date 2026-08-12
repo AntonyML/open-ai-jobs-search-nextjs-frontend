@@ -22,6 +22,7 @@ export function AppleTabs({ tabs, active, onChange, className }: AppleTabsProps)
             active === tab.key && 'active'
           )}
         >
+          {tab.icon && <tab.icon className="size-4 shrink-0" />}
           {tab.label}
         </button>
       ))}

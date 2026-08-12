@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { User, FileText, Briefcase } from 'lucide-react'
 import { AppleTabs } from '@/components/ui/apple-tabs'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { CvBuilderDatos } from '@/components/cv-builder/CvBuilderDatos'
@@ -13,9 +14,9 @@ export default function CvBuilderPage() {
   const [tab, setTab] = useState('datos')
 
   const tabs = [
-    { key: 'datos', label: t('datosTab') },
-    { key: 'base', label: t('baseTab') },
-    { key: 'oferta', label: t('ofertaTab') },
+    { key: 'datos', label: t('datosTab'), icon: User },
+    { key: 'base', label: t('baseTab'), icon: FileText },
+    { key: 'oferta', label: t('ofertaTab'), icon: Briefcase },
   ]
 
   return (
