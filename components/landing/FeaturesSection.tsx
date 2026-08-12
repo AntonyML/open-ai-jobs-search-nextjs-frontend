@@ -37,10 +37,10 @@ export async function FeaturesSection() {
           <p className="mt-4 text-[17px] font-light text-[#707070]">{t('featuresSubheading')}</p>
         </div>
 
-        {/* 3D spotlight: resilient AI orchestration */}
-        <div className="mb-6 overflow-hidden rounded-2xl border border-[#d2d2d7] bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe] md:grid md:grid-cols-2">
+        {/* Single visual anchor: resilient AI orchestration (a "stage", not a card) */}
+        <div className="mb-20 overflow-hidden rounded-3xl bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe] md:grid md:grid-cols-2">
           <div className="flex flex-col justify-center p-8 md:p-12">
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-sm">
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-white">
               <IconBrain />
             </div>
             <h3 className="text-[24px] font-semibold tracking-tight text-[#1d1d1f] md:text-[28px]">
@@ -61,18 +61,45 @@ export async function FeaturesSection() {
           </div>
         </div>
 
-        {/* Feature cards grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
+        {/* Editorial numbered list — no cards, hairline rows (Linear/Stripe style) */}
+        <div className="mx-auto max-w-5xl">
+          {features.map((feature, i) => (
             <div
               key={feature.title}
-              className="group rounded-xl border border-[#d2d2d7] bg-white p-6 transition-all duration-300 hover:border-[#0071e3]/30 hover:shadow-sm"
+              className="group grid gap-3 border-b border-[#d2d2d7]/60 py-8 transition-colors last:border-b-0 hover:bg-[#f4f8fb] md:grid-cols-[80px_1fr] md:items-baseline md:gap-6 md:px-4"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f4f8fb] transition-colors group-hover:bg-[#e8f0fe]">
-                {feature.icon}
+              <span
+                aria-hidden="true"
+                className="text-[28px] font-light leading-none tracking-tight text-[#c8c8cc] transition-colors group-hover:text-[#0071e3]"
+              >
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <div>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#f4f8fb] transition-colors group-hover:bg-[#e8f0fe]">
+                    {feature.icon}
+                  </span>
+                  <h3 className="text-[19px] font-semibold text-[#1d1d1f] transition-colors group-hover:text-[#0071e3]">
+                    {feature.title}
+                  </h3>
+                  <svg
+                    aria-hidden="true"
+                    className="ml-auto h-4 w-4 -translate-x-1 text-[#0071e3] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
+                </div>
+                <p className="mt-2.5 max-w-2xl text-[15px] font-light leading-relaxed text-[#707070]">
+                  {feature.description}
+                </p>
               </div>
-              <h3 className="mt-4 text-[17px] font-semibold text-[#1d1d1f]">{feature.title}</h3>
-              <p className="mt-2 text-[14px] leading-relaxed text-[#707070]">{feature.description}</p>
             </div>
           ))}
         </div>
