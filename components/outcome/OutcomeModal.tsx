@@ -136,12 +136,10 @@ export function OutcomeModal({ open, saving, atLimit, limitTooltip, form, applic
               {tc('cancel')}
             </button>
             <Tooltip>
-              <TooltipTrigger>
-                <span tabIndex={0} className="flex-1">
-                  <AppleButton type="submit" disabled={saving || atLimit} loading={saving} className="w-full text-[12px] !px-4 !py-2.5">
-                    {saving ? 'Saving…' : 'Save outcome'}
-                  </AppleButton>
-                </span>
+              <TooltipTrigger render={<span tabIndex={0} className="flex-1" />}>
+                <AppleButton type="submit" disabled={saving || atLimit} loading={saving} className="w-full text-[12px] !px-4 !py-2.5">
+                  {saving ? 'Saving…' : 'Save outcome'}
+                </AppleButton>
               </TooltipTrigger>
               {atLimit && (
                 <TooltipContent side="top" align="center">{limitTooltip}</TooltipContent>

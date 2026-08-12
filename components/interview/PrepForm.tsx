@@ -104,17 +104,15 @@ export function PrepForm({ form, applications, generating, atLimit, limitTooltip
         </div>
 
         <Tooltip>
-          <TooltipTrigger>
-            <span tabIndex={0}>
-              <AppleButton
-                type="submit"
-                disabled={generating || atLimit}
-                loading={generating}
-                className="w-full"
-              >
-                {generating ? t('generating') : t('generatePrep')}
-              </AppleButton>
-            </span>
+          <TooltipTrigger render={<span tabIndex={0} />}>
+            <AppleButton
+              type="submit"
+              disabled={generating || atLimit}
+              loading={generating}
+              className="w-full"
+            >
+              {generating ? t('generating') : t('generatePrep')}
+            </AppleButton>
           </TooltipTrigger>
           {atLimit && (
             <TooltipContent side="top" align="center">
