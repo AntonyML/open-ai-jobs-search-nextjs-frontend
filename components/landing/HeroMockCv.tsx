@@ -1,41 +1,27 @@
 import { getTranslations } from 'next-intl/server'
 
+const CHIPS = ['heroBadgeCvAdapted', 'heroBadgeCoverLetter', 'heroBadgeInterview'] as const
+
+const FLOAT_CLASSES = ['animate-float', 'animate-float-delayed', 'animate-float-slow']
+
 /**
  * Decorative CV preview for the hero (pure CSS — no real PDF).
  *
- * The floating chips name the documents the app actually produces (no invented
- * metrics), and the card tilts gently, straightening on hover. Reduced-motion
- * users get a static version automatically (global reduced-motion override).
+ * Layout notes (these were previous bugs):
+ * - The capability chips live in normal flow BELOW the card — never absolutely
+ *   positioned over it, so nothing overlaps the card content and nothing gets
+ *   clipped by the section's `overflow-hidden`.
+ * - The card has NO rotation: CSS transforms blur text on Chromium and a
+ *   hover straighten causes flicker. The chips still float gently in place.
+ * - Reduced-motion users get a static version (global reduced-motion override).
  */
 export default async function HeroMockCv() {
   const t = await getTranslations('marketing')
 
   return (
-    <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-      {/* Floating capability chips */}
-      <div className="absolute -left-4 top-8 hidden animate-float rounded-full border border-[#d2d2d7] bg-white/90 px-3 py-1.5 text-[11px] font-medium text-[#1d1d1f] shadow-sm backdrop-blur sm:block lg:-left-8">
-        <span aria-hidden="true" className="mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600">
-          ✓
-        </span>
-        {t('heroBadgeCvAdapted')}
-      </div>
-
-      <div className="absolute -right-4 top-1/3 hidden animate-float-delayed rounded-full border border-[#d2d2d7] bg-white/90 px-3 py-1.5 text-[11px] font-medium text-[#1d1d1f] shadow-sm backdrop-blur sm:block lg:-right-8">
-        <span aria-hidden="true" className="mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600">
-          ✓
-        </span>
-        {t('heroBadgeCoverLetter')}
-      </div>
-
-      <div className="absolute -bottom-4 left-10 hidden animate-float-slow rounded-full border border-[#d2d2d7] bg-white/90 px-3 py-1.5 text-[11px] font-medium text-[#1d1d1f] shadow-sm backdrop-blur sm:block">
-        <span aria-hidden="true" className="mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600">
-          ✓
-        </span>
-        {t('heroBadgeInterview')}
-      </div>
-
+    <div className="mx-auto w-full max-w-md">
       {/* Card */}
-      <div className="-rotate-1 rounded-2xl border border-[#d2d2d7] bg-white p-5 text-left shadow-[0_24px_60px_-24px_rgba(0,0,0,0.28)] transition-transform duration-300 hover:rotate-0 sm:-rotate-2">
+      <div className="rounded-2xl border border-[#d2d2d7] bg-white p-5 text-left shadow-[0_24px_60px_-24px_rgba(0,0,0,0.28)]">
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#0071e3] to-[#0a84ff] text-[13px] font-semibold text-white">
             JD
@@ -63,6 +49,21 @@ export default async function HeroMockCv() {
           </span>
         </div>
       </div>
+
+      {/* Capability chips — in normal flow below the card (no overlap, no clipping) */}
+      <ul className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        {CHIPS.map((key, i) => (
+          <li
+            key={key}
+            className={`rounded-full border border-[#d2d2d7] bg-white/90 px-3 py-1.5 text-[11px] font-medium text-[#1d1d1f] shadow-sm backdrop-blur ${FLOAT_CLASSES[i]}`}
+          >
+            <span aria-hidden="true" className="mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600">
+              ✓
+            </span>
+            {t(key)}
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
