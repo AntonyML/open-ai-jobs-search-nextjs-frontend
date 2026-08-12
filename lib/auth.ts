@@ -5,22 +5,58 @@ export interface UserInfo {
   exp: number
 }
 
-export const getToken = () => typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
+const TOKEN_KEY = 'access_token'
+const USER_INFO_KEY = 'user_info'
+
+/** Event dispatched whenever the auth state changes (login / logout / expiry). */
+export const AUTH_CHANGED = 'auth:changed'
+
+function notifyAuthChanged() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(AUTH_CHANGED))
+  }
+}
+
+/**
+ * Read the access token from localStorage.
+ *
+ * Returns null (and cleans the session up) when the JWT has expired, so an
+ * expired login is never presented as an active session.
+ */
+export const getToken = () => {
+  if (typeof window === 'undefined') return null
+  const token = localStorage.getItem(TOKEN_KEY)
+  if (!token) return null
+  if (isTokenExpired(token)) {
+    clearToken()
+    return null
+  }
+  return token
+}
 
 export const setToken = (token: string) => {
-  localStorage.setItem('access_token', token)
+  localStorage.setItem(TOKEN_KEY, token)
   const info = decodeToken(token)
-  if (info) localStorage.setItem('user_info', JSON.stringify(info))
+  if (info) localStorage.setItem(USER_INFO_KEY, JSON.stringify(info))
   clearCompletedSteps()
+  notifyAuthChanged()
 }
 
 export const clearToken = () => {
-  localStorage.removeItem('access_token')
-  localStorage.removeItem('user_info')
+  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(USER_INFO_KEY)
   clearCompletedSteps()
+  notifyAuthChanged()
 }
 
 export const isLoggedIn = () => !!getToken()
+
+/** True when the JWT payload's `exp` claim is already in the past. */
+export function isTokenExpired(token: string): boolean {
+  const info = decodeToken(token)
+  if (!info || typeof info.exp !== 'number') return true
+  return info.exp * 1000 <= Date.now()
+}
 
 /** Decode the JWT payload without verifying the signature (safe on client). */
 export function decodeToken(token: string): UserInfo | null {
@@ -37,14 +73,20 @@ export function decodeToken(token: string): UserInfo | null {
 /** Get cached user info from localStorage or decode from token. */
 export function getUserInfo(): UserInfo | null {
   if (typeof window === 'undefined') return null
-  const cached = localStorage.getItem('user_info')
-  if (cached) {
-    try { return JSON.parse(cached) } catch { /* ignore */ }
+  const token = getToken() // null si falta o caducó (además limpia la sesión)
+  if (!token) {
+    localStorage.removeItem(USER_INFO_KEY)
+    return null
   }
-  const token = getToken()
-  if (!token) return null
+  const cached = localStorage.getItem(USER_INFO_KEY)
+  if (cached) {
+    try {
+      const info = JSON.parse(cached) as UserInfo
+      if (info?.sub && info.exp) return info
+    } catch { /* ignore */ }
+  }
   const info = decodeToken(token)
-  if (info) localStorage.setItem('user_info', JSON.stringify(info))
+  if (info) localStorage.setItem(USER_INFO_KEY, JSON.stringify(info))
   return info
 }
 

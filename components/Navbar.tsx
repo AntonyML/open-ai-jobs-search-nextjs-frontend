@@ -5,7 +5,7 @@ import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { usePathname, useRouter } from '@/i18n/routing'
 import { useTranslations } from 'next-intl'
-import { isLoggedIn, clearToken, isAdmin } from '@/lib/auth'
+import { isLoggedIn, clearToken, isAdmin, AUTH_CHANGED } from '@/lib/auth'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { getBillingStatus } from '@/lib/billing'
 
@@ -209,9 +209,14 @@ export default function Navbar() {
 
   useEffect(() => {
     setLoggedIn(isLoggedIn())
+    const onAuthChanged = () => setLoggedIn(isLoggedIn())
+    window.addEventListener(AUTH_CHANGED, onAuthChanged)
     const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    return () => {
+      window.removeEventListener(AUTH_CHANGED, onAuthChanged)
+      window.removeEventListener('scroll', onScroll)
+    }
   }, [])
 
   // Close mobile menu on route change

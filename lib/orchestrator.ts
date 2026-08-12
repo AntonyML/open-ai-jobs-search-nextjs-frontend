@@ -19,6 +19,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { apiFetch } from './api'
+import { getToken } from './auth'
 
 // ── Types (mirroring backend schemas) ──────────────────────────────
 
@@ -129,7 +130,7 @@ function friendlyError(provider: string, code: string | null, message: string | 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
 function wsUrl(): string {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
+  const token = getToken()
   if (!token) return ''
   const base = API_BASE.replace(/^http/, 'ws')
   return `${base}/api/v1/orchestrator/ws?token=${encodeURIComponent(token)}`
