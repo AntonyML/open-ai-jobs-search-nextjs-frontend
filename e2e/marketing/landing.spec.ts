@@ -18,7 +18,7 @@ test.describe('Landing', () => {
 
     await expect(page).toHaveURL(/\/about/, { timeout: 15_000 })
     await expect(
-      page.getByRole('heading', { name: 'Enterprise-grade AI for your job search' }),
+      page.getByRole('heading', { name: 'From profile to offer, with AI that adapts to you' }),
     ).toBeVisible()
   })
 
@@ -95,7 +95,7 @@ test.describe('Landing', () => {
     await nav.getByRole('link', { name: 'Acerca de', exact: true }).click()
     await expect(page).toHaveURL(/\/es\/about/, { timeout: 15_000 })
     await expect(
-      page.getByRole('heading', { name: 'IA de nivel empresarial para tu búsqueda de empleo' }),
+      page.getByRole('heading', { name: 'Del perfil a la oferta, con IA que se adapta a ti' }),
     ).toBeVisible()
   })
 

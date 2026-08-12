@@ -23,7 +23,7 @@ export class LandingPage {
   /** Headings de las secciones de la landing (EN default). */
   readonly featuresHeading = this.page.getByRole('heading', { name: 'Your job search, from profile to offer' })
   readonly pricingHeading = this.page.getByRole('heading', { name: 'Start free. Upgrade when you need it.' })
-  readonly aboutHeading = this.page.getByRole('heading', { name: 'Enterprise-grade AI for your job search' })
+  readonly aboutHeading = this.page.getByRole('heading', { name: 'From profile to offer, with AI that adapts to you' })
 
   constructor(private readonly page: Page) {}
 

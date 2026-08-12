@@ -1,7 +1,7 @@
 'use client'
 
 const TECH_STACK_KEYS = [
-  { categoryKey: 'techFrontend', items: ['Next.js 15', 'React 19', 'TypeScript', 'Tailwind CSS', 'Three.js'] },
+  { categoryKey: 'techFrontend', items: ['Next.js 15', 'React 19', 'TypeScript', 'Tailwind CSS', 'React Three Fiber'] },
   { categoryKey: 'techBackend', items: ['FastAPI', 'Python 3.12', 'SQLAlchemy 2.0', 'Pydantic v2', 'LiteLLM'] },
   { categoryKey: 'techAI', items: ['Anthropic', 'OpenAI', 'NVIDIA NIM', 'LM Studio', 'Ollama'] },
   { categoryKey: 'techInfra', items: ['PostgreSQL', 'Docker', 'Fly.io', 'Typst PDF', 'Fernet'] },
