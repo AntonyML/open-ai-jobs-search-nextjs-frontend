@@ -10,12 +10,16 @@ import { HeroParticles } from '@/components/three/HeroParticles'
  * Landing hero — the whole first screen: two-column copy + CV mockup centered,
  * with the product stats pinned to the bottom, so the next section starts
  * exactly at the fold (no peeking, no empty space).
+ *
+ * Height note: the marketing layout offsets its <main> by `pt-12` (48px, the
+ * fixed navbar), so the hero fills `100dvh - 3rem` — otherwise it would extend
+ * 48px past the fold.
  */
 export async function HeroSection() {
   const t = await getTranslations('marketing')
 
   return (
-    <section className="relative flex min-h-dvh flex-col overflow-hidden bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe]">
+    <section className="relative flex min-h-[calc(100dvh-3rem)] flex-col overflow-hidden bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe]">
       {/* 3D background layer */}
       <SceneDynamic className="absolute inset-0" activeFrameloop="always">
         <HeroParticles />
