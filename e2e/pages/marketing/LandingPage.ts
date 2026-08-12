@@ -18,12 +18,10 @@ export class LandingPage {
 
   /** Links de navegación del navbar (marketing). */
   readonly navFeatures = this.page.locator('header').getByRole('link', { name: 'Features' })
-  readonly navPipeline = this.page.locator('header').getByRole('link', { name: 'Pipeline' })
   readonly navAbout = this.page.locator('header').getByRole('link', { name: 'About' })
 
   /** Headings de las secciones de la landing (EN default). */
   readonly featuresHeading = this.page.getByRole('heading', { name: 'Everything you need to land your next role' })
-  readonly pipelineHeading = this.page.getByRole('heading', { name: 'From discovery to offer' })
   readonly aboutHeading = this.page.getByRole('heading', { name: 'Enterprise-grade AI for your job search' })
 
   constructor(private readonly page: Page) {}

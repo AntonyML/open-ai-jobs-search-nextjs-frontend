@@ -79,7 +79,6 @@ function MobileNavLink({ href, children, className = '' }: { href: string; child
 function MarketingLinks({ t }: { t: (key: string) => string }) {
   const links = [
     { label: t('footer.features'), href: '/#features' },
-    { label: t('footer.pipeline'), href: '/#pipeline' },
     { label: t('footer.about'), href: '/about' },
   ]
   return (
@@ -96,7 +95,6 @@ function MarketingLinks({ t }: { t: (key: string) => string }) {
 function MobileMarketingLinks({ t }: { t: (key: string) => string }) {
   const links = [
     { label: t('footer.features'), href: '/#features' },
-    { label: t('footer.pipeline'), href: '/#pipeline' },
     { label: t('footer.about'), href: '/about' },
   ]
   return (
@@ -116,7 +114,6 @@ function LoggedInNav({ t }: { t: (key: string) => string }) {
   return (            <>
               <NotificationBell />
               <NavLink href="/dashboard">{t('nav.dashboard')}</NavLink>
-      <NavLink href="/pipeline/setup">{t('nav.pipeline')}</NavLink>
       {isAdmin() && (
         <NavLink href="/admin" className="text-amber-600 hover:bg-amber-50 hover:text-amber-700">
           <span className="mr-1 inline-flex">
@@ -154,7 +151,6 @@ function LoggedInMobile({ t }: { t: (key: string) => string }) {
   return (
     <>
       <MobileNavLink href="/dashboard">{t('nav.dashboard')}</MobileNavLink>
-      <MobileNavLink href="/pipeline/setup">{t('nav.pipeline')}</MobileNavLink>
       {isAdmin() && (
         <MobileNavLink href="/admin" className="text-amber-600 hover:bg-amber-50">
           {t('nav.admin')}

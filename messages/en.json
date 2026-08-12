@@ -24,7 +24,6 @@
   },
   "nav": {
     "dashboard": "Dashboard",
-    "pipeline": "Pipeline",
     "profile": "Profile",
     "admin": "Admin",
     "signIn": "Sign in",
@@ -772,7 +771,6 @@
     "resources": "Resources",
     "legal": "Legal",
     "features": "Features",
-    "pipeline": "Pipeline",
     "about": "About",
     "github": "GitHub",
     "docs": "Documentation",

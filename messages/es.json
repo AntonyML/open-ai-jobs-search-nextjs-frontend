@@ -24,7 +24,6 @@
   },
   "nav": {
     "dashboard": "Panel",
-    "pipeline": "Pipeline",
     "profile": "Perfil",
     "admin": "Admin",
     "signIn": "Iniciar sesión",
@@ -772,7 +771,6 @@
     "resources": "Recursos",
     "legal": "Legal",
     "features": "Características",
-    "pipeline": "Pipeline",
     "about": "Acerca de",
     "github": "GitHub",
     "docs": "Documentación",
