@@ -4,98 +4,84 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { mulberry32 } from './random'
-import { useSoftParticleTexture } from './textures'
+import { useSoftParticleTexture, useDocumentTextures } from './textures'
 import { useIsMobile } from '@/hooks/use-mobile'
 
-const NODE_COUNT = 18
-const DUST_COUNT = 150
-const MOBILE_DUST_COUNT = 90
-const LINK_THRESHOLD = 3.2
-const MOBILE_LINK_THRESHOLD = 2.6
+const NODE_COUNT = 12
+const MOBILE_NODE_COUNT = 8
+const DUST_COUNT = 120
+const MOBILE_DUST_COUNT = 60
 
 type Vec3 = [number, number, number]
 
 /**
- * "AI orchestration constellation" — a light node graph (providers / services
- * connected through the orchestrator) with soft link lines and gentle dust.
+ * Hero scene — AI orchestration constellation:
+ * - Central glowing nucleus (the orchestrator)
+ * - Provider nodes on gentle elliptical orbits
+ * - Soft link lines that pulse toward the center
+ * - 3 floating document planes (base CV → adapted → cover)
+ * - Ambient dust for depth
  *
- * Uses NORMAL blending + soft round sprites so everything stays visible on the
- * light hero background (additive blending washes out over white). Pauses
- * automatically via SceneCanvas frameloop (out of view / hidden tab /
- * prefers-reduced-motion).
- *
- * Responsive: on mobile the camera frustum is very narrow horizontally (portrait
- * aspect), so nodes are packed into a tight vertical column, sprites grow
- * slightly for readability and dust is thinned out to save GPU/battery.
+ * Designed for the light Apple-style hero background (NORMAL blending).
+ * Mobile: fewer nodes/dust, tighter layout, slightly larger sprites.
+ * Pauses automatically via SceneCanvas frameloop (out of view / reduced motion).
  */
 export function HeroParticles() {
-  const texture = useSoftParticleTexture()
+  const softTexture = useSoftParticleTexture()
+  const docTextures = useDocumentTextures()
   const isMobile = useIsMobile()
+
   const groupRef = useRef<THREE.Group>(null)
+  const nucleusRef = useRef<THREE.Mesh>(null)
+  const nucleusGlowRef = useRef<THREE.Points>(null)
   const linksRef = useRef<THREE.LineSegments>(null)
+  const docsGroupRef = useRef<THREE.Group>(null)
+  const nodeMeshRefs = useRef<(THREE.Mesh | null)[]>([])
+
   const rand = useMemo(() => mulberry32(1337), [])
+  const nodeCount = isMobile ? MOBILE_NODE_COUNT : NODE_COUNT
 
-  // Node positions spread within the visible frustum (camera z=8, fov 50 →
-  // ~±3.7 world units tall at z=0), so the constellation stays on screen.
-  const nodes = useMemo<Vec3[]>(() => {
-    const arr: Vec3[] = []
-    const extentX = isMobile ? 5 : 13
-    const extentY = isMobile ? 6.8 : 6.6
-    for (let i = 0; i < NODE_COUNT; i++) {
-      arr.push([(rand() - 0.5) * extentX, (rand() - 0.5) * extentY, (rand() - 0.5) * 3 - 1])
+  // Orbital parameters per node (radius, speed, phase, vertical amplitude)
+  //
+  // Calibration vs the camera frustum (z=8, fov 50 → visible half-height ±3.73):
+  // - Desktop worst-case aspect ~4:3 gives a visible half-width of ~5.0, so the
+  //   radius is capped at 5.0 — outer nodes graze the edge but never orbit off.
+  // - Mobile (portrait) shows only ~±1.9, so orbits stay at 0.9–1.8.
+  // - Inner nodes orbit faster (Keplerian feel), all slow enough to stay calm.
+  const orbits = useMemo(() => {
+    const arr: { radius: number; speed: number; phase: number; yAmp: number; zOff: number }[] = []
+    for (let i = 0; i < nodeCount; i++) {
+      const radius = isMobile ? 0.9 + rand() * 0.9 : 2.8 + rand() * 2.2
+      arr.push({
+        radius,
+        speed: 0.14 + 0.35 / radius,
+        phase: rand() * Math.PI * 2,
+        yAmp: 0.35 + rand() * 0.55,
+        zOff: (rand() - 0.5) * (isMobile ? 1.2 : 2.2),
+      })
     }
     return arr
-  }, [rand, isMobile])
+  }, [rand, nodeCount, isMobile])
 
-  // Links between close nodes; closer links get a stronger brand blue.
-  const { linkPositions, linkColors } = useMemo(() => {
-    const pts: number[] = []
-    const cols: number[] = []
-    const soft = new THREE.Color('#a8c9f5')
-    const strong = new THREE.Color('#0071e3')
-    const threshold = isMobile ? MOBILE_LINK_THRESHOLD : LINK_THRESHOLD
-    for (let i = 0; i < NODE_COUNT; i++) {
-      for (let j = i + 1; j < NODE_COUNT; j++) {
-        const dx = nodes[i][0] - nodes[j][0]
-        const dy = nodes[i][1] - nodes[j][1]
-        const dz = nodes[i][2] - nodes[j][2]
-        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz)
-        if (dist > threshold) continue
-        pts.push(...nodes[i], ...nodes[j])
-        const c = soft.clone().lerp(strong, 1 - dist / threshold)
-        cols.push(c.r, c.g, c.b, c.r, c.g, c.b)
-      }
-    }
-    return { linkPositions: new Float32Array(pts), linkColors: new Float32Array(cols) }
-  }, [nodes, isMobile])
+  // Initial positions (updated every frame via mesh refs)
+  const initialNodePositions = useMemo<Vec3[]>(() => {
+    return orbits.map((o) => [
+      Math.cos(o.phase) * o.radius,
+      Math.sin(o.phase * 0.7) * o.yAmp,
+      o.zOff,
+    ])
+  }, [orbits])
 
-  const nodePositions = useMemo(() => new Float32Array(nodes.flat()), [nodes])
-
-  const nodeColors = useMemo(() => {
-    const palette: Vec3[] = [
-      [0.0, 0.44, 0.89], // #0071e3
-      [0.04, 0.52, 1.0], // #0a84ff
-      [0.0, 0.72, 0.86], // cyan
-    ]
-    const arr = new Float32Array(NODE_COUNT * 3)
-    for (let i = 0; i < NODE_COUNT; i++) {
-      const c = palette[i % palette.length]
-      arr[i * 3] = c[0]
-      arr[i * 3 + 1] = c[1]
-      arr[i * 3 + 2] = c[2]
-    }
-    return arr
-  }, [])
-
+  // Dust
   const dustPositions = useMemo(() => {
     const count = isMobile ? MOBILE_DUST_COUNT : DUST_COUNT
     const arr = new Float32Array(count * 3)
-    const extentX = isMobile ? 6 : 15
-    const extentY = isMobile ? 7.5 : 8
+    const extentX = isMobile ? 7 : 16
+    const extentY = isMobile ? 8 : 9
     for (let i = 0; i < count; i++) {
       arr[i * 3] = (rand() - 0.5) * extentX
       arr[i * 3 + 1] = (rand() - 0.5) * extentY
-      arr[i * 3 + 2] = (rand() - 0.5) * 4 - 1
+      arr[i * 3 + 2] = (rand() - 0.5) * 5 - 1.5
     }
     return arr
   }, [rand, isMobile])
@@ -107,7 +93,7 @@ export function HeroParticles() {
     const cyan = new THREE.Color('#7fd7e8')
     for (let i = 0; i < count; i++) {
       const base = i % 5 === 0 ? cyan : blue
-      const f = 0.65 + rand() * 0.35
+      const f = 0.55 + rand() * 0.4
       arr[i * 3] = base.r * f
       arr[i * 3 + 1] = base.g * f
       arr[i * 3 + 2] = base.b * f
@@ -115,67 +101,235 @@ export function HeroParticles() {
     return arr
   }, [rand, isMobile])
 
+  // Document layouts — kept on the right side of the hero, behind the CV mockup
+  // area, so they never sit behind the left-aligned copy (readability).
+  const docLayouts = useMemo(() => {
+    if (isMobile) {
+      return [
+        { pos: [-1.8, 1.4, -1.2] as Vec3, rot: [-0.15, 0.35, -0.08] as Vec3, scale: 0.55 },
+        { pos: [1.6, -0.6, -0.8] as Vec3, rot: [0.1, -0.28, 0.06] as Vec3, scale: 0.5 },
+      ]
+    }
+    // Kept inside ~±5.0 so they stay on screen at common desktop aspects.
+    return [
+      { pos: [4.2, 1.8, -1.5] as Vec3, rot: [-0.12, 0.42, -0.06] as Vec3, scale: 0.8 },
+      { pos: [4.8, -0.6, -1.0] as Vec3, rot: [0.08, -0.38, 0.05] as Vec3, scale: 0.7 },
+      { pos: [3.6, -1.9, -2.0] as Vec3, rot: [0.18, 0.25, 0.1] as Vec3, scale: 0.58 },
+    ]
+  }, [isMobile])
+
+  // Shared buffer for dynamic link positions (center → each node)
+  const linkPosBuffer = useMemo(() => new Float32Array(nodeCount * 6), [nodeCount])
+  const linkColBuffer = useMemo(() => {
+    const cols = new Float32Array(nodeCount * 6)
+    const soft = new THREE.Color('#a8c9f5')
+    const strong = new THREE.Color('#0071e3')
+    for (let i = 0; i < nodeCount; i++) {
+      // center vertex color
+      cols[i * 6] = strong.r
+      cols[i * 6 + 1] = strong.g
+      cols[i * 6 + 2] = strong.b
+      // node vertex color
+      cols[i * 6 + 3] = soft.r
+      cols[i * 6 + 4] = soft.g
+      cols[i * 6 + 5] = soft.b
+    }
+    return cols
+  }, [nodeCount])
+
   useFrame((state) => {
+    const t = state.clock.elapsedTime
     const group = groupRef.current
     if (!group) return
-    const t = state.clock.elapsedTime
-    // Smooth mouse parallax (lerp towards normalized pointer).
-    group.rotation.y = THREE.MathUtils.lerp(group.rotation.y, state.pointer.x * 0.18, 0.035)
-    group.rotation.x = THREE.MathUtils.lerp(group.rotation.x, -state.pointer.y * 0.1, 0.035)
-    group.position.y = Math.sin(t * 0.22) * 0.15
-    // Gentle pulse on the links.
-    if (linksRef.current) {
-      const mat = linksRef.current.material as THREE.LineBasicMaterial
-      mat.opacity = 0.42 + Math.sin(t * 1.1) * 0.08
+
+    // —— Group parallax + gentle float ——
+    // Parallax is capped so the rotation never pushes outer nodes off-screen.
+    group.rotation.y = THREE.MathUtils.lerp(group.rotation.y, state.pointer.x * 0.18, 0.04)
+    group.rotation.x = THREE.MathUtils.lerp(group.rotation.x, -state.pointer.y * 0.1, 0.04)
+    group.position.y = Math.sin(t * 0.2) * 0.12
+
+    // —— Nucleus pulse ——
+    if (nucleusRef.current) {
+      const pulse = 1 + Math.sin(t * 1.4) * 0.08
+      nucleusRef.current.scale.setScalar(pulse)
+    }
+    if (nucleusGlowRef.current) {
+      const mat = nucleusGlowRef.current.material as THREE.PointsMaterial
+      mat.opacity = 0.18 + Math.sin(t * 1.4) * 0.06
+    }
+
+    // —— Orbit nodes + update link positions ——
+    // The link buffer is mutated through the geometry attribute (runtime ref),
+    // never through the render-scope buffer, to satisfy render purity rules.
+    const linkAttr = linksRef.current
+      ? (linksRef.current.geometry.getAttribute('position') as THREE.BufferAttribute)
+      : null
+    const linkArr = linkAttr ? (linkAttr.array as Float32Array) : null
+
+    for (let i = 0; i < nodeCount; i++) {
+      const o = orbits[i]
+      const mesh = nodeMeshRefs.current[i]
+      if (!mesh) continue
+
+      const angle = o.phase + t * o.speed
+      const x = Math.cos(angle) * o.radius
+      const y = Math.sin(angle * 0.65) * o.yAmp + Math.sin(t * 0.5 + i) * 0.08
+      const z = o.zOff + Math.sin(angle * 0.4) * 0.35
+
+      mesh.position.set(x, y, z)
+
+      // Soft scale pulse staggered per node
+      const s = 1 + Math.sin(t * 1.8 + i * 0.7) * 0.12
+      mesh.scale.setScalar(s)
+
+      // Link: center (0,0,0) → node
+      if (linkArr) {
+        linkArr[i * 6] = 0
+        linkArr[i * 6 + 1] = 0
+        linkArr[i * 6 + 2] = 0
+        linkArr[i * 6 + 3] = x
+        linkArr[i * 6 + 4] = y
+        linkArr[i * 6 + 5] = z
+      }
+    }
+
+    if (linkAttr) {
+      linkAttr.needsUpdate = true
+      const mat = linksRef.current!.material as THREE.LineBasicMaterial
+      mat.opacity = 0.28 + Math.sin(t * 1.1) * 0.1
+    }
+
+    // —— Documents gentle bob + tilt ——
+    if (docsGroupRef.current) {
+      docsGroupRef.current.children.forEach((child, i) => {
+        if (!(child instanceof THREE.Mesh)) return
+        const base = docLayouts[i]
+        if (!base) return
+        child.position.y = base.pos[1] + Math.sin(t * 0.55 + i * 1.7) * 0.12
+        child.rotation.z = base.rot[2] + Math.sin(t * 0.35 + i) * 0.03
+        child.rotation.y = base.rot[1] + Math.sin(t * 0.25 + i * 0.9) * 0.04
+      })
     }
   })
 
-  if (!texture) return null
+  if (!softTexture) return null
+
+  const nucleusSize = isMobile ? 0.32 : 0.42
+  const nodeSize = isMobile ? 0.11 : 0.13
 
   return (
     <group ref={groupRef}>
-      {/* Connection lines */}
-      {linkPositions.length > 0 && (
-        <lineSegments ref={linksRef}>
-          <bufferGeometry>
-            <bufferAttribute attach="attributes-position" args={[linkPositions, 3]} />
-            <bufferAttribute attach="attributes-color" args={[linkColors, 3]} />
-          </bufferGeometry>
-          <lineBasicMaterial vertexColors transparent opacity={0.42} depthWrite={false} />
-        </lineSegments>
-      )}
-
-      {/* Provider / service nodes (soft sprites) */}
-      <points>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[nodePositions, 3]} />
-          <bufferAttribute attach="attributes-color" args={[nodeColors, 3]} />
-        </bufferGeometry>
-        <pointsMaterial
-          map={texture}
-          vertexColors
-          size={isMobile ? 0.44 : 0.34}
-          sizeAttenuation
+      {/* ========== NUCLEUS (orchestrator) ========== */}
+      <mesh ref={nucleusRef} position={[0, 0, 0]}>
+        <sphereGeometry args={[nucleusSize, 32, 32]} />
+        <meshStandardMaterial
+          color="#0071e3"
+          emissive="#0071e3"
+          emissiveIntensity={0.55}
+          metalness={0.35}
+          roughness={0.25}
           transparent
           opacity={0.95}
+        />
+      </mesh>
+
+      {/* Soft glow halo around nucleus */}
+      <points ref={nucleusGlowRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[new Float32Array([0, 0, 0]), 3]}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          map={softTexture}
+          color="#4da3ff"
+          size={isMobile ? 1.6 : 2.4}
+          sizeAttenuation
+          transparent
+          opacity={0.2}
           depthWrite={false}
           blending={THREE.NormalBlending}
         />
       </points>
 
-      {/* Ambient dust */}
+      {/* ========== CONNECTION LINES ========== */}
+      <lineSegments ref={linksRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[linkPosBuffer, 3]} />
+          <bufferAttribute attach="attributes-color" args={[linkColBuffer, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial
+          vertexColors
+          transparent
+          opacity={0.35}
+          depthWrite={false}
+        />
+      </lineSegments>
+
+      {/* ========== ORBITING PROVIDER NODES ========== */}
+      <group>
+        {initialNodePositions.map((pos, i) => (
+          <mesh
+            key={i}
+            position={pos}
+            ref={(el) => {
+              nodeMeshRefs.current[i] = el
+            }}
+          >
+            <sphereGeometry args={[nodeSize, 16, 16]} />
+            <meshStandardMaterial
+              color={i % 3 === 0 ? '#0a84ff' : i % 3 === 1 ? '#00c2e0' : '#0071e3'}
+              emissive={i % 3 === 0 ? '#0a84ff' : i % 3 === 1 ? '#00c2e0' : '#0071e3'}
+              emissiveIntensity={0.35}
+              metalness={0.3}
+              roughness={0.35}
+            />
+          </mesh>
+        ))}
+      </group>
+
+      {/* ========== FLOATING DOCUMENTS ========== */}
+      {docTextures && (
+        <group ref={docsGroupRef}>
+          {docLayouts.map((layout, i) => {
+            // Cycle textures: base, adapted, cover
+            const tex = docTextures[i % docTextures.length]
+            return (
+              <mesh
+                key={i}
+                position={layout.pos}
+                rotation={layout.rot}
+                scale={layout.scale}
+              >
+                <planeGeometry args={[2.1, 2.65]} />
+                <meshBasicMaterial
+                  map={tex}
+                  transparent
+                  opacity={0.65}
+                  depthWrite={false}
+                  toneMapped={false}
+                  side={THREE.DoubleSide}
+                />
+              </mesh>
+            )
+          })}
+        </group>
+      )}
+
+      {/* ========== AMBIENT DUST ========== */}
       <points>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[dustPositions, 3]} />
           <bufferAttribute attach="attributes-color" args={[dustColors, 3]} />
         </bufferGeometry>
         <pointsMaterial
-          map={texture}
+          map={softTexture}
           vertexColors
-          size={isMobile ? 0.08 : 0.07}
+          size={isMobile ? 0.07 : 0.065}
           sizeAttenuation
           transparent
-          opacity={0.4}
+          opacity={0.38}
           depthWrite={false}
           blending={THREE.NormalBlending}
         />
