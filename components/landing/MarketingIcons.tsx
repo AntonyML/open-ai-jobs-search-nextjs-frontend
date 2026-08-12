@@ -14,19 +14,6 @@ export function IconSparkles() {
   )
 }
 
-export function IconBrain() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0071e3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2a4 4 0 0 1 4 4c0 1.1-.4 2.1-1.1 2.8" />
-      <path d="M8 6a4 4 0 0 1 4-4" />
-      <path d="M4 10a4 4 0 0 1 4-4" />
-      <path d="M4 18a4 4 0 0 0 4 4" />
-      <path d="M20 18a4 4 0 0 1-4 4" />
-      <path d="M16 22a4 4 0 0 1-4-4V4" />
-    </svg>
-  )
-}
-
 export function IconRocket() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0071e3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

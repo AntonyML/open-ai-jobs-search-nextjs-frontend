@@ -22,7 +22,7 @@ export class LandingPage {
   readonly navAbout = this.page.locator('header').getByRole('link', { name: 'About' })
 
   /** Headings de las secciones de la landing (EN default). */
-  readonly featuresHeading = this.page.getByRole('heading', { name: 'Everything your job search needs' })
+  readonly featuresHeading = this.page.getByRole('heading', { name: 'Your job search, from profile to offer' })
   readonly howItWorksHeading = this.page.getByRole('heading', { name: 'From profile to offer in four steps' })
   readonly pricingHeading = this.page.getByRole('heading', { name: 'Start free. Upgrade when you need it.' })
   readonly aboutHeading = this.page.getByRole('heading', { name: 'Enterprise-grade AI for your job search' })
