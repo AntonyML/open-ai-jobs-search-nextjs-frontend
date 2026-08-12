@@ -24,7 +24,8 @@ import {
 } from '@/components/navigation/sidebar-config'
 import { useSidebarState } from '@/components/navigation/sidebar-state'
 import { SidebarGroupSection } from '@/components/navigation/SidebarGroupSection'
-import UpgradeModal from '@/components/UpgradeModal'
+import CreditWidget from '@/components/CreditWidget'
+import PurchaseModal from '@/components/PurchaseModal'
 
 function SignOutButton() {
   const t = useTranslations('nav')
@@ -83,6 +84,7 @@ export default function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
+        <CreditWidget />
         {NAV_SECTIONS.map((section) => {
           const items = section.items
             .filter((item) => !item.adminOnly || state.isAdminUser)
@@ -106,7 +108,7 @@ export default function AppSidebar() {
         </SidebarMenu>
       </SidebarFooter>
 
-      <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
+      <PurchaseModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </Sidebar>
   )
 }

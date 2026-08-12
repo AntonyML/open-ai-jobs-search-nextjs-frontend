@@ -16,8 +16,9 @@ export async function apiFetch<T = unknown>(path: string, init?: RequestInit): P
     const text = await res.text()
     let msg = text
     try { const j = JSON.parse(text); msg = j.message || j.detail || text } catch {}
-    if (res.status === 402 && typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('upgrade:required', { detail: msg }))
+    if ((res.status === 402 || res.status === 403) && typeof window !== 'undefined') {
+      // 402 → out of credits / paywall; 403 → pipeline locked to plan Max.
+      window.dispatchEvent(new CustomEvent('purchase:required', { detail: { message: msg, status: res.status } }))
     }
     throw new ApiError(msg, res.status)
   }

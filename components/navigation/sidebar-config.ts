@@ -15,6 +15,8 @@ import {
   Shield,
   Server,
   Cpu,
+  CreditCard,
+  Coins,
 } from 'lucide-react'
 
 export type NavIcon = ComponentType<{ className?: string }>
@@ -33,7 +35,7 @@ export interface NavItem {
   /** Solo se muestra para administradores. */
   adminOnly?: boolean
   /** Tier requerido para poder navegar. Si no se cumple, se muestra bloqueado. */
-  requiredTier?: 'premium'
+  requiredTier?: 'max'
   /** Bloqueo condicional adicional (recibe el estado de la app). */
   locked?: (state: SidebarState) => boolean
   lockedTooltipKey?: string
@@ -81,12 +83,12 @@ export const NAV_SECTIONS: NavSection[] = [
     labelKey: 'jobSearch',
     separatorBefore: true,
     items: [
-      { labelKey: 'offers', descKey: 'offersDesc', href: '/scrape', icon: Compass },
-      { labelKey: 'rankings', descKey: 'rankingsDesc', href: '/rank', icon: BarChart3 },
-      { labelKey: 'applications', descKey: 'applicationsDesc', href: '/apply', icon: Send },
-      { labelKey: 'interviews', descKey: 'interviewsDesc', href: '/interview', icon: Mic },
-      { labelKey: 'expand', descKey: 'expandDesc', href: '/pipeline/expand', icon: Sparkles, requiredTier: 'premium' },
-      { labelKey: 'upskill', descKey: 'upskillDesc', href: '/pipeline/upskill', icon: GraduationCap, requiredTier: 'premium' },
+      { labelKey: 'offers', descKey: 'offersDesc', href: '/scrape', icon: Compass, requiredTier: 'max' },
+      { labelKey: 'rankings', descKey: 'rankingsDesc', href: '/rank', icon: BarChart3, requiredTier: 'max' },
+      { labelKey: 'applications', descKey: 'applicationsDesc', href: '/apply', icon: Send, requiredTier: 'max' },
+      { labelKey: 'interviews', descKey: 'interviewsDesc', href: '/interview', icon: Mic, requiredTier: 'max' },
+      { labelKey: 'expand', descKey: 'expandDesc', href: '/pipeline/expand', icon: Sparkles, requiredTier: 'max' },
+      { labelKey: 'upskill', descKey: 'upskillDesc', href: '/pipeline/upskill', icon: GraduationCap, requiredTier: 'max' },
     ],
   },
   {
@@ -102,6 +104,8 @@ export const NAV_SECTIONS: NavSection[] = [
     separatorBefore: true,
     items: [
       { labelKey: 'admin', href: '/admin', icon: Shield, adminOnly: true },
+      { labelKey: 'adminPlans', descKey: 'adminPlansDesc', href: '/admin/plans', icon: CreditCard, adminOnly: true },
+      { labelKey: 'adminCredits', descKey: 'adminCreditsDesc', href: '/admin/credits', icon: Coins, adminOnly: true },
       { labelKey: 'adminProviders', descKey: 'adminProvidersDesc', href: '/admin/providers', icon: Server, adminOnly: true },
       { labelKey: 'llmControl', descKey: 'llmControlDesc', href: '/admin/llm-control', icon: Cpu, adminOnly: true },
     ],

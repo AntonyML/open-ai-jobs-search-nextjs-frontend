@@ -7,6 +7,8 @@ import { usePathname, useRouter } from '@/i18n/routing'
 import { useTranslations } from 'next-intl'
 import { isLoggedIn, clearToken, isAdmin } from '@/lib/auth'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { getBillingStatus } from '@/lib/billing'
+import PurchaseModal from '@/components/PurchaseModal'
 
 const NotificationBell = dynamic(
   () => import('@/components/NotificationBell'),
@@ -15,6 +17,41 @@ const NotificationBell = dynamic(
     loading: () => <div className="h-8 w-8" />,
   },
 )
+
+// ── Credit chip (plan + balance) ───────────────────────────────────
+
+function NavbarCreditChip() {
+  const [info, setInfo] = useState<{ plan: string; credits: number } | null>(null)
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    getBillingStatus()
+      .then((s) => setInfo({ plan: s.plan_name ?? s.plan_key ?? 'Free', credits: s.credits_balance }))
+      .catch(() => {})
+  }, [])
+
+  if (!info) return null
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] bg-white px-3 py-1.5 text-[12px] font-medium text-[#1d1d1f] transition-all hover:border-[#0071e3]/30 hover:text-[#0071e3]"
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="8" cy="8" r="6" />
+          <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
+          <path d="M7 6h1v4" />
+          <path d="m16.71 13.88.7.71-2.82 2.82" />
+        </svg>
+        <span className="max-w-[110px] truncate">{info.plan}</span>
+        <span className="text-[#858585]">·</span>
+        <span className="text-[#707070]">{info.credits}</span>
+      </button>
+      <PurchaseModal open={open} onClose={() => setOpen(false)} />
+    </>
+  )
+}
 
 // ── Subcomponents ─────────────────────────────────────────────────
 
@@ -218,6 +255,7 @@ export default function Navbar() {
           {loggedIn ? (
             <>
               <div className="hidden items-center gap-1.5 md:flex">
+                <NavbarCreditChip />
                 <LoggedInNav t={t} />
               </div>
               <div className="flex md:hidden">

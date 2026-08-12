@@ -51,6 +51,7 @@ export function getUserInfo(): UserInfo | null {
 export const isAdmin = () => getUserInfo()?.role === 'admin'
 export const getUserTier = () => getUserInfo()?.tier || 'free'
 export const isPremium = () => getUserInfo()?.tier === 'premium'
+export const isMax = () => getUserInfo()?.tier === 'max'
 
 /** Clave de almacenamiento del estado del pipeline asociada al usuario actual. */
 const COMPLETED_STEPS_KEY = 'completed_steps'

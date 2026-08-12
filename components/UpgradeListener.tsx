@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import UpgradeModal from '@/components/UpgradeModal'
+import PurchaseModal from '@/components/PurchaseModal'
 
 export default function UpgradeListener() {
   const [open, setOpen] = useState(false)
@@ -11,9 +11,9 @@ export default function UpgradeListener() {
   }, [])
 
   useEffect(() => {
-    window.addEventListener('upgrade:required', handler)
-    return () => window.removeEventListener('upgrade:required', handler)
+    window.addEventListener('purchase:required', handler)
+    return () => window.removeEventListener('purchase:required', handler)
   }, [handler])
 
-  return <UpgradeModal open={open} onClose={() => setOpen(false)} />
+  return <PurchaseModal open={open} onClose={() => setOpen(false)} />
 }
