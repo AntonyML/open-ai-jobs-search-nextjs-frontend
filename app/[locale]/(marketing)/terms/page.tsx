@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import LegalStyles from '@/components/LegalStyles'
 
 export default function TermsPage() {
   return (
@@ -143,55 +144,7 @@ export default function TermsPage() {
         </div>
       </section>
 
-      <style jsx global>{`
-        .prose-legal h2 {
-          font-size: 20px;
-          font-weight: 600;
-          color: #1d1d1f;
-          margin-top: 2.5rem;
-          margin-bottom: 0.75rem;
-          padding-bottom: 0.5rem;
-          border-bottom: 1px solid #e2e2e5;
-        }
-        .prose-legal h3 {
-          font-size: 15px;
-          font-weight: 600;
-          color: #1d1d1f;
-          margin-top: 1.5rem;
-          margin-bottom: 0.5rem;
-        }
-        .prose-legal p {
-          font-size: 15px;
-          color: #474747;
-          line-height: 1.75;
-          margin-bottom: 1rem;
-        }
-        .prose-legal ul {
-          margin: 0.75rem 0 1rem 1.25rem;
-          list-style: disc;
-        }
-        .prose-legal li {
-          font-size: 15px;
-          color: #474747;
-          line-height: 1.75;
-          margin-bottom: 0.25rem;
-        }
-        .prose-legal strong {
-          color: #1d1d1f;
-          font-weight: 600;
-        }
-        .prose-legal em {
-          color: #707070;
-          font-style: italic;
-        }
-        .prose-legal a {
-          color: #0066cc;
-          text-decoration: underline;
-        }
-        .prose-legal a:hover {
-          color: #004499;
-        }
-      `}</style>
+      <LegalStyles />
     </main>
   )
 }

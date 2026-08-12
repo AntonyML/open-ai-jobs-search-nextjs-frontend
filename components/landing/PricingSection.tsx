@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
 import AuthCTAButton from './AuthCTAButton'
@@ -137,6 +138,17 @@ export default function PricingSection() {
             )
           })}
         </div>
+
+        {/* Disclaimer — like Anthropic's pricing footer: honest, links to details */}
+        <p className="mx-auto mt-12 max-w-3xl text-center text-[12px] font-light leading-relaxed text-[#858585]">
+          {t('pricingDisclaimer')}{' '}
+          <Link
+            href="/limits"
+            className="font-medium text-[#0071e3] underline-offset-2 hover:underline"
+          >
+            {t('pricingDisclaimerLink')}
+          </Link>
+        </p>
       </div>
     </section>
   )
