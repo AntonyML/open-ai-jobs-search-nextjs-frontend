@@ -935,6 +935,8 @@
     "providerSummaryGo": "Configure",
     "providersTitle": "Global AI provider",
     "providersSubtitle": "Configure the LLM provider used by the whole system and load its available models.",
+    "llmControlTitle": "LLM Control",
+    "llmControlSubtitle": "Monitor the execution queue and provider/model health of the orchestrator in real time.",
     "backToUsers": "Back to users",
     "goToProviders": "AI provider"
   },
@@ -970,6 +972,8 @@
     "settings": "Settings",
     "adminProviders": "Global AI provider",
     "adminProvidersDesc": "Global provider config",
+    "llmControl": "LLM Control",
+    "llmControlDesc": "Queue & orchestrator health",
     "premiumLockedTooltip": "Premium feature"
   },
   "cvBuilder": {

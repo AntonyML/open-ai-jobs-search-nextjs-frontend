@@ -935,6 +935,8 @@
     "providerSummaryGo": "Configurar",
     "providersTitle": "Proveedor de IA global",
     "providersSubtitle": "Configura el proveedor LLM que usa todo el sistema y carga sus modelos disponibles.",
+    "llmControlTitle": "Control LLM",
+    "llmControlSubtitle": "Monitorea la cola de ejecución, el estado de proveedores y modelos del orquestador en tiempo real.",
     "backToUsers": "Volver a usuarios",
     "goToProviders": "Proveedor IA"
   },
@@ -970,6 +972,8 @@
     "settings": "Ajustes",
     "adminProviders": "Proveedor IA global",
     "adminProvidersDesc": "Config global de proveedores",
+    "llmControl": "Control LLM",
+    "llmControlDesc": "Cola y estado del orquestador",
     "premiumLockedTooltip": "Función premium"
   },
   "cvBuilder": {

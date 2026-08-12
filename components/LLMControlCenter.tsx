@@ -1,7 +1,7 @@
 /**
- * LLM Control Center — permanent sticky right sidebar
+ * LLM Control Center — full-width admin page (Status | Queue grid)
  *
- * Every user-facing view of the running LLM execution system:
+ * Real-time view of the running LLM execution system (admin only):
  * • Active provider & model with health status
  * • Provider health cards (latency, cooldown, error counts)
  * • Model state list
@@ -11,7 +11,7 @@
  * • Friendly error messages (no stack traces)
  *
  * Design: Apple-inspired light theme (#f5f5f7 canvas, #0071e3 accent)
- * Polling: Adaptive — 2s during active, 15s when idle
+ * Polling: Adaptive — WebSocket with HTTP fallback
  */
 
 'use client'
@@ -40,8 +40,6 @@ const ICON_PATHS: Record<string, string> = {
   chevronUp: 'M18 15l-6-6-6 6',
   check: 'M20 6L9 17l-5-5',
   clock: 'M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 4v6l4 2',
-  chevronLeft: 'M15 18l-6-6 6-6',
-  chevronRight: 'M9 18l6-6-6-6',
 }
 
 function Icon({ name, className = '' }: { name: string; className?: string }) {
@@ -421,68 +419,7 @@ function QueueSummary({
   )
 }
 
-// ── Minimized Panel ─────────────────────────────────────────────
-
-function MinimizedPanel({ isWorking, paused }: { isWorking: boolean; paused?: boolean }) {
-  return (
-    <div className="flex flex-col items-center gap-3 pt-6">
-      <span
-        className={`inline-block h-2.5 w-2.5 rounded-full ${
-          isWorking ? 'animate-pulse bg-cyan-400' : paused ? 'bg-amber-400' : 'bg-emerald-400'
-        }`}
-      />
-      <span className="text-[8px] uppercase tracking-wider text-[#858585] [writing-mode:vertical-rl]">
-        LLM
-      </span>
-    </div>
-  )
-}
-
-// ── Tab Buttons ─────────────────────────────────────────────────
-
-function ControlTabs({
-  activeTab,
-  setActiveTab,
-  totalJobs,
-}: {
-  activeTab: 'status' | 'queue'
-  setActiveTab: (tab: 'status' | 'queue') => void
-  totalJobs: number
-}) {
-  const t = useTranslations('llmControl')
-
-  return (
-    <div className="mb-3 flex gap-1 rounded-lg bg-[#f5f5f7] p-0.5">
-      <button
-        onClick={() => setActiveTab('status')}
-        className={`flex-1 rounded-md px-2 py-1 text-[10px] font-medium transition-all ${
-          activeTab === 'status'
-            ? 'bg-white text-[#1d1d1f] shadow-sm'
-            : 'text-[#858585] hover:text-[#474747]'
-        }`}
-      >
-        {t('status')}
-      </button>
-      <button
-        onClick={() => setActiveTab('queue')}
-        className={`flex-1 rounded-md px-2 py-1 text-[10px] font-medium transition-all ${
-          activeTab === 'queue'
-            ? 'bg-white text-[#1d1d1f] shadow-sm'
-            : 'text-[#858585] hover:text-[#474747]'
-        }`}
-      >
-        {t('queue')}
-        {totalJobs > 0 && (
-          <span className="ml-1 inline-flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-[#0071e3] px-1 text-[8px] font-bold text-white">
-            {totalJobs}
-          </span>
-        )}
-      </button>
-    </div>
-  )
-}
-
-// ── Status Tab Panel ────────────────────────────────────────────
+// ── Status Panel ────────────────────────────────────────────────
 
 function StatusTab({
   queue,
@@ -559,7 +496,7 @@ function StatusTab({
   )
 }
 
-// ── Queue Tab Panel ─────────────────────────────────────────────
+// ── Queue Panel ─────────────────────────────────────────────────
 
 function QueueTab({
   queue,
@@ -728,9 +665,6 @@ export default function LLMControlCenter() {
     refresh,
   } = useOrchestrator()
 
-  const [collapsed, setCollapsed] = useState(false)
-  const [activeTab, setActiveTab] = useState<'status' | 'queue'>('status')
-
   const activeProvider = providers.find((p) =>
     (queue?.running_jobs ?? []).some((j: any) => j.provider === p.provider)
   ) ?? providers[0]
@@ -751,107 +685,110 @@ export default function LLMControlCenter() {
   const totalJobs = queue ? queue.running_jobs.length + queue.pending_jobs.length + (queue?.recent_failed ?? []).length + (queue?.total_cancelled ?? 0) : 0
 
   return (
-    <aside
-      className={`fixed right-4 top-16 z-40 transition-all duration-300 ease-in-out ${
-        collapsed ? 'w-12' : 'w-[280px]'
-      } hidden lg:block`}
-    >
-      <div
-        className={`rounded-2xl border border-[#d2d2d7] bg-white shadow-sm transition-all llm-control-scroll ${
-          collapsed ? 'p-2' : 'p-4'
-        }`}
-        style={{ maxHeight: 'calc(100vh - 96px)', overflowY: 'auto' }}
-      >
-        {/* Toggle collapse */}
-        <button
-          onClick={() => setCollapsed((c) => !c)}
-          className="float-right rounded-full p-1 text-[#858585] transition-colors hover:bg-[#f5f5f7] hover:text-[#1d1d1f]"
-          title={collapsed ? 'Expand panel' : 'Collapse panel'}
-        >
-          <Icon name={collapsed ? 'chevronLeft' : 'chevronRight'} />
-        </button>
-
-        {collapsed ? (
-          <MinimizedPanel isWorking={isWorking} paused={queue?.paused} />
-        ) : (
-          <>
-            {/* Header */}
-            <div className="mb-3">
-              <div className="mb-1 flex items-center justify-between">
-                <p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#0071e3]">
-                  {t('title')}
+    <div className="grid gap-5 lg:grid-cols-2">
+        {/* ── Status card ── */}
+        <div className="rounded-2xl border border-[#d2d2d7] bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span
+                className={`inline-flex h-2.5 w-2.5 rounded-full ${
+                  isWorking
+                    ? 'animate-pulse bg-cyan-400'
+                    : queue?.paused
+                      ? 'bg-amber-400'
+                      : isCooldown
+                        ? 'bg-blue-400'
+                        : 'bg-emerald-400'
+                }`}
+              />
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[.18em] text-[#0071e3]">
+                  {t('status')}
                 </p>
-                <button
-                  onClick={refresh}
-                  className="rounded-full p-1 text-[#858585] transition-colors hover:bg-[#f5f5f7] hover:text-[#1d1d1f]"
-                  title={tc('refresh')}
-                >
-                  <Icon name="refresh" />
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span
-                  className={`inline-flex h-2 w-2 rounded-full ${
-                    isWorking
-                      ? 'animate-pulse bg-cyan-400'
-                      : queue?.paused
-                        ? 'bg-amber-400'
-                        : isCooldown
-                          ? 'bg-blue-400'
-                          : 'bg-emerald-400'
-                  }`}
-                />
                 <p className={`text-[13px] font-semibold ${topStatus.accent}`}>{topStatus.text}</p>
               </div>
+            </div>
+            <div className="flex items-center gap-1.5">
               {activeProvider && (
-                <p className="mt-0.5 text-[11px] text-[#707070]">
+                <p className="text-[11px] text-[#707070]">
                   {activeProvider.provider} ·{' '}
                   {models.find((m) => m.provider === activeProvider.provider)?.model_name ?? '—'}
                 </p>
               )}
+              <button
+                onClick={refresh}
+                className="rounded-full p-1.5 text-[#858585] transition-colors hover:bg-[#f5f5f7] hover:text-[#1d1d1f]"
+                title={tc('refresh')}
+              >
+                <Icon name="refresh" />
+              </button>
             </div>
+          </div>
 
-            {/* Tabs */}
-            <ControlTabs activeTab={activeTab} setActiveTab={setActiveTab} totalJobs={totalJobs} />
+          <StatusTab
+            queue={queue}
+            providers={providers}
+            models={models}
+            providerErrors={providerErrors}
+            tc={tc}
+            t={t}
+          />
 
-            {/* Tab panels */}
-            {activeTab === 'status' ? (
-              <StatusTab
-                queue={queue}
-                providers={providers}
-                models={models}
-                providerErrors={providerErrors}
-                tc={tc}
-                t={t}
-              />
-            ) : (
-              <QueueTab
-                queue={queue}
-                cancelJob={cancelJob}
-                retryFailed={retryFailed}
-                pauseQueue={pauseQueue}
-                resumeQueue={resumeQueue}
-                cancelAll={cancelAll}
-                isWorking={isWorking}
-                tc={tc}
-                t={t}
-              />
-            )}
-
-            {/* Error toast area */}
-            {error && (
-              <div className="mt-3 flex items-start gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-2">
-                <span className="mt-0.5 shrink-0 text-rose-400"><Icon name="alertCircle" /></span>
-                <div>
-                  <p className="text-[10px] font-medium text-rose-600">{tc('error')}</p>
-                  <p className="mt-0.5 text-[9px] text-rose-500">{t('retry')}</p>
-                </div>
+          {error && (
+            <div className="mt-3 flex items-start gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-2">
+              <span className="mt-0.5 shrink-0 text-rose-400"><Icon name="alertCircle" /></span>
+              <div>
+                <p className="text-[10px] font-medium text-rose-600">{tc('error')}</p>
+                <p className="mt-0.5 text-[9px] text-rose-500">{t('retry')}</p>
               </div>
-            )}
-          </>
-        )}
+            </div>
+          )}
+        </div>
+
+        {/* ── Queue card ── */}
+        <div className="rounded-2xl border border-[#d2d2d7] bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span
+                className={`inline-flex h-2.5 w-2.5 rounded-full ${
+                  isWorking
+                    ? 'animate-pulse bg-cyan-400'
+                    : queue?.paused
+                      ? 'bg-amber-400'
+                      : 'bg-emerald-400'
+                }`}
+              />
+              <p className="text-[11px] font-bold uppercase tracking-[.18em] text-[#0071e3]">
+                {t('queue')}
+                {totalJobs > 0 && (
+                  <span className="ml-1.5 inline-flex h-4 min-w-[18px] items-center justify-center rounded-full bg-[#0071e3] px-1.5 text-[9px] font-bold text-white">
+                    {totalJobs}
+                  </span>
+                )}
+              </p>
+            </div>
+            <button
+              onClick={refresh}
+              className="rounded-full p-1.5 text-[#858585] transition-colors hover:bg-[#f5f5f7] hover:text-[#1d1d1f]"
+              title={tc('refresh')}
+            >
+              <Icon name="refresh" />
+            </button>
+          </div>
+
+          <QueueTab
+            queue={queue}
+            cancelJob={cancelJob}
+            retryFailed={retryFailed}
+            pauseQueue={pauseQueue}
+            resumeQueue={resumeQueue}
+            cancelAll={cancelAll}
+            isWorking={isWorking}
+            tc={tc}
+            t={t}
+          />
+        </div>
       </div>
-    </aside>
-  )
-}
+    )
+  }
+

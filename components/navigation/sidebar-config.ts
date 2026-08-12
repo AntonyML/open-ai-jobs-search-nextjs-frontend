@@ -14,6 +14,7 @@ import {
   Settings,
   Shield,
   Server,
+  Cpu,
 } from 'lucide-react'
 
 export type NavIcon = ComponentType<{ className?: string }>
@@ -102,6 +103,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { labelKey: 'admin', href: '/admin', icon: Shield, adminOnly: true },
       { labelKey: 'adminProviders', descKey: 'adminProvidersDesc', href: '/admin/providers', icon: Server, adminOnly: true },
+      { labelKey: 'llmControl', descKey: 'llmControlDesc', href: '/admin/llm-control', icon: Cpu, adminOnly: true },
     ],
   },
 ]

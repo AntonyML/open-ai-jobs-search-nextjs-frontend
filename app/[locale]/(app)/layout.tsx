@@ -1,10 +1,9 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Navbar from '@/components/Navbar'
 import AppSidebar from '@/components/AppSidebar'
 import { isLoggedIn } from '@/lib/auth'
-import LLMControlCenter from '@/components/LLMControlCenter'
 import UpgradeListener from '@/components/UpgradeListener'
 import {
   SidebarProvider,
@@ -12,7 +11,6 @@ import {
 } from '@/components/ui/sidebar'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const path = usePathname()
   const router = useRouter()
   const [ready, setReady] = useState(false)
   useEffect(() => {
@@ -31,7 +29,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarInset>
         </div>
       </SidebarProvider>
-      {['search', 'rank', 'apply', 'interview', 'expand', 'upskill'].some(s => path.includes(s)) && <LLMControlCenter />}
       <UpgradeListener />
     </div>
   )
