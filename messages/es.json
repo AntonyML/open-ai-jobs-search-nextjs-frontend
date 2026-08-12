@@ -637,21 +637,12 @@
     "title": "Configuración",
     "subtitle": "Administra tu cuenta, preferencias y configuración",
     "tabs": {
-      "profile": "Perfil",
       "providers": "Proveedores",
       "notifications": "Notificaciones",
       "language": "Idioma",
-      "appearance": "Apariencia",
+      "appearance": "Accesibilidad",
+      "appearanceDesc": "Personaliza tu experiencia de lectura y visual",
       "security": "Seguridad"
-    },
-    "profile": {
-      "fullName": "Nombre completo",
-      "email": "Correo electrónico",
-      "location": "Ubicación",
-      "profileStatement": "Resumen profesional",
-      "saveChanges": "Guardar cambios",
-      "saved": "¡Perfil actualizado!",
-      "notLoaded": "No se pudo cargar el perfil"
     },
     "providers": {
       "activeProvider": "Proveedor activo",
@@ -660,6 +651,7 @@
       "goToProviders": "Gestionar proveedores →"
     },
     "notifications": {
+      "desc": "Controla cómo y cuándo recibes actualizaciones",
       "emailNotifications": "Notificaciones por correo",
       "emailDesc": "Recibe actualizaciones sobre el progreso de tu pipeline",
       "browserNotifications": "Notificaciones del navegador",
@@ -976,8 +968,6 @@
     "upskillDesc": "Detecta brechas y arma tu plan",
     "profile": "Perfil",
     "settings": "Ajustes",
-    "providers": "Proveedor IA",
-    "providersDesc": "Configura tu proveedor LLM",
     "adminProviders": "Proveedor IA global",
     "adminProvidersDesc": "Config global de proveedores",
     "premiumLockedTooltip": "Función premium"

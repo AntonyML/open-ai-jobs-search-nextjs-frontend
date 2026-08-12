@@ -638,21 +638,12 @@
     "title": "Settings",
     "subtitle": "Manage your account, preferences, and configuration",
     "tabs": {
-      "profile": "Profile",
       "providers": "Providers",
       "notifications": "Notifications",
       "language": "Language",
-      "appearance": "Appearance",
+      "appearance": "Accessibility",
+      "appearanceDesc": "Customize your reading and visual experience",
       "security": "Security"
-    },
-    "profile": {
-      "fullName": "Full name",
-      "email": "Email",
-      "location": "Location",
-      "profileStatement": "Profile statement",
-      "saveChanges": "Save changes",
-      "saved": "Profile updated!",
-      "notLoaded": "Could not load profile"
     },
     "providers": {
       "activeProvider": "Active provider",
@@ -661,6 +652,7 @@
       "goToProviders": "Manage providers →"
     },
     "notifications": {
+      "desc": "Control how and when you receive updates",
       "emailNotifications": "Email notifications",
       "emailDesc": "Receive email updates about your pipeline progress",
       "browserNotifications": "Browser notifications",
@@ -976,8 +968,6 @@
     "upskillDesc": "Spot gaps and build a plan",
     "profile": "Profile",
     "settings": "Settings",
-    "providers": "AI provider",
-    "providersDesc": "Configure your LLM provider",
     "adminProviders": "Global AI provider",
     "adminProvidersDesc": "Global provider config",
     "premiumLockedTooltip": "Premium feature"

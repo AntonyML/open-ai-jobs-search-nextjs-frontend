@@ -1,0 +1,360 @@
+/* ── Premium styles for the Settings page ─────────────────────────
+   Glass surfaces, soft gradients, glow accents and shimmer effects.
+   Follows the Apple design tokens from globals.css.               */
+
+/* Glass card — layered gradient + sheen sweep */
+.card {
+  position: relative;
+  isolation: isolate;
+  border-radius: 20px;
+  border: 1px solid rgba(210, 210, 215, 0.7);
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(0, 113, 227, 0.05), transparent 55%),
+    linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 12px 32px -16px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.35s ease, transform 0.35s ease;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.7) 48%, transparent 66%);
+  transform: translateX(-100%);
+  animation: card-sheen 6s ease-in-out infinite;
+}
+
+@keyframes card-sheen {
+  0%, 60%, 100% { transform: translateX(-100%); }
+  75% { transform: translateX(100%); }
+}
+
+.card:hover {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 20px 44px -18px rgba(0, 113, 227, 0.22);
+  transform: translateY(-1px);
+}
+
+/* Header chip — gradient orb with glow */
+.headerIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(135deg, #2997ff 0%, #0071e3 55%, #0057b8 100%);
+  box-shadow:
+    0 6px 16px -6px rgba(0, 113, 227, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+}
+
+/* Page title row */
+.pageTitle {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #1d1d1f;
+}
+
+.pageSubtitle {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #707070;
+}
+
+/* Tabs bar — frosted glass strip */
+.tabsBar {
+  position: relative;
+  border-radius: 16px;
+  border: 1px solid rgba(210, 210, 215, 0.6);
+  background: rgba(245, 245, 247, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 4px;
+  width: max-content;
+  min-width: 100%;
+  height: auto !important;
+  gap: 2px;
+}
+
+/* Individual tab */
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #707070;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  height: auto !important;
+  flex: none;
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tab:hover {
+  color: #1d1d1f;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.tab[data-active] {
+  color: #0066cc;
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 12px -4px rgba(0, 113, 227, 0.25);
+}
+
+/* Card header row */
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 22px 22px 0;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #1d1d1f;
+}
+
+.cardDesc {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #707070;
+}
+
+.cardBody {
+  padding: 20px 22px 22px;
+}
+
+/* Row separators inside cards */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(210, 210, 215, 0.7), transparent);
+  margin: 6px 0;
+}
+
+/* Premium toggle row */
+.toggleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(226, 226, 229, 0.8);
+}
+
+.toggleRow:last-child {
+  border-bottom: none;
+}
+
+/* Primary action button — gradient pill */
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 980px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  background: linear-gradient(135deg, #2997ff 0%, #0071e3 55%, #0057b8 100%);
+  box-shadow:
+    0 8px 20px -8px rgba(0, 113, 227, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.25s ease, filter 0.25s ease;
+  cursor: pointer;
+  border: none;
+  white-space: normal;
+  text-align: center;
+}
+
+.btnPrimary:hover:not(:disabled) {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow:
+    0 12px 26px -10px rgba(0, 113, 227, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.btnPrimary:active:not(:disabled) { transform: scale(0.98); }
+.btnPrimary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Secondary button — outlined */
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 980px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #0066cc;
+  border: 1px solid rgba(0, 102, 204, 0.45);
+  background: transparent;
+  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  white-space: normal;
+  text-align: center;
+}
+
+.btnSecondary:hover:not(:disabled) {
+  background: rgba(244, 248, 251, 0.9);
+  border-color: #0066cc;
+  transform: translateY(-1px);
+}
+
+.btnSecondary:active:not(:disabled) { transform: scale(0.98); }
+.btnSecondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Danger button — soft rose */
+.btnDanger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 980px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  background: linear-gradient(135deg, #ff6482 0%, #ff375f 55%, #d70015 100%);
+  box-shadow:
+    0 8px 20px -8px rgba(255, 55, 95, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.25s ease, filter 0.25s ease;
+  cursor: pointer;
+  border: none;
+  white-space: normal;
+  text-align: center;
+}
+
+.btnDanger:hover:not(:disabled) {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.btnDanger:active:not(:disabled) { transform: scale(0.98); }
+.btnDanger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Form field */
+.field {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #d2d2d7;
+  background: #fff;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #1d1d1f;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field:focus {
+  border-color: #0071e3;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #707070;
+  margin-bottom: 6px;
+}
+
+/* Status chip */
+.chipOk {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1d7a35;
+  background: rgba(52, 199, 89, 0.1);
+  border: 1px solid rgba(52, 199, 89, 0.25);
+}
+
+.chipNeutral {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #707070;
+  background: rgba(245, 245, 247, 0.9);
+  border: 1px solid rgba(210, 210, 215, 0.6);
+}
+
+/* Shimmer skeleton */
+.shimmer {
+  border-radius: 16px;
+  background: linear-gradient(90deg, #f0f0f2 25%, #e6e6ea 40%, #f0f0f2 55%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Error / success strips */
+.errorStrip {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 59, 48, 0.2);
+  background: rgba(255, 59, 48, 0.05);
+  color: #d70015;
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.successStrip {
+  border-radius: 12px;
+  border: 1px solid rgba(52, 199, 89, 0.25);
+  background: rgba(52, 199, 89, 0.06);
+  color: #1d7a35;
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Spinner inside loading buttons */
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

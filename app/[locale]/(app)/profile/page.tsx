@@ -8,7 +8,6 @@ import { apiFetch } from '@/lib/api'
 import { clearCompletedSteps, clearToken } from '@/lib/auth'
 import { showError, showSuccess } from '@/lib/toasts'
 import { cn } from '@/lib/utils'
-import AccessibilitySettings from '@/components/AccessibilitySettings'
 import { ProfileEditor } from '@/components/profile/ProfileEditor'
 
 export default function ProfilePage() {
@@ -447,19 +446,8 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* ── Accessibility Settings ─────────────────────────────── */}
-      <div className="mt-7 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-        <div className="card">
-          <p className="eyebrow !text-[#0071e3] mb-3">{t('accessibility')}</p>
-          <p className="text-[13px] text-[#707070] mb-4">
-            {t('accessibilityDesc')}
-          </p>
-          <AccessibilitySettings />
-        </div>
-      </div>
-
       {/* ── Danger Zone: Delete Account ──────────────────────────── */}
-      <div className="mt-7 animate-fade-in-up" style={{ animationDelay: '0.35s' }}>
+      <div className="mt-7 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
         <div className="card border-rose-200">
           <p className="eyebrow !text-rose-500 mb-3">{ts('security.deleteAccount')}</p>
           <p className="text-[13px] text-[#707070] mb-4">{ts('security.deleteAccountDesc')}</p>

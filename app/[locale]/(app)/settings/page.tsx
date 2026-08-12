@@ -8,32 +8,28 @@ import { clearCompletedSteps, clearToken, isLoggedIn, isPremium } from '@/lib/au
 import { apiFetch } from '@/lib/api'
 import { showError, showSuccess } from '@/lib/toasts'
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card'
-import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs'
 import {
-  User,
+  UserRound,
   Server,
   Bell,
   Globe,
-  Palette,
+  Accessibility,
   Shield,
   CheckCircle2,
   ChevronRight,
+  Settings2,
+  Eye,
 } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import AccessibilitySettings from '@/components/AccessibilitySettings'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import UpgradeModal from '@/components/UpgradeModal'
+import styles from './settings.module.css'
 
 // ── Main Settings Page ────────────────────────────────────────────
 
@@ -42,11 +38,7 @@ export default function Settings() {
   const tc = useTranslations('common')
   const locale = useLocale()
   const router = useNextRouter()
-  const [activeTab, setActiveTab] = useState('profile')
-  const [profile, setProfile] = useState<{ full_name?: string; email?: string; location?: string; profile_statement?: string } | null>(null)
-  const [profileLoading, setProfileLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
+  const [activeTab, setActiveTab] = useState('notifications')
   const [notifEmail, setNotifEmail] = useState(true)
   const [notifBrowser, setNotifBrowser] = useState(false)
   const [notifSound, setNotifSound] = useState(true)
@@ -63,24 +55,7 @@ export default function Settings() {
 
   useEffect(() => {
     if (!isLoggedIn()) { router.replace('/login'); return }
-    apiFetch<{ full_name?: string; email?: string; location?: string; profile_statement?: string }>('/api/v1/setup/profile')
-      .then(p => { if (p) setProfile(p) })
-      .catch(() => {})
-      .finally(() => setProfileLoading(false))
   }, [router])
-
-  const saveProfile = async () => {
-    setSaving(true)
-    try {
-      await apiFetch('/api/v1/setup/profile', {
-        method: 'POST',
-        body: JSON.stringify(profile),
-      })
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2000)
-    } catch { /* ignore */ }
-    setSaving(false)
-  }
 
   const updatePassword = async () => {
     setPwError('')
@@ -126,312 +101,288 @@ export default function Settings() {
   const canDelete = deletePassword.length > 0 && deleteConfirmText === confirmWord && !deleting
 
   const tabs = [
-    { key: 'profile', label: t('tabs.profile'), icon: User },
-    { key: 'providers', label: t('tabs.providers'), icon: Server },
+    { key: 'appearance', label: t('tabs.appearance'), icon: Accessibility },
     { key: 'notifications', label: t('tabs.notifications'), icon: Bell },
     { key: 'language', label: t('tabs.language'), icon: Globe },
-    { key: 'appearance', label: t('tabs.appearance'), icon: Palette },
+    { key: 'providers', label: t('tabs.providers'), icon: Server },
     { key: 'security', label: t('tabs.security'), icon: Shield },
   ]
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f]">
-          {t('title')}
-        </h1>
-        <p className="mt-1 text-sm text-[#707070]">{t('subtitle')}</p>
+      <div className="flex items-center gap-4 animate-fade-in-up">
+        <span className={styles.headerIcon}>
+          <Settings2 size={20} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h1 className={styles.pageTitle}>
+            {t('title')}
+          </h1>
+          <p className={styles.pageSubtitle}>{t('subtitle')}</p>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <div className="overflow-x-auto pb-1 -mx-1 px-1">
-          <TabsList className="bg-[#f5f5f7] w-max min-w-full">
+          <TabsList className={styles.tabsBar}>
             {tabs.map(tab => (
-              <TabsTrigger key={tab.key} value={tab.key} className="text-sm gap-1.5">
-                <tab.icon className="size-4" />
+              <TabsTrigger
+                key={tab.key}
+                value={tab.key}
+                className={`${styles.tab} text-sm gap-1.5`}
+              >
+                <tab.icon className="size-4 shrink-0" />
                 {tab.label}
               </TabsTrigger>
             ))}
           </TabsList>
         </div>
 
-        {/* ── Profile ───────────────────────────────────── */}
-        <TabsContent value="profile">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('tabs.profile')}</CardTitle>
-              <CardDescription>{t('profile.saveChanges')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {profileLoading ? (
-                <div className="space-y-4 animate-pulse">
-                  <div className="h-10 rounded-lg bg-[#e2e2e5]" />
-                  <div className="h-10 rounded-lg bg-[#e2e2e5]" />
-                  <div className="h-10 rounded-lg bg-[#e2e2e5]" />
-                </div>
-              ) : profile ? (
-                <div className="space-y-4">
-                  {[
-                    { key: 'full_name', label: t('profile.fullName'), type: 'text' },
-                    { key: 'email', label: t('profile.email'), type: 'email' },
-                    { key: 'location', label: t('profile.location'), type: 'text' },
-                  ].map(field => (
-                    <div key={field.key}>
-                      <label className="block text-[12px] font-medium text-[#707070] mb-1">{field.label}</label>
-                      <input
-                        type={field.type}
-                        value={(profile as any)[field.key] || ''}
-                        onChange={e => setProfile(p => ({ ...p!, [field.key]: e.target.value }))}
-                        className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] text-[#1d1d1f] outline-none focus:border-[#0071e3] focus:ring-1 focus:ring-[#0071e3]/20 transition-all"
-                      />
-                    </div>
-                  ))}
-                  <div>
-                    <label className="block text-[12px] font-medium text-[#707070] mb-1">{t('profile.profileStatement')}</label>
-                    <textarea
-                      value={profile.profile_statement || ''}
-                      onChange={e => setProfile(p => ({ ...p!, profile_statement: e.target.value }))}
-                      rows={3}
-                      className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] text-[#1d1d1f] outline-none focus:border-[#0071e3] focus:ring-1 focus:ring-[#0071e3]/20 transition-all resize-none"
-                    />
-                  </div>
-                  <div className="flex items-center gap-3 pt-2">
-                    <button
-                      onClick={saveProfile}
-                      disabled={saving}
-                      className="rounded-full bg-[#0071e3] px-5 py-2 text-[13px] font-medium text-white hover:bg-[#0077ed] disabled:opacity-50 transition-all"
-                    >
-                      {saving ? tc('loading') : t('profile.saveChanges')}
-                    </button>
-                    {saved && (
-                      <span className="flex items-center gap-1 text-[12px] text-emerald-600">
-                        <CheckCircle2 className="size-3.5" />
-                        {t('profile.saved')}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-[#858585]">{t('profile.notLoaded')}</p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* ── Providers ─────────────────────────────────── */}
-        <TabsContent value="providers">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('tabs.providers')}</CardTitle>
-              <CardDescription>{t('providers.goToProviders')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between rounded-lg border border-[#d2d2d7]/60 bg-white p-4">
-                  <div>
-                    <p className="text-sm font-medium text-[#1d1d1f]">{t('providers.activeProvider')}</p>
-                    <p className="text-xs text-[#858585]">{t('providers.notConfigured')}</p>
-                  </div>
-                  <Link
-                    href="/admin/providers"
-                    className="flex items-center gap-1 text-[12px] font-medium text-[#0071e3] hover:text-[#0077ed] transition-colors"
-                  >
-                    {t('providers.goToProviders')}
-                    <ChevronRight className="size-3.5" />
-                  </Link>
-                </div>
-                <p className="text-[12px] text-[#858585]">
-                  {t('subtitle')}
-                </p>
+        {/* ── Appearance (Accessibility) ─────────────────────── */}
+        <TabsContent value="appearance">
+          <div className={`${styles.card} animate-fade-in-up`}>
+            <div className={styles.cardHead}>
+              <span className={styles.headerIcon}>
+                <Eye size={18} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2 className={styles.cardTitle}>{t('tabs.appearance')}</h2>
+                <p className={styles.cardDesc}>{t('appearanceDesc')}</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            <div className={styles.cardBody}>
+              <AccessibilitySettings variant="inline" />
+            </div>
+          </div>
         </TabsContent>
 
         {/* ── Notifications ─────────────────────────────── */}
         <TabsContent value="notifications">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('tabs.notifications')}</CardTitle>
-              <CardDescription>Control how and when you receive updates</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-1">
-                <Toggle
-                  label={t('notifications.emailNotifications')}
-                  description={t('notifications.emailDesc')}
-                  enabled={notifEmail}
-                  onChange={setNotifEmail}
-                />
-                <Toggle
-                  label={t('notifications.browserNotifications')}
-                  description={t('notifications.browserDesc')}
-                  enabled={notifBrowser}
-                  onChange={setNotifBrowser}
-                />
-                <Toggle
-                  label={t('notifications.soundEffects')}
-                  description={t('notifications.soundEffectDesc')}
-                  enabled={notifSound}
-                  onChange={setNotifSound}
-                />
-                <Toggle
-                  label={t('notifications.marketingEmails')}
-                  description={t('notifications.marketingDesc')}
-                  enabled={notifMarketing}
-                  onChange={setNotifMarketing}
-                />
+          <div className={`${styles.card} animate-fade-in-up`}>
+            <div className={styles.cardHead}>
+              <span className={styles.headerIcon}>
+                <Bell size={18} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2 className={styles.cardTitle}>{t('tabs.notifications')}</h2>
+                <p className={styles.cardDesc}>{t('notifications.desc')}</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            <div className={styles.cardBody}>
+              <Toggle
+                label={t('notifications.emailNotifications')}
+                description={t('notifications.emailDesc')}
+                enabled={notifEmail}
+                onChange={setNotifEmail}
+              />
+              <Toggle
+                label={t('notifications.browserNotifications')}
+                description={t('notifications.browserDesc')}
+                enabled={notifBrowser}
+                onChange={setNotifBrowser}
+              />
+              <Toggle
+                label={t('notifications.soundEffects')}
+                description={t('notifications.soundEffectDesc')}
+                enabled={notifSound}
+                onChange={setNotifSound}
+              />
+              <Toggle
+                label={t('notifications.marketingEmails')}
+                description={t('notifications.marketingDesc')}
+                enabled={notifMarketing}
+                onChange={setNotifMarketing}
+              />
+            </div>
+          </div>
         </TabsContent>
 
         {/* ── Language ──────────────────────────────────── */}
         <TabsContent value="language">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('tabs.language')}</CardTitle>
-              <CardDescription>{t('language.interfaceDesc')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p className="text-[14px] font-medium text-[#1d1d1f] mb-2">{t('language.interfaceLanguage')}</p>
-                <LanguageSwitcher />
+          <div className={`${styles.card} animate-fade-in-up`}>
+            <div className={styles.cardHead}>
+              <span className={styles.headerIcon}>
+                <Globe size={18} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2 className={styles.cardTitle}>{t('tabs.language')}</h2>
+                <p className={styles.cardDesc}>{t('language.interfaceDesc')}</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            <div className={styles.cardBody}>
+              <p className="text-[14px] font-medium text-[#1d1d1f] mb-3">{t('language.interfaceLanguage')}</p>
+              <LanguageSwitcher />
+            </div>
+          </div>
         </TabsContent>
 
-        {/* ── Appearance ────────────────────────────────── */}
-        <TabsContent value="appearance">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('tabs.appearance')}</CardTitle>
-              <CardDescription>Customize the look and feel of Open Ai Jobs Search</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AccessibilitySettings variant="inline" />
-            </CardContent>
-          </Card>
+        {/* ── Providers ─────────────────────────────────── */}
+        <TabsContent value="providers">
+          <div className={`${styles.card} animate-fade-in-up`}>
+            <div className={styles.cardHead}>
+              <span className={styles.headerIcon}>
+                <Server size={18} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2 className={styles.cardTitle}>{t('tabs.providers')}</h2>
+                <p className={styles.cardDesc}>{t('providers.goToProviders')}</p>
+              </div>
+            </div>
+            <div className={styles.cardBody}>
+              <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#d2d2d7]/60 bg-white/70 p-4">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-[#1d1d1f]">{t('providers.activeProvider')}</p>
+                  <p className="text-xs text-[#858585] mt-0.5">{t('providers.notConfigured')}</p>
+                </div>
+                <Link
+                  href="/admin/providers"
+                  className="inline-flex shrink-0 items-center gap-1 text-[12px] font-medium text-[#0071e3] hover:text-[#0077ed] transition-colors"
+                >
+                  {t('providers.goToProviders')}
+                  <ChevronRight className="size-3.5" />
+                </Link>
+              </div>
+            </div>
+          </div>
         </TabsContent>
 
         {/* ── Security ──────────────────────────────────── */}
         <TabsContent value="security">
           <div className="space-y-6">
             {/* ── Plan & Billing ─────────────────── */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500">
+            <div className={`${styles.card} animate-fade-in-up`}>
+              <div className={styles.cardHead}>
+                <span className={styles.headerIcon}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>
-                  {t('security.plan')}
-                </CardTitle>
-                <CardDescription>{t('security.planDesc')}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
-                      isPremium()
-                        ? 'bg-amber-100 text-amber-700'
-                        : 'bg-[#f5f5f7] text-[#707070]'
-                    }`}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                      </svg>
-                      {isPremium() ? 'Premium' : 'Free'}
-                    </span>
-                  </div>
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h2 className={styles.cardTitle}>{t('security.plan')}</h2>
+                  <p className={styles.cardDesc}>{t('security.planDesc')}</p>
+                </div>
+              </div>
+              <div className={styles.cardBody}>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <span className={isPremium() ? styles.chipOk : styles.chipNeutral}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                    {isPremium() ? 'Premium' : 'Free'}
+                  </span>
                   {!isPremium() && (
                     <button
                       onClick={() => setShowUpgrade(true)}
-                      className="rounded-full bg-[#0071e3] px-4 py-1.5 text-xs font-medium text-white hover:bg-[#0068d2] transition-all"
+                      className={styles.btnPrimary}
                     >
                       {t('security.upgrade')}
                     </button>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('security.changePassword')}</CardTitle>
-              </CardHeader>
-              <CardContent>
+            {/* ── Change password ── */}
+            <div className={`${styles.card} animate-fade-in-up`}>
+              <div className={styles.cardHead}>
+                <span className={styles.headerIcon}>
+                  <Shield size={18} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h2 className={styles.cardTitle}>{t('security.changePassword')}</h2>
+                </div>
+              </div>
+              <div className={styles.cardBody}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-[12px] font-medium text-[#707070] mb-1">{t('security.currentPassword')}</label>
+                    <label className={styles.fieldLabel}>{t('security.currentPassword')}</label>
                     <input type="password" autoComplete="current-password" value={passwordForm.current} onChange={e => setPasswordForm(p => ({ ...p, current: e.target.value }))}
-                      className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] outline-none focus:border-[#0071e3] focus:ring-1 focus:ring-[#0071e3]/20 transition-all" />
+                      className={styles.field} />
                   </div>
                   <div>
-                    <label className="block text-[12px] font-medium text-[#707070] mb-1">{t('security.newPassword')}</label>
+                    <label className={styles.fieldLabel}>{t('security.newPassword')}</label>
                     <input type="password" autoComplete="new-password" value={passwordForm.newPw} onChange={e => setPasswordForm(p => ({ ...p, newPw: e.target.value }))}
-                      className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] outline-none focus:border-[#0071e3] focus:ring-1 focus:ring-[#0071e3]/20 transition-all" />
+                      className={styles.field} />
                   </div>
                   <div>
-                    <label className="block text-[12px] font-medium text-[#707070] mb-1">{t('security.confirmPassword')}</label>
+                    <label className={styles.fieldLabel}>{t('security.confirmPassword')}</label>
                     <input type="password" autoComplete="new-password" value={passwordForm.confirm} onChange={e => setPasswordForm(p => ({ ...p, confirm: e.target.value }))}
-                      className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] outline-none focus:border-[#0071e3] focus:ring-1 focus:ring-[#0071e3]/20 transition-all" />
+                      className={styles.field} />
                   </div>
-                  {pwError && <p className="text-[12px] text-rose-500">{pwError}</p>}
+                  {pwError && <p className={styles.errorStrip}>{pwError}</p>}
                   {pwSuccess && (
-                    <p className="flex items-center gap-1 text-[12px] text-emerald-600">
-                      <CheckCircle2 className="size-3.5" /> {t('security.passwordUpdated')}
+                    <p className={`${styles.successStrip} flex items-center gap-1.5`}>
+                      <CheckCircle2 className="size-3.5 shrink-0" /> {t('security.passwordUpdated')}
                     </p>
                   )}
                   <button onClick={updatePassword} disabled={pwUpdating || !passwordForm.current || !passwordForm.newPw}
-                    className="rounded-full bg-[#0071e3] px-5 py-2 text-[13px] font-medium text-white hover:bg-[#0077ed] disabled:opacity-50 transition-all">
+                    className={styles.btnPrimary}>
+                    {pwUpdating && <span className={styles.spinner} />}
                     {pwUpdating ? tc('loading') : t('security.updatePassword')}
                   </button>
                 </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('security.twoFactor')}</CardTitle>
-                <CardDescription>{t('security.twoFactorDesc')}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <button disabled className="rounded-full border border-[#d2d2d7] bg-white px-5 py-2 text-[13px] font-medium text-[#707070] opacity-50 cursor-not-allowed">{t('security.enable2FA')}</button>
+              </div>
+            </div>
+
+            {/* ── Two-factor ── */}
+            <div className={`${styles.card} animate-fade-in-up`}>
+              <div className={styles.cardHead}>
+                <span className={styles.headerIcon}>
+                  <Shield size={18} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h2 className={styles.cardTitle}>{t('security.twoFactor')}</h2>
+                  <p className={styles.cardDesc}>{t('security.twoFactorDesc')}</p>
+                </div>
+              </div>
+              <div className={styles.cardBody}>
+                <button disabled className={styles.btnSecondary}>{t('security.enable2FA')}</button>
                 <p className="mt-2 text-[11px] text-[#b0b0b0]">Coming soon</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('security.sessions')}</CardTitle>
-                <CardDescription>{t('security.sessionsDesc')}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <button disabled className="rounded-full border border-[#d2d2d7] bg-white px-5 py-2 text-[13px] font-medium text-[#707070] opacity-50 cursor-not-allowed">{t('security.revokeAll')}</button>
+              </div>
+            </div>
+
+            {/* ── Sessions ── */}
+            <div className={`${styles.card} animate-fade-in-up`}>
+              <div className={styles.cardHead}>
+                <span className={styles.headerIcon}>
+                  <UserRound size={18} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h2 className={styles.cardTitle}>{t('security.sessions')}</h2>
+                  <p className={styles.cardDesc}>{t('security.sessionsDesc')}</p>
+                </div>
+              </div>
+              <div className={styles.cardBody}>
+                <button disabled className={styles.btnSecondary}>{t('security.revokeAll')}</button>
                 <p className="mt-2 text-[11px] text-[#b0b0b0]">Coming soon</p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* ── Danger Zone: Delete Account ─────────────────── */}
-            <Card className="border-rose-200">
-              <CardHeader>
-                <CardTitle className="text-rose-600">{t('security.deleteAccount')}</CardTitle>
-                <CardDescription>{t('security.deleteAccountDesc')}</CardDescription>
-              </CardHeader>
-              <CardContent>
+            <div className={`${styles.card} animate-fade-in-up border-rose-200`}>
+              <div className={styles.cardHead}>
+                <span className={styles.headerIcon} style={{ background: 'linear-gradient(135deg,#ff6482 0%,#ff375f 55%,#d70015 100%)' }}>
+                  <Shield size={18} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h2 className={`${styles.cardTitle} text-rose-600`}>{t('security.deleteAccount')}</h2>
+                  <p className={styles.cardDesc}>{t('security.deleteAccountDesc')}</p>
+                </div>
+              </div>
+              <div className={styles.cardBody}>
                 <div className="space-y-4">
-                  <div className="rounded-lg bg-rose-50 border border-rose-200 p-4">
-                    <p className="text-[13px] text-rose-700 leading-relaxed">
-                      {t('security.deleteAccountWarning')}
-                    </p>
+                  <div className={styles.errorStrip}>
+                    {t('security.deleteAccountWarning')}
                   </div>
                   <button
                     onClick={() => setShowDeleteConfirm(true)}
-                    className="rounded-full bg-rose-500 px-5 py-2 text-[13px] font-medium text-white hover:bg-rose-600 transition-all"
+                    className={styles.btnDanger}
                   >
                     {t('security.deleteAccountButton')}
                   </button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* ── Delete Account Confirmation Modal ─────────────── */}
@@ -452,29 +403,29 @@ export default function Settings() {
                     </div>
                   </div>
 
-                  <div className="rounded-lg bg-rose-50 border border-rose-200 p-3">
-                    <p className="text-[12px] text-rose-700 leading-relaxed">{t('security.deleteAccountWarning')}</p>
+                  <div className={styles.errorStrip}>
+                    {t('security.deleteAccountWarning')}
                   </div>
 
                   <div>
-                    <label className="block text-[12px] font-medium text-[#707070] mb-1">{t('security.currentPassword')}</label>
+                    <label className={styles.fieldLabel}>{t('security.currentPassword')}</label>
                     <input
                       type="password"
                       autoComplete="current-password"
                       value={deletePassword}
                       onChange={e => setDeletePassword(e.target.value)}
-                      className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] text-[#1d1d1f] outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400/20 transition-all"
+                      className={styles.field}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[12px] font-medium text-[#707070] mb-1">{t('security.deleteAccountConfirm')}</label>
+                    <label className={styles.fieldLabel}>{t('security.deleteAccountConfirm')}</label>
                     <input
                       type="text"
                       value={deleteConfirmText}
                       onChange={e => setDeleteConfirmText(e.target.value)}
                       placeholder={confirmWord}
-                      className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-[14px] text-[#1d1d1f] outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400/20 transition-all"
+                      className={styles.field}
                     />
                   </div>
 
@@ -482,14 +433,14 @@ export default function Settings() {
                     <button
                       onClick={() => { setShowDeleteConfirm(false); setDeletePassword(''); setDeleteConfirmText('') }}
                       disabled={deleting}
-                      className="flex-1 rounded-full border border-[#d2d2d7] bg-white px-4 py-2 text-[13px] font-medium text-[#474747] hover:bg-[#f5f5f7] disabled:opacity-50 transition-all"
+                      className={`${styles.btnSecondary} flex-1`}
                     >
-                      Cancelar
+                      {tc('cancel')}
                     </button>
                     <button
                       onClick={deleteAccount}
                       disabled={!canDelete}
-                      className="flex-1 rounded-full bg-rose-500 px-4 py-2 text-[13px] font-medium text-white hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className={`${styles.btnDanger} flex-1`}
                     >
                       {deleting ? t('security.deleting') : t('security.deleteAccountButton')}
                     </button>
