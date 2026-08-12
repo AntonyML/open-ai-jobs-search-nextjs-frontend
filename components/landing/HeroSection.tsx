@@ -55,7 +55,7 @@ export async function HeroSection() {
               className="inline-flex w-full items-center justify-center rounded-full bg-[#0071e3] px-7 py-3 text-[15px] font-medium text-white shadow-sm transition-all hover:bg-[#0068d2] sm:w-auto"
             />
             <Link
-              href="/#how-it-works"
+              href="/#features"
               className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-[#0066cc] px-6 py-3 text-[15px] font-medium text-[#0066cc] transition-colors hover:bg-[#e8f0fe] sm:w-auto"
             >
               {t('heroCtaSecondary')}

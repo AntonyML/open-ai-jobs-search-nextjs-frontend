@@ -24,7 +24,7 @@ test.describe('Landing', () => {
 
   /**
    * Links de navegación del navbar: cada opción lleva a su sección/página.
-   * "Características" → /#features, "Cómo funciona" → /#how-it-works, "Acerca de" → /about.
+   * "Características" → /#features, "Acerca de" → /about.
    */
   test('navega a la sección Características desde el navbar', async ({ page, landingPage }) => {
     await landingPage.goto()
@@ -33,15 +33,6 @@ test.describe('Landing', () => {
 
     await expect(page).toHaveURL(/#features/, { timeout: 15_000 })
     await expect(landingPage.featuresHeading).toBeVisible()
-  })
-
-  test('navega a la sección Cómo funciona desde el navbar', async ({ page, landingPage }) => {
-    await landingPage.goto()
-
-    await landingPage.navHowItWorks.click()
-
-    await expect(page).toHaveURL(/#how-it-works/, { timeout: 15_000 })
-    await expect(landingPage.howItWorksHeading).toBeVisible()
   })
 
   test('muestra la sección de precios', async ({ landingPage }) => {
@@ -72,7 +63,6 @@ test.describe('Landing', () => {
 
     const nav = page.locator('header')
     await expect(nav.getByRole('link', { name: 'Características', exact: true })).toBeVisible()
-    await expect(nav.getByRole('link', { name: 'Cómo funciona', exact: true })).toBeVisible()
     await expect(nav.getByRole('link', { name: 'Acerca de', exact: true })).toBeVisible()
 
     // "Acerca de" navega a /es/about
