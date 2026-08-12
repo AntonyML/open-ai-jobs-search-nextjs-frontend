@@ -137,7 +137,7 @@
   "about": {
     "label": "About",
     "heroHeading": "Enterprise-grade AI for your job search",
-    "heroDesc": "Open Ai Jobs Search is a premium AI orchestration platform that automates your entire job search pipeline with multi-provider failover, deterministic scoring, and zero downtime.",
+    "heroDesc": "Open Ai Jobs Search is a premium AI platform that turns your profile into tailored CVs, ranks every offer by fit, and prepares you for interviews — with automatic failover across five+ AI providers.",
     "problemHeading": "The problem",
     "problemP1": "Applying for jobs is a full-time job. Between tailoring your CV, writing cover letters, tracking applications, and preparing for interviews, it's easy to burn out before you even land an interview.",
     "problemP2": "Most AI job tools rely on a single provider. When that provider hits a rate limit or goes down, your job search stops. And free tools? Your data trains their models.",

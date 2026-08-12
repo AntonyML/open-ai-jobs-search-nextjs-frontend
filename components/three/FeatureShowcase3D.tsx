@@ -45,6 +45,12 @@ export function FeatureShowcase3D() {
 
   return (
     <group ref={groupRef}>
+      {/* Invisible hitbox — makes the whole showcase area hoverable. */}
+      <mesh onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}>
+        <sphereGeometry args={[2.6, 8, 8]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+
       {/* Center orchestrator */}
       <mesh position={[0, 0, 0]}>
         <sphereGeometry args={[0.28, 24, 24]} />

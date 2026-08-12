@@ -12,7 +12,7 @@ export async function HeroSection() {
   const t = await getTranslations('marketing')
 
   return (
-    <section className="relative overflow-hidden bg-[#f5f5f7]">
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe]">
       {/* 3D background layer */}
       <SceneDynamic className="absolute inset-0" activeFrameloop="always">
         <HeroParticles />

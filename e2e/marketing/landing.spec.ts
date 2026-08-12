@@ -50,6 +50,13 @@ test.describe('Landing', () => {
     await expect(landingPage.pricingHeading).toBeVisible()
   })
 
+  test('monta el canvas 3D en el hero', async ({ page }) => {
+    await page.goto('/')
+
+    // El canvas WebGL se monta bajo demanda (escena 3D del hero).
+    await expect(page.locator('main canvas').first()).toBeVisible({ timeout: 15_000 })
+  })
+
   test('navega a la página About desde el navbar (Acerca de)', async ({ page, landingPage }) => {
     await landingPage.goto()
 

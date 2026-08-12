@@ -7,7 +7,7 @@ export async function CTASection() {
   const t = await getTranslations('marketing')
 
   return (
-    <section className="relative overflow-hidden border-t border-[#d2d2d7] bg-[#f5f5f7]">
+    <section className="relative overflow-hidden border-t border-[#d2d2d7] bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe]">
       {/* Low-density 3D background */}
       <SceneDynamic className="absolute inset-0" activeFrameloop="always">
         <CtaAurora />

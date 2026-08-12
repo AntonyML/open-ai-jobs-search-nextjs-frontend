@@ -137,7 +137,7 @@
   "about": {
     "label": "Acerca de",
     "heroHeading": "IA de nivel empresarial para tu búsqueda de empleo",
-    "heroDesc": "Open Ai Jobs Search es una plataforma premium de orquestación de IA que automatiza todo tu pipeline de búsqueda de empleo con failover multi-proveedor, puntuación determinista y cero tiempo de inactividad.",
+    "heroDesc": "Open Ai Jobs Search es una plataforma premium de IA que convierte tu perfil en CVs a medida, rankea cada oferta por fit y te prepara para entrevistas — con failover automático entre 5+ proveedores de IA.",
     "problemHeading": "El problema",
     "problemP1": "Postularse a empleos es un trabajo de tiempo completo. Entre personalizar tu CV, escribir cartas de presentación, rastrear postulaciones y prepararte para entrevistas, es fácil agotarse antes de conseguir una entrevista.",
     "problemP2": "La mayoría de las herramientas de empleo con IA dependen de un solo proveedor. Cuando ese proveedor alcanza un límite de tasa o se cae, tu búsqueda se detiene. ¿Y las herramientas gratuitas? Tus datos entrenan sus modelos.",
