@@ -1,10 +1,10 @@
 'use client'
 
 const TECH_STACK_KEYS = [
-  { categoryKey: 'techFrontend', items: ['Next.js 15', 'React 19', 'TypeScript', 'Tailwind CSS', 'shadcn/ui'] },
-  { categoryKey: 'techBackend', items: ['FastAPI', 'Python 3.12+', 'SQLAlchemy', 'Alembic', 'Pydantic'] },
-  { categoryKey: 'techAI', items: ['LiteLLM', 'OpenAI API', 'Anthropic API', 'NVIDIA NIM', 'OpenRouter'] },
-  { categoryKey: 'techInfra', items: ['PostgreSQL', 'Docker', 'Fly.io', 'JWT Auth', 'Encrypted Credentials'] },
+  { categoryKey: 'techFrontend', items: ['Next.js 15', 'React 19', 'TypeScript', 'Tailwind CSS', 'Three.js'] },
+  { categoryKey: 'techBackend', items: ['FastAPI', 'Python 3.12', 'SQLAlchemy 2.0', 'Pydantic v2', 'LiteLLM'] },
+  { categoryKey: 'techAI', items: ['Anthropic', 'OpenAI', 'NVIDIA NIM', 'LM Studio', 'Ollama'] },
+  { categoryKey: 'techInfra', items: ['PostgreSQL', 'Docker', 'Fly.io', 'Typst PDF', 'Fernet'] },
 ]
 
 function TechTag({ label }: { label: string }) {
