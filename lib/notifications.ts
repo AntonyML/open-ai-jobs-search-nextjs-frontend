@@ -1,127 +1,130 @@
 /**
- * Notification history — tracks completed pipeline processes (ranking, scraping, etc.)
- * with persistence in localStorage so the bell icon shows history across sessions.
+ * Notifications — server-backed via `app_notifications` (replaces the old
+ * localStorage-only history).
  *
- * Each notification stores: pipeline name, description, status (success/error),
- * timestamp, and read/unread state.
+ * Pipeline events (`addNotification`) are persisted with `POST
+ * /api/v1/notifications` so the bell shows history across sessions and
+ * devices.  The bell (`NotificationBell`) reads them back with
+ * `useNotifications`.
  */
 
 'use client'
 
 import { useEffect, useState } from 'react'
+import { apiFetch } from '@/lib/api'
 
-export interface ProcessNotification {
+export interface ServerNotification {
   id: string
+  type: string // info | credits_low | quota_exhausted | ia_exhausted | purchase_request | plan_expired | <pipeline>[_error]
+  title: string
+  body: string | null
+  is_read: boolean
+  created_at: string | null
+}
+
+/** Shape accepted by `addNotification` (kept for pipeline callers). */
+export interface ProcessNotification {
   pipeline: string
   description: string
   status: 'success' | 'error'
-  timestamp: string  // ISO 8601
-  read: boolean
 }
 
-const STORAGE_KEY = 'pipeline_notifications'
-const MAX_NOTIFICATIONS = 50
+const MAX_TITLE = 120
 
-function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+export async function fetchNotifications(unreadOnly = false): Promise<ServerNotification[]> {
+  const qs = unreadOnly ? '?unread_only=true' : ''
+  return apiFetch<ServerNotification[]>(`/api/v1/notifications${qs}`)
 }
 
-export function getNotifications(): ProcessNotification[] {
-  if (typeof window === 'undefined') return []
+export async function createNotification(
+  type: string,
+  title: string,
+  body?: string | null,
+): Promise<ServerNotification | null> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return []
-    return JSON.parse(raw) as ProcessNotification[]
+    return await apiFetch<ServerNotification>('/api/v1/notifications', {
+      method: 'POST',
+      body: JSON.stringify({ type, title, body: body ?? null }),
+    })
   } catch {
-    return []
+    return null
   }
 }
 
-function saveNotifications(notifs: ProcessNotification[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notifs))
-  } catch {
-    // localStorage full — silently ignore
-  }
-}
-
-export function addNotification(notif: Omit<ProcessNotification, 'id' | 'timestamp' | 'read'>): void {
-  const notifs = getNotifications()
-  notifs.unshift({
-    ...notif,
-    id: generateId(),
-    timestamp: new Date().toISOString(),
-    read: false,
+/** Persist a pipeline event (kept signature for existing callers). */
+export function addNotification(notif: ProcessNotification): void {
+  const type = notif.status === 'error' ? `${notif.pipeline}_error` : notif.pipeline
+  const title = notif.description.length > MAX_TITLE
+    ? `${notif.description.slice(0, MAX_TITLE)}…`
+    : notif.description
+  void createNotification(type, title, notif.description).then((created) => {
+    if (created) window.dispatchEvent(new Event('notifications:refresh'))
   })
-  // Keep only the most recent N
-  if (notifs.length > MAX_NOTIFICATIONS) {
-    notifs.length = MAX_NOTIFICATIONS
-  }
-  saveNotifications(notifs)
-  window.dispatchEvent(new Event('notification-change'))
 }
 
-export function markAsRead(id: string): void {
-  const notifs = getNotifications()
-  const idx = notifs.findIndex(n => n.id === id)
-  if (idx !== -1) {
-    notifs[idx].read = true
-    saveNotifications(notifs)
-    window.dispatchEvent(new Event('notification-change'))
+export async function markAsRead(id: string): Promise<void> {
+  try {
+    await apiFetch(`/api/v1/notifications/${encodeURIComponent(id)}/read`, { method: 'POST' })
+  } catch {
+    // ignore
   }
 }
 
-export function markAllAsRead(): void {
-  const notifs = getNotifications()
-  for (const n of notifs) n.read = true
-  saveNotifications(notifs)
-  window.dispatchEvent(new Event('notification-change'))
+export async function markAllAsRead(): Promise<void> {
+  try {
+    await apiFetch('/api/v1/notifications/read-all', { method: 'POST' })
+  } catch {
+    // ignore
+  }
 }
 
-export function clearNotifications(): void {
-  saveNotifications([])
-  window.dispatchEvent(new Event('notification-change'))
-}
-
-export function unreadCount(): number {
-  return getNotifications().filter(n => !n.read).length
+export async function clearNotifications(): Promise<void> {
+  try {
+    await apiFetch('/api/v1/notifications', { method: 'DELETE' })
+  } catch {
+    // ignore
+  }
 }
 
 /**
- * React hook that subscribes to notification changes.
- * Re-renders the component whenever a notification is added or marked read.
+ * Polls the server notifications while mounted and dispatches
+ * `notifications:refresh` so other components stay in sync.
  */
-export function useNotifications() {
-  const [notifs, setNotifs] = useState<ProcessNotification[]>(() => getNotifications())
-  const [unread, setUnread] = useState(() => unreadCount())
+export function useNotifications(enabled = true, intervalMs = 15000) {
+  const [notifs, setNotifs] = useState<ServerNotification[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Listen for storage changes (other tabs)
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY) {
-        setNotifs(getNotifications())
-        setUnread(unreadCount())
+    if (!enabled) return
+    let cancelled = false
+
+    async function load() {
+      try {
+        const rows = await fetchNotifications()
+        if (!cancelled) setNotifs(rows)
+      } catch {
+        // silent — backend may be down
+      } finally {
+        if (!cancelled) setLoading(false)
       }
     }
-    window.addEventListener('storage', onStorage)
 
-    // Custom event for same-tab notification changes
-    const onNotifChange = () => {
-      setNotifs(getNotifications())
-      setUnread(unreadCount())
-    }
-    window.addEventListener('notification-change', onNotifChange)
-
+    void load()
+    const onRefresh = () => void load()
+    const onFocus = () => void load()
+    const timer = window.setInterval(() => void load(), intervalMs)
+    window.addEventListener('notifications:refresh', onRefresh)
+    window.addEventListener('billing:updated', onRefresh)
+    window.addEventListener('focus', onFocus)
     return () => {
-      window.removeEventListener('storage', onStorage)
-      window.removeEventListener('notification-change', onNotifChange)
+      cancelled = true
+      window.clearInterval(timer)
+      window.removeEventListener('notifications:refresh', onRefresh)
+      window.removeEventListener('billing:updated', onRefresh)
+      window.removeEventListener('focus', onFocus)
     }
-  }, [])
+  }, [enabled, intervalMs])
 
-  const refresh = () => {
-    setNotifs(getNotifications())
-    setUnread(unreadCount())
-  }
-
-  return { notifications: notifs, unread, refresh }
+  const unread = notifs.filter((n) => !n.is_read)
+  return { notifications: notifs, unread, loading }
 }

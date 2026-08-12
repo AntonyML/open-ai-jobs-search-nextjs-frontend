@@ -34,7 +34,11 @@
     "notifications": "Notifications",
     "markAllRead": "Mark all read",
     "noNotifications": "No notifications yet",
-    "noNotificationsHint": "Complete a pipeline step to see it here."
+    "noNotificationsHint": "Complete a pipeline step to see it here.",
+    "clearNotifications": "Clear",
+    "manageSubscriptions": "Manage subscriptions",
+    "notificationsMarkAllError": "Could not update notifications",
+    "notificationsClearError": "Could not clear notifications"
   },
   "auth": {
     "loginTitle": "Welcome back",
@@ -1145,15 +1149,6 @@
     "feature.pipeline": "Full pipeline",
     "feature.expand": "Discover skills",
     "feature.upskill": "Learning plan"
-  },
-  "adminNotifs": {
-    "label": "Admin notifications ({count} unread)",
-    "title": "Admin inbox",
-    "subtitle": "Purchase requests & system alerts",
-    "markAll": "Mark all read",
-    "empty": "No notifications. New purchase requests will appear here.",
-    "manage": "Manage subscriptions",
-    "error": "Could not update notification"
   },
   "billingPage": {
     "title": "My plan & credits",

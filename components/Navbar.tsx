@@ -17,14 +17,6 @@ const NotificationBell = dynamic(
   },
 )
 
-const AdminNotificationBell = dynamic(
-  () => import('@/components/AdminNotificationBell'),
-  {
-    ssr: false,
-    loading: () => <div className="h-8 w-8" />,
-  },
-)
-
 // ── Credit chip (plan + balance) ───────────────────────────────────
 
 function NavbarCreditChip() {
@@ -122,7 +114,6 @@ function LoggedInNav({ t }: { t: (key: string) => string }) {
   const router = useRouter()
 
   return (            <>
-              {isAdmin() && <AdminNotificationBell />}
               <NotificationBell />
               <NavLink href="/dashboard">{t('nav.dashboard')}</NavLink>
       <NavLink href="/pipeline/setup">{t('nav.pipeline')}</NavLink>
@@ -266,7 +257,6 @@ export default function Navbar() {
                 <LoggedInNav t={t} />
               </div>
               <div className="flex md:hidden">
-                {isAdmin() && <AdminNotificationBell />}
                 <NotificationBell />
               </div>
             </>
