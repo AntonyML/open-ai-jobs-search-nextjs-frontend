@@ -470,7 +470,6 @@
   },
   "search": {
     "eyebrow": "03 / BUSCAR",
-    "backToSetup": "Volver a configuración de perfil",
     "cancel": "Cancelar",
     "briefingTitle": "Tu búsqueda está lista",
     "briefingSubtitle": "Según tu perfil, estos son los parámetros de búsqueda",
@@ -576,7 +575,6 @@
     "prevStepTitle": "Rankea empleos primero",
     "prevStepDesc": "Antes de generar postulaciones, debes rankear tus empleos. El ranking identifica las mejores coincidencias para tu perfil.",
     "prevStepAction": "Ir a Rank",
-    "backToRank": "Volver a evaluación",
     "continueToInterview": "Continuar a Entrevista",
     "continueToInterviewTooltip": "Ir a preparación de entrevistas"
   },
@@ -996,12 +994,15 @@
     "offersDesc": "Busca y guarda ofertas",
     "rankingsDesc": "Evalúa compatibilidad",
     "applicationsDesc": "Gestiona tus postulaciones",
-    "interviewsDesc": "Prepara entrevistas"
+    "interviewsDesc": "Prepara entrevistas",
+    "adaptCv": "Adaptar CV a una oferta laboral",
+    "adaptCvLockedTooltip": "Primero genera tu CV base",
+    "adaptLockedToast": "Primero debes generar tu CV base para poder adaptarlo a una oferta laboral."
   },
   "cvBuilder": {
-    "eyebrow": "GENERADOR DE CV",
+    "eyebrow": "DOCUMENTOS PROFESIONALES",
     "title": "Generador de CV",
-    "subtitle": "Completa tu perfil, genera un CV base o adáptalo a una oferta laboral.",
+    "subtitle": "Convierte tu perfil en un CV impecable y crea versiones personalizadas que cautiven a cada reclutador.",
     "datosTab": "Perfil",
     "baseTab": "CV Base",
     "ofertaTab": "Oferta Laboral",
@@ -1082,7 +1083,16 @@
     "adaptedListDesc": "Documentos derivados de tu CV base para ofertas específicas.",
     "viewAllDocuments": "Ver todos mis CV",
     "viewDocument": "Ver documento",
-    "adaptedDoc": "CV adaptado"
+    "adaptedDoc": "CV adaptado",
+    "adaptEyebrow": "PERSONALIZACIÓN",
+    "adaptLockedTitle": "Primero genera tu CV base",
+    "adaptLockedDesc": "Para adaptar tu CV a una oferta laboral, primero debes generar tu CV base desde tu perfil.",
+    "adaptGoBuilder": "Generar CV base",
+    "adaptSelectTitle": "Selecciona una oferta laboral",
+    "adaptSelectDesc": "Elige una de las ofertas guardadas y generaremos una versión de tu CV que resalte lo más relevante para esa posición.",
+    "adaptNextTitle": "¿Listo para llevarlo más lejos?",
+    "adaptNextDesc": "Adapta tu CV base a una oferta laboral específica y destaca lo que más importa para esa posición.",
+    "adaptNextButton": "Adaptar a una oferta"
   },
   "cvDocuments": {
     "eyebrow": "Documentos",

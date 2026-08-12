@@ -471,7 +471,6 @@
   },
   "search": {
     "eyebrow": "03 / SEARCH",
-    "backToSetup": "Back to profile setup",
     "cancel": "Cancel",
     "briefingTitle": "Your search is ready",
     "briefingSubtitle": "Based on your profile, these are your search parameters",
@@ -577,7 +576,6 @@
     "prevStepTitle": "Rank jobs first",
     "prevStepDesc": "Before generating applications, you need to rank your jobs. Ranking identifies the best matches for your profile so you can apply strategically.",
     "prevStepAction": "Go to Rank",
-    "backToRank": "Back to evaluation",
     "continueToInterview": "Continue to Interview",
     "continueToInterviewTooltip": "Go to interview preparation"
   },
@@ -996,12 +994,15 @@
     "offersDesc": "Search and save offers",
     "rankingsDesc": "Assess compatibility",
     "applicationsDesc": "Manage your applications",
-    "interviewsDesc": "Prepare interviews"
+    "interviewsDesc": "Prepare interviews",
+    "adaptCv": "Adapt CV to a job offer",
+    "adaptCvLockedTooltip": "Generate your base CV first",
+    "adaptLockedToast": "You need to generate your base CV first before adapting it to a job offer."
   },
   "cvBuilder": {
-    "eyebrow": "CV BUILDER",
+    "eyebrow": "PROFESSIONAL DOCUMENTS",
     "title": "CV Builder",
-    "subtitle": "Complete your profile, generate a base CV, or tailor it to a job offer.",
+    "subtitle": "Turn your profile into a polished CV and craft tailored versions that win over every recruiter.",
     "datosTab": "Profile",
     "baseTab": "Base CV",
     "ofertaTab": "Job Offer",
@@ -1082,7 +1083,16 @@
     "adaptedListDesc": "Documents derived from your base CV for specific offers.",
     "viewAllDocuments": "View all my CVs",
     "viewDocument": "View document",
-    "adaptedDoc": "Adapted CV"
+    "adaptedDoc": "Adapted CV",
+    "adaptEyebrow": "TAILORING",
+    "adaptLockedTitle": "Generate your base CV first",
+    "adaptLockedDesc": "To tailor your CV to a job offer, you first need to generate your base CV from your profile.",
+    "adaptGoBuilder": "Generate base CV",
+    "adaptSelectTitle": "Pick a job offer",
+    "adaptSelectDesc": "Choose one of your saved offers and we will generate a CV version that highlights what matters most for that role.",
+    "adaptNextTitle": "Ready to take it further?",
+    "adaptNextDesc": "Tailor your base CV to a specific job offer and highlight what matters most for that role.",
+    "adaptNextButton": "Adapt to an offer"
   },
   "cvDocuments": {
     "eyebrow": "Documents",

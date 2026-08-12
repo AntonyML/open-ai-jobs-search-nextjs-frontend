@@ -3,15 +3,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { User, FileText, Briefcase, Check, Lock, ArrowRight } from 'lucide-react'
+import { User, FileText, Check, Lock, ArrowRight } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { showError, showSuccess } from '@/lib/toasts'
 import { cn } from '@/lib/utils'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleButton } from '@/components/ui/apple-button'
 import { CvPdfPreview } from '@/components/cv-builder/CvPdfPreview'
-import { CvAnalysisPanel } from '@/components/cv-builder/CvAnalysisPanel'
-import type { CVResponse, JobOption } from '@/lib/cv'
+import type { CVResponse } from '@/lib/cv'
 
 /** Minimum data required to generate a CV from the profile (Regla 1). */
 function isProfileComplete(profile: any): boolean {
@@ -29,7 +28,7 @@ function isProfileComplete(profile: any): boolean {
   return hasName && hasEmail && hasLocation && hasExperience && hasSkills && hasTarget
 }
 
-function StepIcon({ state }: { state: 'done' | 'active' | 'locked' | 'pending' }) {
+function StepIcon({ state }: { state: 'done' | 'active' | 'locked' }) {
   if (state === 'done') return <Check className="size-4" />
   if (state === 'locked') return <Lock className="size-4" />
   return <span className="size-4" />
@@ -44,7 +43,7 @@ function PipelineStep({
   icon: React.ComponentType<{ className?: string }>
   label: string
   sublabel?: string
-  state: 'done' | 'active' | 'locked' | 'pending'
+  state: 'done' | 'active' | 'locked'
 }) {
   return (
     <div className="flex flex-col items-center gap-2 text-center">
@@ -53,8 +52,7 @@ function PipelineStep({
           'flex size-12 items-center justify-center rounded-2xl border transition-all',
           state === 'done' && 'border-emerald-200 bg-emerald-50 text-emerald-600',
           state === 'active' && 'border-[#0071e3]/30 bg-[#0071e3]/10 text-[#0071e3] shadow-sm',
-          state === 'locked' && 'border-[#e2e2e5] bg-[#f5f5f7] text-[#b0b0b0]',
-          state === 'pending' && 'border-[#e2e2e5] bg-white text-[#b0b0b0]'
+          state === 'locked' && 'border-[#e2e2e5] bg-[#f5f5f7] text-[#b0b0b0]'
         )}
       >
         {state === 'done' ? <StepIcon state="done" /> : <Icon className="size-5" />}
@@ -83,22 +81,16 @@ export default function CvBuilderPage() {
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<any | null>(null)
   const [cvs, setCvs] = useState<CVResponse[]>([])
-  const [jobs, setJobs] = useState<JobOption[]>([])
   const [generating, setGenerating] = useState(false)
-  const [adapting, setAdapting] = useState(false)
-  const [selectedJobId, setSelectedJobId] = useState('')
-  const [lastAdapted, setLastAdapted] = useState<CVResponse | null>(null)
   const [error, setError] = useState('')
 
   const loadAll = useCallback(async () => {
-    const [p, c, j] = await Promise.all([
+    const [p, c] = await Promise.all([
       apiFetch<any>('/api/v1/setup/profile').catch(() => null),
       apiFetch<CVResponse[]>('/api/v1/cv/').catch(() => []),
-      apiFetch<any[]>('/api/v1/rank/jobs?limit=200').catch(() => []),
     ])
     setProfile(p)
     setCvs(Array.isArray(c) ? c : [])
-    setJobs(Array.isArray(j) ? j : [])
   }, [])
 
   useEffect(() => {
@@ -106,7 +98,6 @@ export default function CvBuilderPage() {
   }, [loadAll])
 
   const baseCv = cvs.find((c) => c.cv_type === 'base') || null
-  const adaptedCvs = cvs.filter((c) => c.cv_type === 'personalized')
   const complete = isProfileComplete(profile)
 
   async function generateBase() {
@@ -118,6 +109,8 @@ export default function CvBuilderPage() {
         body: JSON.stringify({}),
       })
       setCvs((prev) => [res, ...prev.filter((c) => c.cv_type !== 'base')])
+      // Unlock the sidebar "Adapt CV" entry immediately (AppSidebar listens).
+      window.dispatchEvent(new CustomEvent('cv:base-generated'))
       showSuccess(t('baseGenerated'))
     } catch (x: any) {
       const msg = x instanceof Error ? x.message : t('baseFailed')
@@ -126,33 +119,6 @@ export default function CvBuilderPage() {
     } finally {
       setGenerating(false)
     }
-  }
-
-  async function adapt() {
-    if (!baseCv || !selectedJobId) return
-    setAdapting(true)
-    setError('')
-    try {
-      const res = await apiFetch<CVResponse>('/api/v1/cv/personalize-job', {
-        method: 'POST',
-        body: JSON.stringify({ base_cv_id: baseCv.cv_id, job_posting_id: selectedJobId }),
-      })
-      setLastAdapted(res)
-      setCvs((prev) => [res, ...prev])
-      showSuccess(t('adaptedGenerated'))
-    } catch (x: any) {
-      const msg = x instanceof Error ? x.message : t('adaptedFailed')
-      setError(msg)
-      showError(msg)
-    } finally {
-      setAdapting(false)
-    }
-  }
-
-  const stepState = (step: 'profile' | 'base' | 'adapted') => {
-    if (step === 'profile') return complete ? 'done' : 'active'
-    if (step === 'base') return baseCv ? 'done' : complete ? 'active' : 'locked'
-    return adaptedCvs.length > 0 ? 'done' : baseCv ? 'active' : 'locked'
   }
 
   if (loading) {
@@ -171,28 +137,21 @@ export default function CvBuilderPage() {
     <section className="mx-auto max-w-3xl">
       <PipelineHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
 
-      {/* ── Progressive pipeline: Perfil → CV base → CV adaptado ── */}
+      {/* ── Progress: Perfil → CV base ───────────────────────── */}
       <div className="mt-8 rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
         <div className="flex items-center justify-between gap-2">
           <PipelineStep
             icon={User}
             label={t('statePerfil')}
             sublabel={complete ? t('stateProfileDone') : t('stateProfilePending')}
-            state={stepState('profile')}
+            state={complete ? 'done' : 'active'}
           />
           <ArrowRight className="size-4 shrink-0 text-[#c7c7cc]" />
           <PipelineStep
             icon={FileText}
             label={t('stateBase')}
             sublabel={baseCv ? t('stateBaseDone') : t('stateBasePending')}
-            state={stepState('base')}
-          />
-          <ArrowRight className="size-4 shrink-0 text-[#c7c7cc]" />
-          <PipelineStep
-            icon={Briefcase}
-            label={t('stateAdapted')}
-            sublabel={adaptedCvs.length > 0 ? t('stateAdaptedDone') : t('stateAdaptedPending')}
-            state={stepState('adapted')}
+            state={baseCv ? 'done' : complete ? 'active' : 'locked'}
           />
         </div>
       </div>
@@ -248,7 +207,6 @@ export default function CvBuilderPage() {
       {/* ── Estado C — CV base generado ──────────────────────── */}
       {complete && baseCv && (
         <div className="mt-6 space-y-6">
-          {/* CV base document */}
           <div className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex flex-col">
@@ -267,129 +225,27 @@ export default function CvBuilderPage() {
             <CvPdfPreview cv={baseCv} />
           </div>
 
-          {/* Adaptar a una oferta (Regla 4: requiere CV base) */}
-          <div className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
+          <div className="flex items-center justify-between gap-3 rounded-2xl border border-[#0071e3]/20 bg-[#0071e3]/5 p-5">
             <div className="flex items-start gap-3">
               <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#0071e3]/10 text-[#0071e3]">
-                <Briefcase className="size-4.5" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="20" height="14" x="2" y="7" rx="2" />
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                </svg>
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-[#1d1d1f]">{t('adaptTitle')}</p>
-                <p className="mt-1 text-xs leading-5 text-[#707070]">{t('adaptDesc')}</p>
+                <p className="text-sm font-medium text-[#1d1d1f]">{t('adaptNextTitle')}</p>
+                <p className="mt-1 text-xs leading-5 text-[#707070]">{t('adaptNextDesc')}</p>
               </div>
             </div>
-
-            {jobs.length === 0 ? (
-              <div className="mt-4 rounded-xl border border-dashed border-[#d2d2d7] bg-[#fafafa] p-5 text-center">
-                <p className="text-sm text-[#858585]">{t('noOffers')}</p>
-                <Link href="/scrape" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-[#0071e3] hover:underline">
-                  {t('goSearch')} →
-                </Link>
-              </div>
-            ) : (
-              <>
-                <label htmlFor="cv-offer-select" className="mt-4 block text-xs font-medium text-[#707070]">
-                  {t('selectOffer')}
-                </label>
-                <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <select
-                    id="cv-offer-select"
-                    value={selectedJobId}
-                    onChange={(e) => setSelectedJobId(e.target.value)}
-                    className="field h-10 flex-1"
-                  >
-                    <option value="">{t('selectOfferPlaceholder')}</option>
-                    {jobs.map((job) => (
-                      <option key={job.id} value={job.id}>
-                        {job.title}
-                        {job.company ? ` — ${job.company}` : ''}
-                        {job.location ? ` · ${job.location}` : ''}
-                      </option>
-                    ))}
-                  </select>
-                  <AppleButton
-                    loading={adapting}
-                    disabled={adapting || !selectedJobId}
-                    onClick={adapt}
-                    className="w-full sm:w-auto"
-                  >
-                    {adapting ? t('adapting') : t('adaptButton')}
-                  </AppleButton>
-                </div>
-              </>
-            )}
+            <Link
+              href="/cv-builder/adapt"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#0071e3] px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-[#0068d2]"
+            >
+              {t('adaptNextButton')}
+              <ArrowRight className="size-3.5" />
+            </Link>
           </div>
-
-          {lastAdapted && lastAdapted.analysis && (
-            <div>
-              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-[#858585]">{t('adaptAnalysis')}</p>
-              <CvAnalysisPanel analysis={lastAdapted.analysis} />
-            </div>
-          )}
-
-          {/* ── Estado D — Lista de CV adaptados ──────────────── */}
-          {(lastAdapted || adaptedCvs.length > 0) && (
-            <div className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex flex-col">
-                  <p className="text-sm font-medium text-[#1d1d1f]">{t('adaptedList')}</p>
-                  <p className="mt-0.5 text-xs text-[#707070]">{t('adaptedListDesc')}</p>
-                </div>
-                <Link href="/cv-builder/documents" className="text-xs font-medium text-[#0071e3] hover:underline">
-                  {t('viewAllDocuments')} →
-                </Link>
-              </div>
-              <div className="space-y-3">
-                {lastAdapted && (
-                  <div className="overflow-hidden rounded-xl border border-[#0071e3]/30 bg-[#fafafa]">
-                    <div className="flex items-center justify-between gap-3 p-4">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-[#1d1d1f]">
-                          {lastAdapted.job?.title || t('adaptedDoc')}
-                          {lastAdapted.job?.company ? <span className="font-normal text-[#707070]"> — {lastAdapted.job.company}</span> : null}
-                        </p>
-                        <p className="mt-0.5 text-[11px] text-[#858585]">
-                          {lastAdapted.job?.location ? `${lastAdapted.job.location} · ` : ''}
-                          {new Date(lastAdapted.created_at).toLocaleString()}
-                        </p>
-                      </div>
-                      <Link
-                        href="/cv-builder/documents"
-                        className="shrink-0 rounded-full border border-[#d2d2d7] bg-white px-3.5 py-1.5 text-[11px] font-medium text-[#0071e3] transition-colors hover:bg-[#f5f5f7]"
-                      >
-                        {t('viewDocument')}
-                      </Link>
-                    </div>
-                    <div className="border-t border-[#e2e2e5] bg-white p-4">
-                      <CvPdfPreview cv={lastAdapted} />
-                    </div>
-                  </div>
-                )}
-                {adaptedCvs
-                  .filter((c) => c.cv_id !== lastAdapted?.cv_id)
-                  .map((cv) => (
-                    <div key={cv.cv_id} className="flex items-center justify-between gap-3 rounded-xl border border-[#e2e2e5] bg-[#fafafa] p-4">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-[#1d1d1f]">
-                          {cv.job?.title || t('adaptedDoc')}
-                          {cv.job?.company ? <span className="font-normal text-[#707070]"> — {cv.job.company}</span> : null}
-                        </p>
-                        <p className="mt-0.5 text-[11px] text-[#858585]">
-                          {cv.job?.location ? `${cv.job.location} · ` : ''}
-                          {new Date(cv.created_at).toLocaleString()}
-                        </p>
-                      </div>
-                      <Link
-                        href="/cv-builder/documents"
-                        className="shrink-0 rounded-full border border-[#d2d2d7] px-3.5 py-1.5 text-[11px] font-medium text-[#0071e3] transition-colors hover:bg-white"
-                      >
-                        {t('viewDocument')}
-                      </Link>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
     </section>

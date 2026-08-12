@@ -56,6 +56,8 @@ export default function CvDocumentsPage() {
           body: JSON.stringify({}),
         })
         setCvs((prev) => [res, ...prev.filter((c) => c.cv_id !== cv.cv_id)])
+        // Keep the sidebar "Adapt CV" entry unlocked/consistent.
+        window.dispatchEvent(new CustomEvent('cv:base-generated'))
         showSuccess(t('regenerated'))
         return
       }

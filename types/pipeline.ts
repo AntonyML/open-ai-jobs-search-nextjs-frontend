@@ -236,8 +236,6 @@ export interface PipelinePageProps {
   cardMode?: boolean
   actionField?: string
   statusEndpoint?: string
-  backHref?: string
-  backLabel?: string
   continueTooltip?: string
   continueLabel?: string
 }

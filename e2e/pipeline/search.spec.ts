@@ -47,11 +47,6 @@ test.describe('Search', () => {
       page.getByRole('heading', { name: 'Tu búsqueda está lista' }),
     ).toBeVisible()
 
-    // Volver a configuración de perfil
-    await expect(
-      page.getByRole('link', { name: 'Volver a configuración de perfil' }),
-    ).toBeVisible()
-
     // Briefing desde el perfil mockeado
     await expect(
       page.getByText('Según tu perfil, estos son los parámetros de búsqueda', {

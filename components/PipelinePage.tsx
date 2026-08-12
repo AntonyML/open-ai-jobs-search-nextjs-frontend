@@ -100,8 +100,6 @@ export default function PipelinePage({
   cardMode,
   actionField = 'job_posting_id',
   statusEndpoint,
-  backHref,
-  backLabel,
   continueTooltip,
   continueLabel = 'Continue',
 }: PipelinePageProps) {
@@ -247,16 +245,6 @@ export default function PipelinePage({
   if (cardMode) {
     return (
       <section className="mx-auto max-w-5xl">
-        {backHref && (
-          <a
-            href={`/${locale}${backHref}`}
-            className="mb-6 inline-flex items-center gap-1 text-xs font-medium text-[#707070] hover:text-[#1d1d1f] transition-colors"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
-            {backLabel || 'Back'}
-          </a>
-        )}
-
         <PipelineHeader eyebrow={eyebrow} title={title} subtitle={subtitle} />
 
         <div className="mt-8">

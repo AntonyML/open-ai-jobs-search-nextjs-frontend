@@ -11,7 +11,6 @@ import UpgradeModal from '@/components/UpgradeModal'
 export default function Apply() {
   const t = useTranslations('apply')
   const tp = useTranslations('pipeline.steps')
-  const tc = useTranslations('common')
   const [showUpgrade, setShowUpgrade] = useState(false)
   const premium = isPremium()
   const { data: usage } = useUsageLimits()
@@ -54,8 +53,6 @@ export default function Apply() {
         cardMode
         actionField="job_posting_id"
         statusEndpoint="/api/v1/apply"
-        backHref="/pipeline/rank"
-        backLabel={t('backToRank')}
         continueLabel={t('continueToInterview') || 'Continue to Interview'}
         continueTooltip={t('continueToInterviewTooltip')}
       />

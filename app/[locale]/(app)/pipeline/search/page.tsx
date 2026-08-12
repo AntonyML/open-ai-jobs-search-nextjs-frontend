@@ -300,16 +300,6 @@ export default function SearchPage() {
         />
       )}
 
-      {(pageState === "briefing" || pageState === "adjusting") && (
-        <a
-          href={`/${locale}/pipeline/setup`}
-          className="mb-6 inline-flex items-center gap-1 text-xs font-medium text-[#707070] hover:text-[#1d1d1f] transition-colors"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
-          {t("backToSetup")}
-        </a>
-      )}
-
       {pageState === "results" && (
         <button
           onClick={() => setPageState("briefing")}

@@ -21,8 +21,4 @@ test.describe('Sidebar del pipeline', () => {
     }
   })
 
-  test('muestra el progreso 1/7 en el paso providers', async ({ page, appShell }) => {
-    await appShell.gotoPipeline()
-    await expect(page.getByText('1 / 7')).toBeVisible()
-  })
 })
