@@ -2,24 +2,26 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import AuthCTAButton from './AuthCTAButton'
 import HeroMockCv from './HeroMockCv'
+import { StatsStrip } from './StatsStrip'
 import { SceneDynamic } from '@/components/three/SceneDynamic'
 import { HeroParticles } from '@/components/three/HeroParticles'
 
 /**
- * Landing hero — two columns on desktop (copy + CV mockup) so the whole first
- * screen reads without scrolling, over the 3D "orchestration constellation".
+ * Landing hero — the whole first screen: two-column copy + CV mockup centered,
+ * with the product stats pinned to the bottom, so the next section starts
+ * exactly at the fold (no peeking, no empty space).
  */
 export async function HeroSection() {
   const t = await getTranslations('marketing')
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe]">
+    <section className="relative flex min-h-dvh flex-col overflow-hidden bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe]">
       {/* 3D background layer */}
       <SceneDynamic className="absolute inset-0" activeFrameloop="always">
         <HeroParticles />
       </SceneDynamic>
 
-      <div className="relative z-10 mx-auto grid max-w-[1440px] items-center gap-10 px-5 pt-14 pb-14 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pt-20 lg:pb-20">
+      <div className="relative z-10 mx-auto grid w-full max-w-[1440px] flex-1 items-center gap-10 px-5 pt-14 pb-10 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pt-16 lg:pb-8">
         {/* Copy */}
         <div className="text-center lg:text-left">
           {/* Badge */}
@@ -29,7 +31,7 @@ export async function HeroSection() {
           </div>
 
           {/* Heading */}
-          <h1 className="mx-auto max-w-2xl text-[40px] font-semibold leading-[1.06] tracking-tight text-[#1d1d1f] md:text-[52px] lg:mx-0">
+          <h1 className="mx-auto max-w-2xl text-[38px] font-semibold leading-[1.06] tracking-tight text-[#1d1d1f] md:text-[46px] lg:mx-0">
             {t('heroTitle1')}{' '}
             <span className="bg-gradient-to-r from-[#0071e3] to-[#0a84ff] bg-clip-text text-transparent">
               {t('heroTitle2')}
@@ -42,7 +44,7 @@ export async function HeroSection() {
           </p>
 
           {/* CTAs */}
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
+          <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
             <AuthCTAButton
               loggedInKey="ctaDashboard"
               loggedOutKey="ctaTryFree"
@@ -61,6 +63,9 @@ export async function HeroSection() {
         {/* CV mockup */}
         <HeroMockCv />
       </div>
+
+      {/* Product stats — bottom of the first screen */}
+      <StatsStrip />
     </section>
   )
 }

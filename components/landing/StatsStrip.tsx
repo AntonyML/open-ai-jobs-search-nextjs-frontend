@@ -14,8 +14,8 @@ export async function StatsStrip() {
   const t = await getTranslations('marketing')
 
   return (
-    <section className="border-t border-[#d2d2d7] bg-white">
-      <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-8 px-5 py-10 md:grid-cols-3 md:gap-0 md:divide-x md:divide-[#d2d2d7] md:px-8">
+    <div className="shrink-0 border-t border-[#d2d2d7]/60">
+      <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-8 px-5 py-8 md:grid-cols-3 md:gap-0 md:divide-x md:divide-[#d2d2d7]/60 md:px-8">
         {STATS.map((s) => (
           <div key={s.key} className="text-center">
             <p className="bg-gradient-to-b from-[#0071e3] to-[#0a84ff] bg-clip-text text-[36px] font-semibold tracking-tight text-transparent md:text-[44px]">
@@ -27,6 +27,6 @@ export async function StatsStrip() {
           </div>
         ))}
       </div>
-    </section>
+    </div>
   )
 }

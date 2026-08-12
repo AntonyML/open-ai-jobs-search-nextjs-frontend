@@ -35,7 +35,7 @@ export default async function HeroMockCv() {
       </div>
 
       {/* Card */}
-      <div className="-rotate-1 rounded-2xl border border-[#d2d2d7] bg-white p-6 text-left shadow-[0_24px_60px_-24px_rgba(0,0,0,0.28)] transition-transform duration-300 hover:rotate-0 sm:-rotate-2">
+      <div className="-rotate-1 rounded-2xl border border-[#d2d2d7] bg-white p-5 text-left shadow-[0_24px_60px_-24px_rgba(0,0,0,0.28)] transition-transform duration-300 hover:rotate-0 sm:-rotate-2">
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#0071e3] to-[#0a84ff] text-[13px] font-semibold text-white">
             JD
@@ -46,7 +46,7 @@ export default async function HeroMockCv() {
           </div>
         </div>
 
-        <div className="mt-5 space-y-3">
+        <div className="mt-4 space-y-3">
           <div className="h-2 w-full rounded-full bg-[#e8f0fe]" />
           <div className="h-2 w-4/5 rounded-full bg-[#f5f5f7]" />
           <div className="h-1.5 w-full rounded-full bg-[#f5f5f7]" />
@@ -54,7 +54,7 @@ export default async function HeroMockCv() {
           <div className="h-1.5 w-5/6 rounded-full bg-[#f5f5f7]" />
         </div>
 
-        <div className="mt-5 flex items-center justify-between rounded-lg bg-[#f4f8fb] px-3 py-2">
+        <div className="mt-4 flex items-center justify-between rounded-lg bg-[#f4f8fb] px-3 py-2">
           <span className="flex items-center gap-2 text-[11px] font-medium text-[#1d1d1f]">
             <span aria-hidden="true" className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600">
               ✓
