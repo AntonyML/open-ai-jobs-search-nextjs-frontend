@@ -152,21 +152,30 @@ function NotificationItem({
   onRead,
   onActivate,
   isAdminUser,
+  activateLabel,
 }: {
   notif: ServerNotification
   onRead: () => void
   onActivate?: () => void
   isAdminUser: boolean
+  activateLabel: string
 }) {
   const error = isErrorType(notif.type)
   const unread = !notif.is_read
   const isPurchase = notif.type === 'purchase_request'
   const actionable = isAdminUser && isPurchase && !!notif.payload?.user_id
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onRead}
-      className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors ${
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onRead()
+        }
+      }}
+      className={`flex w-full cursor-pointer items-start gap-3 px-4 py-3 text-left transition-colors ${
         unread ? 'bg-[#f4f8fb] hover:bg-[#eef4f8]' : 'hover:bg-[#f5f5f7]'
       }`}
     >
@@ -184,27 +193,20 @@ function NotificationItem({
         )}
         <p className="mt-1 text-[10px] text-[#858585]">{formatTimestamp(notif.created_at)}</p>
         {actionable && onActivate && (
-          <span
-            role="button"
-            tabIndex={0}
+          <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation()
               onActivate()
             }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.stopPropagation()
-                onActivate()
-              }
-            }}
             className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#0071e3] to-[#0060c0] px-2.5 py-1 text-[10px] font-semibold text-white transition-all hover:brightness-110"
           >
-            Activate
+            {activateLabel}
             <ArrowRightMini />
-          </span>
+          </button>
         )}
       </div>
-    </button>
+    </div>
   )
 }
 
@@ -257,6 +259,7 @@ export default function NotificationBell() {
   const t = useTranslations('nav')
   const router = useRouter()
   const { notifications, unread } = useNotifications()
+  const activateLabel = t('activatePurchase')
   const [open, setOpen] = useState(false)
   const [pos, setPos] = useState({ top: 0, right: 0 })
   const [busy, setBusy] = useState(false)
@@ -379,6 +382,7 @@ export default function NotificationBell() {
                     key={notif.id}
                     notif={notif}
                     isAdminUser={isAdmin()}
+                    activateLabel={activateLabel}
                     onRead={() => {
                       void markAsRead(notif.id)
                       window.dispatchEvent(new Event('notifications:refresh'))

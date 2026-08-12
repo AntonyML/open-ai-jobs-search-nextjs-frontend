@@ -37,6 +37,7 @@
     "noNotificationsHint": "Complete a pipeline step to see it here.",
     "clearNotifications": "Clear",
     "manageSubscriptions": "Manage subscriptions",
+    "activatePurchase": "Activate",
     "notificationsMarkAllError": "Could not update notifications",
     "notificationsClearError": "Could not clear notifications"
   },

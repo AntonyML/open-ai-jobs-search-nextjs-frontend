@@ -36,6 +36,7 @@
     "noNotificationsHint": "Completa un paso del pipeline para verlo aquí.",
     "clearNotifications": "Limpiar",
     "manageSubscriptions": "Gestionar suscripciones",
+    "activatePurchase": "Activar",
     "notificationsMarkAllError": "No se pudieron actualizar las notificaciones",
     "notificationsClearError": "No se pudieron limpiar las notificaciones"
   },

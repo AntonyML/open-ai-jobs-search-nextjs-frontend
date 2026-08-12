@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { isLoggedIn, isAdmin } from '@/lib/auth'
 import { showSuccess, showError } from '@/lib/toasts'
@@ -27,6 +27,14 @@ const PLAN_BADGES: Record<string, { icon: typeof Crown; cls: string }> = {
 }
 
 export default function AdminCreditsPage() {
+  return (
+    <Suspense fallback={<div className="py-24 text-center text-sm text-[#858585]">…</div>}>
+      <AdminCreditsInner />
+    </Suspense>
+  )
+}
+
+function AdminCreditsInner() {
   const t = useTranslations('adminCredits')
   const router = useRouter()
   const [search, setSearch] = useState('')
@@ -57,19 +65,23 @@ export default function AdminCreditsPage() {
     getBillingCatalog()
       .then((c) => setPlans(c.plans.filter((p) => p.key !== 'free').map((p) => ({ key: p.key, name: p.name }))))
       .catch(() => {})
-    // Deep-link from the notification bell: ?user=<id>&plan=<key>&cycle=&cid=
-    const params = new URLSearchParams(window.location.search)
-    const userId = params.get('user')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Deep-link from the notification bell: ?user=<id>&plan=<key>&cycle=&cid=
+  // Re-runs when the query changes (even navigating from the same route).
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    const userId = searchParams.get('user')
     if (userId) {
       void adminGetUser(userId)
         .then((u) => setSelected({ id: u.id, email: u.email, full_name: u.full_name, tier: u.tier }))
         .catch(() => {})
-      setQuickPlan(params.get('plan') || 'pro')
-      if (params.get('cycle') === 'yearly') setQuickCycle('yearly')
-      setQuickCorrelation(params.get('cid') || '')
+      setQuickPlan(searchParams.get('plan') || 'pro')
+      if (searchParams.get('cycle') === 'yearly') setQuickCycle('yearly')
+      setQuickCorrelation(searchParams.get('cid') || '')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [searchParams])
 
   // Debounced user search
   useEffect(() => {
@@ -155,6 +167,8 @@ export default function AdminCreditsPage() {
       setQuickCorrelation('')
       await loadSubs()
       window.dispatchEvent(new Event('notifications:refresh'))
+      // Clean the deep-link query so a refresh doesn't re-select the user.
+      router.replace('/admin/credits')
     } catch (x) {
       showError(x instanceof Error ? x.message : t('activateError'))
     } finally {
