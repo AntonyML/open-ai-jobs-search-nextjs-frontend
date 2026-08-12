@@ -98,7 +98,9 @@ export function AdminProviderConfig() {
   )
 
   // Load the model list for a provider (live fetch or static fallback).
-  const loadModels = useCallback(async (providerName: string) => {
+  // `notify` only shows the toast when the user explicitly clicks "Load models";
+  // auto-loads (initial mount / provider change) stay silent.
+  const loadModels = useCallback(async (providerName: string, notify = false) => {
     if (!providerName) return
     setLoadingModels(true)
     const info = catalog.find((p) => p.name === providerName)
@@ -112,7 +114,7 @@ export function AdminProviderConfig() {
         setModels(ids)
         // Keep current model if present in list, else fall back to first.
         setModel((prev) => (ids.includes(prev) ? prev : info?.static_models?.includes(prev) ? prev : ids[0]))
-        showSuccess(t('providerConfigModelsLoaded', { count: ids.length }))
+        if (notify) showSuccess(t('providerConfigModelsLoaded', { count: ids.length }))
       } else {
         setModels(info?.static_models ?? [])
       }
@@ -323,7 +325,7 @@ export function AdminProviderConfig() {
                 </select>
                 <button
                   type="button"
-                  onClick={() => loadModels(provider)}
+                  onClick={() => loadModels(provider, true)}
                   disabled={loadingModels || !provider}
                   className={styles.loadModelsBtn}
                 >

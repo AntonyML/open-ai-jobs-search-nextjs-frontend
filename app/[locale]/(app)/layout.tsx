@@ -22,7 +22,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-[#f5f5f7]">
       <Navbar />
       <SidebarProvider defaultOpen={true}>
-        <div className="pt-12 md:flex">
+        <div className="min-w-0 flex-1 pt-12 md:flex">
           <AppSidebar />
           <SidebarInset className="min-w-0 flex-1 px-5 py-8 md:px-12 md:py-14">
             {children}
