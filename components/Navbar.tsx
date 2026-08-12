@@ -78,9 +78,10 @@ function MobileNavLink({ href, children, className = '' }: { href: string; child
 
 function MarketingLinks({ t }: { t: (key: string) => string }) {
   const links = [
+    { label: t('footer.home'), href: '/' },
     { label: t('footer.features'), href: '/#features' },
+    { label: t('footer.pricing'), href: '/#pricing' },
     { label: t('footer.about'), href: '/about' },
-    { label: t('footer.limits'), href: '/limits' },
   ]
   return (
     <>
@@ -95,9 +96,10 @@ function MarketingLinks({ t }: { t: (key: string) => string }) {
 
 function MobileMarketingLinks({ t }: { t: (key: string) => string }) {
   const links = [
+    { label: t('footer.home'), href: '/' },
     { label: t('footer.features'), href: '/#features' },
+    { label: t('footer.pricing'), href: '/#pricing' },
     { label: t('footer.about'), href: '/about' },
-    { label: t('footer.limits'), href: '/limits' },
   ]
   return (
     <>

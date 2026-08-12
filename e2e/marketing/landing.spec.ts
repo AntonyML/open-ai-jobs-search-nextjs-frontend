@@ -55,11 +55,12 @@ test.describe('Landing', () => {
     }) => {
       await page.goto(path)
 
-      // Navbar de marketing: links del producto + límites.
+      // Navbar de marketing: links del producto (sin Límites — solo footer).
       const nav = page.locator('header')
+      await expect(nav.getByRole('link', { name: 'Home', exact: true })).toBeVisible()
       await expect(nav.getByRole('link', { name: 'Features', exact: true })).toBeVisible()
+      await expect(nav.getByRole('link', { name: 'Pricing', exact: true })).toBeVisible()
       await expect(nav.getByRole('link', { name: 'About', exact: true })).toBeVisible()
-      await expect(nav.getByRole('link', { name: 'Usage limits', exact: true })).toBeVisible()
 
       // Contenido de la página.
       await expect(page.getByRole('heading', { name: heading })).toBeVisible()
