@@ -148,7 +148,15 @@
     "planMaxFeature6": "Expand: destaca tu experiencia real",
     "planMaxFeature7": "Upskill: plan de aprendizaje para tus gaps",
     "pricingDisclaimer": "Se aplican límites de uso. Los precios y planes están sujetos a cambios.",
-    "pricingDisclaimerLink": "Ver límites de uso"
+    "pricingDisclaimerLink": "Ver límites de uso",
+    "pricingBillingLabel": "Período de facturación",
+    "pricingMonthly": "Mensual",
+    "pricingAnnual": "Anual",
+    "pricingAnnualSave": "Ahorra 17%",
+    "planProAnnualPrice": "$16.67",
+    "planProAnnualNote": "Facturado anualmente · $200/año",
+    "planMaxAnnualPrice": "$50",
+    "planMaxAnnualNote": "Facturado anualmente · $600/año"
   },
   "about": {
     "label": "Acerca de",

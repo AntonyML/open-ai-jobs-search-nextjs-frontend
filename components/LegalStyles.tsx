@@ -1,6 +1,10 @@
+'use client'
+
 /**
  * Shared global styles for legal & info pages (terms, privacy, limits).
  * Extracted so each page doesn't duplicate the <style jsx global> block.
+ * `'use client'` is required because styled-jsx is client-only; server
+ * components (e.g. /limits) can still render it as a client boundary.
  */
 export default function LegalStyles() {
   return (

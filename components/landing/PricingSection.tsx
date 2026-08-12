@@ -1,10 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
 import AuthCTAButton from './AuthCTAButton'
 import { isLoggedIn } from '@/lib/auth'
+
+type Billing = 'monthly' | 'annual'
 
 /** Paid-plan CTA: logged-in users open the purchase modal, visitors go to /register. */
 function PlanCta({ ctaKey, solid = false }: { ctaKey: string; solid?: boolean }) {
@@ -56,6 +59,7 @@ function CheckIcon({ className = '' }: { className?: string }) {
 
 export default function PricingSection() {
   const t = useTranslations('marketing')
+  const [billing, setBilling] = useState<Billing>('monthly')
 
   const featureCounts: Record<PlanKey, number> = { free: 4, pro: 5, max: 7 }
   const plans: PlanKey[] = ['free', 'pro', 'max']
@@ -75,11 +79,40 @@ export default function PricingSection() {
           <p className="mt-4 text-[17px] font-light text-[#707070]">{t('pricingSubheading')}</p>
         </div>
 
+        {/* Billing toggle */}
+        <div className="mb-12 flex items-center justify-center gap-3">
+          <div
+            role="group"
+            aria-label={t('pricingBillingLabel')}
+            className="inline-flex items-center rounded-full border border-[#d2d2d7] bg-[#f5f5f7] p-1"
+          >
+            {(['monthly', 'annual'] as Billing[]).map((option) => (
+              <button
+                key={option}
+                type="button"
+                aria-pressed={billing === option}
+                onClick={() => setBilling(option)}
+                className={`rounded-full px-5 py-1.5 text-[13px] font-medium transition-all ${
+                  billing === option
+                    ? 'bg-white text-[#1d1d1f] shadow-sm'
+                    : 'text-[#707070] hover:text-[#1d1d1f]'
+                }`}
+              >
+                {t(option === 'monthly' ? 'pricingMonthly' : 'pricingAnnual')}
+              </button>
+            ))}
+          </div>
+          <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+            {t('pricingAnnualSave')}
+          </span>
+        </div>
+
         <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-3">
           {plans.map((key) => {
             const prefix = planLabel(key)
             const isMax = key === 'max'
             const isFree = key === 'free'
+            const isAnnual = billing === 'annual'
 
             return (
               <div
@@ -103,11 +136,15 @@ export default function PricingSection() {
                 {/* Price */}
                 <div className="mt-6 flex items-baseline gap-1.5">
                   <span className={`text-[44px] font-semibold leading-none tracking-tight ${isMax ? 'text-[#0071e3]' : 'text-[#1d1d1f]'}`}>
-                    {t(`${prefix}Price`)}
+                    {isFree ? t(`${prefix}Price`) : isAnnual ? t(`${prefix}AnnualPrice`) : t(`${prefix}Price`)}
                   </span>
                   {!isFree && <span className="text-[15px] font-light text-[#707070]">{t(`${prefix}Period`)}</span>}
                 </div>
-                {!isFree && <p className="mt-1.5 text-[12px] font-light text-[#858585]">{t(`${prefix}Yearly`)}</p>}
+                {!isFree && (
+                  <p className="mt-1.5 text-[12px] font-light text-[#858585]">
+                    {isAnnual ? t(`${prefix}AnnualNote`) : t(`${prefix}Yearly`)}
+                  </p>
+                )}
 
                 {/* Features */}
                 <ul className="mt-7 flex-1 space-y-3">
