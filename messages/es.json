@@ -76,14 +76,12 @@
     "account_deleted": "Cuenta eliminada permanentemente. Todos tus datos han sido borrados."
   },
   "marketing": {
-    "heroBadge": "Nuevo: CV Builder con adaptación por oferta",
+    "heroBadge": "CV Builder: adapta tu CV a cada oferta",
     "heroTitle1": "Consigue tu próximo empleo",
     "heroTitle2": "con IA",
-    "heroSubtitle": "Genera un CV listo para ATS, descubre ofertas rankeadas por fit y postúlate con documentos a medida — impulsado por IA multi-proveedor sin caídas.",
+    "heroSubtitle": "Crea un CV listo para ATS, descubre las ofertas que mejor encajan contigo y postúlate con documentos hechos para cada empleo.",
     "statProviders": "proveedores de IA con failover automático",
-    "statDocs": "documentos por postulación — CV base, CV adaptado y carta",
-    "statPrivacy": "de tus datos cifrados, nunca usados para entrenar",
-    "statUptime": "sin parones porque un proveedor alcanzó su límite",
+    "statDocs": "documentos por postulación: CV base, CV adaptado y carta",
     "featuresLabel": "Características",
     "featuresHeading": "Todo lo que tu búsqueda necesita",
     "featuresSubheading": "Una plataforma que te lleva del perfil a la oferta.",
@@ -132,7 +130,13 @@
     "ctaTryFree": "Pruébalo gratis",
     "ctaDashboard": "Ir al Panel",
     "ctaOpenDashboard": "Abrir Panel",
-    "ctaGetStarted": "Empieza gratis"
+    "ctaGetStarted": "Empieza gratis",
+    "statZeroTemplates": "plantillas genéricas: cada documento se crea para la oferta",
+    "heroCtaSecondary": "Ver cómo funciona",
+    "heroBadgeAts": "Listo para ATS",
+    "heroBadgeCvAdapted": "CV adaptado a cada oferta",
+    "heroBadgeCoverLetter": "Carta de presentación lista",
+    "heroBadgeInterview": "Prep de entrevista"
   },
   "about": {
     "label": "Acerca de",

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import AuthCTAButton from './AuthCTAButton'
 import HeroMockCv from './HeroMockCv'
@@ -5,8 +6,8 @@ import { SceneDynamic } from '@/components/three/SceneDynamic'
 import { HeroParticles } from '@/components/three/HeroParticles'
 
 /**
- * Landing hero — "AI constellation": a Three.js particle field as a decorative
- * background, with the semantic copy and the CV mockup on top.
+ * Landing hero — two columns on desktop (copy + CV mockup) so the whole first
+ * screen reads without scrolling, over the 3D "orchestration constellation".
  */
 export async function HeroSection() {
   const t = await getTranslations('marketing')
@@ -18,30 +19,43 @@ export async function HeroSection() {
         <HeroParticles />
       </SceneDynamic>
 
-      <div className="relative z-10 mx-auto max-w-[1440px] px-5 pt-20 pb-24 text-center md:px-8 md:pt-28 md:pb-32">
-        {/* Badge */}
-        <div className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] bg-white/70 px-3 py-1 text-[11px] font-medium text-[#707070] backdrop-blur">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-          {t('heroBadge')}
-        </div>
+      <div className="relative z-10 mx-auto grid max-w-[1440px] items-center gap-10 px-5 pt-14 pb-14 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pt-20 lg:pb-20">
+        {/* Copy */}
+        <div className="text-center lg:text-left">
+          {/* Badge */}
+          <div className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] bg-white/70 px-3 py-1 text-[11px] font-medium text-[#707070] backdrop-blur">
+            <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-emerald-400" />
+            {t('heroBadge')}
+          </div>
 
-        {/* Heading */}
-        <h1 className="mx-auto max-w-4xl text-[44px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[56px]">
-          {t('heroTitle1')} <span className="text-[#0071e3]">{t('heroTitle2')}</span>
-        </h1>
+          {/* Heading */}
+          <h1 className="mx-auto max-w-2xl text-[40px] font-semibold leading-[1.06] tracking-tight text-[#1d1d1f] md:text-[52px] lg:mx-0">
+            {t('heroTitle1')}{' '}
+            <span className="bg-gradient-to-r from-[#0071e3] to-[#0a84ff] bg-clip-text text-transparent">
+              {t('heroTitle2')}
+            </span>
+          </h1>
 
-        {/* Subheading */}
-        <p className="mx-auto mt-5 max-w-2xl text-[19px] font-light leading-snug text-[#707070] md:text-[22px]">
-          {t('heroSubtitle')}
-        </p>
+          {/* Subheading */}
+          <p className="mx-auto mt-4 max-w-xl text-[17px] font-light leading-snug text-[#707070] md:text-[20px] lg:mx-0">
+            {t('heroSubtitle')}
+          </p>
 
-        {/* CTA */}
-        <div className="mt-10 flex items-center justify-center gap-3">
-          <AuthCTAButton
-            loggedInKey="ctaDashboard"
-            loggedOutKey="ctaTryFree"
-            className="inline-flex items-center rounded-full bg-[#0071e3] px-6 py-3 text-[15px] font-medium text-white shadow-sm transition-all hover:bg-[#0068d2]"
-          />
+          {/* CTAs */}
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
+            <AuthCTAButton
+              loggedInKey="ctaDashboard"
+              loggedOutKey="ctaTryFree"
+              className="inline-flex w-full items-center justify-center rounded-full bg-[#0071e3] px-7 py-3 text-[15px] font-medium text-white shadow-sm transition-all hover:bg-[#0068d2] sm:w-auto"
+            />
+            <Link
+              href="/#how-it-works"
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-[#0066cc] px-6 py-3 text-[15px] font-medium text-[#0066cc] transition-colors hover:bg-[#e8f0fe] sm:w-auto"
+            >
+              {t('heroCtaSecondary')}
+            </Link>
+          </div>
+
         </div>
 
         {/* CV mockup */}

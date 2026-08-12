@@ -76,14 +76,12 @@
     "account_deleted": "Account permanently deleted. All your data has been removed."
   },
   "marketing": {
-    "heroBadge": "New: CV Builder with per-offer tailoring",
+    "heroBadge": "CV Builder: tailor your CV to each offer",
     "heroTitle1": "Land your next role",
     "heroTitle2": "with AI",
-    "heroSubtitle": "Generate an ATS-ready CV, find offers ranked by fit, and apply with documents tailored to every job — powered by resilient multi-provider AI.",
+    "heroSubtitle": "Create an ATS-ready CV, discover the offers that fit you best, and apply with documents built for each job.",
     "statProviders": "AI providers with automatic failover",
-    "statDocs": "documents per application — base CV, tailored CV and cover letter",
-    "statPrivacy": "of your data encrypted, never used for training",
-    "statUptime": "no more stops because a provider hit its limit",
+    "statDocs": "documents for each application: base CV, tailored CV, cover letter",
     "featuresLabel": "Features",
     "featuresHeading": "Everything your job search needs",
     "featuresSubheading": "One platform that takes you from profile to offer.",
@@ -132,7 +130,13 @@
     "ctaTryFree": "Try it free",
     "ctaDashboard": "Go to Dashboard",
     "ctaOpenDashboard": "Open Dashboard",
-    "ctaGetStarted": "Get started free"
+    "ctaGetStarted": "Get started free",
+    "statZeroTemplates": "generic templates: every document is built for the offer",
+    "heroCtaSecondary": "See how it works",
+    "heroBadgeAts": "ATS-ready",
+    "heroBadgeCvAdapted": "CV tailored to each offer",
+    "heroBadgeCoverLetter": "Cover letter ready",
+    "heroBadgeInterview": "Interview prep"
   },
   "about": {
     "label": "About",
