@@ -1,0 +1,74 @@
+/* Billing page — premium Apple-style treatments */
+
+.gradientText {
+  background: linear-gradient(120deg, #1d1d1f 20%, #0071e3 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.titleIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #0071e3, #0060c0);
+  box-shadow: 0 2px 8px -2px rgba(0, 113, 227, 0.5);
+}
+
+.glassCard {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(245, 245, 247, 0.75));
+  border: 1px solid rgba(210, 210, 215, 0.7);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px -12px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(14px);
+  position: relative;
+  overflow: hidden;
+}
+
+.glassCard::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 113, 227, 0.08), transparent 70%);
+  pointer-events: none;
+}
+
+.tableCard {
+  background: linear-gradient(160deg, #ffffff 0%, #fbfbfd 100%);
+  border: 1px solid rgba(210, 210, 215, 0.7);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 12px 32px -16px rgba(0, 0, 0, 0.14);
+}
+
+.infoChip {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(210, 210, 215, 0.6);
+}
+
+.featureChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 0.25rem 0.625rem;
+  font-size: 10px;
+  font-weight: 500;
+  color: #474747;
+  box-shadow: inset 0 0 0 1px rgba(210, 210, 215, 0.8);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.featureChip:hover {
+  transform: translateY(-1px);
+}

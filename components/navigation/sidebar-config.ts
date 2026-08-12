@@ -17,6 +17,7 @@ import {
   Cpu,
   CreditCard,
   Coins,
+  Wallet,
 } from 'lucide-react'
 
 export type NavIcon = ComponentType<{ className?: string }>
@@ -96,6 +97,7 @@ export const NAV_SECTIONS: NavSection[] = [
     separatorBefore: true,
     items: [
       { labelKey: 'profile', href: '/profile', icon: User },
+      { labelKey: 'billing', descKey: 'billingDesc', href: '/billing', icon: Wallet },
       { labelKey: 'settings', href: '/settings', icon: Settings },
     ],
   },
