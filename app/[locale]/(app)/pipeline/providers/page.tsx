@@ -12,7 +12,9 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip
 import { ProviderForm } from '@/components/providers/ProviderForm'
 import { ActiveProviderCard } from '@/components/providers/ActiveProviderCard'
 import { ProviderList } from '@/components/providers/ProviderList'
+import { AdminProviderSummary } from '@/components/admin/AdminProviderConfig'
 import UpgradeModal from '@/components/UpgradeModal'
+import { isAdmin } from '@/lib/auth'
 
 export default function Providers() {
   const { locale } = useParams()
@@ -238,6 +240,13 @@ export default function Providers() {
         title={t('title')}
         subtitle={t('subtitle')}
       />
+
+      {/* Global provider config — admins only (read-only summary + link to /admin) */}
+      {isAdmin() && (
+        <div className="mt-8">
+          <AdminProviderSummary />
+        </div>
+      )}
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         {/* Left: Form */}

@@ -11,6 +11,7 @@ import {
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
   Users, Crown, FilterX, ArrowUpDown, AlertTriangle, X
 } from 'lucide-react'
+import { AdminProviderConfig } from '@/components/admin/AdminProviderConfig'
 
 interface AdminUser {
   id: string
@@ -341,6 +342,9 @@ export default function AdminPage() {
           )}
         </>
       )}
+
+      {/* ── Global provider configuration (admin only) ── */}
+      <AdminProviderConfig />
 
       {/* ── Delete confirmation modal ── */}
       {confirmDelete && (
