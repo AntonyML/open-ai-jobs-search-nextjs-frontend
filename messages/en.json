@@ -1023,7 +1023,8 @@
     "interviewsDesc": "Prepare interviews",
     "adaptCv": "Adapt CV to a job offer",
     "adaptCvLockedTooltip": "Generate your base CV first",
-    "adaptLockedToast": "You need to generate your base CV first before adapting it to a job offer."
+    "adaptLockedToast": "You need to generate your base CV first before adapting it to a job offer.",
+    "admin": "Admin"
   },
   "cvBuilder": {
     "eyebrow": "PROFESSIONAL DOCUMENTS",

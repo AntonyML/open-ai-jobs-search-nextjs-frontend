@@ -32,9 +32,10 @@ import {
   CreditCard,
   LogOut,
   Lock,
+  Shield,
 } from 'lucide-react'
 import { useRouter } from '@/i18n/routing'
-import { clearToken } from '@/lib/auth'
+import { clearToken, isAdmin } from '@/lib/auth'
 import { apiFetch } from '@/lib/api'
 import { showWarning } from '@/lib/toasts'
 
@@ -72,6 +73,12 @@ const account: SidebarLink[] = [
   { labelKey: 'settings', href: '/settings', icon: Settings },
   { labelKey: 'providers', href: '/providers', icon: CreditCard },
 ]
+
+const adminLink: SidebarLink = {
+  labelKey: 'admin',
+  href: '/admin',
+  icon: Shield,
+}
 
 function SidebarLinkItem({
   link,
@@ -220,7 +227,17 @@ export default function AppSidebar() {
         <SidebarSeparator />
         <SidebarGroupSection labelKey="pipeline" links={pipeline} pathname={pathname} />
         <SidebarSeparator />
-        <SidebarGroupSection labelKey="account" links={account} pathname={pathname} />
+        <SidebarGroup>
+          <SidebarGroupLabel>{t('account')}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {account.map((link) => (
+                <SidebarLinkItem key={link.href} link={link} pathname={pathname} />
+              ))}
+              {isAdmin() && <SidebarLinkItem link={adminLink} pathname={pathname} />}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-2">
