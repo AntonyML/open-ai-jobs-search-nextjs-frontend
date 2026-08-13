@@ -1,10 +1,15 @@
 import './globals.css'
-import type { Metadata } from 'next'
+import type { Viewport } from 'next'
 import { Toaster } from 'react-hot-toast'
+import { constructMetadata } from '@/lib/seo'
+import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/JsonLd'
 
-export const metadata: Metadata = {
-  title: 'Open Ai Jobs Search',
-  description: 'AI-powered job search pipeline with multi-provider orchestration',
+export const metadata = constructMetadata()
+
+export const viewport: Viewport = {
+  themeColor: '#0071e3',
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({
@@ -16,6 +21,8 @@ export default function RootLayout({
     <html lang="en" data-scroll-behavior="smooth">
       <head>
         <meta name="google" content="notranslate" />
+        <OrganizationJsonLd />
+        <WebSiteJsonLd />
       </head>
       <body>
         {children}
@@ -37,3 +44,4 @@ export default function RootLayout({
     </html>
   )
 }
+

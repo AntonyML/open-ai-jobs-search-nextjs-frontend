@@ -11,7 +11,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
 } from '@/components/ui/sidebar'
-import { FileText, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
+import Logo from '@/components/Logo'
 import { useRouter } from '@/i18n/routing'
 import { clearToken } from '@/lib/auth'
 import { showWarning } from '@/lib/toasts'
@@ -76,7 +77,7 @@ export default function AppSidebar() {
           href="/dashboard"
           className="flex items-center gap-2 text-sm font-semibold tracking-tight text-sidebar-foreground transition-opacity hover:opacity-70"
         >
-          <FileText className="size-4 text-[#0071e3]" />
+          <Logo size={16} className="text-sidebar-foreground" />
           Open Ai Jobs Search
         </Link>
       </SidebarHeader>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import Logo from '@/components/Logo'
 
 export default function Footer() {
   const t = useTranslations('footer')
@@ -82,9 +83,7 @@ export default function Footer() {
         <div className="mt-10 pt-6 border-t border-[#d2d2d7]">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0071e3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-              </svg>
+              <Logo size={16} />
               <span className="text-[12px] font-semibold text-[#1d1d1f]">Open Ai Jobs Search</span>
             </div>
 

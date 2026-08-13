@@ -4,8 +4,9 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
-import { setToken, decodeToken } from '@/lib/auth'
+import { setToken } from '@/lib/auth'
 import { showError } from '@/lib/toasts'
+import Logo from '@/components/Logo'
 
 export default function Login() {
   const t = useTranslations('auth')
@@ -47,10 +48,8 @@ export default function Login() {
             <span className="text-sm font-medium">{t('backToHome')}</span>
           </Link>
 
-          <div className="h-12 w-12 rounded-xl bg-[#0071e3] flex items-center justify-center mb-6">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-            </svg>
+          <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-white ring-1 ring-white/15">
+            <Logo size={30} />
           </div>
 
           <h2 className="text-[32px] font-semibold text-white tracking-tight leading-tight">

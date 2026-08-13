@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl'
 import { isLoggedIn, clearToken, isAdmin, AUTH_CHANGED } from '@/lib/auth'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { getBillingStatus } from '@/lib/billing'
+import Logo from '@/components/Logo'
 
 const NotificationBell = dynamic(
   () => import('@/components/NotificationBell'),
@@ -240,10 +241,7 @@ export default function Navbar() {
           href={loggedIn ? '/dashboard' : '/'}
           className="flex items-center gap-2 text-[13px] font-semibold tracking-tight text-[#1d1d1f] transition-opacity hover:opacity-70"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0071e3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 20h9" />
-            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-          </svg>
+          <Logo size={18} />
           Open Ai Jobs Search
         </Link>
 

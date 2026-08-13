@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { isLoggedIn } from '@/lib/auth'
 import { apiFetch } from '@/lib/api'
 import { ActivityUsage } from '@/components/dashboard/ActivityUsage'
+import Logo from '@/components/Logo'
 import {
   Search,
   User,
@@ -204,11 +205,8 @@ export default function Dashboard() {
       {/* ── Empty state: no progress yet ──────────────────────── */}
       {!hasProgress && !loading && (
         <div className="rounded-xl border border-[#d2d2d7]/60 bg-white p-8 md:p-12 text-center">
-          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-[#f4f8fb] mb-5">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0071e3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 20h9" />
-              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-            </svg>
+          <div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-full bg-[#f4f8fb]">
+            <Logo size={38} />
           </div>
           <h2 className="text-[22px] font-semibold tracking-tight text-[#1d1d1f] mb-2">
             {t('emptyTitle')}
