@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { isLoggedIn, isAdmin } from '@/lib/auth'
 import { showSuccess, showError } from '@/lib/toasts'
@@ -37,6 +37,9 @@ export default function AdminCreditsPage() {
 function AdminCreditsInner() {
   const t = useTranslations('adminCredits')
   const router = useRouter()
+  const pathname = usePathname()
+  // Extract locale from pathname: /es/admin/credits → 'es'
+  const locale = pathname.split('/')[1] || 'es'
   const [search, setSearch] = useState('')
   const [users, setUsers] = useState<Array<{ id: string; email: string; full_name: string | null; tier: string }>>([])
   const [selected, setSelected] = useState<{ id: string; email: string; full_name: string | null; tier: string } | null>(null)
@@ -168,7 +171,7 @@ function AdminCreditsInner() {
       await loadSubs()
       window.dispatchEvent(new Event('notifications:refresh'))
       // Clean the deep-link query so a refresh doesn't re-select the user.
-      router.replace('/admin/credits')
+      router.replace(`/${locale}/admin/credits`)
     } catch (x) {
       showError(x instanceof Error ? x.message : t('activateError'))
     } finally {

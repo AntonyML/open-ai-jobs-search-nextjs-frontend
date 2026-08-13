@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { isLoggedIn, isAdmin } from '@/lib/auth'
 import { apiFetch } from '@/lib/api'
+import { adminActivateSubscription } from '@/lib/billing'
 import { showSuccess, showError } from '@/lib/toasts'
 import {
   Shield, Star, Trash2, RefreshCw, Search,
@@ -107,6 +108,24 @@ export default function AdminPage() {
         method: 'PATCH',
         body: JSON.stringify(updates),
       })
+
+      // If the tier is being upgraded to a paid plan, also create an active
+      // subscription so billing/credits pages stay in sync with the user record.
+      if (updates.tier && updates.tier !== 'free') {
+        try {
+          await adminActivateSubscription({
+            user_id: userId,
+            plan_key: updates.tier,
+            billing_cycle: 'monthly',
+            auto_renew: updates.tier === 'max',
+            note: 'Manual tier assignment from admin panel',
+          })
+        } catch {
+          // Non-fatal: subscription may already exist or plan key may differ.
+          // The tier field was already updated; log silently.
+        }
+      }
+
       showSuccess(t('admin.toastUpdated'))
       await loadUsers()
     } catch {
