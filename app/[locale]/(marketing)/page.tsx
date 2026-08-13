@@ -11,10 +11,6 @@ export async function generateMetadata({
 }) {
   const { locale } = await params
   return constructMetadata({
-    title:
-      locale === 'es'
-        ? 'Buscador de Empleos de Inteligencia Artificial y Machine Learning'
-        : 'AI & Machine Learning Job Search Engine',
     description:
       locale === 'es'
         ? 'Encuentra las mejores oportunidades laborales en IA, Machine Learning y Data Science con matching automatizado.'

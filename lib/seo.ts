@@ -39,9 +39,12 @@ export function constructMetadata({
   noIndex = false,
   image = SITE_CONFIG.ogImage,
 }: GenerateMetadataOptions = {}): Metadata {
+  const brand = 'Open AI Jobs'
   const fullTitle = title
-    ? `${title} | ${SITE_CONFIG.name}`
-    : `${SITE_CONFIG.name} — AI-Powered Job Search Platform`
+    ? (title.includes('Open AI Jobs')
+        ? title
+        : `${title} | ${brand}`)
+    : brand
 
   const baseUrl = SITE_CONFIG.url
   const canonicalUrl = `${baseUrl}/${locale}${path}`
@@ -87,13 +90,13 @@ export function constructMetadata({
     },
     icons: {
       icon: [
-        { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+        { url: '/favicon.svg', type: 'image/svg+xml' },
         { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+        { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
         { url: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
-        { url: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
       ],
       apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
-      shortcut: '/favicon.ico',
+      shortcut: '/favicon.svg',
     },
     manifest: '/manifest.json',
     robots: {
