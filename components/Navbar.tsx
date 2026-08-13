@@ -236,13 +236,11 @@ export default function Navbar() {
       }`}
     >
       <div className="mx-auto flex h-12 max-w-[1440px] items-center justify-between px-5 md:px-8">
-        {/* Left: Logo */}
         <Link
           href={loggedIn ? '/dashboard' : '/'}
-          className="flex items-center gap-2 text-[13px] font-semibold tracking-tight text-[#1d1d1f] transition-opacity hover:opacity-70"
+          className="flex items-center gap-2 text-[13px] font-semibold tracking-tight text-[#1d1d1f] transition-opacity hover:opacity-80"
         >
-          <Logo size={18} />
-          Open Ai Jobs Search
+          <Logo size={32} showIconOnly={true} className="md:w-9 md:h-9" />
         </Link>
 
         {/* Center: Nav links (marketing pages only) */}

@@ -42,6 +42,7 @@ function SkillAdditionCard({
   t,
 }: {
   addition: any
+  index?: number
   accepted: boolean
   rejected: boolean
   onAccept: () => void

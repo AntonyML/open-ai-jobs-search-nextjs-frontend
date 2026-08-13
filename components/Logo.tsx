@@ -5,13 +5,15 @@ interface LogoProps extends React.SVGProps<SVGSVGElement> {
   className?: string
   alt?: string
   showIconOnly?: boolean
+  showBackground?: boolean
 }
 
 export function Logo({
-  size = 28,
+  size = 32,
   className = '',
   alt = 'Open AI Jobs Search',
   showIconOnly = true,
+  showBackground = false,
   ...props
 }: LogoProps) {
   return (
@@ -28,12 +30,14 @@ export function Logo({
         className={`shrink-0 transition-transform duration-200 hover:scale-105 ${className}`}
         {...props}
       >
-        <rect
-          width="32"
-          height="32"
-          rx="8"
-          className="fill-primary/10 dark:fill-primary/20"
-        />
+        {showBackground && (
+          <rect
+            width="32"
+            height="32"
+            rx="8"
+            className="fill-primary/10 dark:fill-primary/20"
+          />
+        )}
         {/* Brain / AI Node Network Mesh */}
         <path
           d="M16 7C11.0294 7 7 11.0294 7 16C7 20.9706 11.0294 25 16 25C20.9706 25 25 20.9706 25 16"

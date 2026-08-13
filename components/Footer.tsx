@@ -83,8 +83,7 @@ export default function Footer() {
         <div className="mt-10 pt-6 border-t border-[#d2d2d7]">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Logo size={16} />
-              <span className="text-[12px] font-semibold text-[#1d1d1f]">Open Ai Jobs Search</span>
+              <Logo size={24} showIconOnly={false} showBackground={false} />
             </div>
 
             <p className="text-[11px] text-[#858585]">

@@ -75,10 +75,9 @@ export default function AppSidebar() {
       <SidebarHeader className="px-4 py-3">
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 text-sm font-semibold tracking-tight text-sidebar-foreground transition-opacity hover:opacity-70"
+          className="flex items-center gap-2 text-sm font-semibold tracking-tight text-sidebar-foreground transition-opacity hover:opacity-80"
         >
-          <Logo size={16} className="text-sidebar-foreground" />
-          Open Ai Jobs Search
+          <Logo size={28} showIconOnly={false} showBackground={false} />
         </Link>
       </SidebarHeader>
 
