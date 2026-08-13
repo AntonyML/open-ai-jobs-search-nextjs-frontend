@@ -1222,7 +1222,12 @@
       "expiry": "Expirado",
       "purchase": "Compra",
       "topup": "Recarga extra",
-      "adjust": "Ajuste"
+      "adjust": "Ajuste",
+      "cv_base": "CV base",
+      "cv_adapted": "CV adaptado",
+      "pipeline": "Pipeline completo",
+      "signup_bonus": "Bono de bienvenida",
+      "admin_adjust": "Ajuste de administrador"
     },
     "feature": {
       "cv_base": "CV base",

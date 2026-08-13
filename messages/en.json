@@ -1222,7 +1222,12 @@
       "expiry": "Expired",
       "purchase": "Purchase",
       "topup": "Top-up",
-      "adjust": "Adjustment"
+      "adjust": "Adjustment",
+      "cv_base": "Base CV",
+      "cv_adapted": "Adapted CV",
+      "pipeline": "Full pipeline",
+      "signup_bonus": "Sign-up bonus",
+      "admin_adjust": "Admin adjustment"
     },
     "feature": {
       "cv_base": "Base CV",
