@@ -5,7 +5,6 @@ import Navbar from '@/components/Navbar'
 import AppSidebar from '@/components/AppSidebar'
 import { isLoggedIn } from '@/lib/auth'
 import UpgradeListener from '@/components/UpgradeListener'
-import { BillingProvider } from '@/components/BillingProvider'
 import {
   SidebarProvider,
   SidebarInset,
@@ -20,19 +19,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [router])
   if (!ready) return null
   return (
-    <BillingProvider>
-      <div className="min-h-screen bg-[#f5f5f7]">
-        <Navbar />
-        <SidebarProvider defaultOpen={true}>
-          <div className="min-w-0 flex-1 pt-12 md:flex">
-            <AppSidebar />
-            <SidebarInset className="min-w-0 flex-1 px-5 py-8 md:px-12 md:py-14">
-              {children}
-            </SidebarInset>
-          </div>
-        </SidebarProvider>
-        <UpgradeListener />
-      </div>
-    </BillingProvider>
+    <div className="min-h-screen bg-[#f5f5f7]">
+      <Navbar />
+      <SidebarProvider defaultOpen={true}>
+        <div className="min-w-0 flex-1 pt-12 md:flex">
+          <AppSidebar />
+          <SidebarInset className="min-w-0 flex-1 px-5 py-8 md:px-12 md:py-14">
+            {children}
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+      <UpgradeListener />
+    </div>
   )
 }

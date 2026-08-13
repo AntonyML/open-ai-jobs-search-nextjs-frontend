@@ -1229,6 +1229,15 @@
       "signup_bonus": "Bono de bienvenida",
       "admin_adjust": "Ajuste de administrador"
     },
+    "detail": {
+      "refillWeekly": "Recarga semanal ({plan})",
+      "refillPeriod": "Recarga de período ({plan})",
+      "expiryWeekly": "Créditos no usados expirados en la recarga semanal ({plan})",
+      "expiryPeriod": "Créditos no usados expirados en la recarga de período ({plan})",
+      "cvGeneration": "Generación de CV",
+      "consumed": "Se consumieron {count} créditos",
+      "adminAdjust": "Ajuste manual de administrador"
+    },
     "feature": {
       "cv_base": "CV base",
       "cv_adapted": "CV adaptado",

@@ -3,14 +3,15 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { useQueryClient } from '@tanstack/react-query'
 import { isLoggedIn } from '@/lib/auth'
 import { showError } from '@/lib/toasts'
 import {
   Crown, Coins, RefreshCw, ShieldCheck, Clock, Copy, Zap, Rocket,
   Sparkles, Layers, ArrowUpRight, Receipt, Wallet,
 } from 'lucide-react'
-import { useBilling } from '@/hooks/useBilling'
-import { getCreditTransactions } from '@/lib/billing'
+import { useBillingStatus, useBillingCatalog, useTransactions } from '@/hooks/useBilling'
+import { billingKeys } from '@/lib/query-keys'
 import type { CreditTransaction } from '@/types/billing'
 import styles from './BillingPage.module.css'
 
@@ -20,6 +21,30 @@ const ACTION_ICONS: Record<string, { icon: typeof Coins; cls: string }> = {
   purchase: { icon: Wallet, cls: 'text-[#0071e3] bg-[#f4f8fb]' },
   topup: { icon: Coins, cls: 'text-amber-500 bg-amber-50' },
   adjust: { icon: Coins, cls: 'text-purple-500 bg-purple-50' },
+}
+
+type TxDescT = (key: string, values?: Record<string, string | number>) => string
+
+/**
+ * Traduce la descripción cruda que escribe el backend (en inglés) al idioma
+ * actual. Las descripciones conocidas se mapean a `billingPage.detail.*`;
+ * para las desconocidas se quita el prefijo crudo de acción (p. ej. "cv_base: ").
+ */
+function describeTx(t: TxDescT, tx: CreditTransaction): string {
+  const desc = tx.description ?? ''
+  if (/^[\w-]+: CV generation$/.test(desc)) return t('detail.cvGeneration')
+  const consumed = desc.match(/^[\w-]+: consumed (\d+) credits$/)
+  if (consumed) return t('detail.consumed', { count: consumed[1] })
+  const weeklyRefill = desc.match(/^Weekly refill \((.*)\)$/)
+  if (weeklyRefill) return t('detail.refillWeekly', { plan: weeklyRefill[1] })
+  const periodRefill = desc.match(/^Period refill \((.*)\)$/)
+  if (periodRefill) return t('detail.refillPeriod', { plan: periodRefill[1] })
+  const weeklyExpiry = desc.match(/^Unused credits expired at weekly refill \((.*)\)$/)
+  if (weeklyExpiry) return t('detail.expiryWeekly', { plan: weeklyExpiry[1] })
+  const periodExpiry = desc.match(/^Unused credits expired at period refill \((.*)\)$/)
+  if (periodExpiry) return t('detail.expiryPeriod', { plan: periodExpiry[1] })
+  if (desc === 'Manual admin adjustment') return t('detail.adminAdjust')
+  return desc.replace(/^[\w-]+:\s*/, '') || tx.action
 }
 
 function PlanBadge({ planKey }: { planKey: string | null }) {
@@ -49,40 +74,22 @@ function daysUntil(dateStr: string | null): number | null {
 export default function BillingPage() {
   const t = useTranslations('billingPage')
   const router = useRouter()
-  const { status, catalog, loading, error, refresh } = useBilling()
-  const [txns, setTxns] = useState<CreditTransaction[]>([])
-  const [txnsLoading, setTxnsLoading] = useState(true)
-  const [txnsError, setTxnsError] = useState(false)
+  const queryClient = useQueryClient()
+  const { data: status, isPending: statusPending, isFetching: statusFetching, error: statusError } = useBillingStatus()
+  const { data: catalog, isPending: catalogPending, isFetching: catalogFetching, error: catalogError } = useBillingCatalog()
+  const txnsQuery = useTransactions()
   const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const loading = statusPending || catalogPending
+  const fetching = statusFetching || catalogFetching || txnsQuery.isFetching
+  const error = statusError?.message ?? catalogError?.message ?? null
+  const txns = txnsQuery.data ?? []
+  const txnsLoading = txnsQuery.isPending
+  const txnsError = !!txnsQuery.error
+  const refresh = () => { void queryClient.invalidateQueries({ queryKey: billingKeys.all }) }
 
   useEffect(() => {
     if (!isLoggedIn()) { router.replace('/login'); return }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
-    let cancelled = false
-    async function loadTxns() {
-      setTxnsLoading(true)
-      try {
-        const rows = await getCreditTransactions()
-        if (!cancelled) { setTxns(rows); setTxnsError(false) }
-      } catch {
-        if (!cancelled) setTxnsError(true)
-      } finally {
-        if (!cancelled) setTxnsLoading(false)
-      }
-    }
-    void loadTxns()
-    const onRefresh = () => { void refresh(); void loadTxns() }
-    const onFocus = () => { void refresh(); void loadTxns() }
-    window.addEventListener('billing:updated', onRefresh)
-    window.addEventListener('focus', onFocus)
-    return () => {
-      cancelled = true
-      window.removeEventListener('billing:updated', onRefresh)
-      window.removeEventListener('focus', onFocus)
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -135,11 +142,11 @@ export default function BillingPage() {
           <p className="mt-1 text-sm text-[#707070]">{t('subtitle')}</p>
         </div>
         <button
-          onClick={() => refresh()}
-          disabled={loading}
+          onClick={refresh}
+          disabled={fetching}
           className="inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] bg-white/70 px-4 py-2 text-xs font-medium text-[#474747] transition-all hover:bg-[#f5f5f7] disabled:opacity-50"
         >
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-3.5 w-3.5 ${fetching ? 'animate-spin' : ''}`} />
           {t('refresh')}
         </button>
       </div>
@@ -336,7 +343,7 @@ export default function BillingPage() {
                         </div>
                       </td>
                       <td className="max-w-[260px] px-4 py-3">
-                        <p className="truncate text-xs text-[#707070]">{tx.description ?? '—'}</p>
+                        <p className="truncate text-xs text-[#707070]">{describeTx(t, tx)}</p>
                         {tx.model_used && <p className="text-[10px] text-[#a0a0a0]">{tx.model_used}</p>}
                       </td>
                       <td className="px-4 py-3">

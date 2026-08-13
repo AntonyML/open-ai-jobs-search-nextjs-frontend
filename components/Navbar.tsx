@@ -7,7 +7,7 @@ import { usePathname, useRouter } from '@/i18n/routing'
 import { useTranslations } from 'next-intl'
 import { isLoggedIn, clearToken, isAdmin, AUTH_CHANGED } from '@/lib/auth'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
-import { getBillingStatus } from '@/lib/billing'
+import { useBillingStatus } from '@/hooks/useBilling'
 import Logo from '@/components/Logo'
 
 const NotificationBell = dynamic(
@@ -21,19 +21,10 @@ const NotificationBell = dynamic(
 // ── Credit chip (plan + balance) ───────────────────────────────────
 
 function NavbarCreditChip() {
-  const [info, setInfo] = useState<{ plan: string; credits: number } | null>(null)
-
-  useEffect(() => {
-    const load = () =>
-      getBillingStatus()
-        .then((s) => setInfo({ plan: s.plan_name ?? s.plan_key ?? 'Free', credits: s.credits_balance }))
-        .catch(() => {})
-    load()
-    window.addEventListener('billing:updated', load)
-    return () => window.removeEventListener('billing:updated', load)
-  }, [])
-
-  if (!info) return null
+  const { data: status } = useBillingStatus()
+  if (!status) return null
+  const plan = status.plan_name ?? status.plan_key ?? 'Free'
+  const credits = status.credits_balance
   return (
     <button
       type="button"
@@ -46,9 +37,9 @@ function NavbarCreditChip() {
         <path d="M7 6h1v4" />
         <path d="m16.71 13.88.7.71-2.82 2.82" />
       </svg>
-      <span className="max-w-[110px] truncate">{info.plan}</span>
+      <span className="max-w-[110px] truncate">{plan}</span>
       <span className="text-[#858585]">·</span>
-      <span className="text-[#707070]">{info.credits}</span>
+      <span className="text-[#707070]">{credits}</span>
     </button>
   )
 }

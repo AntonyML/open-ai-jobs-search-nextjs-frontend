@@ -123,13 +123,11 @@ export function useNotifications(enabled = true, intervalMs = 15000) {
     const onFocus = () => void load()
     const timer = window.setInterval(() => void load(), intervalMs)
     window.addEventListener('notifications:refresh', onRefresh)
-    window.addEventListener('billing:updated', onRefresh)
     window.addEventListener('focus', onFocus)
     return () => {
       cancelled = true
       window.clearInterval(timer)
       window.removeEventListener('notifications:refresh', onRefresh)
-      window.removeEventListener('billing:updated', onRefresh)
       window.removeEventListener('focus', onFocus)
     }
   }, [enabled, intervalMs])

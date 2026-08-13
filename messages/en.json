@@ -1229,6 +1229,15 @@
       "signup_bonus": "Sign-up bonus",
       "admin_adjust": "Admin adjustment"
     },
+    "detail": {
+      "refillWeekly": "Weekly refill ({plan})",
+      "refillPeriod": "Period refill ({plan})",
+      "expiryWeekly": "Unused credits expired at weekly refill ({plan})",
+      "expiryPeriod": "Unused credits expired at period refill ({plan})",
+      "cvGeneration": "CV generation",
+      "consumed": "Consumed {count} credits",
+      "adminAdjust": "Manual admin adjustment"
+    },
     "feature": {
       "cv_base": "Base CV",
       "cv_adapted": "Adapted CV",

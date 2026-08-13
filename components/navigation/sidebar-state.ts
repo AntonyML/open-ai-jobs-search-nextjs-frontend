@@ -2,45 +2,48 @@
 
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/api'
 import { getUserTier, isAdmin } from '@/lib/auth'
+import { useBillingStatus } from '@/hooks/useBilling'
 import type { SidebarState } from './sidebar-config'
 
 /**
- * Estado reactivo del menú: el CV base se consulta contra la API y se
- * re-verifica al montar, al cambiar de ruta, al recuperar el foco y ante
- * el evento `cv:base-generated` (disparado al generar un CV base).
+ * Estado reactivo del menú: el tier se lee de la query única `billing/status`
+ * (TanStack Query) y el CV base se consulta contra la API (caché propia).
+ * Se re-verifica ante `cv:base-generated` (disparado al generar un CV base)
+ * y al cambiar de ruta. El event bus `billing:updated` ya no existe.
  */
+const cvListKeys = ['sidebar', 'cv'] as const
+
 export function useSidebarState(): SidebarState {
   const pathname = usePathname()
-  const [hasBaseCv, setHasBaseCv] = useState(false)
+  const queryClient = useQueryClient()
   const [tier, setTier] = useState<string>(() => getUserTier())
 
+  const { data: status } = useBillingStatus()
   useEffect(() => {
-    let cancelled = false
-    async function check() {
-      // Tier real desde billing (no el JWT, que queda stale hasta re-login).
-      const status = await apiFetch<{ plan_key: string | null }>('/api/v1/billing/status').catch(() => null)
-      if (!cancelled && status) setTier(status.plan_key ?? 'free')
+    if (status?.plan_key) setTier(status.plan_key)
+  }, [status?.plan_key])
+
+  const hasBaseCv = useQuery({
+    queryKey: [...cvListKeys, pathname],
+    queryFn: async () => {
       const cvs = await apiFetch<Array<{ cv_type: string }>>('/api/v1/cv/').catch(() => [])
-      if (!cancelled) setHasBaseCv(Array.isArray(cvs) && cvs.some((c) => c.cv_type === 'base'))
+      return Array.isArray(cvs) && cvs.some((c) => c.cv_type === 'base')
+    },
+    staleTime: 30_000,
+    enabled: typeof window !== 'undefined',
+  }).data ?? false
+
+  // El guard no conoce la query; invalidar por ruta nueva o CV base generado.
+  useEffect(() => {
+    const onBaseGenerated = () => {
+      void queryClient.invalidateQueries({ queryKey: cvListKeys })
     }
-    check()
-    const onFocus = () => check()
-    const onBaseGenerated = () => check()
-    const onBillingUpdated = () => check()
-    window.addEventListener('focus', onFocus)
-    document.addEventListener('visibilitychange', onFocus)
     window.addEventListener('cv:base-generated', onBaseGenerated)
-    window.addEventListener('billing:updated', onBillingUpdated)
-    return () => {
-      cancelled = true
-      window.removeEventListener('focus', onFocus)
-      document.removeEventListener('visibilitychange', onFocus)
-      window.removeEventListener('cv:base-generated', onBaseGenerated)
-      window.removeEventListener('billing:updated', onBillingUpdated)
-    }
-  }, [pathname])
+    return () => window.removeEventListener('cv:base-generated', onBaseGenerated)
+  }, [queryClient])
 
   return {
     hasBaseCv,

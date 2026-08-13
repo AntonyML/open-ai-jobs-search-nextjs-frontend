@@ -1,36 +1,18 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Coins, Crown, Lock } from 'lucide-react'
-import { getBillingStatus } from '@/lib/billing'
-import type { CreditStatus } from '@/types/billing'
+import { useBillingStatus } from '@/hooks/useBilling'
 
 /**
  * Widget del sidebar que muestra el plan actual y el balance de créditos.
  * Al hacer clic abre el modal de compra global (dispara `purchase:required`,
- * que escucha `UpgradeListener` en el layout).
+ * que escucha `UpgradeListener` en el layout). Los datos vienen de la query
+ * única `billing/status` de TanStack Query (deduplicada con Navbar/página).
  */
 export default function CreditWidget() {
   const t = useTranslations('billing')
-  const [status, setStatus] = useState<CreditStatus | null>(null)
-
-  const load = useCallback(async () => {
-    const s = await getBillingStatus().catch(() => null)
-    setStatus(s)
-  }, [])
-
-  useEffect(() => {
-    load()
-    const onFocus = () => load()
-    const onUpdated = () => load()
-    window.addEventListener('focus', onFocus)
-    window.addEventListener('billing:updated', onUpdated)
-    return () => {
-      window.removeEventListener('focus', onFocus)
-      window.removeEventListener('billing:updated', onUpdated)
-    }
-  }, [load])
+  const { data: status } = useBillingStatus()
 
   if (!status) return null
 

@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import ClientProviders from './ClientProviders'
+import QueryProvider from '@/components/QueryProvider'
 import { constructMetadata } from '@/lib/seo'
 
 export function generateStaticParams() {
@@ -32,11 +33,13 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <TooltipProvider>
-        <ClientProviders>
-          {children}
-        </ClientProviders>
-      </TooltipProvider>
+      <QueryProvider>
+        <TooltipProvider>
+          <ClientProviders>
+            {children}
+          </ClientProviders>
+        </TooltipProvider>
+      </QueryProvider>
     </NextIntlClientProvider>
   )
 }
