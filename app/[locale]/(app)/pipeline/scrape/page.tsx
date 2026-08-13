@@ -7,7 +7,8 @@ import { useRouter } from 'next/navigation'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
 import { playPipelineSound, playErrorSound } from '@/lib/sounds'
-import { getCompletedSteps, setCompletedSteps, isPremium } from '@/lib/auth'
+import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
+import { useBilling } from '@/hooks/useBilling'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleButton } from '@/components/ui/apple-button'
 import { UpgradeBanner } from '@/components/ui/upgrade-banner'
@@ -59,7 +60,7 @@ export default function Scrape() {
   const t = useTranslations('scrape')
   const tp = useTranslations('pipeline.steps')
   const router = useRouter()
-  const premium = isPremium()
+  const premium = useBilling().isPremium
   const [showUpgrade, setShowUpgrade] = useState(false)
 
   const [keywords, setKeywords] = useState<string[]>([])

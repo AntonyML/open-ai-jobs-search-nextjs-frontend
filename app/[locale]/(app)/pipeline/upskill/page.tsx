@@ -6,7 +6,7 @@ import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
 import { playPipelineSound, playErrorSound } from '@/lib/sounds'
-import { isPremium } from '@/lib/auth'
+import { useBilling } from '@/hooks/useBilling'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleButton } from '@/components/ui/apple-button'
 import { UpgradeBanner } from '@/components/ui/upgrade-banner'
@@ -217,7 +217,7 @@ function HistoryCard({
 export default function UpskillPage() {
   const t = useTranslations('upskill')
   const [showUpgrade, setShowUpgrade] = useState(false)
-  const premium = isPremium()
+  const premium = useBilling().isPremium
   const [running, setRunning] = useState(false)
   const [pollId, setPollId] = useState<string | null>(null)
   const [current, setCurrent] = useState<UpskillResult | null>(null)

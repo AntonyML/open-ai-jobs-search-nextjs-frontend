@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter as useNextRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
-import { clearCompletedSteps, clearToken, isLoggedIn, isPremium } from '@/lib/auth'
+import { clearCompletedSteps, clearToken, isLoggedIn } from '@/lib/auth'
+import { useBilling } from '@/hooks/useBilling'
 import { apiFetch } from '@/lib/api'
 import { showError, showSuccess } from '@/lib/toasts'
 import {
@@ -37,6 +38,7 @@ export default function Settings() {
   const t = useTranslations('settings')
   const tc = useTranslations('common')
   const locale = useLocale()
+  const { isPremium } = useBilling()
   const router = useNextRouter()
   const [activeTab, setActiveTab] = useState('notifications')
   const [notifEmail, setNotifEmail] = useState(true)
@@ -264,13 +266,13 @@ export default function Settings() {
               </div>
               <div className={styles.cardBody}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <span className={isPremium() ? styles.chipOk : styles.chipNeutral}>
+                  <span className={isPremium ? styles.chipOk : styles.chipNeutral}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                     </svg>
-                    {isPremium() ? 'Premium' : 'Free'}
+                    {isPremium ? 'Premium' : 'Free'}
                   </span>
-                  {!isPremium() && (
+                  {!isPremium && (
                     <button
                       onClick={() => setShowUpgrade(true)}
                       className={styles.btnPrimary}

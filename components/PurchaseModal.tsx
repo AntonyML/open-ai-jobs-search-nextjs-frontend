@@ -88,6 +88,7 @@ export default function PurchaseModal({ open, onClose, onPurchased }: PurchaseMo
       setDone({ correlation_id: res.correlation_id, whatsapp: res.whatsapp_number || whatsapp })
       showSuccess(res.message || t('sent'))
       onPurchased?.()
+      void refresh()
     } catch (x) {
       showError(x instanceof Error ? x.message : t('error'))
     } finally {

@@ -6,7 +6,7 @@ import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
 import { playPipelineSound, playErrorSound } from '@/lib/sounds'
-import { isPremium } from '@/lib/auth'
+import { useBilling } from '@/hooks/useBilling'
 import { useUsageLimits } from '@/hooks/useUsageLimits'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleTabs } from '@/components/ui/apple-tabs'
@@ -43,7 +43,7 @@ export default function InterviewPage() {
   const t = useTranslations('interview')
   const tc = useTranslations('common')
   const [showUpgrade, setShowUpgrade] = useState(false)
-  const premium = isPremium()
+  const premium = useBilling().isPremium
   const { data: usage } = useUsageLimits()
   const atLimit = !premium && usage != null && usage.usage.interview_preps >= usage.limits.max_prepare_count
 

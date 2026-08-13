@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation";
 import { showSuccess } from "@/lib/toasts";
 import { addNotification } from "@/lib/notifications";
 import { playPipelineSound } from "@/lib/sounds";
-import { getCompletedSteps, setCompletedSteps, isPremium } from "@/lib/auth";
+import { getCompletedSteps, setCompletedSteps } from "@/lib/auth";
+import { useBilling } from "@/hooks/useBilling";
 import { PipelineHeader } from "@/components/ui/pipeline-header";
 import { AppleButton } from "@/components/ui/apple-button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
@@ -88,7 +89,7 @@ export default function SearchPage() {
   const t = useTranslations("search");
   const locale = useLocale();
   const router = useRouter();
-  const premium = isPremium();
+  const premium = useBilling().isPremium;
   const [showUpgrade, setShowUpgrade] = useState(false);
 
   const [pageState, setPageState] = useState<PageState>("loading");

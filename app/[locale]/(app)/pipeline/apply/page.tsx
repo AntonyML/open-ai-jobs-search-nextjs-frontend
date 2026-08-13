@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import PipelinePage from '@/components/PipelinePage'
-import { isPremium, getCompletedSteps } from '@/lib/auth'
+import { getCompletedSteps } from '@/lib/auth'
+import { useBilling } from '@/hooks/useBilling'
 import { useUsageLimits } from '@/hooks/useUsageLimits'
 import { UpgradeBanner } from '@/components/ui/upgrade-banner'
 import UpgradeModal from '@/components/UpgradeModal'
@@ -12,7 +13,7 @@ export default function Apply() {
   const t = useTranslations('apply')
   const tp = useTranslations('pipeline.steps')
   const [showUpgrade, setShowUpgrade] = useState(false)
-  const premium = isPremium()
+  const premium = useBilling().isPremium
   const { data: usage } = useUsageLimits()
 
   const atLimit = !premium && usage != null && usage.usage.applications >= usage.limits.max_apply_count

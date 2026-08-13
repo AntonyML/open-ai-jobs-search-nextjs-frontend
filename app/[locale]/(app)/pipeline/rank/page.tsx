@@ -7,7 +7,8 @@ import { apiFetch } from '@/lib/api'
 import { playPipelineSound, playErrorSound } from '@/lib/sounds'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
-import { getCompletedSteps, setCompletedSteps, isPremium } from '@/lib/auth'
+import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
+import { useBilling } from '@/hooks/useBilling'
 import { useUsageLimits } from '@/hooks/useUsageLimits'
 import { PipelineHeader } from '@/components/ui/pipeline-header'
 import { AppleButton } from '@/components/ui/apple-button'
@@ -36,7 +37,7 @@ export default function Rank() {
   const router = useRouter()
 
   // Auth & limits
-  const premium = isPremium()
+  const premium = useBilling().isPremium
   const { data: usage } = useUsageLimits()
   const atLimit = !premium && usage != null && usage.usage.rank_iterations >= usage.limits.max_rank_iterations
   const [showUpgrade, setShowUpgrade] = useState(false)
