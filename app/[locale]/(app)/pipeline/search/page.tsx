@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { showSuccess, showError } from "@/lib/toasts";
+import { showSuccess } from "@/lib/toasts";
 import { addNotification } from "@/lib/notifications";
-import { playPipelineSound, playErrorSound } from "@/lib/sounds";
+import { playPipelineSound } from "@/lib/sounds";
 import { getCompletedSteps, setCompletedSteps, isPremium } from "@/lib/auth";
 import { PipelineHeader } from "@/components/ui/pipeline-header";
 import { AppleButton } from "@/components/ui/apple-button";
@@ -236,7 +236,11 @@ export default function SearchPage() {
   const toggleJob = (id: string) => {
     setSelected(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };

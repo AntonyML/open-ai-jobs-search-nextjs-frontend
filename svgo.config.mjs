@@ -1,5 +1,4 @@
-/** @type {import('svgo').Config} */
-export default {
+const svgoConfig = {
   multipass: true,
   plugins: [
     {
@@ -17,3 +16,5 @@ export default {
     'sortAttrs',
   ],
 }
+
+export default svgoConfig

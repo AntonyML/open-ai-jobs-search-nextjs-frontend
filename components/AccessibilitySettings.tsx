@@ -7,8 +7,6 @@ import {
   DEFAULT_SETTINGS,
   FONT_SIZE_LABELS,
   FONT_SIZE_TICK_VALUES,
-  FONT_SIZE_MIN,
-  FONT_SIZE_MAX,
   FONT_SIZE_STEP,
   LETTER_SPACING_LABELS,
   LINE_HEIGHT_LABELS,
@@ -220,7 +218,7 @@ function SliderSelect<T extends string | number>({
         </span>
       </div>
       <div className="flex gap-1">
-        {options.map((opt, i) => (
+        {options.map((opt) => (
           <button
             key={String(opt.value)}
             type="button"
@@ -256,12 +254,6 @@ const IconContrast = () => (
 const IconMotion = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
-  </svg>
-)
-
-const IconTextSpacing = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 4h16" /><path d="M8 12h8" /><path d="M6 20h12" />
   </svg>
 )
 

@@ -26,7 +26,6 @@ export function CollapsibleCard({
   onRemove,
   badgeColor,
   badgeTextColor,
-  placeholder,
   children,
 }: CollapsibleCardProps) {
   const t = useTranslations('setup')
@@ -112,7 +111,6 @@ export function CollapsibleCardListWrapper({
   title,
   countLabel,
   icon,
-  count,
   emptyMessage,
   addLabel,
   onAdd,

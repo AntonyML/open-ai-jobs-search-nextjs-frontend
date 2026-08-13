@@ -35,7 +35,6 @@ interface ExpansionSummary {
 
 function SkillAdditionCard({
   addition,
-  index,
   accepted,
   rejected,
   onAccept,
@@ -43,7 +42,6 @@ function SkillAdditionCard({
   t,
 }: {
   addition: any
-  index: number
   accepted: boolean
   rejected: boolean
   onAccept: () => void

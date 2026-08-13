@@ -130,7 +130,7 @@ export default function InterviewPage() {
       setSelectedPrep(prep)
       setActiveTab('prep')
       setMockState(null)
-    } catch (x) {
+    } catch {
       showError('Failed to load prep')
     }
   }

@@ -121,8 +121,9 @@ export default function PipelinePage({
       apiFetch<any>(listEndpoint)
         .then((x) => setItems(normalize(x)))
         .catch(() => {})
+    const intervals = intervalsRef.current
     return () => {
-      Object.values(intervalsRef.current).forEach(clearInterval)
+      Object.values(intervals).forEach(clearInterval)
     }
   }, [listEndpoint])
 

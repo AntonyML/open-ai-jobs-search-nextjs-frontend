@@ -10,9 +10,6 @@ import {
   TrendingUp,
   Globe,
   FileText,
-  Briefcase,
-  CheckCircle2,
-  XCircle,
   ArrowUpRight,
   ArrowDownRight,
 } from 'lucide-react'
@@ -48,12 +45,6 @@ interface FunnelData {
   stage: string
   count: number
   fill?: string
-}
-
-interface CompletionData {
-  name: string
-  completed: number
-  total: number
 }
 
 const FUNNEL_COLORS = ['#e2e2e5', '#2997ff', '#0071e3', '#5856d6', '#34c759']

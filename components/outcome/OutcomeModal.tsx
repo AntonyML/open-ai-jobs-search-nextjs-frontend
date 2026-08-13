@@ -36,7 +36,7 @@ interface OutcomeModalProps {
   t: (key: string, opts?: any) => string
 }
 
-export function OutcomeModal({ open, saving, atLimit, limitTooltip, form, applications, onFormChange, onSubmit, onClose, tc, t }: OutcomeModalProps) {
+export function OutcomeModal({ open, saving, atLimit, limitTooltip, form, applications, onFormChange, onSubmit, onClose, tc }: OutcomeModalProps) {
   if (!open) return null
 
   function update(field: keyof OutcomeForm, value: string) {

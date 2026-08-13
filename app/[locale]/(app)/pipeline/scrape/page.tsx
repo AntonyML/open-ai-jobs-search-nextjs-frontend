@@ -13,9 +13,8 @@ import { AppleButton } from '@/components/ui/apple-button'
 import { UpgradeBanner } from '@/components/ui/upgrade-banner'
 import { PipelineEmptyState } from '@/components/PipelineEmptyState'
 import { TagInput } from '@/components/ui/TagInput'
-import { Search, Briefcase, MapPin, Check, Loader2 } from 'lucide-react'
+import { Search, Briefcase, MapPin, Loader2 } from 'lucide-react'
 import UpgradeModal from '@/components/UpgradeModal'
-import { OptionPills } from '@/components/scrape/OptionPills'
 
 interface JobResult {
   id: string

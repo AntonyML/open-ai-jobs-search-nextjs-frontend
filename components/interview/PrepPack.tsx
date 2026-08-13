@@ -1,6 +1,3 @@
-'use client'
-
-import { useTranslations } from 'next-intl'
 import type { InterviewPrep } from '@/types/pipeline'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

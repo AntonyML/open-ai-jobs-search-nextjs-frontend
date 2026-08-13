@@ -392,7 +392,7 @@ export function useOrchestrator() {
  * Lightweight hook that uses the same QueueStatus but doesn't fetch
  * providers/models — ideal for pages that just need job progress.
  */
-export function useQueueStatus(pollMs: number = 2000) {
+export function useQueueStatus() {
   const { queue, loading, wsConnected } = useOrchestrator()
   return { queue, loading, wsConnected }
 }
