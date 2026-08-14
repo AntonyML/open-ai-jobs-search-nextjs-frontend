@@ -39,13 +39,6 @@ const STEP_ICONS: Record<string, LucideIcon> = {
   outcome: Briefcase,
 }
 
-const QUICK_ACTIONS = [
-  { key: 'search', icon: Search, requireStep: 'setup' },
-  { key: 'rank', icon: BarChart3, requireStep: 'search' },
-  { key: 'createCv', icon: FileText, requireStep: 'rank' },
-  { key: 'prepare', icon: TrendingUp, requireStep: 'apply' },
-]
-
 const STAGE_LABELS: Record<string, string> = {
   Scraped: 'scraped',
   Ranked: 'ranked',
@@ -389,163 +382,44 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Quick actions + funnel chart */}
-      <div className="grid gap-4 lg:grid-cols-5">
-        {/* Quick actions — display only */}
-        <section className="rounded-xl border border-[#d2d2d7]/60 bg-white p-5 lg:col-span-2">
-          <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('quickActions')}</h2>
-          <p className="mt-0.5 text-xs text-[#707070]">{t('quickActionsDesc')}</p>
-          <div className="mt-4 space-y-2.5">
-            {QUICK_ACTIONS.map((action) => {
-              const available = doneKeys.has(action.requireStep)
-              const Icon = action.icon
-              return (
-                <div
-                  key={action.key}
-                  className={cn(
-                    'flex items-center gap-3 rounded-lg border p-3.5 transition-all',
-                    available
-                      ? 'border-[#d2d2d7]/60 bg-white hover:border-[#2997ff]/40'
-                      : 'border-[#e8e8ed] bg-[#fafafa]'
-                  )}
-                >
-                  <div
-                    className={cn(
-                      'flex size-9 shrink-0 items-center justify-center rounded-lg',
-                      available
-                        ? 'bg-[#f4f8fb] text-[#0071e3]'
-                        : 'bg-[#f0f0f2] text-[#b0b0b0]'
-                    )}
-                  >
-                    <Icon className="size-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className={cn('text-sm font-medium', available ? 'text-[#1d1d1f]' : 'text-[#858585]')}>
-                      {t(action.key)}
-                    </p>
-                    <p className="text-xs text-[#858585]">{t(`${action.key}Desc`)}</p>
-                  </div>
-                  <span
-                    className={cn(
-                      'shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold',
-                      available
-                        ? 'bg-[#f4f8fb] text-[#0071e3] ring-1 ring-[#2997ff]/30'
-                        : 'bg-[#f0f0f2] text-[#a0a0a0]'
-                    )}
-                  >
-                    {available
-                      ? t('available')
-                      : t('requiresStep', { step: tp(action.requireStep as any) as string })}
-                  </span>
-                </div>
-              )
-            })}
+      {/* Conversion funnel — echarts-style line chart */}
+      {funnelData.length > 0 && (
+        <section className="rounded-xl border border-[#d2d2d7]/60 bg-white p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('conversionFunnel')}</h2>
+              <p className="mt-0.5 text-xs text-[#707070]">{t('fromScrapedToHired')}</p>
+            </div>
+            <span className="hidden rounded-full bg-[#f4f8fb] px-2.5 py-1 text-[10px] font-semibold text-[#0071e3] ring-1 ring-[#2997ff]/20 sm:inline-flex">
+              {t('conversionFunnelTag')}
+            </span>
+          </div>
+          <div className="mt-4">
+            <FunnelLineChart data={chartData} jobsLabel={t('jobs')} />
+          </div>
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <MiniKpi
+              label={t('hired')}
+              value={stats.hired}
+              icon={<CheckCircle2 className="size-3.5" />}
+              valueClass="text-emerald-600"
+            />
+            <MiniKpi
+              label={t('rejected')}
+              value={stats.rejected}
+              icon={<TrendingUp className="size-3.5 rotate-180" />}
+              valueClass="text-rose-500"
+            />
+            <MiniKpi
+              label={t('avgScore')}
+              value={stats.avg_rank_score ?? '—'}
+              icon={<BarChart3 className="size-3.5" />}
+              valueClass="text-[#5856d6]"
+            />
           </div>
         </section>
+      )}
 
-        {/* Conversion funnel — echarts-style line chart */}
-        {funnelData.length > 0 && (
-          <section className="rounded-xl border border-[#d2d2d7]/60 bg-white p-5 lg:col-span-3">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('conversionFunnel')}</h2>
-                <p className="mt-0.5 text-xs text-[#707070]">{t('fromScrapedToHired')}</p>
-              </div>
-              <span className="hidden rounded-full bg-[#f4f8fb] px-2.5 py-1 text-[10px] font-semibold text-[#0071e3] ring-1 ring-[#2997ff]/20 sm:inline-flex">
-                {t('conversionFunnelTag')}
-              </span>
-            </div>
-            <div className="mt-4">
-              <FunnelLineChart data={chartData} jobsLabel={t('jobs')} />
-            </div>
-            <div className="mt-4 grid grid-cols-3 gap-2">
-              <MiniKpi
-                label={t('hired')}
-                value={stats.hired}
-                icon={<CheckCircle2 className="size-3.5" />}
-                valueClass="text-emerald-600"
-              />
-              <MiniKpi
-                label={t('rejected')}
-                value={stats.rejected}
-                icon={<TrendingUp className="size-3.5 rotate-180" />}
-                valueClass="text-rose-500"
-              />
-              <MiniKpi
-                label={t('avgScore')}
-                value={stats.avg_rank_score ?? '—'}
-                icon={<BarChart3 className="size-3.5" />}
-                valueClass="text-[#5856d6]"
-              />
-            </div>
-          </section>
-        )}
-      </div>
-
-      {/* Pipeline overview — display only */}
-      <section>
-        <div className="mb-3 flex items-baseline justify-between gap-3">
-          <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('jobPipeline')}</h2>
-          <span className="shrink-0 text-xs text-[#858585]">
-            {t('stepsCompleted', { done: doneStepsCount, total: totalSteps })}
-          </span>
-        </div>
-        <div className="divide-y divide-[#e8e8ed]/80 overflow-hidden rounded-xl border border-[#d2d2d7]/60 bg-white">
-          {steps.map((step) => {
-            const Icon = STEP_ICONS[step.key]
-            return (
-              <div
-                key={step.key}
-                className={cn(
-                  'flex items-center gap-3.5 px-4 py-3.5 transition-colors',
-                  step.isNext && 'bg-[#f4f8fb]/60'
-                )}
-              >
-                <div
-                  className={cn(
-                    'flex size-8 shrink-0 items-center justify-center rounded-full',
-                    step.done && 'bg-emerald-100 text-emerald-600',
-                    step.isNext && 'bg-[#0071e3]/10 text-[#0071e3]',
-                    !step.done && !step.isNext && 'bg-[#f5f5f7] text-[#b0b0b0]'
-                  )}
-                >
-                  {step.done ? <CheckCircle2 className="size-4" /> : <Icon className="size-4" />}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-[#1d1d1f]">
-                    {tp(step.key as any) as string}
-                  </p>
-                  <p className="text-xs text-[#707070]">
-                    {tp(`${step.key}Desc` as any) as string}
-                  </p>
-                </div>
-                <span
-                  className={cn(
-                    'shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold',
-                    step.done && 'bg-emerald-50 text-emerald-600',
-                    step.isNext && 'bg-[#f4f8fb] text-[#0071e3] ring-1 ring-[#2997ff]/30',
-                    !step.done && !step.isNext && 'bg-[#f0f0f2] text-[#a0a0a0]'
-                  )}
-                >
-                  {step.done ? (
-                    <span className="inline-flex items-center gap-1">
-                      <CheckCircle2 className="size-3" />
-                      {t('completed')}
-                    </span>
-                  ) : step.isNext ? (
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="size-1.5 animate-pulse-dot rounded-full bg-[#0071e3]" />
-                      {t('nextStep')}
-                    </span>
-                  ) : (
-                    t('pending')
-                  )}
-                </span>
-              </div>
-            )
-          })}
-        </div>
-      </section>
     </div>
   )
 }
