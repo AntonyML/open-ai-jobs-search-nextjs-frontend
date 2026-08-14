@@ -18,18 +18,20 @@ export function FocusTags({
   customFocus,
   onToggleTag,
   onCustomFocus,
+  t,
   tc,
 }: {
   focusArea: string
   customFocus: string
   onToggleTag: (tag: string) => void
   onCustomFocus: (value: string) => void
+  t: (key: string) => string
   tc: (key: string) => string
 }) {
   return (
     <div>
       <p className="text-xs font-bold uppercase tracking-widest text-[#858585] mb-3">
-        Focus area <span className="text-[#b0b0b0] font-normal normal-case">{tc('optional')}</span>
+        {t('focusArea')} <span className="text-[#b0b0b0] font-normal normal-case">{tc('optional')}</span>
       </p>
       <div className="flex flex-wrap gap-2">
         {FOCUS_TAGS.map(tag => (
@@ -50,7 +52,7 @@ export function FocusTags({
       </div>
       <input
         type="text"
-        placeholder="Or type a custom focus area…"
+        placeholder={t('customFocusPlaceholder')}
         value={customFocus}
         onChange={e => { onCustomFocus(e.target.value) }}
         className="field mt-3 text-sm"

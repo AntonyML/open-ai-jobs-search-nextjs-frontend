@@ -4,10 +4,12 @@ export function Pagination({
   currentPage,
   totalPages,
   onPageChange,
+  t,
 }: {
   currentPage: number
   totalPages: number
   onPageChange: (page: number) => void
+  t: (key: string) => string
 }) {
   if (totalPages <= 1) return null
 
@@ -22,7 +24,7 @@ export function Pagination({
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="15 18 9 12 15 6" />
         </svg>
-        Previous
+        {t('prev')}
       </button>
 
       <div className="flex items-center gap-1">
@@ -55,7 +57,7 @@ export function Pagination({
         disabled={currentPage >= totalPages}
         className="flex items-center gap-1 rounded-full border border-[#d2d2d7] px-3 py-1.5 text-[12px] font-medium text-[#474747] hover:bg-[#f5f5f7] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        Next
+        {t('next')}
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="9 18 15 12 9 6" />
         </svg>

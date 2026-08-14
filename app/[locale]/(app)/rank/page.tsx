@@ -1,7 +1,7 @@
 'use client'
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
 import { playActionSound, playErrorSound } from '@/lib/sounds'
@@ -34,6 +34,7 @@ export default function Rank() {
   const t = useTranslations('rank')
   const tp = useTranslations('features')
   const tc = useTranslations('common')
+  const locale = useLocale()
   const router = useRouter()
 
   // Auth & limits
@@ -263,6 +264,14 @@ export default function Rank() {
   async function submit(e: FormEvent) {
     e.preventDefault()
     if (submittingRef.current) return
+    if (!jobIds || jobIds.length === 0) {
+      const msg = t('noSelection') || 'Select jobs in Search first'
+      showError(msg)
+      addNotification({ action: 'rank', description: msg, status: 'error' })
+      setError(msg)
+      router.push(`/${locale}/search`)
+      return
+    }
     submittingRef.current = true
     setResult(null)
     setLoading(true)

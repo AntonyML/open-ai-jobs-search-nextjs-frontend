@@ -193,7 +193,7 @@ export default function ActionPage({
             const pct = status.progress_pct ?? 0
             setProcessing((prev) => ({
               ...prev,
-              [itemId]: { ...prev[itemId], stage: status.pipeline_stage || 'processing', progress: pct, action: status.current_action || '' },
+              [itemId]: { ...prev[itemId], stage: status.stage || 'processing', progress: pct, action: status.current_action || '' },
             }))
             if (pct >= 100) {
               clearInterval(poll)

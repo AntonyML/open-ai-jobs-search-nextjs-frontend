@@ -170,6 +170,6 @@ export const applyStatusDone = {
   application_id: 'app-1',
   job_posting_id: 'job-1',
   progress_pct: 100,
-  pipeline_stage: 'complete',
+  stage: 'complete',
   current_action: 'Done',
 }
