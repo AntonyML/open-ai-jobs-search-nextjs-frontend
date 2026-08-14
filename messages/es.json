@@ -991,6 +991,10 @@
     "providerConfigStatus": "Estado",
     "providerConfigStatusOk": "Operativo",
     "providerConfigStatusFail": "Error",
+    "providerConfigWebSearch": "Lectura de enlaces",
+    "providerConfigWebSearchOk": "Disponible",
+    "providerConfigWebSearchNo": "No disponible",
+    "providerConfigWebSearchHint": "La adaptación por URL no funcionará con este modelo. Usa gpt-5 (OpenAI).",
     "providerConfigNone": "Sin configurar",
     "providerConfigApiKey": "API Key",
     "providerConfigApiKeyHint": "(deja vacío para conservar la actual)",
@@ -1177,7 +1181,14 @@
     "adaptMaxOnlyTitle": "Las ofertas guardadas son de Max",
     "adaptMaxOnlyDesc": "El buscador interno de ofertas, el ranking de compatibilidad y las postulaciones viven en el plan Max.",
     "adaptGoMax": "Descubrir Max",
-    "viewSource": "Ver oferta"
+    "viewSource": "Ver oferta",
+    "adaptMethodText": "Pegar descripción",
+    "adaptMethodTextTitle": "Adapta pegando la descripción",
+    "adaptMethodTextDesc": "Copia el texto completo de la oferta y la IA adapta tu CV a esa posición.",
+    "adaptTextPlaceholder": "Pega aquí la descripción completa de la oferta…",
+    "adaptTextButton": "Adaptar con esta descripción",
+    "adaptTextHint": "Útil cuando el portal no permite leer enlaces · Mínimo 50 caracteres",
+    "adaptUrlNoWebSearch": "La lectura de enlaces no está disponible con el modelo configurado. Pega la descripción de la oferta o inténtalo más tarde."
   },
   "cvDocuments": {
     "eyebrow": "Documentos",

@@ -991,6 +991,10 @@
     "providerConfigStatus": "Status",
     "providerConfigStatusOk": "Healthy",
     "providerConfigStatusFail": "Error",
+    "providerConfigWebSearch": "Link reading",
+    "providerConfigWebSearchOk": "Available",
+    "providerConfigWebSearchNo": "Unavailable",
+    "providerConfigWebSearchHint": "URL adaptation won't work with this model. Use gpt-5 (OpenAI).",
     "providerConfigNone": "Not configured",
     "providerConfigApiKey": "API Key",
     "providerConfigApiKeyHint": "(leave empty to keep the current one)",
@@ -1177,7 +1181,14 @@
     "adaptMaxOnlyTitle": "Saved offers are Max-only",
     "adaptMaxOnlyDesc": "The internal job search, fit rankings and applications live on the Max plan.",
     "adaptGoMax": "Discover Max",
-    "viewSource": "View offer"
+    "viewSource": "View offer",
+    "adaptMethodText": "Paste description",
+    "adaptMethodTextTitle": "Adapt by pasting the description",
+    "adaptMethodTextDesc": "Paste the full offer text and the AI tailors your CV to that role.",
+    "adaptTextPlaceholder": "Paste the full job description here…",
+    "adaptTextButton": "Adapt with this description",
+    "adaptTextHint": "Useful when the job board doesn't allow reading links · Min 50 characters",
+    "adaptUrlNoWebSearch": "Reading links isn't available with the configured AI model. Paste the job description or try again later."
   },
   "cvDocuments": {
     "eyebrow": "Documents",

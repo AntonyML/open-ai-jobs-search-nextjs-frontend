@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { Briefcase, Lock, ArrowRight, Link2, Globe, Crown } from 'lucide-react'
-import { apiFetch } from '@/lib/api'
+import { Briefcase, Lock, ArrowRight, Link2, Globe, Crown, FileText } from 'lucide-react'
+import { apiFetch, ApiError } from '@/lib/api'
 import { showError, showSuccess } from '@/lib/toasts'
 import { cn } from '@/lib/utils'
 import { PageHeader } from '@/components/ui/page-header'
@@ -35,8 +35,9 @@ export default function AdaptCvPage() {
   const [jobs, setJobs] = useState<JobOption[]>([])
   const [adapting, setAdapting] = useState(false)
   const [selectedJobId, setSelectedJobId] = useState('')
-  const [method, setMethod] = useState<'url' | 'offers'>('url')
+  const [method, setMethod] = useState<'url' | 'offers' | 'text'>('url')
   const [url, setUrl] = useState('')
+  const [text, setText] = useState('')
   const [lastAdapted, setLastAdapted] = useState<CVResponse | null>(null)
   const [error, setError] = useState('')
   const [jobsLoaded, setJobsLoaded] = useState(false)
@@ -83,8 +84,8 @@ export default function AdaptCvPage() {
       setLastAdapted(res)
       setCvs((prev) => [res, ...prev])
       showSuccess(t('adaptedGenerated'))
-    } catch (x: any) {
-      const msg = x instanceof Error ? x.message : t('adaptedFailed')
+    } catch (x) {
+      const msg = adaptErrorMessage(x, t('adaptedFailed'), t)
       setError(msg)
       showError(msg)
     } finally {
@@ -104,8 +105,29 @@ export default function AdaptCvPage() {
       setLastAdapted(res)
       setCvs((prev) => [res, ...prev])
       showSuccess(t('adaptedGenerated'))
-    } catch (x: any) {
-      const msg = x instanceof Error ? x.message : t('adaptedFailed')
+    } catch (x) {
+      const msg = adaptErrorMessage(x, t('adaptedFailed'), t)
+      setError(msg)
+      showError(msg)
+    } finally {
+      setAdapting(false)
+    }
+  }
+
+  async function adaptFromText() {
+    if (!baseCv || text.trim().length < 50) return
+    setAdapting(true)
+    setError('')
+    try {
+      const res = await apiFetch<CVResponse>('/api/v1/cv/personalize', {
+        method: 'POST',
+        body: JSON.stringify({ job_description_text: text.trim() }),
+      })
+      setLastAdapted(res)
+      setCvs((prev) => [res, ...prev])
+      showSuccess(t('adaptedGenerated'))
+    } catch (x) {
+      const msg = adaptErrorMessage(x, t('adaptedFailed'), t)
       setError(msg)
       showError(msg)
     } finally {
@@ -201,6 +223,21 @@ export default function AdaptCvPage() {
             )}
           </span>
         </button>
+        <button
+          type="button"
+          onClick={() => setMethod('text')}
+          className={cn(
+            'flex-1 rounded-full px-4 py-2 text-sm font-medium transition-all',
+            method === 'text'
+              ? 'bg-white text-[#1d1d1f] shadow-sm ring-1 ring-[#d2d2d7]/60'
+              : 'text-[#707070] hover:text-[#1d1d1f]',
+          )}
+        >
+          <span className="inline-flex items-center gap-1.5">
+            <FileText className="size-3.5" />
+            {t('adaptMethodText')}
+          </span>
+        </button>
       </div>
 
       {/* ── Method: by URL (all plans) ───────────────────────── */}
@@ -243,6 +280,40 @@ export default function AdaptCvPage() {
             </AppleButton>
           </div>
           <p className="mt-2 text-[11px] text-[#858585]">{t('adaptUrlHint')}</p>
+        </div>
+      )}
+
+      {/* ── Method: paste the description (all plans) ────────── */}
+      {method === 'text' && (
+        <div className="mt-4 rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#bf5af2]/10 text-[#bf5af2]">
+              <FileText className="size-4" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-[#1d1d1f]">{t('adaptMethodTextTitle')}</p>
+              <p className="mt-1 text-xs leading-5 text-[#707070]">{t('adaptMethodTextDesc')}</p>
+            </div>
+          </div>
+
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={t('adaptTextPlaceholder')}
+            rows={6}
+            className="field mt-4 w-full resize-y text-sm leading-5"
+          />
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[11px] text-[#858585]">{t('adaptTextHint')}</p>
+            <AppleButton
+              loading={adapting}
+              disabled={adapting || text.trim().length < 50}
+              onClick={adaptFromText}
+              className="w-full sm:w-auto"
+            >
+              {adapting ? t('adapting') : t('adaptTextButton')}
+            </AppleButton>
+          </div>
         </div>
       )}
 
@@ -402,4 +473,16 @@ export default function AdaptCvPage() {
       )}
     </section>
   )
+}
+
+/**
+ * Surface client-friendly messages instead of technical backend detail.
+ * The ``web_search_unavailable`` error means the configured AI model can't
+ * open links — the user just needs an actionable, localized hint.
+ */
+function adaptErrorMessage(x: unknown, fallback: string, t: (k: string) => string): string {
+  if (x instanceof ApiError && x.code === 'web_search_unavailable') {
+    return t('adaptUrlNoWebSearch')
+  }
+  return x instanceof Error ? x.message : fallback
 }

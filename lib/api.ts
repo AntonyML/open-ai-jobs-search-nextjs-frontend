@@ -7,10 +7,13 @@ let redirectingToLogin = false
 
 export class ApiError extends Error {
   status: number
-  constructor(message: string, status: number) {
+  /** Backend error code (e.g. 'web_search_unavailable'), empty when not provided. */
+  code: string
+  constructor(message: string, status: number, code = '') {
     super(message)
     this.name = 'ApiError'
     this.status = status
+    this.code = code
   }
 }
 
@@ -20,7 +23,8 @@ export async function apiFetch<T = unknown>(path: string, init?: RequestInit): P
   if (!res.ok) {
     const text = await res.text()
     let msg = text
-    try { const j = JSON.parse(text); msg = j.message || j.detail || text } catch {}
+    let code = ''
+    try { const j = JSON.parse(text); msg = j.message || j.detail || text; code = j.error || '' } catch {}
     if (typeof window !== 'undefined') {
       if (res.status === 401) {
         // Sesión caducada o token inválido → cerrar la sesión local.
@@ -43,7 +47,7 @@ export async function apiFetch<T = unknown>(path: string, init?: RequestInit): P
         window.dispatchEvent(new CustomEvent('purchase:required', { detail: { message: msg, status: res.status } }))
       }
     }
-    throw new ApiError(msg, res.status)
+    throw new ApiError(msg, res.status, code)
   }
   if (res.status === 204) return undefined as T
   return res.json() as Promise<T>

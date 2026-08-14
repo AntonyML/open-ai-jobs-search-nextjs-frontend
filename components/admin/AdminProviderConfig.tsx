@@ -27,6 +27,7 @@ interface AdminConfig {
   last_checked_at: string | null
   updated_by: string | null
   updated_at: string | null
+  web_search_enabled: boolean
 }
 
 interface ProviderInfo {
@@ -37,6 +38,7 @@ interface ProviderInfo {
   default_model: string
   example_base_url: string | null
   static_models: string[] | null
+  web_search_models: string[]
 }
 
 /**
@@ -282,7 +284,31 @@ export function AdminProviderConfig() {
               <p className={styles.stateValue}>—</p>
             )}
           </div>
+          <div className="min-w-0">
+            <p className={styles.stateLabel}>{t('providerConfigWebSearch')}</p>
+            {config?.provider ? (
+              <p className={`${styles.stateValue} flex items-center gap-1 ${
+                config.web_search_enabled ? 'text-emerald-600' : 'text-amber-600'
+              }`}>
+                {config.web_search_enabled
+                  ? <CheckCircle2 className="size-3.5 shrink-0" />
+                  : <XCircle className="size-3.5 shrink-0" />}
+                <span className="min-w-0 overflow-hidden text-ellipsis">
+                  {config.web_search_enabled ? t('providerConfigWebSearchOk') : t('providerConfigWebSearchNo')}
+                </span>
+              </p>
+            ) : (
+              <p className={styles.stateValue}>—</p>
+            )}
+          </div>
         </div>
+
+        {config?.provider && !config.web_search_enabled && (
+          <p className={`${styles.errorStrip} flex items-start gap-2 !border-amber-200 !bg-amber-50 !text-amber-700`}>
+            <XCircle className="mt-0.5 size-3.5 shrink-0" />
+            <span className="min-w-0">{t('providerConfigWebSearchHint')}</span>
+          </p>
+        )}
 
         {config?.last_error && (
           <p className={styles.errorStrip}>{config.last_error}</p>
