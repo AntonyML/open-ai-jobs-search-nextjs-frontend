@@ -66,8 +66,28 @@ export default function Rank() {
   const cancelledRef = useRef(false)
   const activeJobIdRef = useRef<string | null>(null)
   const [runningJob, setRunningJob] = useState<any>(null)
+  const [providerHealth, setProviderHealth] = useState<{ provider: string; health_score: number; last_error_code?: string | null } | null>(null)
 
   useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false } }, [])
+
+  // Fetch real provider health while a rank job is running, so RankProgress
+  // can surface degraded providers instead of the old hardcoded health=1.
+  useEffect(() => {
+    if (!loading || !runningJob?.provider) {
+      setProviderHealth(null)
+      return
+    }
+    let cancelled = false
+    apiFetch<any>('/api/v1/orchestrator/providers')
+      .then(x => {
+        if (cancelled) return
+        const list = Array.isArray(x) ? x : (x?.providers || [])
+        const p = (list || []).find((entry: any) => entry.provider === runningJob.provider)
+        if (p) setProviderHealth({ provider: p.provider, health_score: p.health_score, last_error_code: p.last_error_code })
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [loading, runningJob?.provider])
 
   // Load existing jobs + job_ids from search step on mount
   useEffect(() => {
@@ -106,10 +126,10 @@ export default function Rank() {
         if (job?.status === 'failed') return { status: 'failed', error: job.last_error }
         // Fail fast on other terminal states instead of polling until timeout
         if (job?.status === 'cancelled') return { status: 'cancelled' }
-        if (job?.status === 'skipped') return { status: 'failed', error: 'No jobs to rank' }
+        if (job?.status === 'skipped') return { status: 'failed', error: t('noJobsToRank') }
       } catch { /* retry */ }
     }
-    throw new Error('Ranking timed out')
+    throw new Error(t('timedOut'))
   }
 
   // Merge salary data
@@ -155,18 +175,21 @@ export default function Rank() {
     if (completed?.status === 'cancelled') return
     if (completed?.status === 'failed') {
       playErrorSound()
-      const errMsg = completed.error || 'Ranking failed'
-      showError('Ranking failed: ' + errMsg)
+      const errMsg = completed.error || t('noJobsToRank')
+      const msg = t('rankingFailed', { error: errMsg })
+      showError(msg)
       addNotification({ action: 'rank', description: errMsg, status: 'error' })
-      setError(errMsg)
+      setError(msg)
       return
     }
 
     playActionSound('rank')
     const rankData = completed?.result || completed
     setResult(rankData)
-    showSuccess(rankData?.ranked_count != null ? `Ranking complete! ${rankData.ranked_count} jobs evaluated` : 'Ranking complete!')
-    addNotification({ action: 'rank', description: `Evaluated jobs · focus=${focusArea || customFocus || 'all'}`, status: 'success' })
+    showSuccess(rankData?.ranked_count != null
+      ? t('rankingComplete', { count: rankData.ranked_count })
+      : t('rankingComplete', { count: 0 }))
+    addNotification({ action: 'rank', description: t('evaluatedJobs', { count: rankData?.ranked_count ?? 0 }), status: 'success' })
 
     const x = await apiFetch<any>('/api/v1/rank/jobs')
     const freshItems = Array.isArray(x) ? x : (x.items || x.jobs || [])
@@ -197,7 +220,7 @@ export default function Rank() {
     } catch (x) {
       if (!mountedRef.current) return
       playErrorSound()
-      const msg = x instanceof Error ? x.message : 'Request failed'
+      const msg = x instanceof Error ? x.message : t('requestFailed')
       showError(msg)
       addNotification({ action: 'rank', description: msg, status: 'error' })
       setError(msg)
@@ -226,7 +249,7 @@ export default function Rank() {
       })
       setError('')
     } catch {
-      if (mountedRef.current) setError('Failed to cancel ranking')
+      if (mountedRef.current) setError(t('cancelFailed'))
     }
   }
 
@@ -308,7 +331,7 @@ export default function Rank() {
     } catch (x) {
       if (!mountedRef.current) return
       playErrorSound()
-      const msg = x instanceof Error ? x.message : 'Request failed'
+      const msg = x instanceof Error ? x.message : t('requestFailed')
       showError(msg)
       addNotification({ action: 'rank', description: msg, status: 'error' })
       setError(msg)
@@ -347,7 +370,9 @@ export default function Rank() {
   const progressPct = totalCount > 0 ? Math.min(100, Math.round((rankedCount / totalCount) * 100)) : 0
   const remaining = Math.max(0, totalCount - rankedCount)
   const etaSeconds = progressPct > 5 ? Math.round((elapsed / progressPct) * (100 - progressPct)) : null
-  const activeProvider = runningJob?.provider ? { provider: runningJob.provider, health_score: 1, last_error_code: null } : null
+  const activeProvider = providerHealth
+  const hasSelection = jobIds != null && jobIds.length > 0
+  const showResultsList = items.length > 0
 
   return (
     <section className="mx-auto max-w-4xl">
@@ -362,65 +387,79 @@ export default function Rank() {
         />
       )}
 
-      {/* Form */}
-      <form onSubmit={submit} className="card space-y-6 mb-8">
-        <FocusTags
-          focusArea={focusArea}
-          customFocus={customFocus}
-          onToggleTag={toggleTag}
-          onCustomFocus={(v) => { setCustomFocus(v); setFocusArea('') }}
-          tc={tc}
-        />
+      {/* Form — only shown when a fresh job selection exists (job_ids from
+          the search step). Without a selection the backend refuses to run,
+          so rendering an unusable form would just confuse the user. */}
+      {hasSelection && (
+        <form onSubmit={submit} className="card space-y-6 mb-8">
+          <FocusTags
+            focusArea={focusArea}
+            customFocus={customFocus}
+            onToggleTag={toggleTag}
+            onCustomFocus={(v) => { setCustomFocus(v); setFocusArea('') }}
+            t={t}
+            tc={tc}
+          />
 
-        <RankSlider value={topN} onChange={setTopN} t={t} />
+          <RankSlider value={topN} onChange={setTopN} t={t} />
 
-        <div className="flex items-center gap-4">
-          <ReRankToggle value={reRank} onChange={setReRank} t={t} />
-          <Tooltip>
-            <TooltipTrigger render={<span />}>
-              <AppleButton disabled={loading || atLimit} loading={loading} className="shrink-0">
-                {loading ? t('ranking') : t('rankJobs')}
-              </AppleButton>
-            </TooltipTrigger>
-            {atLimit && (
-              <TooltipContent side="top" align="center">
-                {t('limitReached') || 'Upgrade para más evaluaciones'}
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </div>
-
-        {loading && (
-          <>
-            <RankProgress
-              rankedCount={rankedCount}
-              totalCount={totalCount}
-              remaining={remaining}
-              progressPct={progressPct}
-              elapsed={elapsed}
-              etaSeconds={etaSeconds}
-              runningJob={runningJob ? { description: runningJob.description, provider: runningJob.provider, model: runningJob.model } : null}
-              activeProvider={activeProvider}
-              recentEvals={items.filter(x => x.rank_score != null)}
-              t={t}
-            />
-            <div className="flex justify-start">
-              <AppleButton variant="danger" size="sm" onClick={cancelRanking} className="shrink-0">
-                {t('cancel')}
-              </AppleButton>
-            </div>
-          </>
-        )}
-
-        {error && (
-          <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
-            </svg>
-            {error}
+          <div className="flex items-center gap-4">
+            <ReRankToggle value={reRank} onChange={setReRank} t={t} />
+            <Tooltip>
+              <TooltipTrigger render={<span />}>
+                <AppleButton disabled={loading || atLimit} loading={loading} className="shrink-0">
+                  {loading ? t('ranking') : t('rankJobs')}
+                </AppleButton>
+              </TooltipTrigger>
+              {atLimit && (
+                <TooltipContent side="top" align="center">
+                  {t('limitReached') || 'Upgrade para más evaluaciones'}
+                </TooltipContent>
+              )}
+            </Tooltip>
           </div>
-        )}
-      </form>
+
+          {loading && (
+            <>
+              <RankProgress
+                rankedCount={rankedCount}
+                totalCount={totalCount}
+                remaining={remaining}
+                progressPct={progressPct}
+                elapsed={elapsed}
+                etaSeconds={etaSeconds}
+                runningJob={runningJob ? { description: runningJob.description, provider: runningJob.provider, model: runningJob.model } : null}
+                activeProvider={activeProvider}
+                recentEvals={items.filter(x => x.rank_score != null)}
+                t={t}
+              />
+              <div className="flex justify-start">
+                <AppleButton variant="danger" size="sm" onClick={cancelRanking} className="shrink-0">
+                  {t('cancel')}
+                </AppleButton>
+              </div>
+            </>
+          )}
+
+          {error && (
+            <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+              {error}
+            </div>
+          )}
+        </form>
+      )}
+
+      {!hasSelection && showResultsList && (
+        <div className="card flex items-center justify-between gap-4 mb-8">
+          <p className="text-sm text-[#707070]">{t('rankMoreHint')}</p>
+          <AppleButton variant="secondary" size="sm" onClick={() => router.push(`/${locale}/search`)}>
+            {t('emptyAction')}
+          </AppleButton>
+        </div>
+      )}
 
       {/* Results */}
       <div id="rank-results" className="space-y-4">
@@ -430,13 +469,13 @@ export default function Rank() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
               </svg>
-              Salary benchmarks active · {result.salary_data_company_count} companies in your data
+              {t('salaryBenchmarksActive', { count: result.salary_data_company_count })}
             </div>
           </div>
         )}
 
         {result && (
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="card flex-1">
               <div className="flex items-center gap-2 text-xs text-[#707070]">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -444,31 +483,31 @@ export default function Rank() {
                 </svg>
                 {result.ranked_count != null && (
                   <span>
-                    <strong className="text-[#1d1d1f]">{result.ranked_count}</strong> jobs evaluated
-                    {result.below_threshold != null && <> · <strong className="text-[#1d1d1f]">{result.below_threshold}</strong> below threshold</>}
+                    <strong className="text-[#1d1d1f]">{t('evaluatedJobs', { count: result.ranked_count })}</strong>
+                    {result.below_threshold != null && <> · <strong className="text-[#1d1d1f]">{t('belowThreshold', { count: result.below_threshold })}</strong></>}
                   </span>
                 )}
               </div>
               {result.message && <p className="mt-1.5 text-[11px] text-[#b0b0b0]">{result.message}</p>}
             </div>
-            <AppleButton variant="secondary" onClick={() => { complete(); router.push('/apply') }}>
-              Continue to Apply →
+            <AppleButton variant="secondary" onClick={() => { complete(); router.push(`/${locale}/apply`) }}>
+              {t('continueToApply')} →
             </AppleButton>
           </div>
         )}
 
-        {items.length > 0 ? (
+        {showResultsList ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between text-[11px] text-[#858585]">
-              <span>Showing <strong className="text-[#474747]">{paginatedItems.length}</strong> of <strong className="text-[#474747]">{items.length}</strong> ranked jobs</span>
-              {totalPages > 1 && <span>Page <strong className="text-[#474747]">{currentPage}</strong> of {totalPages}</span>}
+              <span>{t('showing', { count: paginatedItems.length, total: items.length })}</span>
+              {totalPages > 1 && <span>{t('page', { current: currentPage, total: totalPages })}</span>}
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              {paginatedItems.map((x, i) => <JobCard key={i} item={x} index={i} />)}
+              {paginatedItems.map((x, i) => <JobCard key={i} item={x} index={i} t={t} />)}
             </div>
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={goToPage} />
+            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={goToPage} t={t} />
           </div>
-        ) : jobIds && jobIds.length > 0 ? (
+        ) : hasSelection ? (
           <div className="rounded-2xl border border-[#d2d2d7] bg-white p-8 text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#f5f5f7]">
               <BarChart3 className="h-6 w-6 text-[#707070]" />
@@ -486,10 +525,11 @@ export default function Rank() {
             title={t('emptyTitle')}
             description={t('emptyDesc')}
             actionLabel={t('emptyAction')}
-            actionHref="/search"            prevStep={{
+            actionHref={`/${locale}/search`}
+            prevStep={{
                 key: 'search',
                 label: tp('search'),
-              href: '/search',
+              href: `/${locale}/search`,
               title: t('prevStepTitle'),
               description: t('prevStepDesc'),
               action: t('prevStepAction'),
@@ -498,10 +538,10 @@ export default function Rank() {
           />
         )}
 
-        {!result && items.length > 0 && (
+        {!result && showResultsList && (
           <div className="flex justify-center pt-2">
-            <AppleButton variant="secondary" onClick={() => { complete(); router.push('/apply') }}>
-              Continue to Apply →
+            <AppleButton variant="secondary" onClick={() => { complete(); router.push(`/${locale}/apply`) }}>
+              {t('continueToApply')} →
             </AppleButton>
           </div>
         )}

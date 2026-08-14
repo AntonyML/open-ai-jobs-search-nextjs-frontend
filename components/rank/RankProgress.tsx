@@ -10,7 +10,7 @@ interface RankProgressProps {
   runningJob: { description?: string | null; provider?: string | null; model?: string | null } | null
   activeProvider: { provider: string; health_score: number; last_error_code?: string | null } | null
   recentEvals: { rank_score: number; title?: string; job_title?: string }[]
-  t: (key: string) => string
+  t: (key: string, values?: Record<string, string | number>) => string
 }
 
 import { scoreColor, scoreTextColor } from '@/lib/rank-utils'
@@ -67,16 +67,16 @@ export function RankProgress({
           <span className="h-2 w-2 rounded-full bg-[#0071e3]" />
           <span className="font-medium">{runningJob.provider}</span>
           <span className="text-[#b0b0b0]">·</span>
-          <span className="text-[#707070]">{runningJob.model || 'processing'}</span>
+          <span className="text-[#707070]">{runningJob.model || t('processing')}</span>
           <span className="text-[#b0b0b0]">·</span>
-          <span className="text-[#707070]">~{rankedCount > 0 ? Math.round(elapsed / rankedCount) : '—'}s/job avg</span>
+          <span className="text-[#707070]">{t('avgPerJob', { seconds: rankedCount > 0 ? Math.round(elapsed / rankedCount) : '—' })}</span>
         </div>
       )}
 
       {activeProvider && activeProvider.health_score < 0.8 && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-700">
-          {activeProvider.provider} health: {Math.round(activeProvider.health_score * 100)}%
-          {activeProvider.last_error_code === 'rate_limit' && ' · Rate limited, switching model'}
+          {activeProvider.provider} {t('healthPct', { pct: Math.round(activeProvider.health_score * 100) })}
+          {activeProvider.last_error_code === 'rate_limit' && ` · ${t('rateLimited')}`}
         </div>
       )}
 
@@ -84,7 +84,7 @@ export function RankProgress({
         <div className="border-t border-[#e2e2e5] pt-3 space-y-2">
           <div className="flex items-center justify-between">
             <p className="text-[10px] font-medium text-[#858585]">{t('recentEvals')}</p>
-            <span className="text-[9px] text-[#b0b0b0]">Last {Math.min(5, recentEvals.length)}</span>
+            <span className="text-[9px] text-[#b0b0b0]">{t('last', { count: Math.min(5, recentEvals.length) })}</span>
           </div>
           <div className="space-y-1 max-h-28 overflow-y-auto scrollbar-thin">
             {recentEvals.slice(-5).reverse().map((x, i) => (
