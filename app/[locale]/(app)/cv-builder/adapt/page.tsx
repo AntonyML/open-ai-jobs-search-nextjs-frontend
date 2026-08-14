@@ -39,19 +39,34 @@ export default function AdaptCvPage() {
   const [url, setUrl] = useState('')
   const [lastAdapted, setLastAdapted] = useState<CVResponse | null>(null)
   const [error, setError] = useState('')
+  const [jobsLoaded, setJobsLoaded] = useState(false)
+  const [jobsLoading, setJobsLoading] = useState(false)
 
   const loadAll = useCallback(async () => {
-    const [c, j] = await Promise.all([
-      apiFetch<CVResponse[]>('/api/v1/cv/').catch(() => []),
-      apiFetch<any[]>('/api/v1/rank/jobs?limit=200').catch(() => []),
-    ])
+    const c = await apiFetch<CVResponse[]>('/api/v1/cv/').catch(() => [])
     setCvs(Array.isArray(c) ? c : [])
+  }, [])
+
+  const loadJobs = useCallback(async () => {
+    setJobsLoading(true)
+    const j = await apiFetch<any[]>('/api/v1/rank/jobs?limit=200').catch(() => [])
     setJobs(Array.isArray(j) ? j : [])
+    setJobsLoading(false)
   }, [])
 
   useEffect(() => {
     loadAll().finally(() => setLoading(false))
   }, [loadAll])
+
+  // The internal offer list is Max-only. Fetch it lazily, only when a Max
+  // user opens the tab — otherwise the 403 on this free-to-use page would
+  // trip the global purchase modal on every load.
+  useEffect(() => {
+    if (method === 'offers' && isMax && !jobsLoaded) {
+      setJobsLoaded(true)
+      loadJobs()
+    }
+  }, [method, isMax, jobsLoaded, loadJobs])
 
   const baseCv = cvs.find((c) => c.cv_type === 'base' && c.base_status === 'active') || null
   const adaptedCvs = cvs.filter((c) => c.cv_type === 'personalized')
@@ -245,7 +260,9 @@ export default function AdaptCvPage() {
               </div>
             </div>
 
-            {jobs.length === 0 ? (
+            {jobsLoading ? (
+              <div className="mt-4 h-10 animate-pulse rounded-xl bg-[#f5f5f7]" />
+            ) : jobs.length === 0 ? (
               <div className="mt-4 rounded-xl border border-dashed border-[#d2d2d7] bg-[#fafafa] p-5 text-center">
                 <p className="text-sm text-[#858585]">{t('noOffers')}</p>
                 <Link href="/search" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-[#0071e3] hover:underline">
