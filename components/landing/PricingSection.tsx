@@ -54,8 +54,8 @@ interface PricingPlan {
     must never break. Mirrors today's hardcoded catalog (free/pro/max). */
 const FALLBACK_PLANS: PricingPlan[] = [
   { key: 'free', price_monthly_usd: 0, price_yearly_usd: 0, features: ['', '', '', ''], sort_order: 10 },
-  { key: 'pro', price_monthly_usd: 19.99, price_yearly_usd: 200, features: ['', '', '', '', ''], sort_order: 20 },
-  { key: 'max', price_monthly_usd: 59.99, price_yearly_usd: 600, features: ['', '', '', '', '', '', ''], sort_order: 30 },
+  { key: 'pro', price_monthly_usd: 19.99, price_yearly_usd: 199, features: ['', '', '', '', ''], sort_order: 20 },
+  { key: 'max', price_monthly_usd: 59.99, price_yearly_usd: 599, features: ['', '', '', '', '', '', ''], sort_order: 30 },
 ]
 
 function formatPrice(usd: number, currency: string): string {

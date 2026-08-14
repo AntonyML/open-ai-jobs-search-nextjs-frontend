@@ -31,7 +31,7 @@ const FALLBACK_CATALOG: ProductCatalog = {
       name: 'Pro',
       description: null,
       price_monthly_usd: 19.99,
-      price_yearly_usd: 200,
+      price_yearly_usd: 199,
       credits_per_period: 100,
       refill_cadence: 'period',
       refill_weekday: 0,
@@ -46,7 +46,7 @@ const FALLBACK_CATALOG: ProductCatalog = {
       name: 'Max',
       description: null,
       price_monthly_usd: 59.99,
-      price_yearly_usd: 600,
+      price_yearly_usd: 599,
       credits_per_period: 500,
       refill_cadence: 'period',
       refill_weekday: 0,
@@ -81,7 +81,7 @@ function formatPrice(usd: number): string {
   return currencyFmt.format(usd)
 }
 
-const FEATURE_LABELS: Record<string, (t: (key: string, params?: Record<string, unknown>) => string) => string> = {
+const FEATURE_LABELS: Record<string, (t: (key: string, params?: Record<string, string | number | Date>) => string) => string> = {
   cv_base: (t) => t('featureCvBase'),
   cv_adapted: (t) => t('featureCvAdapted'),
   pipeline: (t) => t('featurePipeline'),
@@ -89,7 +89,7 @@ const FEATURE_LABELS: Record<string, (t: (key: string, params?: Record<string, u
   upskill: (t) => t('featureUpskill'),
 }
 
-function formatFeatures(features: string[], t: (key: string, params?: Record<string, unknown>) => string): string {
+function formatFeatures(features: string[], t: (key: string, params?: Record<string, string | number | Date>) => string): string {
   if (features.length === 0) return '—'
   return features.map((f) => FEATURE_LABELS[f]?.(t) ?? f).join(', ')
 }
@@ -128,9 +128,9 @@ export default async function LimitsPage() {
           <h2>{t('introTitle')}</h2>
           <p>{t('introBody')}</p>
           <ul>
-            <li>{t('creditCvBase', { cost: formatPrice(catalog.credit_costs.cv_base) })}</li>
-            <li>{t('creditCvAdapted', { cost: formatPrice(catalog.credit_costs.cv_adapted) })}</li>
-            <li>{t('creditPipeline', { cost: formatPrice(catalog.credit_costs.pipeline) })}</li>
+            <li>{t('creditCvBase', { cost: catalog.credit_costs.cv_base })}</li>
+            <li>{t('creditCvAdapted', { cost: catalog.credit_costs.cv_adapted })}</li>
+            <li>{t('creditPipeline', { cost: catalog.credit_costs.pipeline })}</li>
           </ul>
 
           <h2>{t('plansTitle')}</h2>
@@ -181,9 +181,9 @@ export default async function LimitsPage() {
 
           <h2>{t('refillsTitle')}</h2>
           <ul>
-            <li>{t('refillFree')}</li>
-            <li>{t('refillPro')}</li>
-            <li>{t('refillMax')}</li>
+            <li>{t('refillFree', { credits: free?.credits_per_period ?? 2 })}</li>
+            <li>{t('refillPro', { credits: pro?.credits_per_period ?? 100 })}</li>
+            <li>{t('refillMax', { credits: max?.credits_per_period ?? 500 })}</li>
             <li>{t('refillNoAccumulate')}</li>
           </ul>
 

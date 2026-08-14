@@ -51,9 +51,9 @@ El producto usa un modelo de **créditos + planes** (no suscripciones de pago ú
 
 | Plan | Precio | Créditos | Acceso |
 |---|---|---|---|
-| **Free** | $0 | 2 por semana (renuevan lunes, no acumulan) | CV base + CV adaptado |
-| **Pro** | $19.99/mes o $200/año | 100 por mes | CV builder completo (base + adaptado + match score + PDFs ATS) |
-| **Max** | $59.99/mes o $600/año | 500 por mes | Todo Pro + todas las funciones de búsqueda (ofertas, ranking, postulaciones, entrevistas, expand, upskill) |
+| **Free** | $0 | 2 por semana (renuevan cada 7 días, no acumulan) | CV base + CV adaptado |
+| **Pro** | $19.99/mes o $199/año | 100 por mes | CV builder completo (base + adaptado + match score + PDFs ATS) |
+| **Max** | $59.99/mes o $599/año | 500 por mes | Todo Pro + todas las funciones de búsqueda (ofertas, ranking, postulaciones, entrevistas, expand, upskill) |
 
 - **Costo por acción:** 1 crédito por CV base, 1 por CV adaptado, 1 por acción de búsqueda (configurable por admin).
 - **Cuotas de uso Max:** 20 acciones al día · 80 por semana (nada es ilimitado).
