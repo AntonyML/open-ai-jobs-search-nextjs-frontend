@@ -1,6 +1,6 @@
 'use client'
 
-import type { UpgradeBannerProps } from '@/types/pipeline'
+import type { UpgradeBannerProps } from '@/types/shared'
 
 export function UpgradeBanner({ message, usage, onUpgrade, upgradeLabel = 'Upgrade' }: UpgradeBannerProps) {
   return (

@@ -131,7 +131,7 @@ export default function AdaptCvPage() {
         {jobs.length === 0 ? (
           <div className="mt-4 rounded-xl border border-dashed border-[#d2d2d7] bg-[#fafafa] p-5 text-center">
             <p className="text-sm text-[#858585]">{t('noOffers')}</p>
-            <Link href="/scrape" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-[#0071e3] hover:underline">
+            <Link href="/search" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-[#0071e3] hover:underline">
               {t('goSearch')} →
             </Link>
           </div>

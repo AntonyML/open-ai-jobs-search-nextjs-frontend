@@ -293,7 +293,7 @@ export default function Analytics() {
           <Card>
             <CardHeader>
               <CardTitle>Job distribution</CardTitle>
-              <CardDescription>How your opportunities are distributed across pipeline stages</CardDescription>
+              <CardDescription>How your opportunities are distributed across job search stages</CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (

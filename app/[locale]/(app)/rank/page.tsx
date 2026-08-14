@@ -156,7 +156,7 @@ export default function Rank() {
       playErrorSound()
       const errMsg = completed.error || 'Ranking failed'
       showError('Ranking failed: ' + errMsg)
-      addNotification({ pipeline: 'rank', description: errMsg, status: 'error' })
+      addNotification({ action: 'rank', description: errMsg, status: 'error' })
       setError(errMsg)
       return
     }
@@ -165,7 +165,7 @@ export default function Rank() {
     const rankData = completed?.result || completed
     setResult(rankData)
     showSuccess(rankData?.ranked_count != null ? `Ranking complete! ${rankData.ranked_count} jobs evaluated` : 'Ranking complete!')
-    addNotification({ pipeline: 'rank', description: `Evaluated jobs · focus=${focusArea || customFocus || 'all'}`, status: 'success' })
+    addNotification({ action: 'rank', description: `Evaluated jobs · focus=${focusArea || customFocus || 'all'}`, status: 'success' })
 
     const x = await apiFetch<any>('/api/v1/rank/jobs')
     const freshItems = Array.isArray(x) ? x : (x.items || x.jobs || [])
@@ -198,7 +198,7 @@ export default function Rank() {
       playErrorSound()
       const msg = x instanceof Error ? x.message : 'Request failed'
       showError(msg)
-      addNotification({ pipeline: 'rank', description: msg, status: 'error' })
+      addNotification({ action: 'rank', description: msg, status: 'error' })
       setError(msg)
     } finally {
       if (mountedRef.current) { setLoading(false); setRunningJob(null) }
@@ -283,7 +283,7 @@ export default function Rank() {
         const msg = data.message || 'No jobs to rank'
         playErrorSound()
         showError(msg)
-        addNotification({ pipeline: 'rank', description: msg, status: 'error' })
+        addNotification({ action: 'rank', description: msg, status: 'error' })
         setError(msg)
         submittingRef.current = false
         if (mountedRef.current) setLoading(false)
@@ -301,7 +301,7 @@ export default function Rank() {
       playErrorSound()
       const msg = x instanceof Error ? x.message : 'Request failed'
       showError(msg)
-      addNotification({ pipeline: 'rank', description: msg, status: 'error' })
+      addNotification({ action: 'rank', description: msg, status: 'error' })
       setError(msg)
       submittingRef.current = false
       setLoading(false)

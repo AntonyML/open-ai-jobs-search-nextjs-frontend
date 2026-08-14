@@ -1,6 +1,6 @@
 'use client'
 
-import type { CalibrationInsight } from '@/types/pipeline'
+import type { CalibrationInsight } from '@/types/shared'
 import { AppleBadge } from '@/components/ui/apple-badge'
 
 const impactColor = {

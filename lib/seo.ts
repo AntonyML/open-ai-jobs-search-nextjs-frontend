@@ -16,7 +16,7 @@ export const SITE_CONFIG = {
     'Tech Careers',
     'Job Search Engine',
     'Automated Resume Matcher',
-    'AI Pipeline',
+    'AI Job Search',
   ],
 }
 

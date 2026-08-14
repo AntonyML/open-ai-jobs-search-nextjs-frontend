@@ -369,13 +369,6 @@ export function useOrchestrator() {
     })
   }, [])
 
-  const resetPipeline = useCallback(async () => {
-    const res = await apiFetch<{ status: string; total_deleted: number; message: string }>('/api/v1/pipeline-reset/', {
-      method: 'DELETE',
-    })
-    return res
-  }, [])
-
   return {
     ...state,
     pauseQueue,
@@ -383,7 +376,6 @@ export function useOrchestrator() {
     cancelJob,
     cancelAll,
     retryFailed,
-    resetPipeline,
     refresh: fetchProviders,
   }
 }

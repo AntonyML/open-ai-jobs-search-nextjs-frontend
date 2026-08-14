@@ -32,7 +32,7 @@
     "notifications": "Notifications",
     "markAllRead": "Mark all read",
     "noNotifications": "No notifications yet",
-    "noNotificationsHint": "Complete a pipeline step to see it here.",
+    "noNotificationsHint": "Complete an action to see it here.",
     "clearNotifications": "Clear",
     "manageSubscriptions": "Manage subscriptions",
     "activatePurchase": "Activate",
@@ -261,7 +261,7 @@
     "projectName": "Project name",
     "description": "Description",
     "skillsAndSummary": "Skills & Summary",
-    "skillsAndSummaryDesc": "Technical skills and professional summary that feed every pipeline stage",
+    "skillsAndSummaryDesc": "Technical skills and professional summary that feed every profile evaluation",
     "commaSeparated": "comma separated",
     "noExperience": "No experience added yet",
     "noEducation": "No education added yet",
@@ -651,7 +651,7 @@
     "notifications": {
       "desc": "Control how and when you receive updates",
       "emailNotifications": "Email notifications",
-      "emailDesc": "Receive email updates about your pipeline progress",
+      "emailDesc": "Receive email updates about your job search progress",
       "browserNotifications": "Browser notifications",
       "browserDesc": "Show browser notifications when processes complete",
       "soundEffects": "Sound effects",
@@ -976,7 +976,7 @@
     "adminCredits": "Credits",
     "adminCreditsDesc": "Adjust credits & subscriptions",
     "premiumLockedTooltip": "Available on plan Max",
-    "maxLockedTooltip": "Available on plan Max — upgrade to unlock the full job search pipeline"
+    "maxLockedTooltip": "Available on plan Max — upgrade to unlock the full job search experience"
   },
   "cvBuilder": {
     "eyebrow": "PROFESSIONAL DOCUMENTS",
@@ -1138,7 +1138,7 @@
     "feature": {
       "cv_base": "Base CV",
       "cv_adapted": "Adapted CV",
-      "pipeline": "Full pipeline",
+      "pipeline": "Job search & applications",
       "expand": "Discover skills",
       "upskill": "Learning plan"
     }
@@ -1178,7 +1178,7 @@
       "adjust": "Adjustment",
       "cv_base": "Base CV",
       "cv_adapted": "Adapted CV",
-      "pipeline": "Full pipeline",
+      "pipeline": "Job search & applications",
       "signup_bonus": "Sign-up bonus",
       "admin_adjust": "Admin adjustment"
     },
@@ -1194,7 +1194,7 @@
     "feature": {
       "cv_base": "Base CV",
       "cv_adapted": "Adapted CV",
-      "pipeline": "Full pipeline",
+      "pipeline": "Job search & applications",
       "expand": "Discover skills",
       "upskill": "Learning plan"
     },
@@ -1212,7 +1212,7 @@
     "cost": {
       "cv_base": "Base CV",
       "cv_adapted": "Adapted CV",
-      "pipeline": "Pipeline action"
+      "pipeline": "Job search action"
     },
     "saveCosts": "Save costs",
     "costsSaved": "Credit costs saved",
@@ -1283,7 +1283,7 @@
     "introBody": "Every action in the platform consumes credits from your plan. One credit is deducted for each document or process you run:",
     "creditCvBase": "Base CV — 1 credit per document",
     "creditCvAdapted": "Tailored CV — 1 credit per document",
-    "creditPipeline": "Pipeline (ranking, application, interview) — 1 credit per action",
+    "creditPipeline": "Evaluation & applications (ranking, application, interview) — 1 credit per action",
     "plansTitle": "Limits by plan",
     "plansBody": "Each plan includes a credit allowance that refills periodically, plus daily and weekly usage limits.",
     "tablePlan": "Plan",
@@ -1294,7 +1294,7 @@
     "freePrice": "Free",
     "freeCredits": "2 per week",
     "freeQuotas": "No daily quotas",
-    "freeIncludes": "Base CV and tailored CV. No search pipeline.",
+    "freeIncludes": "Base CV and tailored CV. No job search features.",
     "proPrice": "$19.99/mo",
     "proCredits": "100 per month",
     "proQuotas": "No daily quotas",

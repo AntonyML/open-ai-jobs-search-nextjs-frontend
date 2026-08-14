@@ -61,7 +61,7 @@ export interface BillingState {
 /**
  * Hook de compatibilidad que mantiene la misma superficie que el antiguo
  * `BillingProvider`, ahora con estado 100% respaldado por TanStack Query.
- * Evita tocar los consumidores de `useBilling().isPremium` (pipeline, settings)
+ * Evita tocar los consumidores de `useBilling().isPremium` (features, settings)
  * a la vez que todo pasa por una sola query cacheada.
  */
 export function useBilling(): BillingState {

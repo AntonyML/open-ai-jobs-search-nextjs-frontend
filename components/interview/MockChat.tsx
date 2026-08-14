@@ -1,6 +1,6 @@
 'use client'
 
-import type { MockResponse } from '@/types/pipeline'
+import type { MockResponse } from '@/types/shared'
 
 function ChatBubble({ role, content }: { role: string; content: string }) {
   const isCandidate = role === 'candidate'

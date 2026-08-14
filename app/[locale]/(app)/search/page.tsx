@@ -252,7 +252,7 @@ export default function SearchPage() {
     playActionSound("search");
     showSuccess(t("notificationFound", { count: selected.size, focus: keywords }));
     addNotification({
-      pipeline: "search",
+      action: "search",
       description: t("notificationFound", { count: selected.size, focus: keywords }),
       status: "success",
     });

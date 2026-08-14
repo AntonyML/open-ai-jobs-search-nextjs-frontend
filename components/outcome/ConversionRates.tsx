@@ -1,6 +1,6 @@
 'use client'
 
-import type { FunnelMetrics } from '@/types/pipeline'
+import type { FunnelMetrics } from '@/types/shared'
 
 export function ConversionRates({ funnel }: { funnel?: FunnelMetrics }) {
   if (!funnel || funnel.total_applications === 0) return null

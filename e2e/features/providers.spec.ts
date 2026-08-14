@@ -4,7 +4,7 @@ import { AUTH_STATE_PATH } from '../config'
 test.use({ storageState: AUTH_STATE_PATH })
 
 /**
- * Proveedor global — la página pública /pipeline/providers fue eliminada
+ * Proveedor global — la página pública de proveedores fue eliminada
  * (legacy). La configuración ahora vive en /admin/providers, admin-only.
  * Estos tests solo verifican el guard y que la página del admin carga.
  */

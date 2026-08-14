@@ -176,7 +176,7 @@ export default function ExpandPage() {
             playActionSound('expand')
             showSuccess(`Expansion complete — ${exp.proposed_additions.length} skills discovered`)
             addNotification({
-              pipeline: 'expand',
+              action: 'expand',
               description: `Discovered ${exp.proposed_additions.length} skills across ${exp.enriched_competencies.length} competencies`,
               status: 'success',
             })
@@ -184,7 +184,7 @@ export default function ExpandPage() {
             playErrorSound()
             const errMsg = exp.error_message || 'Expansion failed'
             showError(errMsg)
-            addNotification({ pipeline: 'expand', description: errMsg, status: 'error' })
+            addNotification({ action: 'expand', description: errMsg, status: 'error' })
           }
         }
       } catch {
@@ -219,7 +219,7 @@ export default function ExpandPage() {
       const msg = x instanceof Error ? x.message : 'Request failed'
       playErrorSound()
       showError(msg)
-      addNotification({ pipeline: 'expand', description: msg, status: 'error' })
+      addNotification({ action: 'expand', description: msg, status: 'error' })
       setError(msg)
     }
   }

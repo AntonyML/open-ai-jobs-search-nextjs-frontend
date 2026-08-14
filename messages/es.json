@@ -32,7 +32,7 @@
     "notifications": "Notificaciones",
     "markAllRead": "Marcar todo leído",
     "noNotifications": "Aún no hay notificaciones",
-    "noNotificationsHint": "Completa un paso del pipeline para verlo aquí.",
+    "noNotificationsHint": "Completa una acción para verlo aquí.",
     "clearNotifications": "Limpiar",
     "manageSubscriptions": "Gestionar suscripciones",
     "activatePurchase": "Activar",
@@ -261,7 +261,7 @@
     "projectName": "Nombre del proyecto",
     "description": "Descripción",
     "skillsAndSummary": "Habilidades y resumen",
-    "skillsAndSummaryDesc": "Habilidades técnicas y resumen profesional que alimentan cada etapa del pipeline",
+    "skillsAndSummaryDesc": "Habilidades técnicas y resumen profesional que alimentan cada evaluación de tu perfil",
     "commaSeparated": "separado por comas",
     "noExperience": "Sin experiencia agregada",
     "noEducation": "Sin educación agregada",
@@ -651,7 +651,7 @@
     "notifications": {
       "desc": "Controla cómo y cuándo recibes actualizaciones",
       "emailNotifications": "Notificaciones por correo",
-      "emailDesc": "Recibe actualizaciones sobre el progreso de tu pipeline",
+      "emailDesc": "Recibe actualizaciones sobre el progreso de tu búsqueda de empleo",
       "browserNotifications": "Notificaciones del navegador",
       "browserDesc": "Muestra notificaciones cuando los procesos se completen",
       "soundEffects": "Efectos de sonido",
@@ -976,7 +976,7 @@
     "adminCredits": "Créditos",
     "adminCreditsDesc": "Ajusta créditos y suscripciones",
     "premiumLockedTooltip": "Disponible en el plan Max",
-    "maxLockedTooltip": "Disponible en el plan Max — mejora para desbloquear todo el pipeline de búsqueda"
+    "maxLockedTooltip": "Disponible en el plan Max — mejora para desbloquear todas las funciones de búsqueda de empleo"
   },
   "cvBuilder": {
     "eyebrow": "DOCUMENTOS PROFESIONALES",
@@ -1138,7 +1138,7 @@
     "feature": {
       "cv_base": "CV base",
       "cv_adapted": "CV adaptado",
-      "pipeline": "Pipeline completo",
+      "pipeline": "Búsqueda y postulación",
       "expand": "Descubrir skills",
       "upskill": "Plan de formación"
     }
@@ -1178,7 +1178,7 @@
       "adjust": "Ajuste",
       "cv_base": "CV base",
       "cv_adapted": "CV adaptado",
-      "pipeline": "Pipeline completo",
+      "pipeline": "Búsqueda y postulación",
       "signup_bonus": "Bono de bienvenida",
       "admin_adjust": "Ajuste de administrador"
     },
@@ -1194,7 +1194,7 @@
     "feature": {
       "cv_base": "CV base",
       "cv_adapted": "CV adaptado",
-      "pipeline": "Pipeline completo",
+      "pipeline": "Búsqueda y postulación",
       "expand": "Descubrir skills",
       "upskill": "Plan de formación"
     },
@@ -1212,7 +1212,7 @@
     "cost": {
       "cv_base": "CV base",
       "cv_adapted": "CV adaptado",
-      "pipeline": "Acción de pipeline"
+      "pipeline": "Acción de búsqueda de empleo"
     },
     "saveCosts": "Guardar costos",
     "costsSaved": "Costos de créditos guardados",
@@ -1283,7 +1283,7 @@
     "introBody": "Cada acción dentro de la plataforma consume créditos de tu plan. Un crédito se descuenta por cada documento o proceso que ejecutes:",
     "creditCvBase": "CV base — 1 crédito por documento",
     "creditCvAdapted": "CV adaptado a una oferta — 1 crédito por documento",
-    "creditPipeline": "Pipeline (ranking, postulación, entrevista) — 1 crédito por acción",
+    "creditPipeline": "Evaluación y postulación (ranking, aplicación, entrevista) — 1 crédito por acción",
     "plansTitle": "Límites por plan",
     "plansBody": "Cada plan incluye una asignación de créditos que se renueva de forma periódica, además de límites de uso diarios y semanales.",
     "tablePlan": "Plan",
@@ -1294,7 +1294,7 @@
     "freePrice": "Gratis",
     "freeCredits": "2 por semana",
     "freeQuotas": "Sin cuotas diarias",
-    "freeIncludes": "CV base y CV adaptado. Sin pipeline de búsqueda.",
+    "freeIncludes": "CV base y CV adaptado. Sin funciones de búsqueda de empleo.",
     "proPrice": "$19.99/mes",
     "proCredits": "100 por mes",
     "proQuotas": "Sin cuotas diarias",

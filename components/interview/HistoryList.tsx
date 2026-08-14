@@ -1,6 +1,6 @@
 'use client'
 
-import type { InterviewPrepSummary, Application } from '@/types/pipeline'
+import type { InterviewPrepSummary, Application } from '@/types/shared'
 import { AppleBadge } from '@/components/ui/apple-badge'
 
 const stageLabels: Record<string, string> = {

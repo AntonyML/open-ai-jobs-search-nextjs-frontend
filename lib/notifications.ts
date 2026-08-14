@@ -2,7 +2,7 @@
  * Notifications — server-backed via `app_notifications` (replaces the old
  * localStorage-only history).
  *
- * Pipeline events (`addNotification`) are persisted with `POST
+ * Process events (`addNotification`) are persisted with `POST
  * /api/v1/notifications` so the bell shows history across sessions and
  * devices.  The bell (`NotificationBell`) reads them back with
  * `useNotifications`.
@@ -15,7 +15,7 @@ import { apiFetch } from '@/lib/api'
 
 export interface ServerNotification {
   id: string
-  type: string // info | credits_low | quota_exhausted | ia_exhausted | purchase_request | plan_expired | <pipeline>[_error]
+  type: string // info | credits_low | quota_exhausted | ia_exhausted | purchase_request | plan_expired | <action>[_error]
   title: string
   body: string | null
   is_read: boolean
@@ -31,9 +31,9 @@ export interface ServerNotification {
   } | null
 }
 
-/** Shape accepted by `addNotification` (kept for pipeline callers). */
+/** Shape accepted by `addNotification`. */
 export interface ProcessNotification {
-  pipeline: string
+  action: string
   description: string
   status: 'success' | 'error'
 }
@@ -60,9 +60,9 @@ export async function createNotification(
   }
 }
 
-/** Persist a pipeline event (kept signature for existing callers). */
+/** Persist a process event. */
 export function addNotification(notif: ProcessNotification): void {
-  const type = notif.status === 'error' ? `${notif.pipeline}_error` : notif.pipeline
+  const type = notif.status === 'error' ? `${notif.action}_error` : notif.action
   const title = notif.description.length > MAX_TITLE
     ? `${notif.description.slice(0, MAX_TITLE)}…`
     : notif.description

@@ -1,4 +1,4 @@
-/** Shared types for the job search pipeline */
+/** Shared types for the job search app */
 import type { LucideIcon } from 'lucide-react'
 
 // ── User & Auth ─────────────────────────────────────────────────

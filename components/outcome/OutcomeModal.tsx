@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import type { Application } from '@/types/pipeline'
+import type { Application } from '@/types/shared'
 
 interface OutcomeForm {
   application_id: string

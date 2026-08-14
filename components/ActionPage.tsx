@@ -24,7 +24,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import type { ActionPageProps } from '@/types/pipeline'
+import type { ActionPageProps } from '@/types/shared'
 
 interface ProcessingState {
   applicationId: string
@@ -154,10 +154,10 @@ export default function ActionPage({
       setResults((prev) => [data, ...prev])
       if (listEndpoint)
         setItems(normalize(await apiFetch<any>(listEndpoint)))
-      const pipeline = endpoint.replace('/api/v1/', '').replace('/', '')
-      playActionSound(pipeline)
+      const action = endpoint.replace('/api/v1/', '').replace('/', '')
+      playActionSound(action)
       addNotification({
-        pipeline,
+        action,
         description: `${title} completed`,
         status: 'success',
       })
@@ -166,8 +166,8 @@ export default function ActionPage({
       setError(msg)
       playErrorSound()
       showError(msg)
-      const pipeline = endpoint.replace('/api/v1/', '').replace('/', '')
-      addNotification({ pipeline, description: msg, status: 'error' })
+      const action = endpoint.replace('/api/v1/', '').replace('/', '')
+      addNotification({ action, description: msg, status: 'error' })
     } finally {
       setLoading(false)
     }

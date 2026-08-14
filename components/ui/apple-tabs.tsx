@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import type { TabOption } from '@/types/pipeline'
+import type { TabOption } from '@/types/shared'
 
 interface AppleTabsProps {
   tabs: TabOption[]

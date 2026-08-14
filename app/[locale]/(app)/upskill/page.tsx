@@ -248,7 +248,7 @@ export default function UpskillPage() {
               `Upskill complete — ${result.gap_heatmap.length} gaps identified, ${result.learning_plan.length} learning items`
             )
             addNotification({
-              pipeline: 'upskill',
+              action: 'upskill',
               description: `Identified ${result.gap_heatmap.length} skill gaps with ${result.learning_plan.length} learning plan items`,
               status: 'success',
             })
@@ -256,7 +256,7 @@ export default function UpskillPage() {
             playErrorSound()
             const errMsg = result.error_message || 'Upskill analysis failed'
             showError(errMsg)
-            addNotification({ pipeline: 'upskill', description: errMsg, status: 'error' })
+            addNotification({ action: 'upskill', description: errMsg, status: 'error' })
           }
         }
       } catch {
@@ -282,7 +282,7 @@ export default function UpskillPage() {
       const msg = x instanceof Error ? x.message : 'Request failed'
       playErrorSound()
       showError(msg)
-      addNotification({ pipeline: 'upskill', description: msg, status: 'error' })
+      addNotification({ action: 'upskill', description: msg, status: 'error' })
       setError(msg)
     }
   }

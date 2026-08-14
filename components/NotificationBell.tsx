@@ -54,9 +54,9 @@ function InfoIcon() {
   )
 }
 
-// ── Pipeline labels (from the server `type`) ───────────────────────
+// ── Action labels (from the server `type`) ────────────────────────
 
-const PIPELINE_LABELS: Record<string, string> = {
+const ACTION_LABELS: Record<string, string> = {
   rank: 'Ranking',
   search: 'Search',
   scrape: 'Search',
@@ -105,10 +105,10 @@ function TypeBadge({ type }: { type: string }) {
       </span>
     )
   }
-  if (PIPELINE_LABELS[type]) {
+  if (ACTION_LABELS[type]) {
     return (
       <span className="inline-flex items-center rounded-full bg-[#f4f8fb] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#0066cc] ring-1 ring-[#0071e3]/20">
-        {PIPELINE_LABELS[type]}
+        {ACTION_LABELS[type]}
       </span>
     )
   }

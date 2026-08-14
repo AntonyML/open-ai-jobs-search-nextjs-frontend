@@ -1,6 +1,6 @@
 'use client'
 
-import type { CalibrationKeyword } from '@/types/pipeline'
+import type { CalibrationKeyword } from '@/types/shared'
 
 function KeywordRow({ kw, barColor, dotColor }: {
   kw: CalibrationKeyword

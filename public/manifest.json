@@ -1,7 +1,7 @@
 {
   "name": "Open Ai Jobs Search",
   "short_name": "AI Jobs",
-  "description": "AI-powered job search pipeline with multi-provider orchestration",
+  "description": "AI-powered job search with multi-provider orchestration",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

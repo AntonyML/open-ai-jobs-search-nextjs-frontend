@@ -1,6 +1,6 @@
 'use client'
 
-import type { Application } from '@/types/pipeline'
+import type { Application } from '@/types/shared'
 import { AppleButton } from '@/components/ui/apple-button'
 import {
   Tooltip,

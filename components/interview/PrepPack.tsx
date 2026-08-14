@@ -1,4 +1,4 @@
-import type { InterviewPrep } from '@/types/pipeline'
+import type { InterviewPrep } from '@/types/shared'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

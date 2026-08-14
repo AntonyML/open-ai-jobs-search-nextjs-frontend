@@ -1,7 +1,7 @@
 'use client'
 
 import { FunnelBar } from './FunnelBar'
-import type { FunnelMetrics } from '@/types/pipeline'
+import type { FunnelMetrics } from '@/types/shared'
 
 export function FunnelChart({ funnel }: { funnel?: FunnelMetrics }) {
   const maxValue = funnel

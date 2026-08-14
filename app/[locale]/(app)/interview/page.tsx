@@ -16,7 +16,7 @@ import { PrepPack } from '@/components/interview/PrepPack'
 import { MockChat } from '@/components/interview/MockChat'
 import { HistoryList } from '@/components/interview/HistoryList'
 import UpgradeModal from '@/components/UpgradeModal'
-import type { InterviewPrepSummary, InterviewPrep, MockResponse, Application } from '@/types/pipeline'
+import type { InterviewPrepSummary, InterviewPrep, MockResponse, Application } from '@/types/shared'
 
 function NoPrepEmpty({ t }: { t: (key: string) => string }) {
   return (
@@ -113,11 +113,11 @@ export default function InterviewPage() {
 
       playActionSound('interview')
       showSuccess('Interview prep generated!')
-      addNotification({ pipeline: 'interview', description: `Prep pack generated for ${form.stage} stage`, status: 'success' })
+      addNotification({ action: 'interview', description: `Prep pack generated for ${form.stage} stage`, status: 'success' })
     } catch (x) {
       const msg = x instanceof Error ? x.message : 'Failed to generate prep'
       playErrorSound()
-      addNotification({ pipeline: 'interview', description: msg, status: 'error' })
+      addNotification({ action: 'interview', description: msg, status: 'error' })
       showError(msg)
     } finally {
       setGenerating(false)
@@ -163,14 +163,14 @@ export default function InterviewPage() {
       )
       if (result.is_complete) {
         playActionSound('interview')
-        addNotification({ pipeline: 'interview', description: `Mock interview complete — ${result.total_questions} questions answered`, status: 'success' })
+        addNotification({ action: 'interview', description: `Mock interview complete — ${result.total_questions} questions answered`, status: 'success' })
       }
       setMockState(result)
       setMockAnswer('')
     } catch (x) {
       const msg = x instanceof Error ? x.message : 'Failed to submit answer'
       playErrorSound()
-      addNotification({ pipeline: 'interview', description: msg, status: 'error' })
+      addNotification({ action: 'interview', description: msg, status: 'error' })
       showError(msg)
     } finally {
       setMockLoading(false)

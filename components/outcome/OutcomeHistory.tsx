@@ -1,6 +1,6 @@
 'use client'
 
-import type { OutcomeSummary, Application } from '@/types/pipeline'
+import type { OutcomeSummary, Application } from '@/types/shared'
 import { AppleButton } from '@/components/ui/apple-button'
 import { AppleBadge } from '@/components/ui/apple-badge'
 

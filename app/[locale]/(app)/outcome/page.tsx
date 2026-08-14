@@ -18,7 +18,7 @@ import { KeywordList } from '@/components/outcome/KeywordList'
 import { OutcomeModal } from '@/components/outcome/OutcomeModal'
 import { OutcomeHistory } from '@/components/outcome/OutcomeHistory'
 import UpgradeModal from '@/components/UpgradeModal'
-import type { CalibrationReport, OutcomeSummary, Application } from '@/types/pipeline'
+import type { CalibrationReport, OutcomeSummary, Application } from '@/types/shared'
 
 const TABS = [
   { key: 'dashboard', label: 'Dashboard' },

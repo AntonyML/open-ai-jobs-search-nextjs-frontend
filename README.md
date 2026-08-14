@@ -53,9 +53,9 @@ El producto usa un modelo de **créditos + planes** (no suscripciones de pago ú
 |---|---|---|---|
 | **Free** | $0 | 2 por semana (renuevan lunes, no acumulan) | CV base + CV adaptado |
 | **Pro** | $19.99/mes o $200/año | 100 por mes | CV builder completo (base + adaptado + match score + PDFs ATS) |
-| **Max** | $59.99/mes o $600/año | 500 por mes | Todo Pro + pipeline completo (ofertas, ranking, postulaciones, entrevistas, expand, upskill) |
+| **Max** | $59.99/mes o $600/año | 500 por mes | Todo Pro + todas las funciones de búsqueda (ofertas, ranking, postulaciones, entrevistas, expand, upskill) |
 
-- **Costo por acción:** 1 crédito por CV base, 1 por CV adaptado, 1 por acción de pipeline (configurable por admin).
+- **Costo por acción:** 1 crédito por CV base, 1 por CV adaptado, 1 por acción de búsqueda (configurable por admin).
 - **Cuotas de uso Max:** 20 acciones al día · 80 por semana (nada es ilimitado).
 - **Detalle público:** página `/limits` con la tabla completa, enlazada desde el pricing y el footer.
 - **Flujo de pago:** manual (SINPE / WhatsApp) — `POST /billing/purchase` notifica al admin, que activa la suscripción desde el panel.
@@ -117,11 +117,11 @@ El producto usa un modelo de **créditos + planes** (no suscripciones de pago ú
 
 | Ruta | Descripción |
 |------|-------------|
-| `/setup` | Perfil candidato + conductual (DISC) + ejemplos STAR |
+| `/candidate` | Perfil candidato + conductual (DISC) + ejemplos STAR |
 | `/cv-builder` | **CV Builder**: CV base + adaptado por oferta, match score, PDFs ATS |
 | `/search` | Búsqueda de empleos — jobs de `ingested_jobs`, alimentada por el microservicio de ingesta |
 | `/rank` | Evaluación y ranking de ofertas con orquestación multi-proveedor |
-| `/apply` | Generación CV + cover letter por oferta (pipeline drafter-reviewer-revise, PDF con Typst) |
+| `/apply` | Generación CV + cover letter por oferta (flujo drafter-reviewer-revise, PDF con Typst) |
 | `/interview` | Prep pack + mock interview (chat interactivo) |
 | `/outcome` | Tracker de resultados + calibración de fit |
 | `/expand` | Expansión de competencias desde fuentes públicas |
@@ -153,7 +153,7 @@ flowchart LR
 4. **CV Builder**: genera su CV base listo para ATS y lo adapta a cada oferta con match score.
 5. **Search**: busca empleos en `ingested_jobs` (alimentada por el microservicio de ingesta desde Telegram), con polling del estado.
 6. **Rank**: la IA + analizador determinista evalúan y ordenan las ofertas.
-7. **Apply**: genera CV + cover letter por oferta (JSON) con el pipeline drafter-reviewer-revise, compilados a PDF con **Typst**.
+7. **Apply**: genera CV + cover letter por oferta (JSON) con el flujo drafter-reviewer-revise, compilados a PDF con **Typst**.
 8. **Interview**: preparación personalizada + mock interview (chat interactivo).
 9. **Outcome**: registra resultados (entrevista, oferta, rechazo) y calibra el fit.
 10. **Upskill** (opcional): análisis de gaps de skills + plan de aprendizaje.
@@ -215,7 +215,7 @@ hooks/
 
 lib/
 ├── api.ts                           # Cliente HTTP con auth automática + manejo 402
-├── auth.ts                          # Helpers de JWT (localStorage, decode, pipeline steps)
+├── auth.ts                          # Helpers de JWT (localStorage, decode, features)
 ├── billing.ts                       # Cliente del catálogo de planes/créditos
 ├── orchestrator.ts                  # WebSocket + HTTP polling para LLM Control Center
 ├── accessibility.ts                 # Settings de accesibilidad
@@ -300,7 +300,7 @@ El diseño escala según la configuración de accesibilidad del usuario (tamaño
 - **Idiomas**: inglés (`en`) y español (`es`)
 - **Detección**: automática vía navegador, `as-needed` prefix (se omite `/en/`)
 - **Routing**: middleware next-intl en todas las rutas no-API y no-static
-- **Claves**: +550 por idioma en `messages/{locale}.json` (namespaces: common, nav, auth, marketing, about, pipeline, providers, dashboard, settings, accessibility, billing, limits, footer, …)
+- **Claves**: +550 por idioma en `messages/{locale}.json` (namespaces: common, nav, auth, marketing, about, features, providers, dashboard, settings, accessibility, billing, limits, footer, …)
 - **Paridad**: `node scripts/audit-i18n.cjs` valida que en/es tengan las mismas claves
 
 ---
@@ -389,7 +389,7 @@ El frontend consume la API REST de Open Ai Jobs Search (FastAPI backend).
 | Upskill | `POST /upskill/`, `GET /upskill/{id}`, `GET /upskill/` |
 | Expand | `POST /expand/`, `GET /expand/{id}` |
 | Salary | `POST /profile/salary-data`, `GET /profile/salary-data`, `DELETE /profile/salary-data` |
-| Dashboard | `GET /dashboard/stats`, `GET /dashboard/pipeline`, `GET /analytics/funnel` |
+| Dashboard | `GET /dashboard/stats`, `GET /analytics/funnel` |
 | Orchestrator | `GET /orchestrator/queue`, `POST /orchestrator/queue/control`, `GET /orchestrator/providers`, `GET /orchestrator/models`, WS `/orchestrator/ws?token=` |
 | Admin | `GET /admin/users`, `PATCH /admin/users/{id}`, `DELETE /admin/users/{id}`, `GET/PUT/DELETE /admin/plans/{key}`, `POST /admin/credits/adjust`, `GET/PUT /admin/credit-costs` |
 
