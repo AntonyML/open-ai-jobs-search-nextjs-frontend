@@ -10,6 +10,7 @@ import { SceneDynamic } from '@/components/three/SceneDynamic'
 import { PricingGlow } from '@/components/three/PricingGlow'
 import { useReducedMotion } from '@/components/three/useReducedMotion'
 import { useInViewOnce } from '@/hooks/use-in-view'
+import { usePublicCatalog } from '@/hooks/useBilling'
 
 type Billing = 'monthly' | 'annual'
 
@@ -40,7 +41,32 @@ function PlanCta({ ctaKey, solid = false }: { ctaKey: string; solid?: boolean })
   )
 }
 
-type PlanKey = 'free' | 'pro' | 'max'
+/** A pricing card row — either from the public catalog or the i18n fallback. */
+interface PricingPlan {
+  key: string
+  price_monthly_usd: number
+  price_yearly_usd: number
+  features: string[]
+  sort_order: number
+}
+
+/** Fallback used while loading or if the public endpoint fails — the landing
+    must never break. Mirrors today's hardcoded catalog (free/pro/max). */
+const FALLBACK_PLANS: PricingPlan[] = [
+  { key: 'free', price_monthly_usd: 0, price_yearly_usd: 0, features: ['', '', '', ''], sort_order: 10 },
+  { key: 'pro', price_monthly_usd: 19.99, price_yearly_usd: 200, features: ['', '', '', '', ''], sort_order: 20 },
+  { key: 'max', price_monthly_usd: 59.99, price_yearly_usd: 600, features: ['', '', '', '', '', '', ''], sort_order: 30 },
+]
+
+function formatPrice(usd: number, currency: string): string {
+  const decimals = Math.abs(usd % 1) < 0.005 ? 0 : 2
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(usd)
+}
 
 function CheckIcon({ className = '' }: { className?: string }) {
   return (
@@ -65,11 +91,30 @@ export default function PricingSection() {
   const t = useTranslations('marketing')
   const [billing, setBilling] = useState<Billing>('monthly')
   const reducedMotion = useReducedMotion()
+  const { data: catalog } = usePublicCatalog()
 
-  const featureCounts: Record<PlanKey, number> = { free: 4, pro: 5, max: 7 }
-  const plans: PlanKey[] = ['free', 'pro', 'max']
+  const currency = catalog?.currency ?? 'USD'
 
-  const planLabel = (key: PlanKey) => `plan${key.charAt(0).toUpperCase()}${key.slice(1)}`
+  // Source of truth is the public catalog; fall back to i18n while it loads.
+  const plans: PricingPlan[] =
+    catalog?.plans && catalog.plans.length > 0
+      ? catalog.plans
+          .filter((p) => p.is_active)
+          .sort((a, b) => a.sort_order - b.sort_order)
+          .map((p) => ({
+            key: p.key,
+            price_monthly_usd: p.price_monthly_usd,
+            price_yearly_usd: p.price_yearly_usd,
+            features: p.features,
+            sort_order: p.sort_order,
+          }))
+      : FALLBACK_PLANS
+
+  const planLabel = (key: string) => `plan${key.charAt(0).toUpperCase()}${key.slice(1)}`
+
+  // Savings badge: derived from the first paid plan (1 − yearly/(monthly×12)).
+  const paid = plans.find((p) => p.price_monthly_usd > 0)
+  const savingsPct = paid ? Math.max(0, Math.round((1 - paid.price_yearly_usd / (paid.price_monthly_usd * 12)) * 100)) : 0
 
   const { ref: cardsRef, shown } = useInViewOnce<HTMLDivElement>(0.08)
 
@@ -131,7 +176,7 @@ export default function PricingSection() {
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
             <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
-              {t('pricingAnnualSave')}
+              {t('pricingAnnualSave', { pct: `${savingsPct}%` })}
             </span>
             <span className="text-[12px] font-light text-[#858585]">{t('pricingSubheading')}</span>
           </div>
@@ -140,11 +185,15 @@ export default function PricingSection() {
         {/* Cards — each reveals with its own stagger delay; the delay is
             dropped once shown so hover transitions stay instant. */}
         <div ref={cardsRef} className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-3 lg:gap-8">
-          {plans.map((key, idx) => {
+          {plans.map((plan, idx) => {
+            const key = plan.key
             const prefix = planLabel(key)
             const isMax = key === 'max'
             const isFree = key === 'free'
             const isAnnual = billing === 'annual'
+            const monthlyUsd = formatPrice(plan.price_monthly_usd, currency)
+            const annualPerMonthUsd = formatPrice(plan.price_yearly_usd / 12, currency)
+            const yearlyTotalUsd = formatPrice(plan.price_yearly_usd, currency)
 
             const hover = reducedMotion
               ? ''
@@ -190,7 +239,7 @@ export default function PricingSection() {
                 {/* Price — key forces a crossfade when the billing changes */}
                 <div className="mt-5 flex items-baseline gap-1.5">
                   {!isFree && isAnnual && (
-                    <s className="text-[19px] font-light text-[#c8c8cc]">{t(`${prefix}Price`)}</s>
+                    <s className="text-[19px] font-light text-[#c8c8cc]">{monthlyUsd}</s>
                   )}
                   <span
                     key={`${key}-${billing}`}
@@ -198,19 +247,21 @@ export default function PricingSection() {
                       isMax ? 'text-[#0071e3]' : 'text-[#1d1d1f]'
                     }`}
                   >
-                    {isFree ? t(`${prefix}Price`) : isAnnual ? t(`${prefix}AnnualPrice`) : t(`${prefix}Price`)}
+                    {isFree ? monthlyUsd : isAnnual ? annualPerMonthUsd : monthlyUsd}
                   </span>
                   {!isFree && <span className="text-[14px] font-light text-[#707070]">{t(`${prefix}Period`)}</span>}
                 </div>
                 {!isFree && (
                   <p className="mt-1.5 text-[11.5px] font-light text-[#858585]">
-                    {isAnnual ? t(`${prefix}AnnualNote`) : t(`${prefix}Yearly`)}
+                    {isAnnual
+                      ? t('pricingAnnualNote', { amount: yearlyTotalUsd })
+                      : t('pricingYearlyNote', { amount: yearlyTotalUsd })}
                   </p>
                 )}
 
                 {/* Features */}
                 <ul className="mt-6 flex-1 space-y-2.5">
-                  {Array.from({ length: featureCounts[key] }, (_, i) => (
+                  {Array.from({ length: plan.features.length }, (_, i) => (
                     <li
                       key={i}
                       className="flex items-start gap-2.5 text-[13.5px] text-[#474747] transition-colors duration-200 group-hover:text-[#3a3a3c]"

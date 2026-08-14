@@ -2,7 +2,12 @@
 
 import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { getBillingCatalog, getBillingStatus, getCreditTransactions } from '@/lib/billing'
+import {
+  getBillingCatalog,
+  getBillingStatus,
+  getCreditTransactions,
+  getPublicCatalog,
+} from '@/lib/billing'
 import { billingKeys } from '@/lib/query-keys'
 import type { CreditStatus, CreditTransaction, ProductCatalog } from '@/types/billing'
 
@@ -34,6 +39,16 @@ export function useBillingCatalog() {
     queryKey: billingKeys.catalog(),
     queryFn: () => getBillingCatalog(),
     staleTime: 5 * 60_000, // el catálogo cambia rara vez
+    ...browserOnly,
+  })
+}
+
+/** Public catalog for the landing / limits — no auth, safe for visitors. */
+export function usePublicCatalog() {
+  return useQuery<ProductCatalog>({
+    queryKey: billingKeys.publicCatalog(),
+    queryFn: () => getPublicCatalog(),
+    staleTime: 5 * 60_000,
     ...browserOnly,
   })
 }

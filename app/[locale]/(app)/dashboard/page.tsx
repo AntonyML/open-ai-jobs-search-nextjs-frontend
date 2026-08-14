@@ -17,8 +17,23 @@ import {
   Sparkles,
   ArrowRight,
   FolderOpen,
+  UserRound,
+  Wallet,
+  Accessibility,
+  Lock,
+  Gem,
+  Type,
+  AlignLeft,
+  ArrowLeftRight,
+  Contrast,
+  Wind,
+  VolumeX,
+  type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useBillingStatus } from '@/hooks/useBilling'
+import { loadSettings, DEFAULT_SETTINGS, type AccessibilitySettings } from '@/lib/accessibility'
+import type { CreditStatus } from '@/types/billing'
 import { CountUp } from '@/components/dashboard/CountUp'
 import { FunnelLineChart } from '@/components/dashboard/FunnelLineChart'
 import { TrendSparkline } from '@/components/dashboard/TrendSparkline'
@@ -90,17 +105,23 @@ export default function Dashboard() {
   const [funnelData, setFunnelData] = useState<FunnelItem[]>([])
   const [trends, setTrends] = useState<TrendItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [profile, setProfile] = useState<any>(null)
+  const [access, setAccess] = useState<AccessibilitySettings | null>(null)
+  const { data: billingStatus } = useBillingStatus()
 
   useEffect(() => {
     if (!isLoggedIn()) { router.replace('/login'); return }
+    setAccess(loadSettings())
     Promise.all([
       apiFetch<DashboardStats>('/api/v1/dashboard/stats').catch(() => null),
       apiFetch<{ funnel: FunnelItem[] }>('/api/v1/analytics/funnel').catch(() => null),
       apiFetch<{ days: number; trends: TrendItem[] }>('/api/v1/analytics/trends').catch(() => null),
-    ]).then(([s, f, tr]) => {
+      apiFetch<any>('/api/v1/setup/profile').catch(() => null),
+    ]).then(([s, f, tr, p]) => {
       if (s) setStats(s)
       if (f?.funnel) setFunnelData(f.funnel)
       if (tr?.trends) setTrends(tr.trends)
+      if (p) setProfile(p)
     }).finally(() => setLoading(false))
   }, [router])
 
@@ -184,6 +205,9 @@ export default function Dashboard() {
             adaptedCount={stats.adapted_cv_count}
             totalCvs={stats.total_cvs}
           />
+
+          {/* Insights — profile strength, plan/credits and accessibility */}
+          <InsightsGrid t={t} profile={profile} billing={billingStatus} access={access} />
 
           {!hasData ? (
             <EmptyState t={t} />
@@ -442,6 +466,345 @@ function DocumentsHero({
   )
 }
 
+/* ── Insights grid — profile strength, plan/credits, accessibility ─ */
+
+type InsightT = (key: string, vars?: Record<string, string | number | Date>) => string
+
+const CARD_CLASS =
+  'group relative overflow-hidden rounded-2xl border border-[#d2d2d7]/60 bg-white p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]'
+
+function InsightsGrid({
+  t,
+  profile,
+  billing,
+  access,
+}: {
+  t: InsightT
+  profile: any
+  billing: CreditStatus | undefined
+  access: AccessibilitySettings | null
+}) {
+  return (
+    <div className="grid gap-4 md:grid-cols-3">
+      <ProfileCard t={t} profile={profile} />
+      <PlanCard t={t} billing={billing} />
+      <AccessCard t={t} access={access} />
+    </div>
+  )
+}
+
+/* ── Profile strength ────────────────────────────────────────────── */
+
+function profileCompleteness(p: any) {
+  const skillsCount = [
+    ...(p?.skills?.software_tools ?? []),
+    ...(p?.skills?.programming_ml ?? []),
+    ...(p?.skills?.domain_expertise ?? []),
+  ].length
+  const checks = [
+    { key: 'checkFullName', done: !!p?.full_name },
+    { key: 'checkLocation', done: !!p?.location },
+    { key: 'checkLinkedin', done: !!p?.linkedin_url },
+    { key: 'checkExperience', done: (p?.experience?.length ?? 0) > 0 },
+    { key: 'checkEducation', done: (p?.education?.length ?? 0) > 0 },
+    { key: 'checkSkills', done: skillsCount > 0 },
+    { key: 'checkProjects', done: (p?.projects?.length ?? 0) > 0 },
+    { key: 'checkLanguages', done: (p?.languages?.length ?? 0) > 0 },
+    { key: 'checkStatement', done: !!p?.profile_statement },
+    { key: 'checkJobTarget', done: (p?.job_target?.target_titles?.length ?? 0) > 0 },
+  ]
+  const doneCount = checks.filter((c) => c.done).length
+  return {
+    pct: Math.round((doneCount / checks.length) * 100),
+    doneCount,
+    total: checks.length,
+    missing: checks.filter((c) => !c.done).slice(0, 3),
+  }
+}
+
+function ProfileCard({ t, profile }: { t: InsightT; profile: any }) {
+  const { pct, doneCount, total, missing } = profileCompleteness(profile)
+  const complete = pct === 100
+  const ringColor = complete ? '#34c759' : '#0071e3'
+
+  return (
+    <section className={CARD_CLASS}>
+      <div className="flex items-center gap-2.5">
+        <div className="flex size-9 items-center justify-center rounded-xl bg-[#0071e3]/10 text-[#0071e3]">
+          <UserRound className="size-4" />
+        </div>
+        <div>
+          <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('profileTitle')}</h2>
+          <p className="text-[11px] text-[#707070]">{t('profileDesc')}</p>
+        </div>
+      </div>
+
+      <div className="mt-5 flex items-center gap-4">
+        <Donut value={pct} color={ringColor} size={88} strokeWidth={9}>
+          <div className="flex flex-col items-center">
+            <span className="text-xl font-semibold tracking-tight text-[#1d1d1f] tabular-nums">
+              {pct}
+              <span className="text-xs font-medium" style={{ color: ringColor }}>%</span>
+            </span>
+            <span className="mt-0.5 text-[9px] font-medium uppercase tracking-wide text-[#707070]">
+              {t('profileStrength')}
+            </span>
+          </div>
+        </Donut>
+        <div className="min-w-0 flex-1">
+          {complete ? (
+            <p className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-600 ring-1 ring-emerald-200/60">
+              <CheckCircle2 className="size-3.5" />
+              {t('profileFull')}
+            </p>
+          ) : (
+            <>
+              <p className="text-[11px] font-medium text-[#707070]">{t('profileMissingLabel')}</p>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {missing.map((m) => (
+                  <span
+                    key={m.key}
+                    className="rounded-full bg-[#f5f5f7] px-2 py-0.5 text-[10px] font-medium text-[#585858] ring-1 ring-[#e8e8ed]"
+                  >
+                    {t(m.key)}
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-5 flex items-center justify-between">
+        <span className="text-[11px] text-[#858585] tabular-nums">
+          {doneCount}/{total} {t('profileSections')}
+        </span>
+        <Link
+          href="/profile"
+          className="inline-flex items-center gap-1.5 rounded-full bg-[#0071e3] px-4 py-1.5 text-xs font-medium text-white transition-all hover:bg-[#0068d2]"
+        >
+          {t('profileGoFill')}
+          <ArrowRight className="size-3.5" />
+        </Link>
+      </div>
+    </section>
+  )
+}
+
+/* ── Plan & credits ─────────────────────────────────────────────── */
+
+function PlanCard({ t, billing }: { t: InsightT; billing: CreditStatus | undefined }) {
+  const isPaid =
+    !!billing?.has_active_subscription && !!billing?.plan_key && billing.plan_key !== 'free'
+  const used = billing?.credits_used ?? 0
+  const total = billing?.credits_total ?? 0
+  const creditsPct = total > 0 ? Math.min(100, Math.round((used / total) * 100)) : 0
+  const dayUsed = billing?.quota_day_used ?? 0
+  const dayLimit = billing?.quota_day_limit ?? 0
+  const dayPct = dayLimit > 0 ? Math.min(100, Math.round((dayUsed / dayLimit) * 100)) : 0
+  const planName = billing?.plan_name ?? t('planFree')
+
+  if (!billing) {
+    return (
+      <section className={CARD_CLASS}>
+        <div className="flex items-center gap-2.5">
+          <div className="skeleton size-9 rounded-xl" />
+          <div className="space-y-1.5">
+            <div className="skeleton h-3.5 w-24 rounded" />
+            <div className="skeleton h-3 w-16 rounded" />
+          </div>
+        </div>
+        <div className="skeleton mt-5 h-5 w-full rounded-lg" />
+        <div className="skeleton mt-3 h-5 w-full rounded-lg" />
+        <div className="skeleton mt-6 h-14 w-full rounded-xl" />
+      </section>
+    )
+  }
+
+  return (
+    <section className={CARD_CLASS}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex size-9 items-center justify-center rounded-xl bg-[#ff9f0a]/10 text-[#ff9f0a]">
+            <Wallet className="size-4" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('planTitle')}</h2>
+            <p className="text-[11px] capitalize text-[#707070]">{planName}</p>
+          </div>
+        </div>
+        {isPaid ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-600 ring-1 ring-emerald-200/60">
+            <CheckCircle2 className="size-3" />
+            {t('planActive')}
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 rounded-full bg-[#f5f5f7] px-2.5 py-1 text-[10px] font-semibold text-[#707070] ring-1 ring-[#e8e8ed]">
+            <Gem className="size-3 text-[#ff9f0a]" />
+            {t('planFree')}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-4">
+        <div className="flex items-baseline justify-between text-[11px]">
+          <span className="font-medium text-[#707070]">{t('planCredits')}</span>
+          <span className="font-semibold text-[#1d1d1f] tabular-nums">
+            {used.toLocaleString()} / {total.toLocaleString()}
+          </span>
+        </div>
+        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#f0f0f2]">
+          <div
+            className="h-full rounded-full transition-all duration-700 ease-out"
+            style={{
+              width: `${creditsPct}%`,
+              background: isPaid
+                ? 'linear-gradient(90deg, #34c75999, #34c759)'
+                : 'linear-gradient(90deg, #2997ff99, #0071e3)',
+            }}
+          />
+        </div>
+      </div>
+
+      {dayLimit > 0 && (
+        <div className="mt-3">
+          <div className="flex items-baseline justify-between text-[11px]">
+            <span className="font-medium text-[#707070]">{t('planQuota')}</span>
+            <span className="font-semibold text-[#1d1d1f] tabular-nums">
+              {dayUsed.toLocaleString()} / {dayLimit.toLocaleString()}
+            </span>
+          </div>
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#f0f0f2]">
+            <div
+              className="h-full rounded-full transition-all duration-700 ease-out"
+              style={{
+                width: `${dayPct}%`,
+                background: 'linear-gradient(90deg, #5856d699, #5856d6)',
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {isPaid ? (
+        <div className="mt-5 flex justify-end">
+          <Link
+            href="/billing"
+            className="inline-flex items-center gap-1 text-xs font-medium text-[#0071e3] transition-colors hover:underline"
+          >
+            {t('planGoManage')}
+            <ArrowRight className="size-3.5" />
+          </Link>
+        </div>
+      ) : (
+        <div className="mt-5 rounded-xl border border-[#ffd60a]/40 bg-gradient-to-br from-[#fffbe8] to-[#fff7d6] p-3">
+          <div className="flex items-start gap-2.5">
+            <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[#ff9f0a]/15 text-[#ff9f0a]">
+              <Lock className="size-3.5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-[#1d1d1f]">{t('planUpsellTitle')}</p>
+              <p className="mt-0.5 text-[11px] leading-4 text-[#707070]">{t('planUpsellDesc')}</p>
+              <Link
+                href="/billing"
+                className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-[#b26a00] transition-colors hover:underline"
+              >
+                {t('planUpsellCta')}
+                <ArrowRight className="size-3" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  )
+}
+
+/* ── Accessibility ──────────────────────────────────────────────── */
+
+function accessAdjustments(
+  a: AccessibilitySettings,
+  t: InsightT,
+): { label: string; icon: LucideIcon }[] {
+  const list: { label: string; icon: LucideIcon }[] = []
+  if (a.fontSize !== 1) list.push({ label: t('accessFontSize', { pct: Math.round(a.fontSize * 100) }), icon: Type })
+  if (a.lineHeight !== 1.6) list.push({ label: t('accessLineHeight', { pct: Math.round(a.lineHeight * 100) }), icon: AlignLeft })
+  if (a.letterSpacing !== 0) list.push({ label: t('accessLetterSpacing'), icon: ArrowLeftRight })
+  if (a.highContrast) list.push({ label: t('accessHighContrast'), icon: Contrast })
+  if (a.reducedMotion) list.push({ label: t('accessReducedMotion'), icon: Wind })
+  if (a.dyslexiaFont) list.push({ label: t('accessDyslexia'), icon: Type })
+  if (a.fontFamily !== 'system') list.push({ label: t('accessFontFamily', { family: a.fontFamily }), icon: Type })
+  if (!a.soundEnabled) list.push({ label: t('accessSound'), icon: VolumeX })
+  return list
+}
+
+function AccessCard({ t, access }: { t: InsightT; access: AccessibilitySettings | null }) {
+  const a = access ?? DEFAULT_SETTINGS
+  const active = accessAdjustments(a, t)
+
+  return (
+    <section className={CARD_CLASS}>
+      <div className="flex items-center gap-2.5">
+        <div className="flex size-9 items-center justify-center rounded-xl bg-[#bf5af2]/10 text-[#bf5af2]">
+          <Accessibility className="size-4" />
+        </div>
+        <div>
+          <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('accessTitle')}</h2>
+          <p className="text-[11px] text-[#707070]">{t('accessDesc')}</p>
+        </div>
+      </div>
+
+      {/* Live preview rendered with the user's own settings */}
+      <div
+        className="mt-4 rounded-xl border border-[#e8e8ed] bg-gradient-to-br from-[#fafafa] to-white p-3.5"
+        style={{
+          fontSize: `${a.fontSize}rem`,
+          lineHeight: a.lineHeight,
+          letterSpacing: a.letterSpacing > 0 ? `${a.letterSpacing}em` : undefined,
+          fontFamily: a.fontFamily === 'system' ? undefined : a.fontFamily,
+        }}
+      >
+        <p className="text-[#1d1d1f]">{t('accessPreview')}</p>
+        <p className="mt-1 text-[#858585]">{t('accessDesc')}</p>
+      </div>
+
+      <div className="mt-4 min-h-[24px]">
+        {active.length === 0 ? (
+          <p className="inline-flex items-center gap-1.5 rounded-full bg-[#f5f5f7] px-2.5 py-1 text-[11px] font-medium text-[#707070] ring-1 ring-[#e8e8ed]">
+            <CheckCircle2 className="size-3.5 text-[#34c759]" />
+            {t('accessStandard')}
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {active.map((c) => (
+              <span
+                key={c.label}
+                className="inline-flex items-center gap-1 rounded-full bg-[#bf5af2]/10 px-2 py-0.5 text-[10px] font-medium text-[#8a2fbf] ring-1 ring-[#bf5af2]/20"
+              >
+                <c.icon className="size-3" />
+                {c.label}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-4 flex items-center justify-between">
+        <span className="text-[11px] text-[#858585]">
+          {active.length > 0 ? t('accessCustomized') : ''}
+        </span>
+        <Link
+          href="/settings"
+          className="inline-flex items-center gap-1.5 rounded-full bg-[#bf5af2]/10 px-4 py-1.5 text-xs font-medium text-[#8a2fbf] ring-1 ring-[#bf5af2]/25 transition-all hover:bg-[#bf5af2]/15"
+        >
+          {t('accessGo')}
+          <ArrowRight className="size-3.5" />
+        </Link>
+      </div>
+    </section>
+  )
+}
+
 function Donut({
   value,
   color,
@@ -545,6 +908,21 @@ function DashboardSkeleton() {
   return (
     <div className="space-y-6 md:space-y-8">
       <div className="skeleton h-44 w-full rounded-2xl" />
+      <div className="grid gap-4 md:grid-cols-3">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
+            <div className="flex items-center gap-2.5">
+              <div className="skeleton size-9 rounded-xl" />
+              <div className="space-y-1.5">
+                <div className="skeleton h-3.5 w-24 rounded" />
+                <div className="skeleton h-3 w-16 rounded" />
+              </div>
+            </div>
+            <div className="skeleton mt-5 h-16 w-full rounded-xl" />
+            <div className="skeleton mt-4 h-5 w-full rounded-lg" />
+          </div>
+        ))}
+      </div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-4 md:p-5">

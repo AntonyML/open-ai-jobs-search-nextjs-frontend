@@ -1,9 +1,94 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import LegalStyles from '@/components/LegalStyles'
+import type { ProductCatalog } from '@/types/billing'
+
+// Página dinámica: el catálogo vive en la DB (admin). Sin esto, SSG/OpenNext
+// congelaría precios/cuotas en el build.
+export const dynamic = 'force-dynamic'
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+
+const FALLBACK_CATALOG: ProductCatalog = {
+  plans: [
+    {
+      key: 'free',
+      name: 'Free',
+      description: null,
+      price_monthly_usd: 0,
+      price_yearly_usd: 0,
+      credits_per_period: 2,
+      refill_cadence: 'weekly',
+      refill_weekday: 0,
+      daily_quota: 0,
+      weekly_quota: 0,
+      features: ['cv_base', 'cv_adapted'],
+      is_active: true,
+      sort_order: 10,
+    },
+    {
+      key: 'pro',
+      name: 'Pro',
+      description: null,
+      price_monthly_usd: 19.99,
+      price_yearly_usd: 200,
+      credits_per_period: 100,
+      refill_cadence: 'period',
+      refill_weekday: 0,
+      daily_quota: 0,
+      weekly_quota: 0,
+      features: ['cv_base', 'cv_adapted'],
+      is_active: true,
+      sort_order: 20,
+    },
+    {
+      key: 'max',
+      name: 'Max',
+      description: null,
+      price_monthly_usd: 59.99,
+      price_yearly_usd: 600,
+      credits_per_period: 500,
+      refill_cadence: 'period',
+      refill_weekday: 0,
+      daily_quota: 20,
+      weekly_quota: 80,
+      features: ['cv_base', 'cv_adapted', 'pipeline', 'expand', 'upskill'],
+      is_active: true,
+      sort_order: 30,
+    },
+  ],
+  credit_costs: { cv_base: 1, cv_adapted: 1, pipeline: 1 },
+  whatsapp_number: '',
+  currency: 'USD',
+  last_updated: null,
+}
+
+async function getCatalog(): Promise<ProductCatalog> {
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/public/catalog`, {
+      next: { revalidate: 0 },
+    })
+    if (!res.ok) return FALLBACK_CATALOG
+    return (await res.json()) as ProductCatalog
+  } catch {
+    return FALLBACK_CATALOG
+  }
+}
+
+const currencyFmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
+
+function formatPrice(usd: number): string {
+  return currencyFmt.format(usd)
+}
 
 export default async function LimitsPage() {
   const t = await getTranslations('limits')
+  const catalog = await getCatalog()
+  const byKey = new Map(catalog.plans.map((p) => [p.key, p]))
+  const free = byKey.get('free')
+  const pro = byKey.get('pro')
+  const max = byKey.get('max')
+  const updated = catalog.last_updated ? new Date(catalog.last_updated) : null
 
   return (
     <main className="min-h-screen bg-[#f5f5f7]">
@@ -16,7 +101,11 @@ export default async function LimitsPage() {
           <h1 className="text-[36px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[48px]">
             {t('heading')}
           </h1>
-          <p className="mt-3 text-[15px] text-[#707070]">{t('updated')}</p>
+          <p className="mt-3 text-[15px] text-[#707070]">
+            {updated
+              ? t('updatedWithDate', { date: updated.toLocaleDateString() })
+              : t('updated')}
+          </p>
         </div>
       </section>
 
@@ -26,9 +115,9 @@ export default async function LimitsPage() {
           <h2>{t('introTitle')}</h2>
           <p>{t('introBody')}</p>
           <ul>
-            <li>{t('creditCvBase')}</li>
-            <li>{t('creditCvAdapted')}</li>
-            <li>{t('creditPipeline')}</li>
+            <li>{t('creditCvBase', { cost: formatPrice(catalog.credit_costs.cv_base) })}</li>
+            <li>{t('creditCvAdapted', { cost: formatPrice(catalog.credit_costs.cv_adapted) })}</li>
+            <li>{t('creditPipeline', { cost: formatPrice(catalog.credit_costs.pipeline) })}</li>
           </ul>
 
           <h2>{t('plansTitle')}</h2>
@@ -46,27 +135,33 @@ export default async function LimitsPage() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td><strong>Free</strong></td>
-                  <td>{t('freePrice')}</td>
-                  <td>{t('freeCredits')}</td>
-                  <td>{t('freeQuotas')}</td>
-                  <td>{t('freeIncludes')}</td>
-                </tr>
-                <tr>
-                  <td><strong>Pro</strong></td>
-                  <td>{t('proPrice')}</td>
-                  <td>{t('proCredits')}</td>
-                  <td>{t('proQuotas')}</td>
-                  <td>{t('proIncludes')}</td>
-                </tr>
-                <tr>
-                  <td><strong>Max</strong></td>
-                  <td>{t('maxPrice')}</td>
-                  <td>{t('maxCredits')}</td>
-                  <td>{t('maxQuotas')}</td>
-                  <td>{t('maxIncludes')}</td>
-                </tr>
+                {free && (
+                  <tr>
+                    <td><strong>Free</strong></td>
+                    <td>{t('freePrice')}</td>
+                    <td>{free.credits_per_period == 0 ? t('noCredits') : t('creditsPerPeriod', { count: free.credits_per_period, cadence: t(free.refill_cadence === 'weekly' ? 'cadenceWeekly' : 'cadencePeriod') })}</td>
+                    <td>{t('freeQuotas')}</td>
+                    <td>{free.features.join(', ')}</td>
+                  </tr>
+                )}
+                {pro && (
+                  <tr>
+                    <td><strong>Pro</strong></td>
+                    <td>{t('priceMonthly', { amount: formatPrice(pro.price_monthly_usd) })}</td>
+                    <td>{pro.credits_per_period == 0 ? t('noCredits') : t('creditsPerPeriod', { count: pro.credits_per_period, cadence: t('cadencePeriod') })}</td>
+                    <td>{t('proQuotas')}</td>
+                    <td>{pro.features.join(', ')}</td>
+                  </tr>
+                )}
+                {max && (
+                  <tr>
+                    <td><strong>Max</strong></td>
+                    <td>{t('priceMonthly', { amount: formatPrice(max.price_monthly_usd) })}</td>
+                    <td>{max.credits_per_period == 0 ? t('noCredits') : t('creditsPerPeriod', { count: max.credits_per_period, cadence: t('cadencePeriod') })}</td>
+                    <td>{t('maxQuotas', { daily: max.daily_quota, weekly: max.weekly_quota })}</td>
+                    <td>{max.features.join(', ')}</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

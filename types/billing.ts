@@ -8,6 +8,9 @@ export interface Plan {
   price_yearly_usd: number
   credits_per_period: number
   refill_cadence: 'weekly' | 'period'
+  refill_weekday: number
+  daily_quota: number
+  weekly_quota: number
   features: string[]
   is_active: boolean
   sort_order: number
@@ -74,6 +77,7 @@ export interface ProductCatalog {
   credit_costs: CreditCosts
   whatsapp_number: string
   currency: string
+  last_updated: string | null
 }
 
 export interface PurchaseRequest {

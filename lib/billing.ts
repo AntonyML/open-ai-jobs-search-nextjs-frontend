@@ -22,6 +22,10 @@ export async function getBillingCatalog(): Promise<ProductCatalog> {
   return apiFetch<ProductCatalog>('/api/v1/billing/catalog')
 }
 
+export async function getPublicCatalog(): Promise<ProductCatalog> {
+  return apiFetch<ProductCatalog>('/api/v1/public/catalog')
+}
+
 export async function getCreditTransactions(): Promise<CreditTransaction[]> {
   return apiFetch<CreditTransaction[]>('/api/v1/billing/transactions')
 }
