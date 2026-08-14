@@ -3,14 +3,15 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { User, FileText, Check, Lock, ArrowRight } from 'lucide-react'
+import { User, FileText, Check, Lock, ArrowRight, Target } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
-import { showError, showSuccess } from '@/lib/toasts'
+import { showError, showSuccess, showWarning } from '@/lib/toasts'
 import { cn } from '@/lib/utils'
 import { PageHeader } from '@/components/ui/page-header'
 import { AppleButton } from '@/components/ui/apple-button'
 import { CvPdfPreview } from '@/components/cv-builder/CvPdfPreview'
 import type { CVResponse } from '@/lib/cv'
+import styles from './page.module.css'
 
 /** Minimum data required to generate a CV from the profile (Regla 1). */
 function isProfileComplete(profile: any): boolean {
@@ -28,13 +29,8 @@ function isProfileComplete(profile: any): boolean {
   return hasName && hasEmail && hasLocation && hasExperience && hasSkills && hasTarget
 }
 
-function StepIcon({ state }: { state: 'done' | 'active' | 'locked' }) {
-  if (state === 'done') return <Check className="size-4" />
-  if (state === 'locked') return <Lock className="size-4" />
-  return <span className="size-4" />
-}
-
-function BuilderStep({
+/** Compact one-line status for each step of the flow (Perfil → CV base). */
+function StatusStep({
   icon: Icon,
   label,
   sublabel,
@@ -42,42 +38,31 @@ function BuilderStep({
 }: {
   icon: React.ComponentType<{ className?: string }>
   label: string
-  sublabel?: string
+  sublabel: string
   state: 'done' | 'active' | 'locked'
 }) {
   return (
-    <div className="flex flex-col items-center gap-2 text-center">
-      <div
+    <div className={styles.statusStep}>
+      <span
         className={cn(
-          'flex size-12 items-center justify-center rounded-2xl border transition-all',
-          state === 'done' && 'border-emerald-200 bg-emerald-50 text-emerald-600',
-          state === 'active' && 'border-[#0071e3]/30 bg-[#0071e3]/10 text-[#0071e3] shadow-sm',
-          state === 'locked' && 'border-[#e2e2e5] bg-[#f5f5f7] text-[#b0b0b0]'
+          styles.statusDot,
+          state === 'done' && styles.statusDotDone,
+          state === 'active' && styles.statusDotActive
         )}
       >
-        {state === 'done' ? <StepIcon state="done" /> : <Icon className="size-5" />}
-      </div>
-      <div className="flex flex-col">
-        <span
-          className={cn(
-            'text-[12px] font-semibold tracking-wide',
-            state === 'locked' ? 'text-[#b0b0b0]' : 'text-[#1d1d1f]'
-          )}
-        >
-          {label}
-        </span>
-        {sublabel && (
-          <span className={cn('text-[10px]', state === 'locked' ? 'text-[#c7c7cc]' : 'text-[#858585]')}>
-            {sublabel}
-          </span>
-        )}
-      </div>
+        {state === 'done' ? <Check className="size-3" /> : <Icon className="size-3" />}
+      </span>
+      <span className="flex min-w-0 flex-col">
+        <span className={styles.statusLabel}>{label}</span>
+        <span className={styles.statusSub}>{sublabel}</span>
+      </span>
     </div>
   )
 }
 
 export default function CvBuilderPage() {
   const t = useTranslations('cvBuilder')
+  const tSidebar = useTranslations('appSidebar')
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<any | null>(null)
   const [cvs, setCvs] = useState<CVResponse[]>([])
@@ -137,23 +122,52 @@ export default function CvBuilderPage() {
     <section className="mx-auto max-w-3xl">
       <PageHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
 
-      {/* ── Progress: Perfil → CV base ───────────────────────── */}
-      <div className="mt-8 rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
-        <div className="flex items-center justify-between gap-2">
-          <BuilderStep
-            icon={User}
-            label={t('statePerfil')}
-            sublabel={complete ? t('stateProfileDone') : t('stateProfilePending')}
-            state={complete ? 'done' : 'active'}
-          />
-          <ArrowRight className="size-4 shrink-0 text-[#c7c7cc]" />
-          <BuilderStep
-            icon={FileText}
-            label={t('stateBase')}
-            sublabel={baseCv ? t('stateBaseDone') : t('stateBasePending')}
-            state={baseCv ? 'done' : complete ? 'active' : 'locked'}
-          />
+      {/* ── Adapt CTA — hero card at the top (locked until the base CV exists) ── */}
+      <div className={cn(styles.adaptHero, !baseCv && styles.adaptHeroLocked)}>
+        <div className="flex items-start gap-4">
+          <div className={styles.adaptHeroIcon}>
+            {baseCv ? <Target className="size-5" /> : <Lock className="size-5" />}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className={styles.adaptHeroEyebrow}>{t('adaptEyebrow')}</p>
+            <h3 className={styles.adaptHeroTitle}>{t('adaptNextTitle')}</h3>
+            <p className={styles.adaptHeroDesc}>{t('adaptNextDesc')}</p>
+            {baseCv ? (
+              <Link href="/cv-builder/adapt" className={styles.adaptHeroBtn}>
+                {t('adaptNextButton')}
+                <ArrowRight className="size-3.5" />
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => showWarning(tSidebar('adaptLockedToast'))}
+                className={styles.adaptHeroBtnLocked}
+                aria-disabled="true"
+                title={tSidebar('adaptCvLockedTooltip')}
+              >
+                <Lock className="size-3.5" />
+                {tSidebar('adaptCvLockedTooltip')}
+              </button>
+            )}
+          </div>
         </div>
+      </div>
+
+      {/* ── Progress — compact status strip: Perfil → CV base ─────────── */}
+      <div className={cn(styles.statusStrip, (complete || baseCv) ? 'mt-6' : 'mt-8')}>
+        <StatusStep
+          icon={User}
+          label={t('statePerfil')}
+          sublabel={complete ? t('stateProfileDone') : t('stateProfilePending')}
+          state={complete ? 'done' : 'active'}
+        />
+        <span className={cn(styles.statusConnector, complete && styles.statusConnectorDone)} />
+        <StatusStep
+          icon={baseCv ? Check : complete ? FileText : Lock}
+          label={t('stateBase')}
+          sublabel={baseCv ? t('stateBaseDone') : t('stateBasePending')}
+          state={baseCv ? 'done' : complete ? 'active' : 'locked'}
+        />
       </div>
 
       {error && (
@@ -167,11 +181,11 @@ export default function CvBuilderPage() {
         </div>
       )}
 
-      {/* ── Estado A — Perfil incompleto ─────────────────────── */}
+      {/* ── Estado A — Perfil incompleto ─────────────────────────────── */}
       {!complete && (
-        <div className="mt-6 rounded-2xl border border-[#d2d2d7]/60 bg-white p-8 text-center">
-          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-[#f5f5f7]">
-            <User className="size-6 text-[#b0b0b0]" />
+        <div className={cn(styles.incompleteCard, 'mt-6')}>
+          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-[#f5f5f7]">
+            <User className="size-5 text-[#b0b0b0]" />
           </div>
           <h2 className="text-lg font-semibold text-[#1d1d1f]">{t('profileIncompleteTitle')}</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-5 text-[#707070]">{t('profileIncompleteDesc')}</p>
@@ -185,67 +199,41 @@ export default function CvBuilderPage() {
         </div>
       )}
 
-      {/* ── Estado B — Perfil completo, sin CV base ──────────── */}
+      {/* ── Estado B — Perfil completo, sin CV base ─────────────────── */}
       {complete && !baseCv && (
-        <div className="mt-6 space-y-4">
-          <div className="flex items-center gap-2 text-sm text-emerald-600">
-            <Check className="size-4" />
-            <span className="font-medium">{t('profileReady')}</span>
-          </div>
-          <div className="flex flex-col gap-3 rounded-2xl border border-[#d2d2d7]/60 bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-col">
-              <p className="text-sm font-medium text-[#1d1d1f]">{t('baseInfoTitle')}</p>
-              <p className="mt-1 max-w-md text-xs leading-5 text-[#707070]">{t('baseInfoSubtitle')}</p>
-            </div>
-            <AppleButton loading={generating} disabled={generating} onClick={generateBase} className="w-full sm:w-auto">
+        <div className={cn(styles.generateCard, 'mt-6')}>
+          <span className={styles.successChip}>
+            <Check className="size-3" />
+            {t('profileReady')}
+          </span>
+          <h3 className="mt-3 text-[15px] font-semibold text-[#1d1d1f]">{t('baseInfoTitle')}</h3>
+          <p className="mt-1 max-w-md text-[13px] leading-5 text-[#707070]">{t('baseInfoSubtitle')}</p>
+          <div className="mt-4">
+            <AppleButton loading={generating} disabled={generating} onClick={generateBase}>
               {generating ? t('baseGenerating') : t('baseGenerate')}
             </AppleButton>
           </div>
         </div>
       )}
 
-      {/* ── Estado C — CV base generado ──────────────────────── */}
+      {/* ── Estado C — CV base generado ─────────────────────────────── */}
       {complete && baseCv && (
-        <div className="mt-6 space-y-6">
-          <div className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span className="flex size-6 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-                    <Check className="size-3.5" />
-                  </span>
-                  <p className="text-sm font-medium text-[#1d1d1f]">{t('baseReady')}</p>
-                </div>
-                <p className="mt-1 text-xs text-[#707070]">{t('baseReadyDesc')}</p>
-              </div>
-              <AppleButton variant="secondary" size="sm" loading={generating} disabled={generating} onClick={generateBase}>
-                {t('regenerate')}
-              </AppleButton>
-            </div>
-            <CvPdfPreview cv={baseCv} />
-          </div>
-
-          <div className="flex items-center justify-between gap-3 rounded-2xl border border-[#0071e3]/20 bg-[#0071e3]/5 p-5">
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#0071e3]/10 text-[#0071e3]">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect width="20" height="14" x="2" y="7" rx="2" />
-                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                </svg>
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-[#1d1d1f]">{t('adaptNextTitle')}</p>
-                <p className="mt-1 text-xs leading-5 text-[#707070]">{t('adaptNextDesc')}</p>
+        <div className={cn(styles.cvCard, 'mt-6')}>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className={styles.readyBadge}>
+                <Check className="size-3.5" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-[#1d1d1f]">{t('baseReady')}</p>
+                <p className="mt-0.5 text-xs text-[#707070]">{t('baseReadyDesc')}</p>
               </div>
             </div>
-            <Link
-              href="/cv-builder/adapt"
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#0071e3] px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-[#0068d2]"
-            >
-              {t('adaptNextButton')}
-              <ArrowRight className="size-3.5" />
-            </Link>
+            <AppleButton variant="secondary" size="sm" loading={generating} disabled={generating} onClick={generateBase} className="shrink-0">
+              {t('regenerate')}
+            </AppleButton>
           </div>
+          <CvPdfPreview cv={baseCv} />
         </div>
       )}
     </section>
