@@ -67,8 +67,7 @@ export const NAV_SECTIONS: NavSection[] = [
     labelKey: 'documents',
     separatorBefore: true,
     items: [
-      { labelKey: 'cvBuilder', href: '/cv-builder', icon: FileText },
-      { labelKey: 'myCvs', href: '/cv-builder/documents', icon: FolderOpen },
+      { labelKey: 'cvBuilder', descKey: 'cvBuilderDesc', href: '/cv-builder', icon: FileText },
       {
         labelKey: 'adaptCv',
         descKey: 'adaptCvDesc',
@@ -78,6 +77,7 @@ export const NAV_SECTIONS: NavSection[] = [
         lockedTooltipKey: 'adaptCvLockedTooltip',
         lockedToastKey: 'adaptLockedToast',
       },
+      { labelKey: 'myCvs', href: '/cv-builder/documents', icon: FolderOpen },
     ],
   },
   {
@@ -96,16 +96,16 @@ export const NAV_SECTIONS: NavSection[] = [
     labelKey: 'account',
     separatorBefore: true,
     items: [
-      { labelKey: 'profile', href: '/profile', icon: User },
+      { labelKey: 'profile', descKey: 'profileDesc', href: '/profile', icon: User },
       { labelKey: 'billing', descKey: 'billingDesc', href: '/billing', icon: Wallet },
-      { labelKey: 'settings', href: '/settings', icon: Settings },
+      { labelKey: 'settings', descKey: 'settingsDesc', href: '/settings', icon: Settings },
     ],
   },
   {
     labelKey: 'admin',
     separatorBefore: true,
     items: [
-      { labelKey: 'admin', href: '/admin', icon: Shield, adminOnly: true },
+      { labelKey: 'admin', descKey: 'adminDesc', href: '/admin', icon: Shield, adminOnly: true },
       { labelKey: 'adminPlans', descKey: 'adminPlansDesc', href: '/admin/plans', icon: CreditCard, adminOnly: true },
       { labelKey: 'adminCredits', descKey: 'adminCreditsDesc', href: '/admin/credits', icon: Coins, adminOnly: true },
       { labelKey: 'adminProviders', descKey: 'adminProvidersDesc', href: '/admin/providers', icon: Server, adminOnly: true },

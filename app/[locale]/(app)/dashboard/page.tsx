@@ -16,6 +16,7 @@ import {
   CalendarDays,
   Sparkles,
   ArrowRight,
+  FolderOpen,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { CountUp } from '@/components/dashboard/CountUp'
@@ -44,6 +45,9 @@ interface DashboardStats {
   avg_rank_score: number | null
   hired: number
   rejected: number
+  base_cv_ready: boolean
+  adapted_cv_count: number
+  total_cvs: number
 }
 
 interface FunnelItem {
@@ -81,6 +85,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     jobs_scraped: 0, jobs_ranked: 0, applications: 0, interviews: 0,
     scrape_runs: 0, avg_rank_score: null, hired: 0, rejected: 0,
+    base_cv_ready: false, adapted_cv_count: 0, total_cvs: 0,
   })
   const [funnelData, setFunnelData] = useState<FunnelItem[]>([])
   const [trends, setTrends] = useState<TrendItem[]>([])
@@ -170,161 +175,173 @@ export default function Dashboard() {
 
       {loading ? (
         <DashboardSkeleton />
-      ) : !hasData ? (
-        <EmptyState t={t} />
       ) : (
         <>
-          {/* KPI cards — sparkline + weekly delta */}
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-            {kpis.map((kpi, i) => (
-              <div
-                key={kpi.key}
-                className="group relative overflow-hidden rounded-2xl border border-[#d2d2d7]/60 bg-white p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] md:p-5"
-              >
-                <div
-                  className="absolute inset-x-0 top-0 h-[3px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                  style={{ background: `linear-gradient(90deg, transparent, ${kpi.color}66, transparent)` }}
-                />
-                <div className="flex items-center justify-between gap-2">
+          {/* Documents hero — the core value of the app */}
+          <DocumentsHero
+            t={t}
+            baseReady={stats.base_cv_ready}
+            adaptedCount={stats.adapted_cv_count}
+            totalCvs={stats.total_cvs}
+          />
+
+          {!hasData ? (
+            <EmptyState t={t} />
+          ) : (
+            <>
+              {/* KPI cards — sparkline + weekly delta */}
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+                {kpis.map((kpi, i) => (
                   <div
-                    className="flex size-9 items-center justify-center rounded-xl"
-                    style={{ background: `${kpi.color}1a`, color: kpi.color }}
+                    key={kpi.key}
+                    className="group relative overflow-hidden rounded-2xl border border-[#d2d2d7]/60 bg-white p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] md:p-5"
                   >
-                    <kpi.icon className="size-4" />
+                    <div
+                      className="absolute inset-x-0 top-0 h-[3px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                      style={{ background: `linear-gradient(90deg, transparent, ${kpi.color}66, transparent)` }}
+                    />
+                    <div className="flex items-center justify-between gap-2">
+                      <div
+                        className="flex size-9 items-center justify-center rounded-xl"
+                        style={{ background: `${kpi.color}1a`, color: kpi.color }}
+                      >
+                        <kpi.icon className="size-4" />
+                      </div>
+                      {kpi.hasDelta && (
+                        <span
+                          className={cn(
+                            'inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-semibold tabular-nums ring-1',
+                            kpi.delta >= 0
+                              ? 'bg-emerald-50 text-emerald-600 ring-emerald-200/60'
+                              : 'bg-[#f5f5f7] text-[#858585] ring-[#e8e8ed]'
+                          )}
+                        >
+                          {kpi.delta >= 0 ? '▲' : '▼'} {Math.abs(kpi.delta).toLocaleString()}
+                          <span className="font-medium opacity-80">{t('thisWeek')}</span>
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-3 text-[26px] font-semibold tracking-tight text-[#1d1d1f] tabular-nums">
+                      <CountUp value={kpi.value} />
+                    </p>
+                    <p className="mt-0.5 text-xs text-[#707070]">{t(kpi.key)}</p>
+                    <div className="mt-2">
+                      <TrendSparkline data={kpi.series} color={kpi.color} id={`kpi-${i}`} />
+                    </div>
                   </div>
-                  {kpi.hasDelta && (
-                    <span
-                      className={cn(
-                        'inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-semibold tabular-nums ring-1',
-                        kpi.delta >= 0
-                          ? 'bg-emerald-50 text-emerald-600 ring-emerald-200/60'
-                          : 'bg-[#f5f5f7] text-[#858585] ring-[#e8e8ed]'
-                      )}
-                    >
-                      {kpi.delta >= 0 ? '▲' : '▼'} {Math.abs(kpi.delta).toLocaleString()}
-                      <span className="font-medium opacity-80">{t('thisWeek')}</span>
-                    </span>
-                  )}
-                </div>
-                <p className="mt-3 text-[26px] font-semibold tracking-tight text-[#1d1d1f] tabular-nums">
-                  <CountUp value={kpi.value} />
-                </p>
-                <p className="mt-0.5 text-xs text-[#707070]">{t(kpi.key)}</p>
-                <div className="mt-2">
-                  <TrendSparkline data={kpi.series} color={kpi.color} id={`kpi-${i}`} />
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          {/* Funnel + success */}
-          <div className="grid gap-4 lg:grid-cols-5">
-            {/* Conversion funnel */}
-            {chartData.length > 0 && (
-            <section className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5 lg:col-span-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('conversionFunnel')}</h2>
-                  <p className="mt-0.5 text-xs text-[#707070]">{t('fromScrapedToHired')}</p>
-                </div>
-                <span className="hidden rounded-full bg-[#f4f8fb] px-2.5 py-1 text-[10px] font-semibold text-[#0071e3] ring-1 ring-[#2997ff]/20 sm:inline-flex">
-                  {t('conversionFunnelTag')}
-                </span>
+              {/* Funnel + success */}
+              <div className="grid gap-4 lg:grid-cols-5">
+                {/* Conversion funnel — secondary now that documents are the focus */}
+                {chartData.length > 0 && (
+                  <section className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5 lg:col-span-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('conversionFunnel')}</h2>
+                        <p className="mt-0.5 text-xs text-[#707070]">{t('fromScrapedToHired')}</p>
+                      </div>
+                      <span className="hidden rounded-full bg-[#f4f8fb] px-2.5 py-1 text-[10px] font-semibold text-[#0071e3] ring-1 ring-[#2997ff]/20 sm:inline-flex">
+                        {t('conversionFunnelTag')}
+                      </span>
+                    </div>
+                    <div className="mt-4">
+                      <FunnelLineChart data={chartData} jobsLabel={t('jobs')} />
+                    </div>
+                    {/* Conversion chips */}
+                    {conversions.length > 0 && (
+                      <div className="mt-4 flex flex-wrap items-center gap-2">
+                        {conversions.map((c, i) => (
+                          <span
+                            key={`${c.from}-${c.to}`}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-[#e8e8ed] bg-[#fafafa] px-2.5 py-1 text-[10px] font-medium text-[#707070]"
+                          >
+                            <span className="capitalize">{c.from}</span>
+                            <ArrowRight className="size-2.5 text-[#b0b0b0]" />
+                            <span className="capitalize">{c.to}</span>
+                            <span className="font-semibold text-[#0071e3] tabular-nums">{c.pct}%</span>
+                            {i < conversions.length - 1 && (
+                              <span className="ml-1 h-3 w-px bg-[#e8e8ed]" />
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                )}
+
+                {/* Success panel */}
+                <section className="flex flex-col rounded-2xl border border-[#d2d2d7]/60 bg-white p-5 lg:col-span-3">
+                  <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('successTitle')}</h2>
+                  <p className="mt-0.5 text-xs text-[#707070]">{t('successSubtitle')}</p>
+
+                  <div className="mt-5 flex flex-1 items-center justify-center gap-5">
+                    <Donut value={hireRate} color="#34c759" size={112} strokeWidth={11}>
+                      <div className="flex flex-col items-center">
+                        <span className="text-2xl font-semibold tracking-tight text-[#1d1d1f] tabular-nums">
+                          <CountUp value={hireRate} />
+                          <span className="text-base font-medium text-[#34c759]">%</span>
+                        </span>
+                        <span className="mt-0.5 text-[10px] font-medium text-[#707070]">{t('hireRate')}</span>
+                      </div>
+                    </Donut>
+                    <div className="flex-1 space-y-4">
+                      <MiniBar
+                        label={t('interviewRate')}
+                        value={interviewRate}
+                        color="#5856d6"
+                      />
+                      <MiniBar
+                        label={t('avgScore')}
+                        value={Math.round(avgScore)}
+                        color="#0071e3"
+                      />
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-600">
+                          <CheckCircle2 className="size-3" />
+                          {t('hired')}: {stats.hired.toLocaleString()}
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 font-semibold text-rose-500">
+                          <TrendingUp className="size-3 rotate-180" />
+                          {t('rejected')}: {stats.rejected.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </section>
               </div>
-              <div className="mt-4">
-                <FunnelLineChart data={chartData} jobsLabel={t('jobs')} />
-              </div>
-              {/* Conversion chips */}
-              {conversions.length > 0 && (
-                <div className="mt-4 flex flex-wrap items-center gap-2">
-                  {conversions.map((c, i) => (
-                    <span
-                      key={`${c.from}-${c.to}`}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-[#e8e8ed] bg-[#fafafa] px-2.5 py-1 text-[10px] font-medium text-[#707070]"
-                    >
-                      <span className="capitalize">{c.from}</span>
-                      <ArrowRight className="size-2.5 text-[#b0b0b0]" />
-                      <span className="capitalize">{c.to}</span>
-                      <span className="font-semibold text-[#0071e3] tabular-nums">{c.pct}%</span>
-                      {i < conversions.length - 1 && (
-                        <span className="ml-1 h-3 w-px bg-[#e8e8ed]" />
-                      )}
-                    </span>
-                  ))}
-                </div>
+
+              {/* Recent activity */}
+              {activityData.some((d) => d.applications > 0 || d.interviews > 0) && (
+                <section className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('activityTitle')}</h2>
+                      <p className="mt-0.5 text-xs text-[#707070]">{t('activitySubtitle')}</p>
+                    </div>
+                    <div className="flex items-center gap-3 text-[10px] font-medium text-[#707070]">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="size-2 rounded-full bg-[#0071e3]" />
+                        {t('activityApplications')}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="size-2 rounded-full bg-[#5856d6]" />
+                        {t('activityInterviews')}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <ActivityChart
+                      data={activityData}
+                      appsLabel={t('activityApplications')}
+                      interviewsLabel={t('activityInterviews')}
+                      locale={locale}
+                    />
+                  </div>
+                </section>
               )}
-            </section>
-            )}
-
-            {/* Success panel */}
-            <section className="flex flex-col rounded-2xl border border-[#d2d2d7]/60 bg-white p-5 lg:col-span-2">
-              <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('successTitle')}</h2>
-              <p className="mt-0.5 text-xs text-[#707070]">{t('successSubtitle')}</p>
-
-              <div className="mt-5 flex flex-1 items-center justify-center gap-5">
-                <Donut value={hireRate} color="#34c759" size={112} strokeWidth={11}>
-                  <div className="flex flex-col items-center">
-                    <span className="text-2xl font-semibold tracking-tight text-[#1d1d1f] tabular-nums">
-                      <CountUp value={hireRate} />
-                      <span className="text-base font-medium text-[#34c759]">%</span>
-                    </span>
-                    <span className="mt-0.5 text-[10px] font-medium text-[#707070]">{t('hireRate')}</span>
-                  </div>
-                </Donut>
-                <div className="flex-1 space-y-4">
-                  <MiniBar
-                    label={t('interviewRate')}
-                    value={interviewRate}
-                    color="#5856d6"
-                  />
-                  <MiniBar
-                    label={t('avgScore')}
-                    value={Math.round(avgScore)}
-                    color="#0071e3"
-                  />
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-600">
-                      <CheckCircle2 className="size-3" />
-                      {t('hired')}: {stats.hired.toLocaleString()}
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 font-semibold text-rose-500">
-                      <TrendingUp className="size-3 rotate-180" />
-                      {t('rejected')}: {stats.rejected.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          {/* Recent activity */}
-          {activityData.some((d) => d.applications > 0 || d.interviews > 0) && (
-            <section className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('activityTitle')}</h2>
-                  <p className="mt-0.5 text-xs text-[#707070]">{t('activitySubtitle')}</p>
-                </div>
-                <div className="flex items-center gap-3 text-[10px] font-medium text-[#707070]">
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="size-2 rounded-full bg-[#0071e3]" />
-                    {t('activityApplications')}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="size-2 rounded-full bg-[#5856d6]" />
-                    {t('activityInterviews')}
-                  </span>
-                </div>
-              </div>
-              <div className="mt-4">
-                <ActivityChart
-                  data={activityData}
-                  appsLabel={t('activityApplications')}
-                  interviewsLabel={t('activityInterviews')}
-                  locale={locale}
-                />
-              </div>
-            </section>
+            </>
           )}
         </>
       )}
@@ -333,6 +350,97 @@ export default function Dashboard() {
 }
 
 /* ── Sub-components ─────────────────────────────────────────────── */
+
+/** Documents hero — puts the CV builder flow at the center of the dashboard. */
+function DocumentsHero({
+  t,
+  baseReady,
+  adaptedCount,
+  totalCvs,
+}: {
+  t: (key: string) => string
+  baseReady: boolean
+  adaptedCount: number
+  totalCvs: number
+}) {
+  return (
+    <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0071e3] to-[#0056b8] p-6 text-white md:p-8">
+      <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-white/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-28 -left-20 size-72 rounded-full bg-white/5 blur-3xl" />
+
+      <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div className="max-w-xl">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70">
+            {t('documentsEyebrow')}
+          </p>
+          <h2 className="mt-2 text-xl font-semibold tracking-tight md:text-2xl">{t('documentsTitle')}</h2>
+          <p className="mt-1.5 text-sm leading-5 text-white/85">{t('documentsDesc')}</p>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
+            {baseReady ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/20 px-3 py-1 font-medium text-emerald-100 ring-1 ring-emerald-300/40">
+                <CheckCircle2 className="size-3.5" />
+                {t('baseCvReady')}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 font-medium text-white ring-1 ring-white/25">
+                <span className="size-1.5 rounded-full bg-amber-300" />
+                {t('baseCvPending')}
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 font-medium text-white ring-1 ring-white/25">
+              <FileText className="size-3.5" />
+              {adaptedCount} {t('adaptedCvs')}
+            </span>
+            {totalCvs > 0 && (
+              <span className="inline-flex items-center gap-1.5 px-1 text-white/60">
+                {totalCvs} {t('totalDocs')}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5 md:shrink-0">
+          {baseReady ? (
+            <>
+              <Link
+                href="/cv-builder/adapt"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-medium text-[#0071e3] transition-all hover:bg-white/90 hover:shadow-lg"
+              >
+                {t('goAdapt')}
+                <ArrowRight className="size-4" />
+              </Link>
+              <Link
+                href="/cv-builder/documents"
+                className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20"
+              >
+                <FolderOpen className="size-4" />
+                {t('goMyCvs')}
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/cv-builder"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-medium text-[#0071e3] transition-all hover:bg-white/90 hover:shadow-lg"
+              >
+                {t('goGenerateBase')}
+                <ArrowRight className="size-4" />
+              </Link>
+              <Link
+                href="/cv-builder/documents"
+                className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20"
+              >
+                <FolderOpen className="size-4" />
+                {t('goMyCvs')}
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}
 
 function Donut({
   value,
@@ -416,17 +524,17 @@ function EmptyState({ t }: { t: (key: string) => string }) {
       </p>
       <div className="relative mt-7 flex flex-wrap items-center justify-center gap-3">
         <Link
-          href="/search"
+          href="/cv-builder"
           className="inline-flex items-center gap-2 rounded-full bg-[#0071e3] px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-[#0068d2] hover:shadow-md"
         >
-          {t('emptySearch')}
+          {t('emptyCv')}
           <ArrowRight className="size-4" />
         </Link>
         <Link
-          href="/cv-builder"
+          href="/search"
           className="inline-flex items-center gap-2 rounded-full border border-[#d2d2d7] bg-white px-5 py-2.5 text-sm font-medium text-[#1d1d1f] transition-all hover:border-[#2997ff]/50 hover:text-[#0071e3]"
         >
-          {t('emptyCv')}
+          {t('emptySearch')}
         </Link>
       </div>
     </section>
@@ -436,6 +544,7 @@ function EmptyState({ t }: { t: (key: string) => string }) {
 function DashboardSkeleton() {
   return (
     <div className="space-y-6 md:space-y-8">
+      <div className="skeleton h-44 w-full rounded-2xl" />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-4 md:p-5">
