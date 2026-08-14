@@ -119,6 +119,43 @@ export function isItemLocked(item: NavItem, state: SidebarState): boolean {
   return item.locked?.(state) ?? false
 }
 
+/**
+ * Requisito de acceso de una ruta: qué plan (o rol) exige para navegarla.
+ * Se deriva de la MISMA config del menú (fuente única de verdad), más las
+ * rutas que existen pero no se listan en el sidebar.
+ */
+export interface RouteRequirement {
+  tier?: 'max'
+  adminOnly?: boolean
+}
+
+/** Rutas existentes que no aparecen en el menú lateral pero igual son del pipeline Max. */
+const EXTRA_ROUTE_REQUIREMENTS: Record<string, RouteRequirement> = {
+  '/outcome': { tier: 'max' },
+  '/analytics': { tier: 'max' },
+}
+
+/** Quita el prefijo de locale (/es/search → /search) si usePathname lo incluye. */
+function stripLocale(pathname: string): string {
+  return pathname.replace(/^\/(en|es)(?=\/|$)/, '') || '/'
+}
+
+export function getRouteRequirement(pathname: string): RouteRequirement | null {
+  const clean = stripLocale(pathname)
+  // El match más específico (href más largo) gana, igual que en el sidebar.
+  const match = NAV_SECTIONS
+    .flatMap((section) => section.items)
+    .filter((item) => isItemActive(item, clean))
+    .sort((a, b) => b.href.length - a.href.length)[0]
+  if (!match) return EXTRA_ROUTE_REQUIREMENTS[clean] ?? null
+  const requirement: RouteRequirement = {
+    ...(match.requiredTier ? { tier: match.requiredTier } : {}),
+    ...(match.adminOnly ? { adminOnly: true } : {}),
+  }
+  // Sin requisito (p. ej. /cv-builder/adapt, /profile) → null, no un objeto vacío.
+  return requirement.tier || requirement.adminOnly ? requirement : null
+}
+
 /** True si el pathname corresponde al ítem o a cualquiera de sus rutas hijas. */
 export function isItemActive(item: Pick<NavItem, 'href'>, pathname: string): boolean {
   return pathname === item.href || pathname.startsWith(`${item.href}/`)

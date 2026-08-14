@@ -1020,7 +1020,9 @@
     "adminCredits": "Credits",
     "adminCreditsDesc": "Adjust credits & subscriptions",
     "premiumLockedTooltip": "Available on plan Max",
-    "maxLockedTooltip": "Available on plan Max — upgrade to unlock the full job search experience"
+    "maxLockedTooltip": "Available on plan Max — upgrade to unlock the full job search experience",
+    "routeBlockedMax": "This page is only available on the Max plan. Upgrade to unlock it.",
+    "routeBlockedAdmin": "You need administrator permissions to access this page."
   },
   "cvBuilder": {
     "eyebrow": "PROFESSIONAL DOCUMENTS",

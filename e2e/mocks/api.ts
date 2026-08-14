@@ -23,6 +23,20 @@ import {
 
 /** Endpoints compartidos por las páginas autenticadas de la app. */
 async function mockCommon(page: Page) {
+  // El RouteGuard exige plan max para el pipeline; los flujos LLM mockeados
+  // simulan un usuario max para que el guard deje pasar (el tier real del
+  // usuario E2E en la BD puede ser free).
+  await page.route('**/api/v1/billing/status', (route) =>
+    route.fulfill({
+      json: {
+        plan_key: 'max',
+        has_active_subscription: true,
+        credits_balance: 100,
+        credits_total: 100,
+        credits_used: 0,
+      },
+    }),
+  )
   await page.route('**/api/v1/users/usage', (route) =>
     route.fulfill({ json: usageFree }),
   )

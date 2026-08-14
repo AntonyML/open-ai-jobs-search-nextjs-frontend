@@ -1020,7 +1020,9 @@
     "adminCredits": "Créditos",
     "adminCreditsDesc": "Ajusta créditos y suscripciones",
     "premiumLockedTooltip": "Disponible en el plan Max",
-    "maxLockedTooltip": "Disponible en el plan Max — mejora para desbloquear todas las funciones de búsqueda de empleo"
+    "maxLockedTooltip": "Disponible en el plan Max — mejora para desbloquear todas las funciones de búsqueda de empleo",
+    "routeBlockedMax": "Esta página está disponible solo en el plan Max. Mejora para desbloquearla.",
+    "routeBlockedAdmin": "Necesitas permisos de administrador para acceder a esta página."
   },
   "cvBuilder": {
     "eyebrow": "DOCUMENTOS PROFESIONALES",

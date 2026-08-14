@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar'
 import AppSidebar from '@/components/AppSidebar'
 import { isLoggedIn } from '@/lib/auth'
 import UpgradeListener from '@/components/UpgradeListener'
+import { RouteGuard } from '@/components/navigation/RouteGuard'
 import {
   SidebarProvider,
   SidebarInset,
@@ -25,7 +26,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="min-w-0 flex-1 pt-12 md:flex">
           <AppSidebar />
           <SidebarInset className="min-w-0 flex-1 px-5 py-8 md:px-12 md:py-14">
-            {children}
+            <RouteGuard>{children}</RouteGuard>
           </SidebarInset>
         </div>
       </SidebarProvider>
