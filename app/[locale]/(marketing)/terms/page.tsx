@@ -123,7 +123,7 @@ export default function TermsPage() {
           <h2>14. Contacto</h2>
           <p>
             <strong>Open Ai Jobs Search</strong><br />
-            Correo electrónico: <a href="mailto:legal@openai-jobs-search.com">legal@openai-jobs-search.com</a><br />
+            Correo electrónico: <a href="mailto:legal.ai-jobs@tonyml.com">legal.ai-jobs@tonyml.com</a><br />
             República de Costa Rica
           </p>
         </div>

@@ -190,7 +190,7 @@ Cualquier disputa que no pueda resolverse amigablemente será sometida a la juri
 Para consultas relacionadas con estos Términos de Servicio:
 
 **Open Ai Jobs Search**
-Correo electrónico: legal@openai-jobs-search.com
+Correo electrónico: legal.ai-jobs@tonyml.com
 República de Costa Rica
 
 ---

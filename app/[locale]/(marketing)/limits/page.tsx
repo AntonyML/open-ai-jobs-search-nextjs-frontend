@@ -85,7 +85,7 @@ export default async function LimitsPage() {
           <h2>{t('questionsTitle')}</h2>
           <p>
             {t('questionsBody')}{' '}
-            <a href="mailto:legal@openai-jobs-search.com">legal@openai-jobs-search.com</a>
+            <a href="mailto:legal.ai-jobs@tonyml.com">legal.ai-jobs@tonyml.com</a>
           </p>
         </div>
 

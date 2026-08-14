@@ -44,7 +44,7 @@ export default function PrivacyPage() {
               <tbody>
                 <tr><td><strong>Nombre</strong></td><td>Open Ai Jobs Search</td></tr>
                 <tr><td><strong>País</strong></td><td>República de Costa Rica</td></tr>
-                <tr><td><strong>Correo de contacto</strong></td><td>privacy@openai-jobs-search.com</td></tr>
+                <tr><td><strong>Correo de contacto</strong></td><td>privacy.ai-jobs@tonyml.com</td></tr>
                 <tr><td><strong>Categoría</strong></td><td>Plataforma SaaS de búsqueda de empleo</td></tr>
               </tbody>
             </table>
@@ -156,7 +156,7 @@ export default function PrivacyPage() {
               </tbody>
             </table>
           </div>
-          <p>Para ejercer cualquiera de estos derechos, escriba a: <a href="mailto:privacy@openai-jobs-search.com">privacy@openai-jobs-search.com</a>. Responderemos su solicitud en un plazo máximo de <strong>10 días hábiles</strong>.</p>
+          <p>Para ejercer cualquiera de estos derechos, escriba a: <a href="mailto:privacy.ai-jobs@tonyml.com">privacy.ai-jobs@tonyml.com</a>. Responderemos su solicitud en un plazo máximo de <strong>10 días hábiles</strong>.</p>
 
           <h2>9. Menores de Edad</h2>
           <p>La Plataforma no está dirigida a personas menores de 18 años. No recopilamos intencionalmente datos de menores de edad.</p>
@@ -183,7 +183,7 @@ export default function PrivacyPage() {
           <h2>14. Contacto</h2>
           <p>
             <strong>Open Ai Jobs Search — Oficial de Protección de Datos</strong><br />
-            Correo electrónico: <a href="mailto:privacy@openai-jobs-search.com">privacy@openai-jobs-search.com</a><br />
+            Correo electrónico: <a href="mailto:privacy.ai-jobs@tonyml.com">privacy.ai-jobs@tonyml.com</a><br />
             República de Costa Rica
           </p>
         </div>

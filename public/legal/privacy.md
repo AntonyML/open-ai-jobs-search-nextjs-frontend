@@ -20,7 +20,7 @@ Esta política está redactada en cumplimiento de la **Ley N.° 8968 — Ley de 
 |-------|---------|
 | **Nombre** | Open Ai Jobs Search |
 | **País** | República de Costa Rica |
-| **Correo de contacto** | privacy@openai-jobs-search.com |
+| **Correo de contacto** | privacy.ai-jobs@tonyml.com |
 | **Categoría** | Plataforma SaaS de búsqueda de empleo |
 
 ---
@@ -142,7 +142,7 @@ Conforme a la Ley N.° 8968 de Costa Rica, usted tiene derecho a:
 | **Portabilidad** | Recibir sus datos en formato estructurado y legible por máquina |
 | **Revocación del consentimiento** | Retirar su consentimiento en cualquier momento sin afectar la licitud del tratamiento previo |
 
-Para ejercer cualquiera de estos derechos, escriba a: **privacy@openai-jobs-search.com**
+Para ejercer cualquiera de estos derechos, escriba a: **privacy.ai-jobs@tonyml.com**
 
 Responderemos su solicitud en un plazo máximo de **10 días hábiles**, conforme a la legislación costarricense.
 
@@ -200,7 +200,7 @@ La entidad competente para la protección de datos personales en Costa Rica es l
 Para ejercer sus derechos, reportar un incidente o realizar consultas sobre privacidad:
 
 **Open Ai Jobs Search — Oficial de Protección de Datos**
-Correo electrónico: privacy@openai-jobs-search.com
+Correo electrónico: privacy.ai-jobs@tonyml.com
 República de Costa Rica
 
 ---
