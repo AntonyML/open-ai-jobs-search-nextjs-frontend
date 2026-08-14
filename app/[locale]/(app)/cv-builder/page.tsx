@@ -67,6 +67,7 @@ export default function CvBuilderPage() {
   const [profile, setProfile] = useState<any | null>(null)
   const [cvs, setCvs] = useState<CVResponse[]>([])
   const [generating, setGenerating] = useState(false)
+  const [confirmRegenerate, setConfirmRegenerate] = useState(false)
   const [error, setError] = useState('')
 
   const loadAll = useCallback(async () => {
@@ -229,10 +230,45 @@ export default function CvBuilderPage() {
                 <p className="mt-0.5 text-xs text-[#707070]">{t('baseReadyDesc')}</p>
               </div>
             </div>
-            <AppleButton variant="secondary" size="sm" loading={generating} disabled={generating} onClick={generateBase} className="shrink-0">
+            <AppleButton
+              variant="secondary"
+              size="sm"
+              loading={generating}
+              disabled={generating}
+              onClick={() => setConfirmRegenerate((v) => !v)}
+              className="shrink-0"
+            >
               {t('regenerate')}
             </AppleButton>
           </div>
+
+          {/* Regenerate confirmation — only one base CV exists and each run consumes credits */}
+          {confirmRegenerate && (
+            <div className="mb-4 flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm font-medium text-[#1d1d1f]">{t('regenerateConfirm')}</p>
+              <div className="flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setConfirmRegenerate(false)}
+                  disabled={generating}
+                  className="rounded-full border border-[#d2d2d7] bg-white px-4 py-1.5 text-xs font-medium text-[#707070] transition-colors hover:bg-[#f5f5f7] disabled:opacity-50"
+                >
+                  {t('cancel')}
+                </button>
+                <AppleButton
+                  size="sm"
+                  loading={generating}
+                  disabled={generating}
+                  onClick={() => {
+                    setConfirmRegenerate(false)
+                    generateBase()
+                  }}
+                >
+                  {t('regenerate')}
+                </AppleButton>
+              </div>
+            </div>
+          )}
           <CvPdfPreview cv={baseCv} />
         </div>
       )}
