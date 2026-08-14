@@ -1011,7 +1011,8 @@
   "cvBuilder": {
     "eyebrow": "DOCUMENTOS PROFESIONALES",
     "title": "Generador de CV",
-    "subtitle": "Crea tu CV base desde tu perfil, listo para ATS, y adáptalo a cada oferta para postularte con un documento hecho a medida.",
+    "subtitleNoBase": "Crea tu CV base desde tu perfil, listo para ATS, para postularte a cualquier oferta.",
+    "subtitleHasBase": "Tu CV base está listo. Adáptalo a cada oferta y postúlate con un documento hecho a medida.",
     "datosTab": "Perfil",
     "baseTab": "CV Base",
     "ofertaTab": "Oferta Laboral",
@@ -1099,8 +1100,8 @@
     "adaptGoBuilder": "Generar CV base",
     "adaptSelectTitle": "Selecciona una oferta laboral",
     "adaptSelectDesc": "Elige una de las ofertas guardadas y generaremos una versión de tu CV que resalte lo más relevante para esa posición.",
-    "adaptNextTitle": "¿Listo para llevarlo más lejos?",
-    "adaptNextDesc": "Adapta tu CV base a una oferta laboral específica y destaca lo que más importa para esa posición.",
+    "adaptNextTitle": "Adapta tu CV a cada oferta",
+    "adaptNextDesc": "Elige una oferta guardada y genera una versión de tu CV que resalte lo que esa empresa busca.",
     "adaptNextButton": "Adaptar a una oferta"
   },
   "cvDocuments": {

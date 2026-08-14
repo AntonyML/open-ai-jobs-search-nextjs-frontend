@@ -1011,7 +1011,8 @@
   "cvBuilder": {
     "eyebrow": "PROFESSIONAL DOCUMENTS",
     "title": "CV Builder",
-    "subtitle": "Create an ATS-ready base CV from your profile, then tailor it to each offer to apply with a document built for the job.",
+    "subtitleNoBase": "Create your ATS-ready base CV from your profile to apply to any offer.",
+    "subtitleHasBase": "Your base CV is ready. Tailor it to each offer and apply with a document built for the job.",
     "datosTab": "Profile",
     "baseTab": "Base CV",
     "ofertaTab": "Job Offer",
@@ -1099,8 +1100,8 @@
     "adaptGoBuilder": "Generate base CV",
     "adaptSelectTitle": "Pick a job offer",
     "adaptSelectDesc": "Choose one of your saved offers and we will generate a CV version that highlights what matters most for that role.",
-    "adaptNextTitle": "Ready to take it further?",
-    "adaptNextDesc": "Tailor your base CV to a specific job offer and highlight what matters most for that role.",
+    "adaptNextTitle": "Tailor your CV to each offer",
+    "adaptNextDesc": "Pick one of your saved offers and generate a version of your CV that highlights what that company is looking for.",
     "adaptNextButton": "Adapt to an offer"
   },
   "cvDocuments": {

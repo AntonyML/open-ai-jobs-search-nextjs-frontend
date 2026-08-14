@@ -109,7 +109,7 @@ export default function CvBuilderPage() {
   if (loading) {
     return (
       <section className="mx-auto max-w-3xl">
-        <PageHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} loading loadingLabel="Loading…" />
+        <PageHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={baseCv ? t('subtitleHasBase') : t('subtitleNoBase')} loading loadingLabel="Loading…" />
         <div className="mt-8 space-y-4">
           <div className="skeleton h-28 w-full rounded-2xl" />
           <div className="skeleton h-40 w-full rounded-2xl" />
@@ -120,7 +120,7 @@ export default function CvBuilderPage() {
 
   return (
     <section className="mx-auto max-w-3xl">
-      <PageHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
+      <PageHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={baseCv ? t('subtitleHasBase') : t('subtitleNoBase')} />
 
       {/* ── Adapt CTA — hero card at the top (locked until the base CV exists) ── */}
       <div className={cn(styles.adaptHero, !baseCv && styles.adaptHeroLocked)}>
