@@ -1,6 +1,6 @@
 'use client'
 
-interface PipelineHeaderProps {
+interface PageHeaderProps {
   eyebrow: string
   title: string
   subtitle?: string
@@ -8,7 +8,7 @@ interface PipelineHeaderProps {
   loadingLabel?: string
 }
 
-export function PipelineHeader({ eyebrow, title, subtitle, loading, loadingLabel }: PipelineHeaderProps) {
+export function PageHeader({ eyebrow, title, subtitle, loading, loadingLabel }: PageHeaderProps) {
   if (loading) {
     return (
       <section className="mx-auto max-w-5xl">

@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 
-/** Espejo de app/[locale]/(app)/pipeline/apply — tarjetas de jobs + generación de CV. */
+/** Espejo de app/[locale]/(app)/apply — tarjetas de jobs + generación de CV. */
 export class ApplyPage {
   readonly heading = this.page.getByRole('heading', {
     name: 'Turn a strong fit into an application',
@@ -17,7 +17,7 @@ export class ApplyPage {
   constructor(private readonly page: Page) {}
 
   async goto() {
-    await this.page.goto('/pipeline/apply')
+    await this.page.goto('/apply')
   }
 
   async generateFirst() {

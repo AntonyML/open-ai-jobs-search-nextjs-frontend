@@ -37,9 +37,9 @@ test.describe('Search', () => {
     await expect(searchPage.completeProfileButton).toBeVisible()
   })
 
-  test('se traduce al español en /es/pipeline/search', async ({ page }) => {
+  test('se traduce al español en /es/search', async ({ page }) => {
     await mockSearchApi(page)
-    await page.goto('/es/pipeline/search')
+    await page.goto('/es/search')
 
     // Header
     await expect(page.locator('section').getByText('03 / BUSCAR')).toBeVisible()

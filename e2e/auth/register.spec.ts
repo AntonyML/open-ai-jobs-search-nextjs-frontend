@@ -21,7 +21,7 @@ test.describe('Register', () => {
 
     // La cuenta nueva debe poder iniciar sesión
     await loginPage.signIn(email, password)
-    await expect(page).toHaveURL(/\/pipeline\/providers/, { timeout: 20_000 })
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 20_000 })
   })
 
   test('se traduce al español en /es/register', async ({ page }) => {

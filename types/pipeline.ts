@@ -65,29 +65,6 @@ export interface JobPosting {
   created_at: string
 }
 
-// ── Pipeline Steps ─────────────────────────────────────────────
-
-export type PipelineStep = 'providers' | 'setup' | 'search' | 'rank' | 'apply' | 'interview' | 'outcome'
-export type ExtraStep = 'expand' | 'upskill'
-
-export interface PipelineStepMeta {
-  key: PipelineStep
-  label: string
-  eyebrow: string
-  href: string
-  order: number
-}
-
-export const PIPELINE_STEPS: PipelineStepMeta[] = [
-  { key: 'providers', label: 'Providers', eyebrow: '01 / CONFIGURE', href: '/admin/providers', order: 0 },
-  { key: 'setup',     label: 'Setup',     eyebrow: '02 / PROFILE',   href: '/pipeline/setup',     order: 1 },
-  { key: 'search',    label: 'Search',    eyebrow: '03 / DISCOVER',  href: '/pipeline/search',    order: 2 },
-  { key: 'rank',      label: 'Rank',      eyebrow: '04 / EVALUATE',  href: '/pipeline/rank',      order: 3 },
-  { key: 'apply',     label: 'Apply',     eyebrow: '05 / APPLY',     href: '/pipeline/apply',     order: 4 },
-  { key: 'interview', label: 'Interview',  eyebrow: '06 / PREP',      href: '/pipeline/interview', order: 5 },
-  { key: 'outcome',   label: 'Outcome',   eyebrow: '07 / TRACK',     href: '/pipeline/outcome',   order: 6 },
-]
-
 // ── Apply ──────────────────────────────────────────────────────
 
 export interface Application {
@@ -210,7 +187,7 @@ export interface FormField {
   optional?: boolean
 }
 
-export interface PipelinePageProps {
+export interface ActionPageProps {
   title: string
   eyebrow: string
   subtitle?: string

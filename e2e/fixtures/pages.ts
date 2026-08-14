@@ -3,10 +3,10 @@ import { LoginPage } from '../pages/auth/LoginPage'
 import { RegisterPage } from '../pages/auth/RegisterPage'
 import { LandingPage } from '../pages/marketing/LandingPage'
 import { AppShell } from '../pages/app/AppShell'
-import { ProvidersPage } from '../pages/app/pipeline/ProvidersPage'
-import { SearchPage } from '../pages/app/pipeline/SearchPage'
-import { RankPage } from '../pages/app/pipeline/RankPage'
-import { ApplyPage } from '../pages/app/pipeline/ApplyPage'
+import { ProvidersPage } from '../pages/app/features/ProvidersPage'
+import { SearchPage } from '../pages/app/features/SearchPage'
+import { RankPage } from '../pages/app/features/RankPage'
+import { ApplyPage } from '../pages/app/features/ApplyPage'
 
 /**
  * Fixtures de Page Objects — evitan `new XPage(page)` en cada spec.

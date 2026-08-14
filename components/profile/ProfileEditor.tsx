@@ -6,25 +6,25 @@ import { apiFetch, ApiError } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { AppleButton } from '@/components/ui/apple-button'
 
-import { BasicInfoSection } from '@/app/[locale]/(app)/setup/components/BasicInfoSection'
+import { BasicInfoSection } from '@/app/[locale]/(app)/candidate/components/BasicInfoSection'
 import {
   ExperienceSection,
   type ExperienceEntry,
-} from '@/app/[locale]/(app)/setup/components/ExperienceSection'
+} from '@/app/[locale]/(app)/candidate/components/ExperienceSection'
 import {
   EducationSection,
   type EducationEntry,
-} from '@/app/[locale]/(app)/setup/components/EducationSection'
+} from '@/app/[locale]/(app)/candidate/components/EducationSection'
 import {
   ProjectsSection,
   type ProjectEntry,
-} from '@/app/[locale]/(app)/setup/components/ProjectsSection'
-import { SkillsSection } from '@/app/[locale]/(app)/setup/components/SkillsSection'
+} from '@/app/[locale]/(app)/candidate/components/ProjectsSection'
+import { SkillsSection } from '@/app/[locale]/(app)/candidate/components/SkillsSection'
 import {
   JobTargetSection,
   DEFAULT_JOB_TARGET,
   type JobTarget,
-} from '@/app/[locale]/(app)/setup/components/JobTargetSection'
+} from '@/app/[locale]/(app)/candidate/components/JobTargetSection'
 
 interface FormState {
   full_name: string

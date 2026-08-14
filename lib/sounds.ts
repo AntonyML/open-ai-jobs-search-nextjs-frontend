@@ -47,12 +47,12 @@ export function initSounds(): () => void {
   }
 }
 
-/** Map of pipeline names to distinct cuelume sound recipes.
+/** Map of action names to distinct cuelume sound recipes.
  *
- * Each pipeline gets its own sonic identity so users can tell
+ * Each action gets its own sonic identity so users can tell
  * which process completed without looking at the screen.
  */
-const PIPELINE_SOUNDS: Record<string, 'sparkle' | 'success' | 'bloom' | 'chime' | 'toggle'> = {
+const ACTION_SOUNDS: Record<string, 'sparkle' | 'success' | 'bloom' | 'chime' | 'toggle'> = {
   search: 'sparkle',    // bright ascending twinkle — discovery
   rank: 'success',      // warm three-note confirmation — evaluation done
   expand: 'bloom',      // warm swelling pad — skills growing
@@ -62,11 +62,11 @@ const PIPELINE_SOUNDS: Record<string, 'sparkle' | 'success' | 'bloom' | 'chime' 
 }
 
 /**
- * Play a pipeline-specific completion sound.
+ * Play an action-specific completion sound.
  *
- * Each pipeline (scrape, rank, expand, upskill, apply, interview)
+ * Each action (search, rank, expand, upskill, apply, interview)
  * has its own distinct sonic identity. Falls back to `'success'`
- * for unknown pipelines.
+ * for unknown actions.
  *
  * Automatically respects the accessibility `reducedMotion` setting.
  */
@@ -75,14 +75,14 @@ function areSoundsEnabled(): boolean {
   return !settings.reducedMotion && settings.soundEnabled
 }
 
-export function playPipelineSound(pipeline: string): void {
+export function playActionSound(action: string): void {
   if (!areSoundsEnabled()) return
-  play(PIPELINE_SOUNDS[pipeline] || 'success')
+  play(ACTION_SOUNDS[action] || 'success')
 }
 
-/** @deprecated Use `playPipelineSound(pipeline)` instead. */
+/** @deprecated Use `playActionSound(action)` instead. */
 export function playCompletionSound(): void {
-  playPipelineSound('rank')
+  playActionSound('rank')
 }
 
 /**

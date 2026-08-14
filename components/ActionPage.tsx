@@ -6,11 +6,11 @@ import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
-import { playPipelineSound, playErrorSound } from '@/lib/sounds'
+import { playActionSound, playErrorSound } from '@/lib/sounds'
 import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
-import { PipelineHeader } from '@/components/ui/pipeline-header'
+import { PageHeader } from '@/components/ui/page-header'
 import { AppleButton } from '@/components/ui/apple-button'
-import { PipelineEmptyState } from '@/components/PipelineEmptyState'
+import { FeatureEmptyState } from '@/components/FeatureEmptyState'
 import { FileText, CheckCircle, Loader2 } from 'lucide-react'
 import {
   Select,
@@ -24,7 +24,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import type { PipelinePageProps } from '@/types/pipeline'
+import type { ActionPageProps } from '@/types/pipeline'
 
 interface ProcessingState {
   applicationId: string
@@ -44,7 +44,7 @@ function EmptyState({ title, description, actionLabel, actionHref, prevStep, pre
 }) {
   if (title) {
     return (
-      <PipelineEmptyState
+      <FeatureEmptyState
         icon={FileText}
         title={title}
         description={description || ''}
@@ -74,7 +74,7 @@ function EmptyState({ title, description, actionLabel, actionHref, prevStep, pre
   )
 }
 
-export default function PipelinePage({
+export default function ActionPage({
   title,
   eyebrow,
   subtitle,
@@ -102,7 +102,7 @@ export default function PipelinePage({
   statusEndpoint,
   continueTooltip,
   continueLabel = 'Continue',
-}: PipelinePageProps) {
+}: ActionPageProps) {
   const locale = useLocale()
   const [form, setForm] = useState<Record<string, string>>({})
   const [items, setItems] = useState<any[]>([])
@@ -133,7 +133,7 @@ export default function PipelinePage({
     const a = getCompletedSteps()
     if (!a.includes(step)) {
       setCompletedSteps([...a, step])
-      showSuccess('Step completed!')
+      showSuccess('Completed!')
     }
   }
 
@@ -155,7 +155,7 @@ export default function PipelinePage({
       if (listEndpoint)
         setItems(normalize(await apiFetch<any>(listEndpoint)))
       const pipeline = endpoint.replace('/api/v1/', '').replace('/', '')
-      playPipelineSound(pipeline)
+      playActionSound(pipeline)
       addNotification({
         pipeline,
         description: `${title} completed`,
@@ -207,7 +207,7 @@ export default function PipelinePage({
                 delete next[itemId]
                 return next
               })
-              playPipelineSound(endpoint.replace('/api/v1/', '').replace('/', ''))
+              playActionSound(endpoint.replace('/api/v1/', '').replace('/', ''))
             }
           } catch {
             clearInterval(poll)
@@ -246,7 +246,7 @@ export default function PipelinePage({
   if (cardMode) {
     return (
       <section className="mx-auto max-w-5xl">
-        <PipelineHeader eyebrow={eyebrow} title={title} subtitle={subtitle} />
+        <PageHeader eyebrow={eyebrow} title={title} subtitle={subtitle} />
 
         <div className="mt-8">
           {items.length > 0 ? (
@@ -361,7 +361,7 @@ export default function PipelinePage({
 
   return (
     <section className="mx-auto max-w-5xl">
-      <PipelineHeader eyebrow={eyebrow} title={title} subtitle={subtitle} />
+      <PageHeader eyebrow={eyebrow} title={title} subtitle={subtitle} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_1fr]">
         <form onSubmit={submit} className="card space-y-5">

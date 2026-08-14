@@ -38,12 +38,12 @@ test.describe('Rank', () => {
     await expect(rankPage.goToSearchLink).toBeVisible()
   })
 
-  test('se traduce al español en /es/pipeline/rank', async ({ page }) => {
+  test('se traduce al español en /es/rank', async ({ page }) => {
     await mockRankApi(page)
     await page.addInitScript((ids) => {
       localStorage.setItem('rank_job_ids', JSON.stringify(ids))
     }, ['job-1', 'job-2'])
-    await page.goto('/es/pipeline/rank')
+    await page.goto('/es/rank')
 
     // Header (el eyebrow "04 / EVALUATE" sigue en inglés, hardcoded en el componente)
     await expect(page.locator('section').getByText('04 / EVALUATE')).toBeVisible()

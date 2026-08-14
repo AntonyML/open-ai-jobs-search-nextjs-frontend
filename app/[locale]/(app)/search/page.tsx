@@ -6,10 +6,10 @@ import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { showSuccess } from "@/lib/toasts";
 import { addNotification } from "@/lib/notifications";
-import { playPipelineSound } from "@/lib/sounds";
+import { playActionSound } from "@/lib/sounds";
 import { getCompletedSteps, setCompletedSteps } from "@/lib/auth";
 import { useBilling } from "@/hooks/useBilling";
-import { PipelineHeader } from "@/components/ui/pipeline-header";
+import { PageHeader } from "@/components/ui/page-header";
 import { AppleButton } from "@/components/ui/apple-button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { UpgradeBanner } from "@/components/ui/upgrade-banner";
@@ -249,7 +249,7 @@ export default function SearchPage() {
   const proceedToRank = () => {
     const ids = [...selected];
     localStorage.setItem("rank_job_ids", JSON.stringify(ids));
-    playPipelineSound("search");
+    playActionSound("search");
     showSuccess(t("notificationFound", { count: selected.size, focus: keywords }));
     addNotification({
       pipeline: "search",
@@ -258,7 +258,7 @@ export default function SearchPage() {
     });
     const steps = getCompletedSteps();
     if (!steps.includes(2)) setCompletedSteps([...steps, 2]);
-    router.push(`/${locale}/pipeline/rank`);
+    router.push(`/${locale}/rank`);
   };
 
   const startAdjust = () => {
@@ -277,7 +277,7 @@ export default function SearchPage() {
   };
 
   const completeProfile = () => {
-    router.push(`/${locale}/pipeline/setup`);
+    router.push(`/${locale}/candidate`);
   };
 
   // Derived data
@@ -292,7 +292,7 @@ export default function SearchPage() {
 
   return (
     <section className="mx-auto max-w-3xl px-6 py-12">
-      <PipelineHeader
+      <PageHeader
         eyebrow={t("eyebrow")}
         title={pageState === "results" ? t("resultsTitle", { count: jobs.length }) : t("briefingTitle")}
       />

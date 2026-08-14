@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Briefcase, Lock, ArrowRight } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { showError, showSuccess } from '@/lib/toasts'
-import { PipelineHeader } from '@/components/ui/pipeline-header'
+import { PageHeader } from '@/components/ui/page-header'
 import { AppleButton } from '@/components/ui/apple-button'
 import { CvPdfPreview } from '@/components/cv-builder/CvPdfPreview'
 import { CvAnalysisPanel } from '@/components/cv-builder/CvAnalysisPanel'
@@ -69,7 +69,7 @@ export default function AdaptCvPage() {
   if (loading) {
     return (
       <section className="mx-auto max-w-3xl">
-        <PipelineHeader eyebrow={t('adaptEyebrow')} title={t('adaptTitle')} subtitle={t('adaptDesc')} loading loadingLabel="Loading…" />
+        <PageHeader eyebrow={t('adaptEyebrow')} title={t('adaptTitle')} subtitle={t('adaptDesc')} loading loadingLabel="Loading…" />
         <div className="mt-8 space-y-4">
           <div className="skeleton h-28 w-full rounded-2xl" />
           <div className="skeleton h-40 w-full rounded-2xl" />
@@ -82,7 +82,7 @@ export default function AdaptCvPage() {
   if (!baseCv) {
     return (
       <section className="mx-auto max-w-3xl">
-        <PipelineHeader eyebrow={t('adaptEyebrow')} title={t('adaptTitle')} subtitle={t('adaptDesc')} />
+        <PageHeader eyebrow={t('adaptEyebrow')} title={t('adaptTitle')} subtitle={t('adaptDesc')} />
         <div className="mt-6 rounded-2xl border border-[#d2d2d7]/60 bg-white p-8 text-center">
           <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-[#f5f5f7]">
             <Lock className="size-6 text-[#b0b0b0]" />
@@ -103,7 +103,7 @@ export default function AdaptCvPage() {
 
   return (
     <section className="mx-auto max-w-3xl">
-      <PipelineHeader eyebrow={t('adaptEyebrow')} title={t('adaptTitle')} subtitle={t('adaptDesc')} />
+      <PageHeader eyebrow={t('adaptEyebrow')} title={t('adaptTitle')} subtitle={t('adaptDesc')} />
 
       {error && (
         <div className="mt-6 flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">

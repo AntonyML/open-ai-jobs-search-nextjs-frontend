@@ -184,37 +184,21 @@
     "ctaDashboard": "Ir al Panel",
     "ctaGetStarted": "Comienza gratis"
   },
-  "pipeline": {
-    "title": "Pipeline de empleo",
-    "steps": {
-      "providers": "Providers",
-      "providersDesc": "Proveedor IA",
-      "setup": "Setup",
-      "setupDesc": "Tu perfil",
-      "search": "Búsqueda",
-      "searchDesc": "Buscar empleos",
-      "rank": "Rank",
-      "rankDesc": "Evaluar ajuste",
-      "apply": "Apply",
-      "applyDesc": "CV + carta",
-      "interview": "Interview",
-      "interviewDesc": "Preparar",
-      "outcome": "Outcome",
-      "outcomeDesc": "Seguimiento"
-    },
-    "extras": {
-      "expand": "Expandir",
-      "expandDesc": "Descubrir skills",
-      "upskill": "Upskill",
-      "upskillDesc": "Brechas de skill",
-      "lockedMessage": "Completa todos los pasos del pipeline principal (Providers → Outcome) para desbloquear esta opción"
-    },
-    "upgradeBanner": "Actualizar a Premium",
-    "reset": "Reiniciar pipeline",
-    "resetEmpty": "No hay pasos completados para reiniciar",
-    "resetConfirm": "¿Estás seguro? Se borrará todo el progreso del pipeline.",
-    "resetYes": "Sí, reiniciar",
-    "resetNo": "Cancelar"
+  "features": {
+    "providers": "Providers",
+    "providersDesc": "Proveedor IA",
+    "setup": "Setup",
+    "setupDesc": "Tu perfil",
+    "search": "Búsqueda",
+    "searchDesc": "Buscar empleos",
+    "rank": "Rank",
+    "rankDesc": "Evaluar ajuste",
+    "apply": "Apply",
+    "applyDesc": "CV + carta",
+    "interview": "Interview",
+    "interviewDesc": "Preparar",
+    "outcome": "Outcome",
+    "outcomeDesc": "Seguimiento"
   },
   "providers": {
     "title": "Proveedor de IA",
@@ -242,20 +226,10 @@
     "hired": "Contratado",
     "rejected": "Rechazado",
     "avgScore": "Puntaje prom.",
-    "scrapeRuns": "Búsquedas realizadas",
-    "pipelineProgress": "Progreso del pipeline",
-    "stepsCompleted": "{done} de {total} pasos completados",
     "conversionFunnel": "Embudo de conversión",
     "fromScrapedToHired": "Desde empleos encontrados hasta contrataciones",
     "jobs": "empleos",
-    "nextStep": "Siguiente paso",
-    "completed": "Completado",
-    "pending": "Pendiente",
-    "pipelineComplete": "Pipeline completo",
-    "pipelineCompleteDesc": "Los 7 pasos terminados — ¡excelente trabajo!",
-    "conversionFunnelTag": "De la búsqueda a la oferta",
-    "emptyTitle": "Configura tu proveedor de IA",
-    "emptyDesc": "Conecta un proveedor de IA como OpenAI, Anthropic u Ollama para potenciar tu pipeline de búsqueda de empleo. Una vez configurado, puedes comenzar a encontrar y rankear empleos."
+    "conversionFunnelTag": "De la búsqueda a la oferta"
   },
   "setup": {
     "title": "Construye tu perfil de candidato",

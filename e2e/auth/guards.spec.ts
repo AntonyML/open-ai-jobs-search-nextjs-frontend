@@ -9,7 +9,7 @@ test.describe('Guards de rutas', () => {
   })
 
   test('no permite acceder al dashboard sin sesión', async ({ page }) => {
-    await page.goto('/pipeline/rank')
+    await page.goto('/rank')
     await expect(page).toHaveURL(/\/login/, { timeout: 15_000 })
   })
 })

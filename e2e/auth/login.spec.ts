@@ -6,7 +6,7 @@ import { E2E_EMAIL, E2E_PASSWORD } from '../config'
  * Estos specs NO usan storageState: prueban el formulario desde cero.
  */
 test.describe('Login', () => {
-  test('inicia sesión con credenciales válidas y llega al pipeline', async ({
+  test('inicia sesión con credenciales válidas y llega al dashboard', async ({
     page,
     loginPage,
   }) => {

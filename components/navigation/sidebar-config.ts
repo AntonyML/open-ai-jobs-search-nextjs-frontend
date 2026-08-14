@@ -84,12 +84,12 @@ export const NAV_SECTIONS: NavSection[] = [
     labelKey: 'jobSearch',
     separatorBefore: true,
     items: [
-      { labelKey: 'offers', descKey: 'offersDesc', href: '/scrape', icon: Compass, requiredTier: 'max' },
+      { labelKey: 'offers', descKey: 'offersDesc', href: '/search', icon: Compass, requiredTier: 'max' },
       { labelKey: 'rankings', descKey: 'rankingsDesc', href: '/rank', icon: BarChart3, requiredTier: 'max' },
       { labelKey: 'applications', descKey: 'applicationsDesc', href: '/apply', icon: Send, requiredTier: 'max' },
       { labelKey: 'interviews', descKey: 'interviewsDesc', href: '/interview', icon: Mic, requiredTier: 'max' },
-      { labelKey: 'expand', descKey: 'expandDesc', href: '/pipeline/expand', icon: Sparkles, requiredTier: 'max' },
-      { labelKey: 'upskill', descKey: 'upskillDesc', href: '/pipeline/upskill', icon: GraduationCap, requiredTier: 'max' },
+      { labelKey: 'expand', descKey: 'expandDesc', href: '/expand', icon: Sparkles, requiredTier: 'max' },
+      { labelKey: 'upskill', descKey: 'upskillDesc', href: '/upskill', icon: GraduationCap, requiredTier: 'max' },
     ],
   },
   {

@@ -5,9 +5,9 @@ import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
-import { playPipelineSound, playErrorSound } from '@/lib/sounds'
+import { playActionSound, playErrorSound } from '@/lib/sounds'
 import { useBilling } from '@/hooks/useBilling'
-import { PipelineHeader } from '@/components/ui/pipeline-header'
+import { PageHeader } from '@/components/ui/page-header'
 import { AppleButton } from '@/components/ui/apple-button'
 import { UpgradeBanner } from '@/components/ui/upgrade-banner'
 import UpgradeModal from '@/components/UpgradeModal'
@@ -243,7 +243,7 @@ export default function UpskillPage() {
           const h = await apiFetch<UpskillSummary[]>('/api/v1/upskill/')
           setHistory(Array.isArray(h) ? h : [])
           if (result.status === 'completed') {
-            playPipelineSound('upskill')
+            playActionSound('upskill')
             showSuccess(
               `Upskill complete — ${result.gap_heatmap.length} gaps identified, ${result.learning_plan.length} learning items`
             )
@@ -293,7 +293,7 @@ export default function UpskillPage() {
 
   return (
     <section className="mx-auto max-w-5xl">
-      <PipelineHeader eyebrow="EXTRAS" title={t('title')} subtitle={t('subtitle')} />
+      <PageHeader eyebrow="EXTRAS" title={t('title')} subtitle={t('subtitle')} />
 
       {!premium && (
         <UpgradeBanner

@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 
-/** Espejo de app/[locale]/(app)/pipeline/rank — formulario + resultados del ranking. */
+/** Espejo de app/[locale]/(app)/rank — formulario + resultados del ranking. */
 export class RankPage {
   readonly heading = this.page.getByRole('heading', {
     name: 'Prioritize the best fits',
@@ -25,7 +25,7 @@ export class RankPage {
   constructor(private readonly page: Page) {}
 
   async goto() {
-    await this.page.goto('/pipeline/rank')
+    await this.page.goto('/rank')
   }
 
   /** Inyecta rank_job_ids antes de cargar la página (como haría el paso Search). */

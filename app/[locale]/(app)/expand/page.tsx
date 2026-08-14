@@ -5,9 +5,9 @@ import { useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { addNotification } from '@/lib/notifications'
-import { playPipelineSound, playErrorSound } from '@/lib/sounds'
+import { playActionSound, playErrorSound } from '@/lib/sounds'
 import { useBilling } from '@/hooks/useBilling'
-import { PipelineHeader } from '@/components/ui/pipeline-header'
+import { PageHeader } from '@/components/ui/page-header'
 import { AppleButton } from '@/components/ui/apple-button'
 import { UpgradeBanner } from '@/components/ui/upgrade-banner'
 import UpgradeModal from '@/components/UpgradeModal'
@@ -173,7 +173,7 @@ export default function ExpandPage() {
           const h = await apiFetch<any>('/api/v1/expand/')
           setHistory(Array.isArray(h) ? h : [])
           if (exp.status === 'completed') {
-            playPipelineSound('expand')
+            playActionSound('expand')
             showSuccess(`Expansion complete — ${exp.proposed_additions.length} skills discovered`)
             addNotification({
               pipeline: 'expand',
@@ -289,7 +289,7 @@ export default function ExpandPage() {
 
   return (
     <section className="mx-auto max-w-5xl">
-      <PipelineHeader eyebrow="EXTRAS" title={t('title')} subtitle={t('subtitle')} />
+      <PageHeader eyebrow="EXTRAS" title={t('title')} subtitle={t('subtitle')} />
 
       {!premium && (
         <UpgradeBanner

@@ -12,29 +12,27 @@ interface PrevStepInfo {
   action: string
 }
 
-interface PipelineEmptyStateProps {
+interface FeatureEmptyStateProps {
   icon: LucideIcon
   title: string
   description: string
   actionLabel?: string
   actionHref?: string
-  steps?: { key: string; label: string; done: boolean }[]
   /** When the required previous step isn't done, show this alternative */
   prevStep?: PrevStepInfo
   /** Whether the required previous step is completed */
   prevStepDone?: boolean
 }
 
-export function PipelineEmptyState({
+export function FeatureEmptyState({
   icon: Icon,
   title,
   description,
   actionLabel,
   actionHref,
-  steps,
   prevStep,
   prevStepDone,
-}: PipelineEmptyStateProps) {
+}: FeatureEmptyStateProps) {
   const showPrevStep = prevStep && !prevStepDone
 
   return (
@@ -94,29 +92,6 @@ export function PipelineEmptyState({
             </Link>
           )}
         </>
-      )}
-
-      {steps && steps.length > 0 && (
-        <div className="mt-7 pt-5 border-t border-[#e2e2e5]">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-[#858585] mb-3">
-            {prevStep ? 'Pipeline' : 'Pipeline'} progress
-          </p>
-          <div className="flex flex-wrap justify-center gap-1.5">
-            {steps.map((step) => (
-              <span
-                key={step.key}
-                className={`rounded-full border px-2.5 py-1 text-[10px] font-medium transition-colors ${
-                  step.done
-                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                    : 'border-[#e2e2e5] bg-[#f5f5f7] text-[#707070]'
-                }`}
-              >
-                {step.done && <span className="mr-0.5">✓</span>}
-                {step.label}
-              </span>
-            ))}
-          </div>
-        </div>
       )}
     </div>
   )

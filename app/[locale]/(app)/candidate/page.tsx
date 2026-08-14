@@ -6,29 +6,29 @@ import { useTranslations } from 'next-intl'
 import { apiFetch, ApiError } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toasts'
 import { getCompletedSteps, setCompletedSteps } from '@/lib/auth'
-import { PipelineHeader } from '@/components/ui/pipeline-header'
+import { PageHeader } from '@/components/ui/page-header'
 import { AppleButton } from '@/components/ui/apple-button'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 
-import { BasicInfoSection } from '@/app/[locale]/(app)/setup/components/BasicInfoSection'
+import { BasicInfoSection } from '@/app/[locale]/(app)/candidate/components/BasicInfoSection'
 import {
   ExperienceSection,
   type ExperienceEntry,
-} from '@/app/[locale]/(app)/setup/components/ExperienceSection'
+} from '@/app/[locale]/(app)/candidate/components/ExperienceSection'
 import {
   EducationSection,
   type EducationEntry,
-} from '@/app/[locale]/(app)/setup/components/EducationSection'
+} from '@/app/[locale]/(app)/candidate/components/EducationSection'
 import {
   ProjectsSection,
   type ProjectEntry,
-} from '@/app/[locale]/(app)/setup/components/ProjectsSection'
-import { SkillsSection } from '@/app/[locale]/(app)/setup/components/SkillsSection'
+} from '@/app/[locale]/(app)/candidate/components/ProjectsSection'
+import { SkillsSection } from '@/app/[locale]/(app)/candidate/components/SkillsSection'
 import {
   JobTargetSection,
   DEFAULT_JOB_TARGET,
   type JobTarget,
-} from '@/app/[locale]/(app)/setup/components/JobTargetSection'
+} from '@/app/[locale]/(app)/candidate/components/JobTargetSection'
 
 interface FormState {
   full_name: string
@@ -356,7 +356,7 @@ export default function Setup() {
 
   return (
     <section className="mx-auto max-w-3xl">
-      <PipelineHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
+      <PageHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
 
       <a
         href={`/${locale}/admin/providers`}
@@ -449,7 +449,7 @@ export default function Setup() {
               {saved && hasRequiredFields() && (
                 <Tooltip>
                   <TooltipTrigger render={
-                    <AppleButton variant="secondary" size="sm" onClick={() => router.push(`/${locale}/pipeline/search`)}>
+                    <AppleButton variant="secondary" size="sm" onClick={() => router.push(`/${locale}/search`)}>
                       {t('continueToSearch')} →
                     </AppleButton>
                   } />

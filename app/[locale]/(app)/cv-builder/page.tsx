@@ -7,7 +7,7 @@ import { User, FileText, Check, Lock, ArrowRight } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { showError, showSuccess } from '@/lib/toasts'
 import { cn } from '@/lib/utils'
-import { PipelineHeader } from '@/components/ui/pipeline-header'
+import { PageHeader } from '@/components/ui/page-header'
 import { AppleButton } from '@/components/ui/apple-button'
 import { CvPdfPreview } from '@/components/cv-builder/CvPdfPreview'
 import type { CVResponse } from '@/lib/cv'
@@ -34,7 +34,7 @@ function StepIcon({ state }: { state: 'done' | 'active' | 'locked' }) {
   return <span className="size-4" />
 }
 
-function PipelineStep({
+function BuilderStep({
   icon: Icon,
   label,
   sublabel,
@@ -124,7 +124,7 @@ export default function CvBuilderPage() {
   if (loading) {
     return (
       <section className="mx-auto max-w-3xl">
-        <PipelineHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} loading loadingLabel="Loading…" />
+        <PageHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} loading loadingLabel="Loading…" />
         <div className="mt-8 space-y-4">
           <div className="skeleton h-28 w-full rounded-2xl" />
           <div className="skeleton h-40 w-full rounded-2xl" />
@@ -135,19 +135,19 @@ export default function CvBuilderPage() {
 
   return (
     <section className="mx-auto max-w-3xl">
-      <PipelineHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
+      <PageHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
 
       {/* ── Progress: Perfil → CV base ───────────────────────── */}
       <div className="mt-8 rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
         <div className="flex items-center justify-between gap-2">
-          <PipelineStep
+          <BuilderStep
             icon={User}
             label={t('statePerfil')}
             sublabel={complete ? t('stateProfileDone') : t('stateProfilePending')}
             state={complete ? 'done' : 'active'}
           />
           <ArrowRight className="size-4 shrink-0 text-[#c7c7cc]" />
-          <PipelineStep
+          <BuilderStep
             icon={FileText}
             label={t('stateBase')}
             sublabel={baseCv ? t('stateBaseDone') : t('stateBasePending')}

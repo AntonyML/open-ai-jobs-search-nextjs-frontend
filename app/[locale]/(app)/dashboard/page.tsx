@@ -5,39 +5,20 @@ import { useRouter } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
 import { isLoggedIn } from '@/lib/auth'
 import { apiFetch } from '@/lib/api'
-import { PIPELINE_STEPS } from '@/types/pipeline'
-import type { LucideIcon } from 'lucide-react'
 import {
-  Search,
-  User,
   BarChart3,
   FileText,
   TrendingUp,
-  Sparkles,
-  Briefcase,
   Globe,
   Mic,
   CheckCircle2,
-  ArrowRight,
-  PartyPopper,
   CalendarDays,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { CountUp } from '@/components/dashboard/CountUp'
-import { ProgressRing } from '@/components/dashboard/ProgressRing'
 import { FunnelLineChart } from '@/components/dashboard/FunnelLineChart'
 
 /* ── Static config ──────────────────────────────────────────────── */
-
-const STEP_ICONS: Record<string, LucideIcon> = {
-  providers: Sparkles,
-  setup: User,
-  search: Search,
-  rank: BarChart3,
-  apply: FileText,
-  interview: Mic,
-  outcome: Briefcase,
-}
 
 const STAGE_LABELS: Record<string, string> = {
   Scraped: 'scraped',
@@ -60,12 +41,6 @@ interface DashboardStats {
   rejected: number
 }
 
-interface PipelineStepStatus {
-  key: string
-  label: string
-  done: boolean
-}
-
 interface FunnelItem {
   stage: string
   count: number
@@ -75,7 +50,6 @@ interface FunnelItem {
 
 export default function Dashboard() {
   const t = useTranslations('dashboard')
-  const tp = useTranslations('pipeline.steps')
   const tprofile = useTranslations('profile')
   const locale = useLocale()
   const router = useRouter()
@@ -84,7 +58,6 @@ export default function Dashboard() {
     jobs_scraped: 0, jobs_ranked: 0, applications: 0, interviews: 0,
     scrape_runs: 0, avg_rank_score: null, hired: 0, rejected: 0,
   })
-  const [pipeline, setPipeline] = useState<PipelineStepStatus[]>([])
   const [funnelData, setFunnelData] = useState<FunnelItem[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -92,33 +65,14 @@ export default function Dashboard() {
     if (!isLoggedIn()) { router.replace('/login'); return }
     Promise.all([
       apiFetch<DashboardStats>('/api/v1/dashboard/stats').catch(() => null),
-      apiFetch<{ steps: PipelineStepStatus[] }>('/api/v1/dashboard/pipeline').catch(() => null),
       apiFetch<{ funnel: FunnelItem[] }>('/api/v1/analytics/funnel').catch(() => null),
-    ]).then(([s, p, f]) => {
+    ]).then(([s, f]) => {
       if (s) setStats(s)
-      if (p?.steps) setPipeline(p.steps)
       if (f?.funnel) setFunnelData(f.funnel)
     }).finally(() => setLoading(false))
   }, [router])
 
   /* ── Derived state ─────────────────────────────────────────── */
-
-  const totalSteps = PIPELINE_STEPS.length
-  const doneKeys = new Set(
-    pipeline.filter((s) => s.done).map((s) => s.key)
-  )
-  const doneStepsCount = doneKeys.size
-  const pipelineProgress = totalSteps
-    ? Math.round((doneStepsCount / totalSteps) * 100)
-    : 0
-  const hasProgress = doneStepsCount > 0
-
-  const steps = PIPELINE_STEPS.map((step, i) => {
-    const done = doneKeys.has(step.key)
-    const prevDone = i === 0 ? true : doneKeys.has(PIPELINE_STEPS[i - 1].key)
-    return { ...step, done, isNext: !done && prevDone }
-  })
-  const nextStep = steps.find((s) => s.isNext)
 
   const statCards = [
     { label: t('jobsScraped'), value: stats.jobs_scraped, icon: Globe, color: '#2997ff' },
@@ -157,201 +111,6 @@ export default function Dashboard() {
           {dateLabel}
         </span>
       </div>
-
-      {/* Hero — pipeline progress */}
-      <section className="relative overflow-hidden rounded-xl border border-[#d2d2d7]/60 bg-white p-6 md:p-8">
-        {/* Ambient glow */}
-        <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-[#2997ff]/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -left-24 size-72 rounded-full bg-emerald-400/10 blur-3xl" />
-
-        {loading ? (
-          <div className="relative flex flex-col items-center gap-8 md:flex-row">
-            <div className="skeleton size-[196px] shrink-0 rounded-full" />
-            <div className="w-full flex-1 space-y-4">
-              <div className="skeleton h-16 w-full max-w-[420px] rounded-xl" />
-              <div className="skeleton h-28 w-full rounded-xl" />
-            </div>
-          </div>
-        ) : (
-          <div className="relative flex flex-col items-center gap-8 md:flex-row md:items-center md:gap-12">
-            {/* Progress ring */}
-            <ProgressRing value={pipelineProgress} size={196} strokeWidth={14}>
-              <div className="flex items-start">
-                <CountUp
-                  value={pipelineProgress}
-                  className="text-[46px] font-semibold leading-none tracking-tight text-[#1d1d1f] tabular-nums"
-                />
-                <span className="mt-0.5 text-xl font-medium text-[#0071e3]">%</span>
-              </div>
-              <p className="mt-2 max-w-[140px] text-center text-[11px] leading-snug text-[#707070]">
-                {t('stepsCompleted', { done: doneStepsCount, total: totalSteps })}
-              </p>
-            </ProgressRing>
-
-            {/* Journey */}
-            <div className="w-full min-w-0 flex-1">
-              {/* Next step banner */}
-              <div
-                className={cn(
-                  'mb-6 flex items-center gap-3 rounded-xl p-4',
-                  nextStep
-                    ? 'bg-[#f4f8fb] ring-1 ring-[#2997ff]/25'
-                    : 'bg-emerald-50/70 ring-1 ring-emerald-200/70'
-                )}
-              >
-                <div
-                  className={cn(
-                    'flex size-9 shrink-0 items-center justify-center rounded-full text-white',
-                    nextStep ? 'bg-[#0071e3]' : 'bg-emerald-500'
-                  )}
-                >
-                  {nextStep ? (
-                    <ArrowRight className="size-4" />
-                  ) : (
-                    <PartyPopper className="size-4" />
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <p
-                    className={cn(
-                      'text-[10px] font-semibold uppercase tracking-[0.16em]',
-                      nextStep ? 'text-[#0071e3]' : 'text-emerald-600'
-                    )}
-                  >
-                    {nextStep ? t('nextStep') : t('pipelineComplete')}
-                  </p>
-                  <p className="truncate text-[15px] font-medium text-[#1d1d1f]">
-                    {nextStep
-                      ? (tp(nextStep.key as any) as string)
-                      : t('pipelineCompleteDesc')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Stepper — desktop (with progress track) */}
-              <div className="hidden lg:block">
-                <div className="relative">
-                  <div className="absolute left-0 right-0 top-[18px] h-[3px] rounded-full bg-[#e8e8ed]" />
-                  <div
-                    className="absolute left-0 top-[18px] h-[3px] rounded-full bg-gradient-to-r from-[#2997ff] to-[#0071e3] transition-[width] duration-1000 ease-out"
-                    style={{ width: `${pipelineProgress}%` }}
-                  />
-                  <div className="relative grid grid-cols-7">
-                    {steps.map((step, i) => {
-                      const Icon = STEP_ICONS[step.key]
-                      return (
-                        <div
-                          key={step.key}
-                          className="flex animate-fade-in-up flex-col items-center text-center"
-                          style={{ animationDelay: `${i * 70}ms`, animationFillMode: 'both' }}
-                        >
-                          <div
-                            className={cn(
-                              'flex size-9 items-center justify-center rounded-full transition-all',
-                              step.done && 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200',
-                              step.isNext &&
-                                'bg-white text-[#0071e3] shadow-[0_0_0_4px_rgba(0,113,227,0.1)] ring-2 ring-[#0071e3]',
-                              !step.done && !step.isNext &&
-                                'bg-[#f5f5f7] text-[#b0b0b0] ring-1 ring-[#e8e8ed]'
-                            )}
-                          >
-                            {step.done ? (
-                              <CheckCircle2 className="size-4" />
-                            ) : (
-                              <Icon className="size-4" />
-                            )}
-                          </div>
-                          <p
-                            className={cn(
-                              'mt-2 text-[11px] font-medium leading-tight',
-                              step.done
-                                ? 'text-emerald-700'
-                                : step.isNext
-                                  ? 'text-[#0071e3]'
-                                  : 'text-[#707070]'
-                            )}
-                          >
-                            {tp(step.key as any) as string}
-                          </p>
-                          <span
-                            className={cn(
-                              'mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider',
-                              step.done && 'bg-emerald-50 text-emerald-600',
-                              step.isNext && 'animate-pulse bg-[#0071e3] text-white',
-                              !step.done && !step.isNext && 'bg-[#f0f0f2] text-[#b0b0b0]'
-                            )}
-                          >
-                            {step.done ? t('completed') : step.isNext ? t('nextStep') : t('pending')}
-                          </span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Stepper — mobile / tablet cards */}
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:hidden">
-                {steps.map((step) => {
-                  const Icon = STEP_ICONS[step.key]
-                  return (
-                    <div
-                      key={step.key}
-                      className={cn(
-                        'rounded-xl border p-3 text-center',
-                        step.done && 'border-emerald-200/70 bg-emerald-50/40',
-                        step.isNext && 'border-[#2997ff]/40 bg-[#f4f8fb] ring-1 ring-[#2997ff]/20',
-                        !step.done && !step.isNext && 'border-[#d2d2d7]/60 bg-white'
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          'mx-auto flex size-8 items-center justify-center rounded-full',
-                          step.done && 'bg-emerald-100 text-emerald-600',
-                          step.isNext && 'bg-[#0071e3]/10 text-[#0071e3]',
-                          !step.done && !step.isNext && 'bg-[#f5f5f7] text-[#b0b0b0]'
-                        )}
-                      >
-                        {step.done ? <CheckCircle2 className="size-4" /> : <Icon className="size-4" />}
-                      </div>
-                      <p
-                        className={cn(
-                          'mt-1.5 text-[11px] font-medium',
-                          step.done
-                            ? 'text-emerald-700'
-                            : step.isNext
-                              ? 'text-[#0071e3]'
-                              : 'text-[#707070]'
-                        )}
-                      >
-                        {tp(step.key as any) as string}
-                      </p>
-                      {step.isNext && (
-                        <span className="mt-1 inline-block rounded-full bg-[#0071e3] px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wider text-white">
-                          {t('nextStep')}
-                        </span>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* Info banner — no progress yet (no navigation, just guidance) */}
-      {!hasProgress && !loading && (
-        <div className="flex items-start gap-3.5 rounded-xl border border-[#d2d2d7]/60 bg-[#f4f8fb] p-5">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#0071e3]/10 text-[#0071e3]">
-            <Sparkles className="size-4" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-[#1d1d1f]">{t('emptyTitle')}</p>
-            <p className="mt-0.5 text-sm text-[#707070]">{t('emptyDesc')}</p>
-          </div>
-        </div>
-      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">

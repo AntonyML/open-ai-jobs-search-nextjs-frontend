@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 
-/** Espejo de app/[locale]/(app)/pipeline/search — estados briefing/incomplete/results. */
+/** Espejo de app/[locale]/(app)/search — estados briefing/incomplete/results. */
 export class SearchPage {
   readonly briefingHeading = this.page.getByRole('heading', {
     name: 'Your search is ready',
@@ -26,7 +26,7 @@ export class SearchPage {
   constructor(private readonly page: Page) {}
 
   async goto() {
-    await this.page.goto('/pipeline/search')
+    await this.page.goto('/search')
   }
 
   async search() {

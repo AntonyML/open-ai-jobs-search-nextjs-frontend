@@ -21,7 +21,7 @@ import {
  * interceptamos las respuestas HTTP en el navegador de prueba.
  */
 
-/** Endpoints compartidos por las páginas autenticadas del pipeline. */
+/** Endpoints compartidos por las páginas autenticadas de la app. */
 async function mockCommon(page: Page) {
   await page.route('**/api/v1/users/usage', (route) =>
     route.fulfill({ json: usageFree }),

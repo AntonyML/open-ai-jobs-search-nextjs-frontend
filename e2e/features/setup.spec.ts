@@ -9,8 +9,8 @@ test.use({ storageState: AUTH_STATE_PATH })
  * del usuario E2E en la BD.
  */
 test.describe('Setup', () => {
-  test('se traduce al español en /es/pipeline/setup', async ({ page }) => {
-    await page.goto('/es/pipeline/setup')
+  test('se traduce al español en /es/candidate', async ({ page }) => {
+    await page.goto('/es/candidate')
 
     // Header
     await expect(page.locator('section').getByText('02 / PERFIL')).toBeVisible()

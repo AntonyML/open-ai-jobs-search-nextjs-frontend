@@ -184,37 +184,21 @@
     "ctaDashboard": "Go to Dashboard",
     "ctaGetStarted": "Get started free"
   },
-  "pipeline": {
-    "title": "Job pipeline",
-    "steps": {
-      "providers": "Providers",
-      "providersDesc": "AI provider",
-      "setup": "Setup",
-      "setupDesc": "Your profile",
-      "search": "Search",
-      "searchDesc": "Find jobs",
-      "rank": "Rank",
-      "rankDesc": "Evaluate fit",
-      "apply": "Apply",
-      "applyDesc": "CV + letter",
-      "interview": "Interview",
-      "interviewDesc": "Prepare",
-      "outcome": "Outcome",
-      "outcomeDesc": "Track progress"
-    },
-    "extras": {
-      "expand": "Expand",
-      "expandDesc": "Discover skills",
-      "upskill": "Upskill",
-      "upskillDesc": "Skill gaps",
-      "lockedMessage": "Complete all main pipeline steps (Providers → Outcome) to unlock this option"
-    },
-    "upgradeBanner": "Upgrade to Premium",
-    "reset": "Reset pipeline",
-    "resetEmpty": "No completed steps to reset",
-    "resetConfirm": "Are you sure? All pipeline progress will be deleted.",
-    "resetYes": "Yes, reset",
-    "resetNo": "Cancel"
+  "features": {
+    "providers": "Providers",
+    "providersDesc": "AI provider",
+    "setup": "Setup",
+    "setupDesc": "Your profile",
+    "search": "Search",
+    "searchDesc": "Find jobs",
+    "rank": "Rank",
+    "rankDesc": "Evaluate fit",
+    "apply": "Apply",
+    "applyDesc": "CV + letter",
+    "interview": "Interview",
+    "interviewDesc": "Prepare",
+    "outcome": "Outcome",
+    "outcomeDesc": "Track progress"
   },
   "providers": {
     "title": "AI Provider",
@@ -242,20 +226,10 @@
     "hired": "Hired",
     "rejected": "Rejected",
     "avgScore": "Avg score",
-    "scrapeRuns": "Search runs",
-    "pipelineProgress": "Pipeline progress",
-    "stepsCompleted": "{done} of {total} steps completed",
     "conversionFunnel": "Conversion funnel",
     "fromScrapedToHired": "From found jobs to hires",
     "jobs": "jobs",
-    "nextStep": "Next step",
-    "completed": "Completed",
-    "pending": "Pending",
-    "pipelineComplete": "Pipeline complete",
-    "pipelineCompleteDesc": "All steps finished — excellent work!",
-    "conversionFunnelTag": "From search to offer",
-    "emptyTitle": "Configure your AI provider",
-    "emptyDesc": "Connect an AI provider like OpenAI, Anthropic, or Ollama to power your job search pipeline. Once configured, you can start finding and ranking jobs."
+    "conversionFunnelTag": "From search to offer"
   },
   "setup": {
     "title": "Build your candidate profile",

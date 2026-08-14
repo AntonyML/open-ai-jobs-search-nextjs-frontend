@@ -10,9 +10,9 @@ export class AppShell {
 
   constructor(private readonly page: Page) {}
 
-  /** Entra al primer paso del pipeline. */
+  /** Entra a la edición del perfil de candidato. */
   async gotoPipeline() {
-    await this.page.goto('/pipeline/setup')
+    await this.page.goto('/candidate')
   }
 
   async signOut() {
