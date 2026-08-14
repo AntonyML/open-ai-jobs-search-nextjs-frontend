@@ -7,6 +7,19 @@ import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import type { CVResponse } from '@/lib/cv'
 import { cvPdfUrl, fetchCvPdfObjectUrl } from '@/lib/cv'
 
+/** Build a human-readable download filename (front-only; the backend keeps its UUID internally). */
+function safeSegment(value: string | null | undefined): string {
+  return (value || '').trim().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '_').slice(0, 60)
+}
+
+function downloadName(cv: CVResponse): string {
+  if (cv.cv_type === 'base') return 'CV_Base.pdf'
+  const title = safeSegment(cv.job?.title)
+  const company = safeSegment(cv.job?.company)
+  const parts = [title, company].filter(Boolean)
+  return `CV_${parts.length ? parts.join('_') : 'Adaptado'}.pdf`
+}
+
 /**
  * PDF preview with optional full-screen viewer.
  *
@@ -64,7 +77,7 @@ export function CvPdfPreview({ cv, expandable = true }: { cv: CVResponse; expand
             )}
             <a
               href={objectUrl}
-              download={`cv_${cv.cv_id}.pdf`}
+              download={downloadName(cv)}
               className="inline-flex items-center gap-2 rounded-full bg-[#0071e3] px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-[#0068d2]"
             >
               <Download className="size-3.5" />
@@ -108,7 +121,7 @@ export function CvPdfPreview({ cv, expandable = true }: { cv: CVResponse; expand
                 <div className="flex shrink-0 items-center gap-2">
                   <a
                     href={objectUrl}
-                    download={`cv_${cv.cv_id}.pdf`}
+                    download={downloadName(cv)}
                     className="inline-flex items-center gap-2 rounded-full bg-[#0071e3] px-3.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#0068d2]"
                   >
                     <Download className="size-3.5" />
@@ -116,7 +129,7 @@ export function CvPdfPreview({ cv, expandable = true }: { cv: CVResponse; expand
                   </a>
                   <BaseDialog.Close
                     aria-label={t('viewFullClose')}
-                    className="flex size-8 items-center justify-center rounded-full text-[#707070] transition-colors hover:bg-[#f5f5f7]"
+                    className="flex size-9 items-center justify-center rounded-full border border-[#d2d2d7] bg-white text-[#1d1d1f] shadow-sm transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500"
                   >
                     <X className="size-4" />
                   </BaseDialog.Close>
