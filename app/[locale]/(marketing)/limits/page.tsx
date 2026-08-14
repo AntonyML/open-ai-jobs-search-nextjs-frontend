@@ -81,6 +81,19 @@ function formatPrice(usd: number): string {
   return currencyFmt.format(usd)
 }
 
+const FEATURE_LABELS: Record<string, (t: (key: string, params?: Record<string, unknown>) => string) => string> = {
+  cv_base: (t) => t('featureCvBase'),
+  cv_adapted: (t) => t('featureCvAdapted'),
+  pipeline: (t) => t('featurePipeline'),
+  expand: (t) => t('featureExpand'),
+  upskill: (t) => t('featureUpskill'),
+}
+
+function formatFeatures(features: string[], t: (key: string, params?: Record<string, unknown>) => string): string {
+  if (features.length === 0) return '—'
+  return features.map((f) => FEATURE_LABELS[f]?.(t) ?? f).join(', ')
+}
+
 export default async function LimitsPage() {
   const t = await getTranslations('limits')
   const catalog = await getCatalog()
@@ -141,7 +154,7 @@ export default async function LimitsPage() {
                     <td>{t('freePrice')}</td>
                     <td>{free.credits_per_period == 0 ? t('noCredits') : t('creditsPerPeriod', { count: free.credits_per_period, cadence: t(free.refill_cadence === 'weekly' ? 'cadenceWeekly' : 'cadencePeriod') })}</td>
                     <td>{t('freeQuotas')}</td>
-                    <td>{free.features.join(', ')}</td>
+                    <td>{formatFeatures(free.features, t)}</td>
                   </tr>
                 )}
                 {pro && (
@@ -150,7 +163,7 @@ export default async function LimitsPage() {
                     <td>{t('priceMonthly', { amount: formatPrice(pro.price_monthly_usd) })}</td>
                     <td>{pro.credits_per_period == 0 ? t('noCredits') : t('creditsPerPeriod', { count: pro.credits_per_period, cadence: t('cadencePeriod') })}</td>
                     <td>{t('proQuotas')}</td>
-                    <td>{pro.features.join(', ')}</td>
+                    <td>{formatFeatures(pro.features, t)}</td>
                   </tr>
                 )}
                 {max && (
@@ -159,7 +172,7 @@ export default async function LimitsPage() {
                     <td>{t('priceMonthly', { amount: formatPrice(max.price_monthly_usd) })}</td>
                     <td>{max.credits_per_period == 0 ? t('noCredits') : t('creditsPerPeriod', { count: max.credits_per_period, cadence: t('cadencePeriod') })}</td>
                     <td>{t('maxQuotas', { daily: max.daily_quota, weekly: max.weekly_quota })}</td>
-                    <td>{max.features.join(', ')}</td>
+                    <td>{formatFeatures(max.features, t)}</td>
                   </tr>
                 )}
               </tbody>
