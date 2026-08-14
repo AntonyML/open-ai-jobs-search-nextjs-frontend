@@ -83,7 +83,7 @@ export default function CvBuilderPage() {
     loadAll().finally(() => setLoading(false))
   }, [loadAll])
 
-  const baseCv = cvs.find((c) => c.cv_type === 'base') || null
+  const baseCv = cvs.find((c) => c.cv_type === 'base' && c.base_status === 'active') || null
   const complete = isProfileComplete(profile)
 
   async function generateBase() {

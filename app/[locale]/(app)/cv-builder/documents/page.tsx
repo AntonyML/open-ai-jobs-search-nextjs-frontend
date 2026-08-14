@@ -9,8 +9,10 @@ import {
   Check,
   ChevronDown,
   FileText,
+  History,
   RefreshCw,
   Trash2,
+  Undo2,
 } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { showError, showSuccess } from '@/lib/toasts'
@@ -25,7 +27,9 @@ export default function CvDocumentsPage() {
   const [loading, setLoading] = useState(true)
   const [openId, setOpenId] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
+  const [busyRecoverId, setBusyRecoverId] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [confirmRecoverId, setConfirmRecoverId] = useState<string | null>(null)
   const [error, setError] = useState('')
 
   const load = useCallback(async () => {
@@ -43,7 +47,8 @@ export default function CvDocumentsPage() {
     load()
   }, [load])
 
-  const baseCv = cvs.find((c) => c.cv_type === 'base') || null
+  const baseCv = cvs.find((c) => c.cv_type === 'base' && c.base_status === 'active') || null
+  const previousBaseCv = cvs.find((c) => c.cv_type === 'base' && c.base_status === 'obsolete') || null
   const adaptedCvs = cvs.filter((c) => c.cv_type === 'personalized')
 
   async function regenerate(cv: CVResponse) {
@@ -51,11 +56,13 @@ export default function CvDocumentsPage() {
     setError('')
     try {
       if (cv.cv_type === 'base') {
-        const res = await apiFetch<CVResponse>('/api/v1/cv/base', {
+        await apiFetch<CVResponse>('/api/v1/cv/base', {
           method: 'POST',
           body: JSON.stringify({}),
         })
-        setCvs((prev) => [res, ...prev.filter((c) => c.cv_id !== cv.cv_id)])
+        // The backend demotes the old active base to "obsolete" and may drop
+        // the previous version — reload to reflect the full lifecycle.
+        await load()
         // Keep the sidebar "Adapt CV" entry unlocked/consistent.
         window.dispatchEvent(new CustomEvent('cv:base-generated'))
         showSuccess(t('regenerated'))
@@ -87,7 +94,9 @@ export default function CvDocumentsPage() {
     setError('')
     try {
       await apiFetch(`/api/v1/cv/${cv.cv_id}`, { method: 'DELETE' })
-      setCvs((prev) => prev.filter((c) => c.cv_id !== cv.cv_id))
+      // Deleting a base CV may promote the previous version to active —
+      // reload so the list reflects the change.
+      await load()
       if (openId === cv.cv_id) setOpenId(null)
       setConfirmDeleteId(null)
       showSuccess(t('deleted'))
@@ -97,6 +106,27 @@ export default function CvDocumentsPage() {
       showError(msg)
     } finally {
       setBusyId(null)
+    }
+  }
+
+  async function recover(previousId: string) {
+    setBusyRecoverId(previousId)
+    setError('')
+    try {
+      await apiFetch<CVResponse>('/api/v1/cv/base/recover', {
+        method: 'POST',
+        body: JSON.stringify({ cv_id: previousId }),
+      })
+      setConfirmRecoverId(null)
+      await load()
+      window.dispatchEvent(new CustomEvent('cv:base-generated'))
+      showSuccess(t('recoverSuccess'))
+    } catch (x: any) {
+      const msg = x instanceof Error ? x.message : t('recoverFailed')
+      setError(msg)
+      showError(msg)
+    } finally {
+      setBusyRecoverId(null)
     }
   }
 
@@ -122,6 +152,12 @@ export default function CvDocumentsPage() {
           <Check className="size-3" />
           {t('summaryBase')} · {baseCv ? 1 : 0}
         </span>
+        {previousBaseCv && (
+          <span className="inline-flex items-center gap-1.5 rounded-[980px] border border-[#e2e2e5] bg-[#f5f5f7] px-3 py-1 text-[11px] font-medium text-[#707070]">
+            <History className="size-3" />
+            {t('summaryObsolete', { count: 1 })}
+          </span>
+        )}
         <span className="inline-flex items-center gap-1.5 rounded-[980px] border border-[#0071e3]/20 bg-[#0071e3]/5 px-3 py-1 text-[11px] font-medium text-[#0071e3]">
           <Briefcase className="size-3" />
           {t('summaryAdapted')} · {adaptedCvs.length}
@@ -166,7 +202,9 @@ export default function CvDocumentsPage() {
             const open = openId === cv.cv_id
             const busy = busyId === cv.cv_id
             const isBase = cv.cv_type === 'base'
+            const isObsolete = isBase && cv.base_status === 'obsolete'
             const confirming = confirmDeleteId === cv.cv_id
+            const confirmingRecover = confirmRecoverId === cv.cv_id
             return (
               <div key={cv.cv_id} className="overflow-hidden rounded-2xl border border-[#d2d2d7]/60 bg-white">
                 <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
@@ -205,10 +243,17 @@ export default function CvDocumentsPage() {
                   </div>
 
                   {/* Status */}
-                  <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700 sm:self-center">
-                    <span className="size-1.5 rounded-full bg-emerald-500" />
-                    {t('statusReady')}
-                  </span>
+                  {isObsolete ? (
+                    <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-[#f5f5f7] px-2.5 py-0.5 text-[11px] font-medium text-[#707070] sm:self-center">
+                      <span className="size-1.5 rounded-full bg-[#b0b0b0]" />
+                      {t('obsoleteLabel')}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700 sm:self-center">
+                      <span className="size-1.5 rounded-full bg-emerald-500" />
+                      {t('statusReady')}
+                    </span>
+                  )}
 
                   {/* Actions */}
                   <div className="flex items-center gap-2">
@@ -229,6 +274,17 @@ export default function CvDocumentsPage() {
                       <RefreshCw className={cn('size-3.5', busy && 'animate-spin')} />
                       {t('regenerate')}
                     </button>
+                    {isObsolete && (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmRecoverId(confirmingRecover ? null : cv.cv_id)}
+                        disabled={busy || busyRecoverId === cv.cv_id}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] px-3.5 py-1.5 text-[11px] font-medium text-[#1d1d1f] transition-colors hover:bg-[#f5f5f7] disabled:opacity-50"
+                      >
+                        <Undo2 className="size-3.5" />
+                        {t('recoverPrevious')}
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => setConfirmDeleteId(confirming ? null : cv.cv_id)}
@@ -240,6 +296,31 @@ export default function CvDocumentsPage() {
                     </button>
                   </div>
                 </div>
+
+                {/* Recover confirmation inline */}
+                {confirmingRecover && (
+                  <div className="flex flex-col gap-3 border-t border-[#e2e2e5] bg-[#0071e3]/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-sm text-[#1d1d1f]">{t('recoverConfirm')}</p>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setConfirmRecoverId(null)}
+                        disabled={busyRecoverId === cv.cv_id}
+                        className="rounded-full border border-[#d2d2d7] bg-white px-4 py-1.5 text-[11px] font-medium text-[#707070] transition-colors hover:bg-[#f5f5f7] disabled:opacity-50"
+                      >
+                        {t('cancel')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => recover(cv.cv_id)}
+                        disabled={busyRecoverId === cv.cv_id}
+                        className="rounded-full bg-[#0071e3] px-4 py-1.5 text-[11px] font-medium text-white transition-colors hover:bg-[#0068d2] disabled:opacity-50"
+                      >
+                        {t('recoverPrevious')}
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Delete confirmation inline */}
                 {confirming && (

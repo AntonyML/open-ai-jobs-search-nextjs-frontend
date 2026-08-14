@@ -29,8 +29,10 @@ export function useSidebarState(): SidebarState {
   const hasBaseCv = useQuery({
     queryKey: [...cvListKeys, pathname],
     queryFn: async () => {
-      const cvs = await apiFetch<Array<{ cv_type: string }>>('/api/v1/cv/').catch(() => [])
-      return Array.isArray(cvs) && cvs.some((c) => c.cv_type === 'base')
+      const cvs = await apiFetch<Array<{ cv_type: string; base_status?: 'active' | 'obsolete' | null }>>(
+        '/api/v1/cv/'
+      ).catch(() => [])
+      return Array.isArray(cvs) && cvs.some((c) => c.cv_type === 'base' && c.base_status === 'active')
     },
     staleTime: 30_000,
     enabled: typeof window !== 'undefined',

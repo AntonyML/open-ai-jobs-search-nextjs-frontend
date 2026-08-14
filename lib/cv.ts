@@ -19,6 +19,8 @@ export interface CVJobRef {
 export interface CVResponse {
   cv_id: string
   cv_type: 'base' | 'personalized'
+  /** 'active' | 'obsolete' for base CVs, null for personalized CVs. */
+  base_status: 'active' | 'obsolete' | null
   job_url: string | null
   job_posting_id: string | null
   job: CVJobRef | null
