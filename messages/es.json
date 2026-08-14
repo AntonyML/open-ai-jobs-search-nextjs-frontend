@@ -994,7 +994,7 @@
     "providerConfigWebSearch": "Lectura de enlaces",
     "providerConfigWebSearchOk": "Disponible",
     "providerConfigWebSearchNo": "No disponible",
-    "providerConfigWebSearchHint": "La adaptación por URL no funcionará con este modelo. Usa gpt-5 (OpenAI).",
+    "providerConfigWebSearchHint": "La adaptación por URL no funcionará con este modelo. Usa gpt-5 (OpenAI) o un modelo de Claude (Anthropic).",
     "providerConfigNone": "Sin configurar",
     "providerConfigApiKey": "API Key",
     "providerConfigApiKeyHint": "(deja vacío para conservar la actual)",
