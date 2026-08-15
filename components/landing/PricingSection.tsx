@@ -48,7 +48,15 @@ interface PricingPlan {
   price_monthly_usd: number
   price_yearly_usd: number
   features: string[]
+  daily_quota: number
+  weekly_quota: number
   sort_order: number
+}
+
+const planBenefitKeys: Record<string, string[]> = {
+  free: ['planFreeFeature1', 'planFreeFeature2', 'planFreeFeature3', 'planFreeFeature4', 'planFreeFeature5', 'planFreeFeature6'],
+  pro: ['planProFeature1', 'planProFeature2', 'planProFeature3', 'planProFeature4', 'planProFeature5', 'planProFeature6', 'planProFeature7', 'planProFeature8'],
+  max: ['planMaxFeature1', 'planMaxFeature2', 'planMaxFeature3', 'planMaxFeature4', 'planMaxFeature5', 'planMaxFeature6', 'planMaxFeature7', 'planMaxFeature8', 'planMaxFeature9', 'planMaxFeature10'],
 }
 
 function formatPrice(usd: number, currency: string): string {
@@ -110,6 +118,8 @@ export default function PricingSection() {
       price_monthly_usd: p.price_monthly_usd,
       price_yearly_usd: p.price_yearly_usd,
       features: p.features,
+      daily_quota: p.daily_quota,
+      weekly_quota: p.weekly_quota,
       sort_order: p.sort_order,
     }))
 
@@ -177,7 +187,7 @@ export default function PricingSection() {
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
             <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
-              {t('pricingAnnualSave', { pct: `${savingsPct}%` })}
+              {t('pricingAnnualSave', { pct: savingsPct })}
             </span>
             <span className="text-[12px] font-light text-[#858585]">{t('pricingSubheading')}</span>
           </div>
@@ -237,9 +247,15 @@ export default function PricingSection() {
                 <h3 className="text-[16px] font-semibold text-[#1d1d1f]">{t(`${prefix}Name`)}</h3>
                 <p className="mt-1 text-[12.5px] font-light text-[#707070]">{t(`${prefix}Desc`)}</p>
                 <p className="mt-3 text-[13px] font-medium text-[#1d1d1f]">
-                  {t('planCredits', { credits: plan.credits_per_period, cadence: key === 'free' ? t('pricingWeekly') : t('pricingMonthly') })}
+                  {t('planCredits', { credits: plan.credits_per_period, cadence: key === 'free' ? t('pricingWeekly') : t('pricingMonthlyCadence') })}
+                </p>
+                <p className="mt-1 text-[11.5px] leading-5 text-[#5f6368]">
+                  {isMax
+                    ? t('planPipelineQuota', { daily: plan.daily_quota, weekly: plan.weekly_quota })
+                    : t('planCreditBasedQuota')}
                 </p>
 
+                <p className="mt-5 text-[11px] font-semibold uppercase tracking-widest text-[#5f6368]">{t('pricingPriceLabel')}</p>
                 {/* Price — key forces a crossfade when the billing changes */}
                 <div className="mt-5 flex items-baseline gap-1.5">
                   {!isFree && isAnnual && (
@@ -263,17 +279,18 @@ export default function PricingSection() {
                   </p>
                 )}
 
+                <p className="mt-7 text-[11px] font-semibold uppercase tracking-widest text-[#5f6368]">{t('pricingFeaturesLabel')}</p>
                 {/* Features */}
                 <ul className="mt-6 flex-1 space-y-2.5">
-                  {Array.from({ length: plan.features.length }, (_, i) => (
+                  {(planBenefitKeys[key] ?? plan.features.map((_, i) => `${prefix}Feature${i + 1}`)).filter((benefitKey) => t.has(benefitKey)).map((benefitKey) => (
                     <li
-                      key={i}
+                      key={benefitKey}
                       className="flex items-start gap-2.5 text-[13.5px] text-[#474747] transition-colors duration-200 group-hover:text-[#3a3a3c]"
                     >
                       <span className={`mt-0.5 transition-transform duration-200 group-hover:scale-110 ${isFree ? 'text-emerald-500' : 'text-[#0071e3]'}`}>
                         <CheckIcon />
                       </span>
-                      <span>{t(`${prefix}Feature${i + 1}`)}</span>
+                      <span>{t(benefitKey)}</span>
                     </li>
                   ))}
                 </ul>
