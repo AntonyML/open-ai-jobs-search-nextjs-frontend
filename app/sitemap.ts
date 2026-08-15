@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { SITE_CONFIG } from '@/lib/seo'
+import { getBlogPosts, type BlogLocale } from '@/lib/blog'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = SITE_CONFIG.url
@@ -23,6 +24,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
             es: `${baseUrl}/es${route}`,
           },
         },
+      })
+    }
+    for (const post of getBlogPosts(locale as BlogLocale)) {
+      sitemapEntries.push({
+        url: `${baseUrl}/${locale}/blog/${post.slug}`,
+        lastModified: new Date(post.date),
+        changeFrequency: 'monthly',
+        priority: 0.7,
       })
     }
   }
