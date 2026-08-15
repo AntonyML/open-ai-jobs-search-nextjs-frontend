@@ -183,4 +183,21 @@ export interface AdminUserSearchResult {
   full_name: string | null
   tier: string
   role: string
+  is_active?: boolean
+  created_at?: string | null
+}
+
+/** Global stats for the admin dashboard (plan.md §2.7 — no legacy premium). */
+export interface AdminUserListStats {
+  total: number
+  admins: number
+  active_subs: number
+}
+
+export interface AdminUserListResponse {
+  items: AdminUserSearchResult[]
+  total: number
+  page: number
+  page_size: number
+  stats: AdminUserListStats
 }

@@ -7,10 +7,10 @@
   position: relative;
   isolation: isolate;
   border-radius: 20px;
-  border: 1px solid rgba(210, 210, 215, 0.7);
+  border: 1px solid var(--border, rgba(210, 210, 215, 0.7));
   background:
     radial-gradient(120% 90% at 100% 0%, rgba(0, 113, 227, 0.05), transparent 55%),
-    linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
+    linear-gradient(180deg, #ffffff 0%, var(--color-ice, #fbfbfd) 100%);
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.03),
     0 12px 32px -16px rgba(0, 0, 0, 0.12);
@@ -36,7 +36,7 @@
 .card:hover {
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.03),
-    0 20px 44px -18px rgba(0, 113, 227, 0.22);
+    0 20px 44px -18px rgba(0, 0, 0, 0.18);
   transform: translateY(-1px);
 }
 
@@ -61,13 +61,13 @@
   font-size: 28px;
   font-weight: 600;
   letter-spacing: -0.02em;
-  color: #1d1d1f;
+  color: var(--color-carbon);
 }
 
 .pageSubtitle {
   margin-top: 4px;
   font-size: 14px;
-  color: #707070;
+  color: var(--color-graphite);
 }
 
 /* Tabs bar — frosted glass strip */
@@ -94,7 +94,7 @@
   padding: 8px 14px;
   font-size: 13px;
   font-weight: 500;
-  color: #707070;
+  color: var(--color-graphite);
   border: none;
   background: transparent;
   cursor: pointer;
@@ -105,16 +105,16 @@
 }
 
 .tab:hover {
-  color: #1d1d1f;
+  color: var(--color-carbon);
   background: rgba(255, 255, 255, 0.6);
 }
 
 .tab[data-active] {
-  color: #0066cc;
+  color: var(--color-link-blue);
   background: #ffffff;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.04),
-    0 4px 12px -4px rgba(0, 113, 227, 0.25);
+    0 4px 12px -4px rgba(0, 0, 0, 0.12);
 }
 
 /* Card header row */
@@ -129,14 +129,14 @@
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.01em;
-  color: #1d1d1f;
+  color: var(--color-carbon);
 }
 
 .cardDesc {
   margin-top: 2px;
   font-size: 12px;
   line-height: 1.5;
-  color: #707070;
+  color: var(--color-graphite);
 }
 
 .cardBody {
@@ -164,7 +164,7 @@
   border-bottom: none;
 }
 
-/* Primary action button — gradient pill */
+/* Primary action button — solid corporate blue */
 .btnPrimary {
   display: inline-flex;
   align-items: center;
@@ -175,10 +175,10 @@
   font-size: 13px;
   font-weight: 500;
   color: #fff;
-  background: linear-gradient(135deg, #2997ff 0%, #0071e3 55%, #0057b8 100%);
+  background: var(--color-apple-blue);
   box-shadow:
-    0 8px 20px -8px rgba(0, 113, 227, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 8px 20px -8px rgba(0, 0, 0, 0.25);
   transition: transform 0.2s ease, box-shadow 0.25s ease, filter 0.25s ease;
   cursor: pointer;
   border: none;
@@ -190,8 +190,8 @@
   filter: brightness(1.05);
   transform: translateY(-1px);
   box-shadow:
-    0 12px 26px -10px rgba(0, 113, 227, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 12px 26px -10px rgba(0, 0, 0, 0.3);
 }
 
 .btnPrimary:active:not(:disabled) { transform: scale(0.98); }
@@ -207,7 +207,7 @@
   padding: 10px 20px;
   font-size: 13px;
   font-weight: 500;
-  color: #0066cc;
+  color: var(--color-link-blue);
   border: 1px solid rgba(0, 102, 204, 0.45);
   background: transparent;
   transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
@@ -218,14 +218,14 @@
 
 .btnSecondary:hover:not(:disabled) {
   background: rgba(244, 248, 251, 0.9);
-  border-color: #0066cc;
+  border-color: var(--color-link-blue);
   transform: translateY(-1px);
 }
 
 .btnSecondary:active:not(:disabled) { transform: scale(0.98); }
 .btnSecondary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* Danger button — soft rose */
+/* Danger button — ghost/outline, red solid only on hover */
 .btnDanger {
   display: inline-flex;
   align-items: center;
@@ -235,11 +235,39 @@
   padding: 10px 20px;
   font-size: 13px;
   font-weight: 500;
+  color: #ff3b30;
+  border: 1px solid #ff3b30;
+  background: transparent;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  white-space: normal;
+  text-align: center;
+}
+
+.btnDanger:hover:not(:disabled) {
+  background: #ff3b30;
   color: #fff;
-  background: linear-gradient(135deg, #ff6482 0%, #ff375f 55%, #d70015 100%);
+  transform: translateY(-1px);
+}
+
+.btnDanger:active:not(:disabled) { transform: scale(0.98); }
+.btnDanger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Danger button — solid, for confirmed actions (modals) */
+.btnDangerSolid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 980px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  background: #ff3b30;
   box-shadow:
-    0 8px 20px -8px rgba(255, 55, 95, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 8px 20px -8px rgba(0, 0, 0, 0.25);
   transition: transform 0.2s ease, box-shadow 0.25s ease, filter 0.25s ease;
   cursor: pointer;
   border: none;
@@ -247,29 +275,37 @@
   text-align: center;
 }
 
-.btnDanger:hover:not(:disabled) {
+.btnDangerSolid:hover:not(:disabled) {
   filter: brightness(1.05);
   transform: translateY(-1px);
 }
 
-.btnDanger:active:not(:disabled) { transform: scale(0.98); }
-.btnDanger:disabled { opacity: 0.5; cursor: not-allowed; }
+.btnDangerSolid:active:not(:disabled) { transform: scale(0.98); }
+.btnDangerSolid:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Danger header orb */
+.headerIconDanger {
+  background: linear-gradient(135deg, #ff6482 0%, #ff375f 55%, #d70015 100%);
+  box-shadow:
+    0 6px 16px -6px rgba(255, 55, 95, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
 
 /* Form field */
 .field {
   width: 100%;
   border-radius: 12px;
-  border: 1px solid #d2d2d7;
+  border: 1px solid var(--border, #d2d2d7);
   background: #fff;
   padding: 10px 14px;
   font-size: 14px;
-  color: #1d1d1f;
+  color: var(--color-carbon);
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .field:focus {
-  border-color: #0071e3;
+  border-color: var(--color-apple-blue);
   box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
 }
 
@@ -277,7 +313,7 @@
   display: block;
   font-size: 12px;
   font-weight: 500;
-  color: #707070;
+  color: var(--color-graphite);
   margin-bottom: 6px;
 }
 
@@ -303,9 +339,9 @@
   padding: 4px 12px;
   font-size: 11px;
   font-weight: 600;
-  color: #707070;
+  color: var(--color-graphite);
   background: rgba(245, 245, 247, 0.9);
-  border: 1px solid rgba(210, 210, 215, 0.6);
+  border: 1px solid var(--border, rgba(210, 210, 215, 0.6));
 }
 
 /* Shimmer skeleton */
@@ -357,4 +393,32 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ── High-contrast overrides ───────────────────────────────────────
+   Respond to the global html.access-high-contrast mode.            */
+
+:global(html.access-high-contrast) .card {
+  border-width: 1.5px;
+}
+
+:global(html.access-high-contrast) .field,
+:global(html.access-high-contrast) .btnSecondary,
+:global(html.access-high-contrast) .btnDanger {
+  border-width: 1.5px;
+}
+
+:global(html.access-high-contrast) .cardDesc,
+:global(html.access-high-contrast) .fieldLabel,
+:global(html.access-high-contrast) .pageSubtitle {
+  color: var(--color-ash);
+}
+
+:global(html.access-high-contrast) .btnDanger {
+  color: #d70015;
+  border-color: #d70015;
+}
+
+:global(html.access-high-contrast) .chipNeutral {
+  color: #1d1d1f;
 }

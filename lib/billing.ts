@@ -150,11 +150,13 @@ export async function adminSetBillingPolicy(policy: BillingPolicy): Promise<Bill
 export async function adminListSubscriptions(params?: {
   plan?: string
   status?: string
+  user_id?: string
   limit?: number
 }): Promise<SubscriptionAdmin[]> {
   const qs = new URLSearchParams()
   if (params?.plan) qs.set('plan', params.plan)
   if (params?.status) qs.set('status_filter', params.status)
+  if (params?.user_id) qs.set('user_id', params.user_id)
   if (params?.limit) qs.set('limit', String(params.limit))
   const suffix = qs.toString() ? `?${qs.toString()}` : ''
   return apiFetch<SubscriptionAdmin[]>(`/api/v1/admin/subscriptions${suffix}`)

@@ -304,8 +304,12 @@ export default function Settings() {
                 </div>
               </div>
               <div className={styles.cardBody}>
-                <button disabled className={styles.btnSecondary}>{t('security.enable2FA')}</button>
-                <p className="mt-2 text-[11px] text-[#b0b0b0]">Coming soon</p>
+                <div className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border,#d2d2d7)]/60 bg-white/70 p-4">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-[var(--color-carbon)]">{t('security.enable2FA')}</p>
+                  </div>
+                  <span className={styles.chipNeutral}>{t('security.comingSoon')}</span>
+                </div>
               </div>
             </div>
 
@@ -321,15 +325,19 @@ export default function Settings() {
                 </div>
               </div>
               <div className={styles.cardBody}>
-                <button disabled className={styles.btnSecondary}>{t('security.revokeAll')}</button>
-                <p className="mt-2 text-[11px] text-[#b0b0b0]">Coming soon</p>
+                <div className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border,#d2d2d7)]/60 bg-white/70 p-4">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-[var(--color-carbon)]">{t('security.revokeAll')}</p>
+                  </div>
+                  <span className={styles.chipNeutral}>{t('security.comingSoon')}</span>
+                </div>
               </div>
             </div>
 
             {/* ── Danger Zone: Delete Account ─────────────────── */}
             <div className={`${styles.card} animate-fade-in-up border-rose-200`}>
               <div className={styles.cardHead}>
-                <span className={styles.headerIcon} style={{ background: 'linear-gradient(135deg,#ff6482 0%,#ff375f 55%,#d70015 100%)' }}>
+                <span className={`${styles.headerIcon} ${styles.headerIconDanger}`}>
                   <Shield size={18} />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -367,7 +375,7 @@ export default function Settings() {
                     </div>
                     <div>
                       <h3 className="text-[16px] font-bold text-[#1d1d1f]">{t('security.deleteAccount')}</h3>
-                      <p className="text-[12px] text-[#707070]">{t('security.deleteAccountDesc')}</p>
+                      <p className="text-[12px] text-[var(--color-graphite)]">{t('security.deleteAccountDesc')}</p>
                     </div>
                   </div>
 
@@ -408,7 +416,7 @@ export default function Settings() {
                     <button
                       onClick={deleteAccount}
                       disabled={!canDelete}
-                      className={`${styles.btnDanger} flex-1`}
+                      className={`${styles.btnDangerSolid} flex-1`}
                     >
                       {deleting ? t('security.deleting') : t('security.deleteAccountButton')}
                     </button>
@@ -442,7 +450,7 @@ function Toggle({
     <div className="flex items-start justify-between gap-4 py-3 first:pt-0 last:pb-0 border-b border-[#e2e2e5] last:border-0">
       <div className="min-w-0 flex-1">
         <p className="text-[14px] font-medium text-[#1d1d1f]">{label}</p>
-        {description && <p className="text-[12px] text-[#858585] mt-0.5">{description}</p>}
+        {description && <p className="text-[12px] text-[var(--color-graphite)] mt-0.5">{description}</p>}
       </div>
       <Switch checked={enabled} onCheckedChange={onChange} size="default" className="shrink-0" />
     </div>
