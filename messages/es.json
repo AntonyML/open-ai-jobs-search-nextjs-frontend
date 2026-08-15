@@ -1673,6 +1673,15 @@
     "changesBody": "Los planes, precios, créditos y cuotas pueden cambiar. Los ajustes se comunicarán a los usuarios activos por correo y dentro de la plataforma antes de su aplicación.",
     "questionsTitle": "Preguntas",
     "questionsBody": "Si tienes dudas sobre tu plan o tus créditos, escríbenos a",
+    "loading": "Cargando el catálogo de planes…",
+    "retry": "Intentar de nuevo",
+    "credits": "créditos",
+    "cadence": "Renovación",
+    "weekly": "Semanal",
+    "period": "Periodo de facturación",
+    "dailyQuota": "Límite diario",
+    "weeklyQuota": "Límite semanal",
+    "unlimited": "Sin límite",
     "backToPricing": "← Ver precios",
     "createAccount": "Crear cuenta gratis"
   }

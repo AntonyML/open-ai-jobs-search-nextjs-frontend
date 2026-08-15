@@ -1673,6 +1673,15 @@
     "changesBody": "Plans, prices, credits and quotas may change. Active users will be notified by email and in-app before changes take effect.",
     "questionsTitle": "Questions",
     "questionsBody": "Questions about your plan or credits? Email us at",
+    "loading": "Loading the plan catalog…",
+    "retry": "Try again",
+    "credits": "credits",
+    "cadence": "Refill",
+    "weekly": "Weekly",
+    "period": "Billing period",
+    "dailyQuota": "Daily limit",
+    "weeklyQuota": "Weekly limit",
+    "unlimited": "No limit",
     "backToPricing": "← View pricing",
     "createAccount": "Create free account"
   }
