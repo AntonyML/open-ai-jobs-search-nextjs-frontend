@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
 
 export const SITE_CONFIG = {
-  name: 'Open AI Jobs Search',
-  shortName: 'AI Jobs Search',
+  name: 'CVMeld',
+  shortName: 'CVMeld',
   description:
-    'AI-powered intelligent job search & multi-provider matching platform for Machine Learning, AI Engineering, and Tech roles.',
-  url: process.env.NEXT_PUBLIC_APP_URL || 'https://openaijobssearch.com',
-  ogImage: '/android-chrome-512x512.png',
-  twitterHandle: '@openaijobs',
+    'Create your CV once and tailor it to every job opportunity with AI-powered matching, applications, interviews, and career growth tools.',
+  url: process.env.NEXT_PUBLIC_APP_URL || 'https://cvmeld.tonyml.com',
+  ogImage: '/og/cvmeld-og.svg',
+  twitterHandle: '@cvmeld',
   keywords: [
     'AI Jobs',
     'Machine Learning Jobs',
@@ -47,7 +47,7 @@ export function constructMetadata({
   noIndex = false,
   image = SITE_CONFIG.ogImage,
 }: GenerateMetadataOptions = {}): Metadata {
-  const brand = 'Open AI Jobs'
+  const brand = SITE_CONFIG.name
   const fullTitle = title
     ? (title.includes('Open AI Jobs')
         ? title
@@ -66,6 +66,8 @@ export function constructMetadata({
     },
   }
 
+  const verification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+
   return {
     title: fullTitle,
     description,
@@ -81,8 +83,8 @@ export function constructMetadata({
       images: [
         {
           url: image,
-          width: 512,
-          height: 512,
+          width: 1200,
+          height: 630,
           alt: SITE_CONFIG.name,
         },
       ],
@@ -107,9 +109,7 @@ export function constructMetadata({
       shortcut: '/favicon.svg',
     },
     manifest: '/manifest.json',
-    verification: {
-      google: 'qhyCjvpy_KAMB2neGSmuSeSxGJfBqaxkChRo-W6Joic',
-    },
+    ...(verification ? { verification: { google: verification } } : {}),
     robots: {
       index: !noIndex,
       follow: !noIndex,

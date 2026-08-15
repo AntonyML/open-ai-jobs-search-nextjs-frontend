@@ -18,7 +18,12 @@ export function OrganizationJsonLd({
     name,
     url,
     logo,
-    sameAs: ['https://github.com/AntonyML/open-ai-jobs-search-nextjs-frontend'],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: 'legal.ai-jobs@tonyml.com',
+      availableLanguage: ['English', 'Spanish'],
+    },
   }
 
   return (
