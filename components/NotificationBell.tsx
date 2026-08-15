@@ -410,7 +410,7 @@ export default function NotificationBell() {
                   type="button"
                   onClick={() => {
                     setOpen(false)
-                    router.push('/admin/credits')
+                    router.push('/admin/billing')
                   }}
                   className="w-full rounded-full bg-gradient-to-r from-[#0071e3] to-[#0060c0] px-3 py-1.5 text-[11px] font-semibold text-white transition-all hover:brightness-110"
                 >

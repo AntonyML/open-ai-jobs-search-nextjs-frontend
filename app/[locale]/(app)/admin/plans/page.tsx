@@ -7,27 +7,10 @@ import { isLoggedIn, isAdmin } from '@/lib/auth'
 import { showSuccess, showError } from '@/lib/toasts'
 import {
   CreditCard, Plus, Trash2, Save, RefreshCw, X, Coins, DollarSign,
-  CalendarDays, Layers, ShieldCheck, Pencil, Bell, Trash,
+  CalendarDays, Layers, ShieldCheck, Pencil, GripVertical,
 } from 'lucide-react'
-import {
-  adminListPlans,
-  adminUpsertPlan,
-  adminDeletePlan,
-  adminGetCreditCosts,
-  adminSetCreditCosts,
-  adminGetNotificationTtl,
-  adminSetNotificationTtl,
-  adminGetTopupPacks,
-  adminSetTopupPacks,
-  adminGetBillingPolicy,
-  adminSetBillingPolicy,
-} from '@/lib/billing'
-import type { BillingPolicy, PlanAdmin, TopupPack } from '@/types/billing'
-
-const DEFAULT_PACKS: TopupPack[] = [
-  { price_usd: 9.99, credits: 50 },
-  { price_usd: 19.99, credits: 120 },
-]
+import { adminListPlans, adminUpsertPlan, adminDeletePlan, adminGetCreditCosts, adminSetCreditCosts } from '@/lib/billing'
+import type { PlanAdmin } from '@/types/billing'
 import styles from './PlansAdmin.module.css'
 
 const EMPTY_PLAN: PlanAdmin = {
@@ -47,6 +30,7 @@ const EMPTY_PLAN: PlanAdmin = {
   sort_order: 10,
 }
 
+// Features are stored as stable keys; the UI shows human labels (i18n).
 const FEATURE_OPTIONS = ['cv_base', 'cv_adapted', 'pipeline', 'expand', 'upskill']
 
 export default function AdminPlansPage() {
@@ -54,14 +38,8 @@ export default function AdminPlansPage() {
   const router = useRouter()
   const [plans, setPlans] = useState<PlanAdmin[]>([])
   const [costs, setCosts] = useState({ cv_base: 1, cv_adapted: 1, pipeline: 1 })
-  const [ttlDays, setTtlDays] = useState(30)
-  const [packs, setPacks] = useState<TopupPack[]>(DEFAULT_PACKS)
-  const [policy, setPolicy] = useState<BillingPolicy>({ refund_credit_threshold: 16, annual_cooling_days: 14 })
   const [loading, setLoading] = useState(true)
   const [savingCosts, setSavingCosts] = useState(false)
-  const [savingTtl, setSavingTtl] = useState(false)
-  const [savingPacks, setSavingPacks] = useState(false)
-  const [savingPolicy, setSavingPolicy] = useState(false)
   const [editing, setEditing] = useState<PlanAdmin | 'new' | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -77,43 +55,12 @@ export default function AdminPlansPage() {
     setLoading(true)
     try {
       const [p, c] = await Promise.all([adminListPlans(), adminGetCreditCosts()])
-      setPlans(p)
+      setPlans([...p].sort((a, b) => a.sort_order - b.sort_order))
       setCosts(c)
     } catch (x) {
       showError(x instanceof Error ? x.message : t('loadError'))
     } finally {
       setLoading(false)
-    }
-    // Load the TTL separately so a failure here never blocks the plans page.
-    try {
-      const ttl = await adminGetNotificationTtl()
-      setTtlDays(ttl.days)
-    } catch {
-      setTtlDays(30)
-    }
-    // Same for the billing singletons: they only drive the credits page.
-    try {
-      setPacks(await adminGetTopupPacks())
-    } catch {
-      // keep defaults
-    }
-    try {
-      setPolicy(await adminGetBillingPolicy())
-    } catch {
-      // keep defaults
-    }
-  }
-
-  async function saveTtl() {
-    setSavingTtl(true)
-    try {
-      const next = await adminSetNotificationTtl(ttlDays)
-      setTtlDays(next.days)
-      showSuccess(t('ttlSaved'))
-    } catch (x) {
-      showError(x instanceof Error ? x.message : t('saveError'))
-    } finally {
-      setSavingTtl(false)
     }
   }
 
@@ -127,32 +74,6 @@ export default function AdminPlansPage() {
       showError(x instanceof Error ? x.message : t('saveError'))
     } finally {
       setSavingCosts(false)
-    }
-  }
-
-  async function savePacks() {
-    setSavingPacks(true)
-    try {
-      const next = await adminSetTopupPacks(packs)
-      setPacks(next)
-      showSuccess(t('packsSaved'))
-    } catch (x) {
-      showError(x instanceof Error ? x.message : t('saveError'))
-    } finally {
-      setSavingPacks(false)
-    }
-  }
-
-  async function savePolicy() {
-    setSavingPolicy(true)
-    try {
-      const next = await adminSetBillingPolicy(policy)
-      setPolicy(next)
-      showSuccess(t('policySaved'))
-    } catch (x) {
-      showError(x instanceof Error ? x.message : t('saveError'))
-    } finally {
-      setSavingPolicy(false)
     }
   }
 
@@ -181,6 +102,8 @@ export default function AdminPlansPage() {
       showError(x instanceof Error ? x.message : t('deleteError'))
     }
   }
+
+  const sortedPlans = [...plans].sort((a, b) => a.sort_order - b.sort_order)
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
@@ -241,9 +164,13 @@ export default function AdminPlansPage() {
                       className="w-full rounded-xl border border-[#d2d2d7] bg-white py-2 pl-9 pr-3 text-sm font-medium text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
                     />
                   </div>
+                  <span className="mt-1.5 block text-[10px] leading-relaxed text-[#858585]">{t(`costHint.${k}`)}</span>
                 </label>
               ))}
             </div>
+            <p className="mt-4 rounded-xl bg-amber-50/70 px-3 py-2 text-[11px] leading-relaxed text-[#8a6d1f]">
+              {t('costsExample', { n: costs.cv_adapted, m: costs.cv_adapted > 0 ? Math.floor(100 / costs.cv_adapted) : 0 })}
+            </p>
             <div className="mt-4 flex justify-end">
               <button
                 onClick={saveCosts}
@@ -256,145 +183,13 @@ export default function AdminPlansPage() {
             </div>
           </section>
 
-          {/* ── Top-up packs (fixed 2, manual payment) ── */}
-          <section className={`${styles.glassCard} rounded-2xl p-5`}>
-            <div className="mb-4 flex items-center gap-2">
-              <Coins className="h-5 w-5 text-amber-500" />
-              <h2 className="text-sm font-bold text-[#1d1d1f]">{t('packsTitle')}</h2>
-            </div>
-            <p className="mb-4 text-xs text-[#707070]">{t('packsDesc')}</p>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {packs.map((p, i) => (
-                <div key={i} className="rounded-xl border border-[#d2d2d7]/70 bg-white p-3">
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#858585]">
-                    {t('packLabel', { n: i + 1 })}
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <label className="block">
-                      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#707070]">{t('creditsLabel')}</span>
-                      <input
-                        type="number"
-                        min={1}
-                        value={p.credits}
-                        onChange={(e) => {
-                          const credits = Math.max(1, parseInt(e.target.value || '0', 10))
-                          setPacks(packs.map((pk, j) => (j === i ? { ...pk, credits } : pk)))
-                        }}
-                        className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-1.5 text-sm font-medium text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#707070]">{t('priceLabel')}</span>
-                      <input
-                        type="number"
-                        min={0.01}
-                        step={0.01}
-                        value={p.price_usd}
-                        onChange={(e) => {
-                          const price = Math.max(0.01, parseFloat(e.target.value || '0'))
-                          setPacks(packs.map((pk, j) => (j === i ? { ...pk, price_usd: price } : pk)))
-                        }}
-                        className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-1.5 text-sm font-medium text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
-                      />
-                    </label>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={savePacks}
-                disabled={savingPacks}
-                className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:brightness-110 disabled:opacity-50 active:scale-[.98]"
-              >
-                <Save className="h-3.5 w-3.5" />
-                {t('savePacks')}
-              </button>
-            </div>
-          </section>
-
-          {/* ── Refund policy (monthly threshold + annual window) ── */}
-          <section className={`${styles.glassCard} rounded-2xl p-5`}>
-            <div className="mb-4 flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-rose-500" />
-              <h2 className="text-sm font-bold text-[#1d1d1f]">{t('policyTitle')}</h2>
-            </div>
-            <p className="mb-4 text-xs text-[#707070]">{t('policyDesc')}</p>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <label className="block">
-                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[#707070]">
-                  {t('policyThresholdLabel')}
-                </span>
-                <input
-                  type="number"
-                  min={0}
-                  value={policy.refund_credit_threshold}
-                  onChange={(e) => setPolicy({ ...policy, refund_credit_threshold: Math.max(0, parseInt(e.target.value || '0', 10)) })}
-                  className="w-full rounded-xl border border-[#d2d2d7] bg-white px-3 py-2 text-sm font-medium text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[#707070]">
-                  {t('policyCoolingLabel')}
-                </span>
-                <input
-                  type="number"
-                  min={0}
-                  value={policy.annual_cooling_days}
-                  onChange={(e) => setPolicy({ ...policy, annual_cooling_days: Math.max(0, parseInt(e.target.value || '0', 10)) })}
-                  className="w-full rounded-xl border border-[#d2d2d7] bg-white px-3 py-2 text-sm font-medium text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
-                />
-              </label>
-            </div>
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={savePolicy}
-                disabled={savingPolicy}
-                className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-500 to-red-500 px-5 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:brightness-110 disabled:opacity-50 active:scale-[.98]"
-              >
-                <Save className="h-3.5 w-3.5" />
-                {t('savePolicy')}
-              </button>
-            </div>
-          </section>
-
-          {/* ── Notification retention TTL ── */}
-          <section className={`${styles.glassCard} rounded-2xl p-5`}>
-            <div className="mb-4 flex items-center gap-2">
-              <Bell className="h-5 w-5 text-[#0071e3]" />
-              <h2 className="text-sm font-bold text-[#1d1d1f]">{t('ttlTitle')}</h2>
-            </div>
-            <p className="mb-4 text-xs text-[#707070]">{t('ttlDesc')}</p>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-              <label className="block sm:max-w-xs sm:flex-1">
-                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[#707070]">
-                  {t('ttlDaysLabel')}
-                </span>
-                <div className="relative">
-                  <Trash className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#858585]" />
-                  <input
-                    type="number"
-                    min={1}
-                    value={ttlDays}
-                    onChange={(e) => setTtlDays(Math.max(1, parseInt(e.target.value || '0', 10)))}
-                    className="w-full rounded-xl border border-[#d2d2d7] bg-white py-2 pl-9 pr-3 text-sm font-medium text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
-                  />
-                </div>
-              </label>
-              <button
-                onClick={saveTtl}
-                disabled={savingTtl}
-                className="inline-flex items-center gap-1.5 self-start rounded-full bg-gradient-to-r from-[#0071e3] to-[#0060c0] px-5 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:brightness-110 disabled:opacity-50 active:scale-[.98] sm:self-auto"
-              >
-                <Save className="h-3.5 w-3.5" />
-                {t('saveTtl')}
-              </button>
-            </div>
-          </section>
-
           {/* ── Plans grid ── */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-[#1d1d1f]">{t('plansGridTitle')}</h2>
+            <p className="text-[11px] text-[#858585]">{t('renewalNotice')}</p>
+          </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {plans.map((p) => (
+            {sortedPlans.map((p) => (
               <div key={p.key} className={`${styles.planCard} group relative rounded-2xl border p-5 transition-all`}>
                 <div className="mb-3 flex items-start justify-between">
                   <div className="flex items-center gap-2">
@@ -432,7 +227,7 @@ export default function AdminPlansPage() {
                 <div className="mb-3 space-y-1.5 text-[11px] text-[#707070]">
                   <p className="flex items-center gap-1.5">
                     <Coins className="h-3 w-3 text-amber-500" />
-                    {t('creditsPerPeriod')}: <b className="text-[#1d1d1f]">{p.credits_per_period}</b> ({p.refill_cadence})
+                    {t('creditsPerPeriod')}: <b className="text-[#1d1d1f]">{p.credits_per_period}</b> ({cadenceLabel(t, p.refill_cadence)})
                   </p>
                   <p className="flex items-center gap-1.5">
                     <CalendarDays className="h-3 w-3 text-[#0071e3]" />
@@ -440,7 +235,7 @@ export default function AdminPlansPage() {
                   </p>
                   <p className="flex items-center gap-1.5">
                     <Layers className="h-3 w-3 text-purple-500" />
-                    {(p.features ?? []).join(' · ') || '—'}
+                    {(p.features ?? []).map((f) => t(`feature.${f}`)).join(' · ') || '—'}
                   </p>
                 </div>
 
@@ -518,6 +313,10 @@ export default function AdminPlansPage() {
   )
 }
 
+function cadenceLabel(t: (k: string) => string, cadence: string): string {
+  return cadence === 'weekly' ? t('cadenceWeekly') : t('cadencePeriod')
+}
+
 function PlanForm({
   value,
   onChange,
@@ -532,6 +331,7 @@ function PlanForm({
 
   const inputCls = 'w-full rounded-xl border border-[#d2d2d7] bg-white px-3 py-2 text-sm text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20'
   const labelCls = 'mb-1 block text-[11px] font-semibold uppercase tracking-wider text-[#707070]'
+  const hintCls = 'mt-1 block text-[10px] leading-relaxed text-[#858585]'
 
   return (
     <div className="space-y-3">
@@ -539,15 +339,18 @@ function PlanForm({
         <div>
           <label className={labelCls}>{t('key')}</label>
           <input className={inputCls} value={v.key} onChange={(e) => set({ key: e.target.value })} placeholder="pro" disabled={value !== 'new'} />
+          <span className={hintCls}>{t('keyHint')}</span>
         </div>
         <div>
           <label className={labelCls}>{t('name')}</label>
           <input className={inputCls} value={v.name} onChange={(e) => set({ name: e.target.value })} />
+          <span className={hintCls}>{t('nameHint')}</span>
         </div>
       </div>
       <div>
         <label className={labelCls}>{t('description')}</label>
         <input className={inputCls} value={v.description ?? ''} onChange={(e) => set({ description: e.target.value })} />
+        <span className={hintCls}>{t('descriptionHint')}</span>
       </div>
       <div className="grid grid-cols-3 gap-3">
         <div>
@@ -561,6 +364,7 @@ function PlanForm({
         <div>
           <label className={labelCls}>{t('credits')}</label>
           <input className={inputCls} type="number" min={0} value={v.credits_per_period} onChange={(e) => set({ credits_per_period: parseInt(e.target.value || '0', 10) })} />
+          <span className={hintCls}>{t('creditsHint')}</span>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-3">
@@ -570,6 +374,7 @@ function PlanForm({
             <option value="period">{t('cadencePeriod')}</option>
             <option value="weekly">{t('cadenceWeekly')}</option>
           </select>
+          <span className={hintCls}>{t('cadenceHint')}</span>
         </div>
         <div>
           <label className={labelCls}>{t('dailyQuota')}</label>
@@ -578,6 +383,24 @@ function PlanForm({
         <div>
           <label className={labelCls}>{t('weeklyQuota')}</label>
           <input className={inputCls} type="number" min={0} value={v.weekly_quota} onChange={(e) => set({ weekly_quota: parseInt(e.target.value || '0', 10) })} />
+        </div>
+      </div>
+      <p className={hintCls} style={{ marginTop: 0 }}>{t('quotaHint')}</p>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className={labelCls}>{t('sortOrder')}</label>
+          <div className="relative">
+            <GripVertical className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#858585]" />
+            <input className={`${inputCls} pl-9`} type="number" min={0} value={v.sort_order} onChange={(e) => set({ sort_order: parseInt(e.target.value || '10', 10) })} />
+          </div>
+          <span className={hintCls}>{t('sortOrderHint')}</span>
+        </div>
+        <div>
+          <label className={labelCls}>{t('active')}</label>
+          <div className="flex h-[38px] items-center">
+            <input type="checkbox" checked={v.is_active} onChange={(e) => set({ is_active: e.target.checked })} className="h-4 w-4 rounded accent-[#0071e3]" />
+          </div>
+          <span className={hintCls}>{t('activeHint')}</span>
         </div>
       </div>
       <div>
@@ -594,16 +417,13 @@ function PlanForm({
                   on ? 'bg-[#0071e3] text-white' : 'bg-[#f5f5f7] text-[#707070] hover:bg-[#e9e9ec]'
                 }`}
               >
-                {f}
+                {t(`feature.${f}`)}
               </button>
             )
           })}
         </div>
+        <span className={hintCls}>{t('featuresHint')}</span>
       </div>
-      <label className="flex items-center gap-2 text-xs text-[#474747]">
-        <input type="checkbox" checked={v.is_active} onChange={(e) => set({ is_active: e.target.checked })} className="h-4 w-4 rounded accent-[#0071e3]" />
-        {t('active')}
-      </label>
     </div>
   )
 }

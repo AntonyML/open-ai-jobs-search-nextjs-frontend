@@ -49,13 +49,16 @@ export function isRequestType(type: string): type is RequestType {
 /**
  * Deep-link target for an admin-actionable request notification.
  *
- * The admin credits page reads the query params (``approve=topup|refund``,
- * ``plan``, ``cycle``, ``amount``, ``cid``) to pre-fill the approval form.
+ * Points at the user detail page (plan.md §4.3 — approvals live per user),
+ * which reads the query params to pre-fill the activation/approval flow:
+ * ``plan``/``cycle``/``amount``/``cid`` for purchases & upgrades and
+ * ``approve=topup|refund`` (+ ``credits``) to highlight the pending
+ * approval for top-ups and refunds.
  */
 export function requestDeepLink(notif: ServerNotification): string {
   const p = notif.payload ?? {}
+  if (!p.user_id) return '/admin'
   const qs = new URLSearchParams()
-  if (p.user_id) qs.set('user', p.user_id)
   if (p.correlation_id) qs.set('cid', p.correlation_id)
   if (notif.type === 'purchase_request') {
     if (p.plan_key) qs.set('plan', p.plan_key)
@@ -71,7 +74,7 @@ export function requestDeepLink(notif: ServerNotification): string {
     if (typeof p.amount_due === 'number') qs.set('amount', String(p.amount_due))
   }
   const suffix = qs.toString() ? `?${qs.toString()}` : ''
-  return `/admin/credits${suffix}`
+  return `/admin/users/${encodeURIComponent(p.user_id)}${suffix}`
 }
 
 /** Shape accepted by `addNotification`. */
