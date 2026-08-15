@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter as useNextRouter } from 'next/navigation'
-import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
 import { clearCompletedSteps, clearToken, isLoggedIn } from '@/lib/auth'
 import { useBilling } from '@/hooks/useBilling'
@@ -16,13 +15,11 @@ import {
 } from '@/components/ui/tabs'
 import {
   UserRound,
-  Server,
   Bell,
   Globe,
   Accessibility,
   Shield,
   CheckCircle2,
-  ChevronRight,
   Settings2,
   Eye,
 } from 'lucide-react'
@@ -106,7 +103,6 @@ export default function Settings() {
     { key: 'appearance', label: t('tabs.appearance'), icon: Accessibility },
     { key: 'notifications', label: t('tabs.notifications'), icon: Bell },
     { key: 'language', label: t('tabs.language'), icon: Globe },
-    { key: 'providers', label: t('tabs.providers'), icon: Server },
     { key: 'security', label: t('tabs.security'), icon: Shield },
   ]
 
@@ -214,36 +210,6 @@ export default function Settings() {
             <div className={styles.cardBody}>
               <p className="text-[14px] font-medium text-[#1d1d1f] mb-3">{t('language.interfaceLanguage')}</p>
               <LanguageSwitcher />
-            </div>
-          </div>
-        </TabsContent>
-
-        {/* ── Providers ─────────────────────────────────── */}
-        <TabsContent value="providers">
-          <div className={`${styles.card} animate-fade-in-up`}>
-            <div className={styles.cardHead}>
-              <span className={styles.headerIcon}>
-                <Server size={18} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <h2 className={styles.cardTitle}>{t('tabs.providers')}</h2>
-                <p className={styles.cardDesc}>{t('providers.goToProviders')}</p>
-              </div>
-            </div>
-            <div className={styles.cardBody}>
-              <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#d2d2d7]/60 bg-white/70 p-4">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-[#1d1d1f]">{t('providers.activeProvider')}</p>
-                  <p className="text-xs text-[#858585] mt-0.5">{t('providers.notConfigured')}</p>
-                </div>
-                <Link
-                  href="/admin/providers"
-                  className="inline-flex shrink-0 items-center gap-1 text-[12px] font-medium text-[#0071e3] hover:text-[#0077ed] transition-colors"
-                >
-                  {t('providers.goToProviders')}
-                  <ChevronRight className="size-3.5" />
-                </Link>
-              </div>
             </div>
           </div>
         </TabsContent>

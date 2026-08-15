@@ -18,6 +18,9 @@ import {
   CreditCard,
   Coins,
   Wallet,
+  Users,
+  Receipt,
+  Wrench,
 } from 'lucide-react'
 
 export type NavIcon = ComponentType<{ className?: string }>
@@ -106,10 +109,13 @@ export const NAV_SECTIONS: NavSection[] = [
     separatorBefore: true,
     items: [
       { labelKey: 'admin', descKey: 'adminDesc', href: '/admin', icon: Shield, adminOnly: true },
+      { labelKey: 'adminUsers', descKey: 'adminUsersDesc', href: '/admin/users', icon: Users, adminOnly: true },
       { labelKey: 'adminPlans', descKey: 'adminPlansDesc', href: '/admin/plans', icon: CreditCard, adminOnly: true },
       { labelKey: 'adminCredits', descKey: 'adminCreditsDesc', href: '/admin/credits', icon: Coins, adminOnly: true },
+      { labelKey: 'adminBilling', descKey: 'adminBillingDesc', href: '/admin/billing', icon: Receipt, adminOnly: true },
       { labelKey: 'adminProviders', descKey: 'adminProvidersDesc', href: '/admin/providers', icon: Server, adminOnly: true },
       { labelKey: 'llmControl', descKey: 'llmControlDesc', href: '/admin/llm-control', icon: Cpu, adminOnly: true },
+      { labelKey: 'adminSystem', descKey: 'adminSystemDesc', href: '/admin/system', icon: Wrench, adminOnly: true },
     ],
   },
 ]

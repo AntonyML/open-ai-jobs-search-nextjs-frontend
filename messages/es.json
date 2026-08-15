@@ -717,18 +717,11 @@
     "title": "Configuración",
     "subtitle": "Administra tu cuenta, preferencias y configuración",
     "tabs": {
-      "providers": "Proveedores",
       "notifications": "Notificaciones",
       "language": "Idioma",
       "appearance": "Accesibilidad",
       "appearanceDesc": "Personaliza tu experiencia de lectura y visual",
       "security": "Seguridad"
-    },
-    "providers": {
-      "activeProvider": "Proveedor activo",
-      "notConfigured": "No configurado",
-      "configured": "{count} proveedor(es) configurado(s)",
-      "goToProviders": "Gestionar proveedores →"
     },
     "notifications": {
       "desc": "Controla cómo y cuándo recibes actualizaciones",
@@ -1028,7 +1021,7 @@
     "jobSearch": "Búsqueda de empleo",
     "account": "Cuenta",
     "admin": "Panel Admin",
-    "adminDesc": "Usuarios, planes y proveedores",
+    "adminDesc": "Resumen y aprobaciones",
     "dashboard": "Panel",
     "dashboardDesc": "Resumen de tu búsqueda",
     "cvBuilder": "Generador de CV",
@@ -1065,6 +1058,12 @@
     "adminPlansDesc": "Administra planes y costos de créditos",
     "adminCredits": "Créditos",
     "adminCreditsDesc": "Ajusta créditos y suscripciones",
+    "adminUsers": "Usuarios",
+    "adminUsersDesc": "Busca y gestiona usuarios",
+    "adminBilling": "Billing y políticas",
+    "adminBillingDesc": "Packs, reembolsos y solicitudes",
+    "adminSystem": "Sistema",
+    "adminSystemDesc": "Configuración del sistema",
     "premiumLockedTooltip": "Disponible en el plan Max",
     "maxLockedTooltip": "Disponible en el plan Max — mejora para desbloquear todas las funciones de búsqueda de empleo",
     "routeBlockedMax": "Esta página está disponible solo en el plan Max. Mejora para desbloquearla.",
@@ -1448,6 +1447,31 @@
     "reqUpgrade": "Upgrade",
     "approve": "Aprobar",
     "review": "Revisar"
+  },
+  "adminTabs": {
+    "label": "Navegación del panel de administración",
+    "panel": "Panel",
+    "users": "Usuarios",
+    "plans": "Planes",
+    "credits": "Créditos",
+    "billing": "Billing",
+    "providers": "Proveedor IA",
+    "llm": "Control LLM",
+    "system": "Sistema"
+  },
+  "adminPlaceholder": {
+    "usersSubtitle": "Búsqueda, filtros y gestión de usuarios",
+    "usersComingTitle": "Gestión de usuarios en camino",
+    "usersComingDesc": "La tabla de usuarios y sus acciones se trasladan aquí desde el Panel en una próxima actualización. Mientras tanto, la tabla sigue disponible en el Panel.",
+    "detailSubtitle": "Detalle del usuario {id}",
+    "detailComingTitle": "Detalle de usuario en camino",
+    "detailComingDesc": "El detalle completo (plan, créditos, suscripciones y aprobaciones) se habilitará en una próxima actualización. Podrás llegar aquí desde la tabla de usuarios.",
+    "billingSubtitle": "Packs de top-up, política de reembolsos y solicitudes",
+    "billingComingTitle": "Billing y políticas en camino",
+    "billingComingDesc": "Los packs de top-up, la política de reembolsos, la cola de solicitudes y las suscripciones se trasladan aquí en una próxima actualización. Por ahora viven en Planes y Créditos.",
+    "systemSubtitle": "Ajustes generales del sistema",
+    "systemComingTitle": "Ajustes del sistema en camino",
+    "systemComingDesc": "La retención de notificaciones y otros ajustes de sistema se trasladarán aquí en una próxima actualización."
   },
   "limits": {
     "label": "Planes y límites",

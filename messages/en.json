@@ -717,18 +717,11 @@
     "title": "Settings",
     "subtitle": "Manage your account, preferences, and configuration",
     "tabs": {
-      "providers": "Providers",
       "notifications": "Notifications",
       "language": "Language",
       "appearance": "Accessibility",
       "appearanceDesc": "Customize your reading and visual experience",
       "security": "Security"
-    },
-    "providers": {
-      "activeProvider": "Active provider",
-      "notConfigured": "Not configured",
-      "configured": "{count} provider(s) configured",
-      "goToProviders": "Manage providers →"
     },
     "notifications": {
       "desc": "Control how and when you receive updates",
@@ -1028,7 +1021,7 @@
     "jobSearch": "Job search",
     "account": "Account",
     "admin": "Admin panel",
-    "adminDesc": "Users, plans and providers",
+    "adminDesc": "Overview and approvals",
     "dashboard": "Dashboard",
     "dashboardDesc": "Your job search overview",
     "cvBuilder": "CV Builder",
@@ -1065,6 +1058,12 @@
     "adminPlansDesc": "Manage plans & credit costs",
     "adminCredits": "Credits",
     "adminCreditsDesc": "Adjust credits & subscriptions",
+    "adminUsers": "Users",
+    "adminUsersDesc": "Search and manage users",
+    "adminBilling": "Billing & policies",
+    "adminBillingDesc": "Packs, refunds and requests",
+    "adminSystem": "System",
+    "adminSystemDesc": "System settings",
     "premiumLockedTooltip": "Available on plan Max",
     "maxLockedTooltip": "Available on plan Max — upgrade to unlock the full job search experience",
     "routeBlockedMax": "This page is only available on the Max plan. Upgrade to unlock it.",
@@ -1448,6 +1447,31 @@
     "reqUpgrade": "Upgrade",
     "approve": "Approve",
     "review": "Review"
+  },
+  "adminTabs": {
+    "label": "Admin section navigation",
+    "panel": "Panel",
+    "users": "Users",
+    "plans": "Plans",
+    "credits": "Credits",
+    "billing": "Billing",
+    "providers": "AI provider",
+    "llm": "LLM control",
+    "system": "System"
+  },
+  "adminPlaceholder": {
+    "usersSubtitle": "Search, filters and user management",
+    "usersComingTitle": "User management coming soon",
+    "usersComingDesc": "The user table and its actions will move here from the Panel in an upcoming update. Until then, the table stays available in the Panel.",
+    "detailSubtitle": "User detail {id}",
+    "detailComingTitle": "User detail coming soon",
+    "detailComingDesc": "The full detail (plan, credits, subscriptions and approvals) will be enabled in an upcoming update. You will reach it from the user table.",
+    "billingSubtitle": "Top-up packs, refund policy and requests",
+    "billingComingTitle": "Billing & policies coming soon",
+    "billingComingDesc": "Top-up packs, the refund policy, the request queue and subscriptions will move here in an upcoming update. For now they live in Plans and Credits.",
+    "systemSubtitle": "General system settings",
+    "systemComingTitle": "System settings coming soon",
+    "systemComingDesc": "Notification retention and other system settings will move here in an upcoming update."
   },
   "limits": {
     "label": "Plans & limits",
