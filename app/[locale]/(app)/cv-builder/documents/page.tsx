@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import {
@@ -20,9 +21,11 @@ import { cn } from '@/lib/utils'
 import { PageHeader } from '@/components/ui/page-header'
 import { CvPdfPreview } from '@/components/cv-builder/CvPdfPreview'
 import type { CVResponse } from '@/lib/cv'
+import { billingKeys } from '@/lib/query-keys'
 
 export default function CvDocumentsPage() {
   const t = useTranslations('cvDocuments')
+  const queryClient = useQueryClient()
   const [cvs, setCvs] = useState<CVResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [openId, setOpenId] = useState<string | null>(null)
@@ -63,6 +66,12 @@ export default function CvDocumentsPage() {
         // The backend demotes the old active base to "obsolete" and may drop
         // the previous version — reload to reflect the full lifecycle.
         await load()
+        // Regeneration consumes credits. Refresh the shared billing cache so
+        // the navbar/sidebar reflect the new balance without a full reload.
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: billingKeys.status() }),
+          queryClient.invalidateQueries({ queryKey: billingKeys.transactions() }),
+        ])
         // Keep the sidebar "Adapt CV" entry unlocked/consistent.
         window.dispatchEvent(new CustomEvent('cv:base-generated'))
         showSuccess(t('regenerated'))
@@ -79,6 +88,10 @@ export default function CvDocumentsPage() {
         body: JSON.stringify({ base_cv_id: base.cv_id, job_posting_id: cv.job_posting_id }),
       })
       setCvs((prev) => [res, ...prev.filter((c) => c.cv_id !== cv.cv_id)])
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: billingKeys.status() }),
+        queryClient.invalidateQueries({ queryKey: billingKeys.transactions() }),
+      ])
       showSuccess(t('regenerated'))
     } catch (x: any) {
       const msg = x instanceof Error ? x.message : t('regenerateFailed')

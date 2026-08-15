@@ -294,6 +294,7 @@
 /* Model row: select + load button */
 .modelRow {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 6px;
 }
@@ -301,6 +302,11 @@
 .modelSelect {
   flex: 1;
   min-width: 0;
+}
+
+@media (max-width: 639px) {
+  .modelSelect { flex-basis: 100%; }
+  .loadModelsBtn { width: 100%; }
 }
 
 .loadModelsBtn {

@@ -14,6 +14,7 @@ const ADMIN_TABS = [
   { href: '/admin/users', key: 'users' },
   { href: '/admin/plans', key: 'plans' },
   { href: '/admin/billing', key: 'billing' },
+  { href: '/admin/subscriptions', key: 'subscriptions' },
   { href: '/admin/providers', key: 'providers' },
   { href: '/admin/llm-control', key: 'llm' },
   { href: '/admin/system', key: 'system' },

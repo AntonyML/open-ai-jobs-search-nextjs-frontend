@@ -20,6 +20,7 @@ const QUICK_LINKS = [
   { href: '/admin/users', icon: Users, key: 'adminUsers' },
   { href: '/admin/plans', icon: CreditCard, key: 'adminPlans' },
   { href: '/admin/billing', icon: Receipt, key: 'adminBilling' },
+  { href: '/admin/subscriptions', icon: Crown, key: 'adminSubscriptions' },
   { href: '/admin/providers', icon: Server, key: 'adminProviders' },
   { href: '/admin/llm-control', icon: Cpu, key: 'llmControl' },
   { href: '/admin/system', icon: Wrench, key: 'adminSystem' },

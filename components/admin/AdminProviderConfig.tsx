@@ -329,7 +329,7 @@ export function AdminProviderConfig() {
               <select
                 value={provider}
                 onChange={(e) => handleProviderChange(e.target.value)}
-                className="field mt-1.5 h-10"
+                className="field mt-1.5 h-10 min-w-0 truncate px-3 py-2 text-[13px] leading-5"
               >
                 {catalog.map((p) => (
                   <option key={p.name} value={p.name}>{p.display_name}</option>
@@ -343,7 +343,7 @@ export function AdminProviderConfig() {
                 <select
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  className={`field h-10 ${styles.modelSelect}`}
+                  className={`field h-10 min-w-0 truncate px-3 py-2 text-[13px] leading-5 ${styles.modelSelect}`}
                 >
                   {(models.length > 0 ? models : [model]).map((m) => (
                     <option key={m} value={m}>{m}</option>
