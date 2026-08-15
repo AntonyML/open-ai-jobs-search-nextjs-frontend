@@ -111,6 +111,8 @@ export const NAV_SECTIONS: NavSection[] = [
       { labelKey: 'adminUsers', descKey: 'adminUsersDesc', href: '/admin/users', icon: Users, adminOnly: true },
       { labelKey: 'adminPlans', descKey: 'adminPlansDesc', href: '/admin/plans', icon: CreditCard, adminOnly: true },
       { labelKey: 'adminBilling', descKey: 'adminBillingDesc', href: '/admin/billing', icon: Receipt, adminOnly: true },
+      { labelKey: 'adminSubscriptions', descKey: 'adminSubscriptionsDesc', href: '/admin/subscriptions', icon: Receipt, adminOnly: true },
+      { labelKey: 'adminRequests', descKey: 'adminRequestsDesc', href: '/admin/requests', icon: Receipt, adminOnly: true },
       { labelKey: 'adminProviders', descKey: 'adminProvidersDesc', href: '/admin/providers', icon: Server, adminOnly: true },
       { labelKey: 'llmControl', descKey: 'llmControlDesc', href: '/admin/llm-control', icon: Cpu, adminOnly: true },
       { labelKey: 'adminSystem', descKey: 'adminSystemDesc', href: '/admin/system', icon: Wrench, adminOnly: true },
