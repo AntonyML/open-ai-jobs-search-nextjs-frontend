@@ -21,6 +21,8 @@ pnpm dev
 
 La aplicación queda en `http://localhost:3000`. Crea `.env.local`:
 
+Si el navegador muestra errores de Webpack o chunks desincronizados después de cambios de rutas, usa `pnpm dev:clean` para limpiar `.next` y reiniciar automáticamente.
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_APP_URL=http://localhost:3000
