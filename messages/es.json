@@ -104,7 +104,7 @@
     "planFreeFeature3": "CV adaptado a una oferta",
     "planMaxName": "Max",
     "planMaxDesc": "Todo el proceso de búsqueda de empleo",
-    "planMaxFeature1": "500 créditos cada mes",
+    "planMaxFeature1": "Todo lo de Pro: CV base y adaptado",
     "planMaxFeature2": "Todo lo de Pro: CV base y adaptado",
     "planMaxFeature3": "Ofertas rankeadas por fit",
     "planCtaFree": "Empezar gratis",
@@ -133,7 +133,7 @@
     "planProPrice": "$19.99",
     "planProPeriod": "/ mes",
     "planProYearly": "o $199 al año",
-    "planProFeature1": "100 créditos cada mes",
+    "planProFeature1": "CV base listo para ATS",
     "planProFeature2": "CV base listo para ATS",
     "planProFeature3": "CV adaptado a cada oferta",
     "planProFeature4": "Match score de ajuste por oferta",
@@ -1627,6 +1627,7 @@
     "refresh": "Actualizar"
   },
   "limits": {
+    "unavailable": "Los límites no están disponibles temporalmente. Intenta de nuevo más tarde.",
     "label": "Planes y límites",
     "heading": "Límites de uso",
     "updated": "Última actualización: 12 de agosto de 2026",

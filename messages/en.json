@@ -104,7 +104,7 @@
     "planFreeFeature3": "Tailored CV for one offer",
     "planMaxName": "Max",
     "planMaxDesc": "The complete job-search process",
-    "planMaxFeature1": "500 credits per month",
+    "planMaxFeature1": "Everything in Pro: base + tailored CV",
     "planMaxFeature2": "Everything in Pro: base + tailored CV",
     "planMaxFeature3": "Job offers ranked by fit",
     "planCtaFree": "Start free",
@@ -133,7 +133,7 @@
     "planProPrice": "$19.99",
     "planProPeriod": "/ month",
     "planProYearly": "or $199/year",
-    "planProFeature1": "100 credits per month",
+    "planProFeature1": "ATS-ready base CV",
     "planProFeature2": "ATS-ready base CV",
     "planProFeature3": "CV tailored to each offer",
     "planProFeature4": "Per-offer match score",
@@ -1627,6 +1627,7 @@
     "refresh": "Refresh"
   },
   "limits": {
+    "unavailable": "Usage limits are temporarily unavailable. Please try again later.",
     "label": "Plans & limits",
     "heading": "Usage limits",
     "updated": "Last updated: August 12, 2026",
