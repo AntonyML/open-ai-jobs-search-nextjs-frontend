@@ -44,19 +44,12 @@ function PlanCta({ ctaKey, solid = false }: { ctaKey: string; solid?: boolean })
 /** A pricing card row — either from the public catalog or the i18n fallback. */
 interface PricingPlan {
   key: string
+  credits_per_period: number
   price_monthly_usd: number
   price_yearly_usd: number
   features: string[]
   sort_order: number
 }
-
-/** Fallback used while loading or if the public endpoint fails — the landing
-    must never break. Mirrors today's hardcoded catalog (free/pro/max). */
-const FALLBACK_PLANS: PricingPlan[] = [
-  { key: 'free', price_monthly_usd: 0, price_yearly_usd: 0, features: ['', '', '', ''], sort_order: 10 },
-  { key: 'pro', price_monthly_usd: 19.99, price_yearly_usd: 199, features: ['', '', '', '', ''], sort_order: 20 },
-  { key: 'max', price_monthly_usd: 59.99, price_yearly_usd: 599, features: ['', '', '', '', '', '', ''], sort_order: 30 },
-]
 
 function formatPrice(usd: number, currency: string): string {
   const decimals = Math.abs(usd % 1) < 0.005 ? 0 : 2
@@ -91,24 +84,33 @@ export default function PricingSection() {
   const t = useTranslations('marketing')
   const [billing, setBilling] = useState<Billing>('monthly')
   const reducedMotion = useReducedMotion()
-  const { data: catalog } = usePublicCatalog()
+  const { data: catalog, isPending, isError } = usePublicCatalog()
+
+  if (isPending || isError || !catalog) {
+    return (
+      <section id="pricing" className="border-t border-[#d2d2d7] bg-white">
+        <div className="mx-auto max-w-[720px] px-5 py-16 text-center md:py-24">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[#0071e3]">{t('pricingLabel')}</p>
+          <h2 className="text-[34px] font-semibold leading-tight tracking-tight text-[#1d1d1f]">{t('pricingUnavailableTitle')}</h2>
+          <p className="mt-3 text-[15px] text-[#707070]">{t('pricingUnavailableBody')}</p>
+        </div>
+      </section>
+    )
+  }
 
   const currency = catalog?.currency ?? 'USD'
 
-  // Source of truth is the public catalog; fall back to i18n while it loads.
-  const plans: PricingPlan[] =
-    catalog?.plans && catalog.plans.length > 0
-      ? catalog.plans
-          .filter((p) => p.is_active)
-          .sort((a, b) => a.sort_order - b.sort_order)
-          .map((p) => ({
-            key: p.key,
-            price_monthly_usd: p.price_monthly_usd,
-            price_yearly_usd: p.price_yearly_usd,
-            features: p.features,
-            sort_order: p.sort_order,
-          }))
-      : FALLBACK_PLANS
+  const plans: PricingPlan[] = catalog.plans
+    .filter((p) => p.is_active)
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((p) => ({
+      key: p.key,
+      credits_per_period: p.credits_per_period,
+      price_monthly_usd: p.price_monthly_usd,
+      price_yearly_usd: p.price_yearly_usd,
+      features: p.features,
+      sort_order: p.sort_order,
+    }))
 
   const planLabel = (key: string) => `plan${key.charAt(0).toUpperCase()}${key.slice(1)}`
 
@@ -235,6 +237,9 @@ export default function PricingSection() {
                 {/* Name */}
                 <h3 className="text-[16px] font-semibold text-[#1d1d1f]">{t(`${prefix}Name`)}</h3>
                 <p className="mt-1 text-[12.5px] font-light text-[#707070]">{t(`${prefix}Desc`)}</p>
+                <p className="mt-3 text-[13px] font-medium text-[#1d1d1f]">
+                  {t('planCredits', { credits: plan.credits_per_period, cadence: key === 'free' ? t('pricingWeekly') : t('pricingMonthly') })}
+                </p>
 
                 {/* Price — key forces a crossfade when the billing changes */}
                 <div className="mt-5 flex items-baseline gap-1.5">
