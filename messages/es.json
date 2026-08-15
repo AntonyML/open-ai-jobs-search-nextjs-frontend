@@ -857,7 +857,8 @@
     "allRightsReserved": "© {year} Open Ai Jobs Search. Todos los derechos reservados.",
     "limits": "Límites de uso",
     "pricing": "Precios",
-    "home": "Inicio"
+    "home": "Inicio",
+    "blog": "Blog"
   },
   "upgrade": {
     "title": "Actualizar a Premium",

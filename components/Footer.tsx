@@ -15,6 +15,7 @@ export default function Footer() {
         { label: t('features'), href: '/#features' },
         { label: t('pricing'), href: '/#pricing' },
         { label: t('about'), href: '/about' },
+        { label: t('blog'), href: '/blog' },
       ],
     },
     {
@@ -87,7 +88,7 @@ export default function Footer() {
             </div>
 
             <p className="text-[11px] text-[#858585]">
-              {t('allRightsReserved', { year })}
+              {t('allRightsReserved', { year }).replace('Open Ai Jobs Search', 'CVMeld')}
             </p>
 
             <div className="flex items-center gap-3">

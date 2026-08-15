@@ -74,6 +74,7 @@ function MarketingLinks({ t }: { t: (key: string) => string }) {
     { label: t('footer.features'), href: '/#features' },
     { label: t('footer.pricing'), href: '/#pricing' },
     { label: t('footer.about'), href: '/about' },
+    { label: t('footer.blog'), href: '/blog' },
   ]
   return (
     <>
@@ -92,6 +93,7 @@ function MobileMarketingLinks({ t }: { t: (key: string) => string }) {
     { label: t('footer.features'), href: '/#features' },
     { label: t('footer.pricing'), href: '/#pricing' },
     { label: t('footer.about'), href: '/about' },
+    { label: t('footer.blog'), href: '/blog' },
   ]
   return (
     <>
@@ -215,7 +217,7 @@ export default function Navbar() {
   useEffect(() => { setMobileOpen(false) }, [pathname])
 
   // Routes that render the marketing navbar (product links) instead of the app one
-  const MARKETING_ROUTES = ['/', '/about', '/limits', '/terms', '/privacy']
+  const MARKETING_ROUTES = ['/', '/about', '/limits', '/terms', '/privacy', '/blog']
   const isMarketing = MARKETING_ROUTES.includes(pathname)
 
   return (
