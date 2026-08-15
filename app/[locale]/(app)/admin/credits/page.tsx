@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl'
 import { isLoggedIn, isAdmin } from '@/lib/auth'
 import { showSuccess, showError } from '@/lib/toasts'
 import {
-  Coins, Search, Plus, Minus, RefreshCw, X, Crown, Zap, Rocket, ShieldCheck, History,
+  Coins, Search, Plus, Minus, RefreshCw, X, Crown, Zap, Rocket, ShieldCheck, History, Bell, ArrowRight,
 } from 'lucide-react'
 import {
   adminSearchUsers,
@@ -19,6 +19,7 @@ import {
   adminApproveRefund,
 } from '@/lib/billing'
 import { getBillingCatalog } from '@/lib/billing'
+import { fetchNotifications, isRequestType, requestDeepLink, type ServerNotification } from '@/lib/notifications'
 import type { CreditTransaction, SubscriptionAdmin } from '@/types/billing'
 import styles from './CreditsAdmin.module.css'
 
@@ -69,16 +70,33 @@ function AdminCreditsInner() {
   const [upgradeAmount, setUpgradeAmount] = useState<number | null>(null)
   const [approving, setApproving] = useState(false)
 
+  // ── Pending request notifications (visible without the bell) ──
+  const [pending, setPending] = useState<ServerNotification[]>([])
+  const [pendingLoading, setPendingLoading] = useState(true)
+
   useEffect(() => {
     if (!isLoggedIn()) { router.replace('/login'); return }
     if (!isAdmin()) { router.replace('/dashboard'); return }
     void loadSubs()
+    void loadPending()
     // Load plans for the quick-activation form.
     getBillingCatalog()
       .then((c) => setPlans(c.plans.filter((p) => p.key !== 'free').map((p) => ({ key: p.key, name: p.name }))))
       .catch(() => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  async function loadPending() {
+    setPendingLoading(true)
+    try {
+      const notifs = await fetchNotifications()
+      setPending(notifs.filter((n) => !n.is_read && isRequestType(n.type) && !!n.payload?.user_id))
+    } catch {
+      setPending([])
+    } finally {
+      setPendingLoading(false)
+    }
+  }
 
   // Deep-link from the notification bell: ?user=<id>&plan=<key>&cycle=&cid=
   // Re-runs when the query changes (even navigating from the same route).
@@ -221,6 +239,7 @@ function AdminCreditsInner() {
       showError(x instanceof Error ? x.message : t('approveError'))
     } finally {
       setApproving(false)
+      void loadPending()
     }
   }
 
@@ -242,6 +261,7 @@ function AdminCreditsInner() {
       showError(x instanceof Error ? x.message : t('approveError'))
     } finally {
       setApproving(false)
+      void loadPending()
     }
   }
 
@@ -463,6 +483,56 @@ function AdminCreditsInner() {
                 </button>
               </div>
             </div>
+          </div>
+        )}
+      </section>
+
+      {/* ── Pending requests (from the bell notifications) ── */}
+      <section className={`${styles.tableCard} overflow-hidden rounded-2xl`}>
+        <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center gap-2">
+            <Bell className="h-4 w-4 text-amber-500" />
+            <h2 className="text-sm font-bold text-[#1d1d1f]">{t('pendingRequestsTitle')}</h2>
+          </div>
+          {pending.length > 0 && (
+            <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
+              {pending.length}
+            </span>
+          )}
+        </div>
+        {pendingLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <RefreshCw className="h-5 w-5 animate-spin text-[#858585]" />
+          </div>
+        ) : pending.length === 0 ? (
+          <p className="px-5 pb-6 pt-2 text-center text-xs text-[#858585]">{t('noPending')}</p>
+        ) : (
+          <div className="divide-y divide-[#d2d2d7]/40">
+            {pending.map((n) => (
+              <div key={n.id} className="flex flex-col gap-2 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600">
+                      {n.type === 'purchase_request' ? t('reqPurchase') : n.type === 'topup_request' ? t('reqTopup') : n.type === 'refund_request' ? t('reqRefund') : t('reqUpgrade')}
+                    </span>
+                    {n.payload?.correlation_id && (
+                      <code className="text-[9px] text-[#a0a0a0]">{n.payload.correlation_id.slice(0, 10)}…</code>
+                    )}
+                  </div>
+                  <p className="mt-0.5 truncate text-xs text-[#1d1d1f]">{n.title}</p>
+                  {n.body && n.body !== n.title && (
+                    <p className="truncate text-[10px] text-[#707070]">{n.body}</p>
+                  )}
+                </div>
+                <button
+                  onClick={() => router.push(`/${locale}${requestDeepLink(n)}`)}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-[#0071e3] to-[#0060c0] px-4 py-1.5 text-[11px] font-semibold text-white transition-all hover:brightness-110"
+                >
+                  {n.type === 'topup_request' || n.type === 'refund_request' ? t('approve') : t('review')}
+                  <ArrowRight className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </section>

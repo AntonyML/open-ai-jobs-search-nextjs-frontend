@@ -7,6 +7,7 @@ import type {
   AdminSubscriptionCreate,
   AdminTopupApprove,
   AdminUserSearchResult,
+  BillingPolicy,
   CreditStatus,
   CreditTransaction,
   PlanAdmin,
@@ -14,6 +15,7 @@ import type {
   PurchaseRequest,
   PurchaseRequestOut,
   SubscriptionAdmin,
+  TopupPack,
   TopupRequest,
   TopupRequestOut,
 } from '@/types/billing'
@@ -120,6 +122,28 @@ export async function adminApproveRefund(payload: AdminRefundApprove): Promise<{
   return apiFetch('/api/v1/admin/credits/refund', {
     method: 'POST',
     body: JSON.stringify(payload),
+  })
+}
+
+export async function adminGetTopupPacks(): Promise<TopupPack[]> {
+  return apiFetch<TopupPack[]>('/api/v1/admin/topup-packs')
+}
+
+export async function adminSetTopupPacks(packs: TopupPack[]): Promise<TopupPack[]> {
+  return apiFetch<TopupPack[]>('/api/v1/admin/topup-packs', {
+    method: 'PUT',
+    body: JSON.stringify({ packs }),
+  })
+}
+
+export async function adminGetBillingPolicy(): Promise<BillingPolicy> {
+  return apiFetch<BillingPolicy>('/api/v1/admin/billing-policy')
+}
+
+export async function adminSetBillingPolicy(policy: BillingPolicy): Promise<BillingPolicy> {
+  return apiFetch<BillingPolicy>('/api/v1/admin/billing-policy', {
+    method: 'PUT',
+    body: JSON.stringify(policy),
   })
 }
 

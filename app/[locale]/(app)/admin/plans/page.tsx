@@ -17,8 +17,17 @@ import {
   adminSetCreditCosts,
   adminGetNotificationTtl,
   adminSetNotificationTtl,
+  adminGetTopupPacks,
+  adminSetTopupPacks,
+  adminGetBillingPolicy,
+  adminSetBillingPolicy,
 } from '@/lib/billing'
-import type { PlanAdmin } from '@/types/billing'
+import type { BillingPolicy, PlanAdmin, TopupPack } from '@/types/billing'
+
+const DEFAULT_PACKS: TopupPack[] = [
+  { price_usd: 9.99, credits: 50 },
+  { price_usd: 19.99, credits: 120 },
+]
 import styles from './PlansAdmin.module.css'
 
 const EMPTY_PLAN: PlanAdmin = {
@@ -46,9 +55,13 @@ export default function AdminPlansPage() {
   const [plans, setPlans] = useState<PlanAdmin[]>([])
   const [costs, setCosts] = useState({ cv_base: 1, cv_adapted: 1, pipeline: 1 })
   const [ttlDays, setTtlDays] = useState(30)
+  const [packs, setPacks] = useState<TopupPack[]>(DEFAULT_PACKS)
+  const [policy, setPolicy] = useState<BillingPolicy>({ refund_credit_threshold: 16, annual_cooling_days: 14 })
   const [loading, setLoading] = useState(true)
   const [savingCosts, setSavingCosts] = useState(false)
   const [savingTtl, setSavingTtl] = useState(false)
+  const [savingPacks, setSavingPacks] = useState(false)
+  const [savingPolicy, setSavingPolicy] = useState(false)
   const [editing, setEditing] = useState<PlanAdmin | 'new' | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -78,6 +91,17 @@ export default function AdminPlansPage() {
     } catch {
       setTtlDays(30)
     }
+    // Same for the billing singletons: they only drive the credits page.
+    try {
+      setPacks(await adminGetTopupPacks())
+    } catch {
+      // keep defaults
+    }
+    try {
+      setPolicy(await adminGetBillingPolicy())
+    } catch {
+      // keep defaults
+    }
   }
 
   async function saveTtl() {
@@ -103,6 +127,32 @@ export default function AdminPlansPage() {
       showError(x instanceof Error ? x.message : t('saveError'))
     } finally {
       setSavingCosts(false)
+    }
+  }
+
+  async function savePacks() {
+    setSavingPacks(true)
+    try {
+      const next = await adminSetTopupPacks(packs)
+      setPacks(next)
+      showSuccess(t('packsSaved'))
+    } catch (x) {
+      showError(x instanceof Error ? x.message : t('saveError'))
+    } finally {
+      setSavingPacks(false)
+    }
+  }
+
+  async function savePolicy() {
+    setSavingPolicy(true)
+    try {
+      const next = await adminSetBillingPolicy(policy)
+      setPolicy(next)
+      showSuccess(t('policySaved'))
+    } catch (x) {
+      showError(x instanceof Error ? x.message : t('saveError'))
+    } finally {
+      setSavingPolicy(false)
     }
   }
 
@@ -202,6 +252,108 @@ export default function AdminPlansPage() {
               >
                 <Save className="h-3.5 w-3.5" />
                 {t('saveCosts')}
+              </button>
+            </div>
+          </section>
+
+          {/* ── Top-up packs (fixed 2, manual payment) ── */}
+          <section className={`${styles.glassCard} rounded-2xl p-5`}>
+            <div className="mb-4 flex items-center gap-2">
+              <Coins className="h-5 w-5 text-amber-500" />
+              <h2 className="text-sm font-bold text-[#1d1d1f]">{t('packsTitle')}</h2>
+            </div>
+            <p className="mb-4 text-xs text-[#707070]">{t('packsDesc')}</p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {packs.map((p, i) => (
+                <div key={i} className="rounded-xl border border-[#d2d2d7]/70 bg-white p-3">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#858585]">
+                    {t('packLabel', { n: i + 1 })}
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="block">
+                      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#707070]">{t('creditsLabel')}</span>
+                      <input
+                        type="number"
+                        min={1}
+                        value={p.credits}
+                        onChange={(e) => {
+                          const credits = Math.max(1, parseInt(e.target.value || '0', 10))
+                          setPacks(packs.map((pk, j) => (j === i ? { ...pk, credits } : pk)))
+                        }}
+                        className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-1.5 text-sm font-medium text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#707070]">{t('priceLabel')}</span>
+                      <input
+                        type="number"
+                        min={0.01}
+                        step={0.01}
+                        value={p.price_usd}
+                        onChange={(e) => {
+                          const price = Math.max(0.01, parseFloat(e.target.value || '0'))
+                          setPacks(packs.map((pk, j) => (j === i ? { ...pk, price_usd: price } : pk)))
+                        }}
+                        className="w-full rounded-lg border border-[#d2d2d7] bg-white px-3 py-1.5 text-sm font-medium text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
+                      />
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={savePacks}
+                disabled={savingPacks}
+                className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:brightness-110 disabled:opacity-50 active:scale-[.98]"
+              >
+                <Save className="h-3.5 w-3.5" />
+                {t('savePacks')}
+              </button>
+            </div>
+          </section>
+
+          {/* ── Refund policy (monthly threshold + annual window) ── */}
+          <section className={`${styles.glassCard} rounded-2xl p-5`}>
+            <div className="mb-4 flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-rose-500" />
+              <h2 className="text-sm font-bold text-[#1d1d1f]">{t('policyTitle')}</h2>
+            </div>
+            <p className="mb-4 text-xs text-[#707070]">{t('policyDesc')}</p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <label className="block">
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[#707070]">
+                  {t('policyThresholdLabel')}
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  value={policy.refund_credit_threshold}
+                  onChange={(e) => setPolicy({ ...policy, refund_credit_threshold: Math.max(0, parseInt(e.target.value || '0', 10)) })}
+                  className="w-full rounded-xl border border-[#d2d2d7] bg-white px-3 py-2 text-sm font-medium text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[#707070]">
+                  {t('policyCoolingLabel')}
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  value={policy.annual_cooling_days}
+                  onChange={(e) => setPolicy({ ...policy, annual_cooling_days: Math.max(0, parseInt(e.target.value || '0', 10)) })}
+                  className="w-full rounded-xl border border-[#d2d2d7] bg-white px-3 py-2 text-sm font-medium text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
+                />
+              </label>
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={savePolicy}
+                disabled={savingPolicy}
+                className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-500 to-red-500 px-5 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:brightness-110 disabled:opacity-50 active:scale-[.98]"
+              >
+                <Save className="h-3.5 w-3.5" />
+                {t('savePolicy')}
               </button>
             </div>
           </section>

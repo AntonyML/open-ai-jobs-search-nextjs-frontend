@@ -1386,7 +1386,20 @@
     "deleteConfirm": "¿Eliminar plan?",
     "deleteConfirmDesc": "Los usuarios con este plan volverán a free en su próxima renovación.",
     "delete": "Eliminar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "packsTitle": "Packs de top-up",
+    "packsDesc": "Packs de créditos prepagados (pago manual SINPE/WhatsApp). Fijados a exactamente 2.",
+    "packLabel": "Pack {n}",
+    "creditsLabel": "Créditos",
+    "priceLabel": "Precio (USD)",
+    "savePacks": "Guardar packs",
+    "packsSaved": "Packs de top-up guardados",
+    "policyTitle": "Política de reembolsos",
+    "policyDesc": "Los reembolsos mensuales se bloquean por encima del umbral de uso; los anuales solo dentro de la ventana de enfriamiento.",
+    "policyThresholdLabel": "Umbral de uso (créditos)",
+    "policyCoolingLabel": "Enfriamiento anual (días)",
+    "savePolicy": "Guardar política",
+    "policySaved": "Política de reembolsos guardada"
   },
   "adminCredits": {
     "title": "Créditos y Suscripciones",
@@ -1426,7 +1439,15 @@
     "refundApproved": "Reembolso aprobado",
     "approveError": "No se pudo aprobar",
     "dismiss": "Descartar",
-    "upgradeAmount": "Monto prorrateado"
+    "upgradeAmount": "Monto prorrateado",
+    "pendingRequestsTitle": "Solicitudes pendientes",
+    "noPending": "No hay solicitudes pendientes",
+    "reqPurchase": "Compra",
+    "reqTopup": "Top-up",
+    "reqRefund": "Reembolso",
+    "reqUpgrade": "Upgrade",
+    "approve": "Aprobar",
+    "review": "Revisar"
   },
   "limits": {
     "label": "Planes y límites",

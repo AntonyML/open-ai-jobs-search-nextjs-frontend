@@ -79,6 +79,11 @@ export interface TopupPack {
   credits: number
 }
 
+export interface BillingPolicy {
+  refund_credit_threshold: number
+  annual_cooling_days: number
+}
+
 export interface ProductCatalog {
   plans: Plan[]
   credit_costs: CreditCosts

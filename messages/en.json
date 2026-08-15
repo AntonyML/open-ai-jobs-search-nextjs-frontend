@@ -1386,7 +1386,20 @@
     "deleteConfirm": "Delete plan?",
     "deleteConfirmDesc": "Users with this plan will fall back to free on their next renewal.",
     "delete": "Delete",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "packsTitle": "Top-up packs",
+    "packsDesc": "Prepaid credit packs (manual SINPE/WhatsApp payment). Locked to exactly 2.",
+    "packLabel": "Pack {n}",
+    "creditsLabel": "Credits",
+    "priceLabel": "Price (USD)",
+    "savePacks": "Save packs",
+    "packsSaved": "Top-up packs saved",
+    "policyTitle": "Refund policy",
+    "policyDesc": "Monthly refunds are blocked above the usage threshold; annual refunds only within the cooling window.",
+    "policyThresholdLabel": "Usage threshold (credits)",
+    "policyCoolingLabel": "Annual cooling (days)",
+    "savePolicy": "Save policy",
+    "policySaved": "Refund policy saved"
   },
   "adminCredits": {
     "title": "Credits & Subscriptions",
@@ -1426,7 +1439,15 @@
     "refundApproved": "Refund approved",
     "approveError": "Could not approve",
     "dismiss": "Dismiss",
-    "upgradeAmount": "Prorated amount"
+    "upgradeAmount": "Prorated amount",
+    "pendingRequestsTitle": "Pending requests",
+    "noPending": "No pending requests",
+    "reqPurchase": "Purchase",
+    "reqTopup": "Top-up",
+    "reqRefund": "Refund",
+    "reqUpgrade": "Upgrade",
+    "approve": "Approve",
+    "review": "Review"
   },
   "limits": {
     "label": "Plans & limits",

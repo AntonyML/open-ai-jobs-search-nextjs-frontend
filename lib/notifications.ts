@@ -37,6 +37,43 @@ export interface ServerNotification {
   } | null
 }
 
+/** Admin-actionable request types (deep-link to the admin credits page). */
+export const REQUEST_TYPES = ['purchase_request', 'topup_request', 'refund_request', 'upgrade_prorate'] as const
+
+export type RequestType = (typeof REQUEST_TYPES)[number]
+
+export function isRequestType(type: string): type is RequestType {
+  return (REQUEST_TYPES as readonly string[]).includes(type)
+}
+
+/**
+ * Deep-link target for an admin-actionable request notification.
+ *
+ * The admin credits page reads the query params (``approve=topup|refund``,
+ * ``plan``, ``cycle``, ``amount``, ``cid``) to pre-fill the approval form.
+ */
+export function requestDeepLink(notif: ServerNotification): string {
+  const p = notif.payload ?? {}
+  const qs = new URLSearchParams()
+  if (p.user_id) qs.set('user', p.user_id)
+  if (p.correlation_id) qs.set('cid', p.correlation_id)
+  if (notif.type === 'purchase_request') {
+    if (p.plan_key) qs.set('plan', p.plan_key)
+    if (p.billing_cycle) qs.set('cycle', p.billing_cycle)
+  } else if (notif.type === 'topup_request') {
+    qs.set('approve', 'topup')
+    if (p.credits) qs.set('credits', String(p.credits))
+  } else if (notif.type === 'refund_request') {
+    qs.set('approve', 'refund')
+  } else if (notif.type === 'upgrade_prorate') {
+    if (p.plan_to) qs.set('plan', p.plan_to)
+    if (p.billing_cycle) qs.set('cycle', p.billing_cycle)
+    if (typeof p.amount_due === 'number') qs.set('amount', String(p.amount_due))
+  }
+  const suffix = qs.toString() ? `?${qs.toString()}` : ''
+  return `/admin/credits${suffix}`
+}
+
 /** Shape accepted by `addNotification`. */
 export interface ProcessNotification {
   action: string

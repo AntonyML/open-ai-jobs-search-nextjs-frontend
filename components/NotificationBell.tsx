@@ -6,10 +6,13 @@ import { useRouter } from '@/i18n/routing'
 import { useTranslations } from 'next-intl'
 import { isAdmin } from '@/lib/auth'
 import {
+  isRequestType,
   markAsRead,
   markAllAsRead,
   clearNotifications,
+  requestDeepLink,
   useNotifications,
+  type RequestType,
   type ServerNotification,
 } from '@/lib/notifications'
 import { showError } from '@/lib/toasts'
@@ -77,15 +80,6 @@ function isErrorType(type: string): boolean {
   return type.endsWith('_error')
 }
 
-// Admin-actionable request types (deep-link to the admin credits page).
-const REQUEST_TYPES = ['purchase_request', 'topup_request', 'refund_request', 'upgrade_prorate'] as const
-
-type RequestType = (typeof REQUEST_TYPES)[number]
-
-function isRequestType(type: string): type is RequestType {
-  return (REQUEST_TYPES as readonly string[]).includes(type)
-}
-
 function isAlertType(type: string): boolean {
   return isRequestType(type) || type === 'quota_exhausted' || type === 'ia_exhausted'
 }
@@ -147,30 +141,6 @@ function formatTimestamp(ts: string | null): string {
   if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`
   if (diff < 604800000) return `${Math.floor(diff / 86400000)}d`
   return d.toLocaleDateString()
-}
-
-// ── Deep-link target for admin-actionable requests ─────────────────
-
-function requestHref(notif: ServerNotification): string {
-  const p = notif.payload ?? {}
-  const qs = new URLSearchParams()
-  if (p.user_id) qs.set('user', p.user_id)
-  if (p.correlation_id) qs.set('cid', p.correlation_id)
-  if (notif.type === 'purchase_request') {
-    if (p.plan_key) qs.set('plan', p.plan_key)
-    if (p.billing_cycle) qs.set('cycle', p.billing_cycle)
-  } else if (notif.type === 'topup_request') {
-    qs.set('approve', 'topup')
-    if (p.credits) qs.set('credits', String(p.credits))
-  } else if (notif.type === 'refund_request') {
-    qs.set('approve', 'refund')
-  } else if (notif.type === 'upgrade_prorate') {
-    if (p.plan_to) qs.set('plan', p.plan_to)
-    if (p.billing_cycle) qs.set('cycle', p.billing_cycle)
-    if (typeof p.amount_due === 'number') qs.set('amount', String(p.amount_due))
-  }
-  const suffix = qs.toString() ? `?${qs.toString()}` : ''
-  return `/admin/credits${suffix}`
 }
 
 // ── Notification item ─────────────────────────────────────────────
@@ -424,7 +394,7 @@ export default function NotificationBell() {
                             setOpen(false)
                             void markAsRead(notif.id)
                             window.dispatchEvent(new Event('notifications:refresh'))
-                            router.push(requestHref(notif))
+                            router.push(requestDeepLink(notif))
                           }
                         : undefined
                     }
