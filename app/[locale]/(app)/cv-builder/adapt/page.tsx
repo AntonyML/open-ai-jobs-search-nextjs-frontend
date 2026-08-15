@@ -197,7 +197,7 @@ export default function AdaptCvPage() {
               : 'text-[#707070] hover:text-[#1d1d1f]',
           )}
         >
-          <span className="inline-flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
             <Link2 className="size-3.5" />
             {t('adaptMethodUrl')}
           </span>
@@ -212,7 +212,7 @@ export default function AdaptCvPage() {
               : 'text-[#707070] hover:text-[#1d1d1f]',
           )}
         >
-          <span className="inline-flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
             <Briefcase className="size-3.5" />
             {t('adaptMethodOffers')}
             {!isMax && (
@@ -233,7 +233,7 @@ export default function AdaptCvPage() {
               : 'text-[#707070] hover:text-[#1d1d1f]',
           )}
         >
-          <span className="inline-flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
             <FileText className="size-3.5" />
             {t('adaptMethodText')}
           </span>

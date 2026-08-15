@@ -683,7 +683,7 @@ function AdminUserDetailInner() {
 
 // ── Sub-components ──
 
-function StatusBadge({ s, t, locale }: { s: SubscriptionAdmin; t: (k: string) => string; locale: string }) {
+function StatusBadge({ s, t, locale }: { s: SubscriptionAdmin; t: (k: string, values?: Record<string, string>) => string; locale: string }) {
   if (s.status === 'active') {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
