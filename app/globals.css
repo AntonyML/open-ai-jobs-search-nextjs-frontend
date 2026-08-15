@@ -223,6 +223,10 @@ html.access-font-sans-serif {
 @layer utilities {
   .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #d2d2d7 transparent; }
   .text-balance { text-wrap: balance; }
+
+  /* WCAG AA-safe replacements for muted text on white/frost surfaces. */
+  .text-\[\#858585\] { color: #5f6368 !important; }
+  .text-\[\#a0a0a0\] { color: #5f6368 !important; }
 }
 
 /* ── Components ──────────────────────────────────────────────────── */
