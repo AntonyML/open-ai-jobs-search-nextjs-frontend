@@ -77,24 +77,41 @@ function isErrorType(type: string): boolean {
   return type.endsWith('_error')
 }
 
+// Admin-actionable request types (deep-link to the admin credits page).
+const REQUEST_TYPES = ['purchase_request', 'topup_request', 'refund_request', 'upgrade_prorate'] as const
+
+type RequestType = (typeof REQUEST_TYPES)[number]
+
+function isRequestType(type: string): type is RequestType {
+  return (REQUEST_TYPES as readonly string[]).includes(type)
+}
+
 function isAlertType(type: string): boolean {
-  return type === 'purchase_request' || type === 'quota_exhausted' || type === 'ia_exhausted'
+  return isRequestType(type) || type === 'quota_exhausted' || type === 'ia_exhausted'
 }
 
 function typeIconColor(type: string): string {
   if (isErrorType(type)) return 'text-[#ff3b30]'
-  if (type === 'purchase_request' || type === 'quota_exhausted' || type === 'ia_exhausted') return 'text-amber-500'
+  if (isAlertType(type)) return 'text-amber-500'
   return 'text-[#34c759]'
 }
 
 // ── Type badge ─────────────────────────────────────────────────────
 
+const REQUEST_BADGES: Record<RequestType, { label: string; cls: string }> = {
+  purchase_request: { label: 'Purchase', cls: 'bg-amber-50 text-amber-700 ring-amber-200/60' },
+  topup_request: { label: 'Top-up', cls: 'bg-amber-50 text-amber-700 ring-amber-200/60' },
+  refund_request: { label: 'Refund', cls: 'bg-rose-50 text-rose-600 ring-rose-200/60' },
+  upgrade_prorate: { label: 'Upgrade', cls: 'bg-[#f4f8fb] text-[#0066cc] ring-[#0071e3]/20' },
+}
+
 function TypeBadge({ type }: { type: string }) {
-  if (type === 'purchase_request') {
+  if (isRequestType(type)) {
+    const badge = REQUEST_BADGES[type]
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-amber-700 ring-1 ring-amber-200/60">
+      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ring-1 ${badge.cls}`}>
         <PurchaseIcon />
-        Purchase
+        {badge.label}
       </span>
     )
   }
@@ -132,15 +149,26 @@ function formatTimestamp(ts: string | null): string {
   return d.toLocaleDateString()
 }
 
-// ── Deep-link target for purchase requests ─────────────────────────
+// ── Deep-link target for admin-actionable requests ─────────────────
 
-function purchaseHref(notif: ServerNotification): string {
+function requestHref(notif: ServerNotification): string {
   const p = notif.payload ?? {}
   const qs = new URLSearchParams()
   if (p.user_id) qs.set('user', p.user_id)
-  if (p.plan_key) qs.set('plan', p.plan_key)
-  if (p.billing_cycle) qs.set('cycle', p.billing_cycle)
   if (p.correlation_id) qs.set('cid', p.correlation_id)
+  if (notif.type === 'purchase_request') {
+    if (p.plan_key) qs.set('plan', p.plan_key)
+    if (p.billing_cycle) qs.set('cycle', p.billing_cycle)
+  } else if (notif.type === 'topup_request') {
+    qs.set('approve', 'topup')
+    if (p.credits) qs.set('credits', String(p.credits))
+  } else if (notif.type === 'refund_request') {
+    qs.set('approve', 'refund')
+  } else if (notif.type === 'upgrade_prorate') {
+    if (p.plan_to) qs.set('plan', p.plan_to)
+    if (p.billing_cycle) qs.set('cycle', p.billing_cycle)
+    if (typeof p.amount_due === 'number') qs.set('amount', String(p.amount_due))
+  }
   const suffix = qs.toString() ? `?${qs.toString()}` : ''
   return `/admin/credits${suffix}`
 }
@@ -162,8 +190,12 @@ function NotificationItem({
 }) {
   const error = isErrorType(notif.type)
   const unread = !notif.is_read
-  const isPurchase = notif.type === 'purchase_request'
-  const actionable = isAdminUser && isPurchase && !!notif.payload?.user_id
+  const actionable = isAdminUser && isRequestType(notif.type) && !!notif.payload?.user_id
+  // Top-ups/refunds are approvals, purchases/upgrades are activations.
+  const actionLabel =
+    notif.type === 'topup_request' || notif.type === 'refund_request'
+      ? 'Approve'
+      : activateLabel
   return (
     <div
       role="button"
@@ -191,8 +223,7 @@ function NotificationItem({
         {notif.body && notif.body !== notif.title && (
           <p className="mt-0.5 text-[11px] leading-snug text-[#707070] line-clamp-2">{notif.body}</p>
         )}
-        <p className="mt-1 text-[10px] text-[#858585]">{formatTimestamp(notif.created_at)}</p>
-        {actionable && onActivate && (
+        <p className="mt-1 text-[10px] text-[#858585]">{formatTimestamp(notif.created_at)}</p>            {actionable && onActivate && (
           <button
             type="button"
             onClick={(e) => {
@@ -201,7 +232,7 @@ function NotificationItem({
             }}
             className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#0071e3] to-[#0060c0] px-2.5 py-1 text-[10px] font-semibold text-white transition-all hover:brightness-110"
           >
-            {activateLabel}
+            {actionLabel}
             <ArrowRightMini />
           </button>
         )}
@@ -388,12 +419,12 @@ export default function NotificationBell() {
                       window.dispatchEvent(new Event('notifications:refresh'))
                     }}
                     onActivate={
-                      notif.type === 'purchase_request' && isAdmin() && notif.payload?.user_id
+                      isRequestType(notif.type) && isAdmin() && notif.payload?.user_id
                         ? () => {
                             setOpen(false)
                             void markAsRead(notif.id)
                             window.dispatchEvent(new Event('notifications:refresh'))
-                            router.push(purchaseHref(notif))
+                            router.push(requestHref(notif))
                           }
                         : undefined
                     }

@@ -58,6 +58,10 @@ const FALLBACK_CATALOG: ProductCatalog = {
     },
   ],
   credit_costs: { cv_base: 1, cv_adapted: 1, pipeline: 1 },
+  topup_packs: [
+    { price_usd: 9.99, credits: 50 },
+    { price_usd: 19.99, credits: 120 },
+  ],
   whatsapp_number: '',
   currency: 'USD',
   last_updated: null,

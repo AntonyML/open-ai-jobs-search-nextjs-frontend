@@ -3,7 +3,9 @@
 import { apiFetch } from '@/lib/api'
 import type {
   AdminCreditAdjust,
+  AdminRefundApprove,
   AdminSubscriptionCreate,
+  AdminTopupApprove,
   AdminUserSearchResult,
   CreditStatus,
   CreditTransaction,
@@ -12,6 +14,8 @@ import type {
   PurchaseRequest,
   PurchaseRequestOut,
   SubscriptionAdmin,
+  TopupRequest,
+  TopupRequestOut,
 } from '@/types/billing'
 
 export async function getBillingStatus(): Promise<CreditStatus> {
@@ -32,6 +36,13 @@ export async function getCreditTransactions(): Promise<CreditTransaction[]> {
 
 export async function requestPurchase(payload: PurchaseRequest): Promise<PurchaseRequestOut> {
   return apiFetch<PurchaseRequestOut>('/api/v1/billing/purchase', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function requestTopup(payload: TopupRequest): Promise<TopupRequestOut> {
+  return apiFetch<TopupRequestOut>('/api/v1/billing/topup', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
@@ -82,6 +93,31 @@ export async function adminSetNotificationTtl(days: number): Promise<{ days: num
 
 export async function adminAdjustCredits(payload: AdminCreditAdjust): Promise<{ user_id: string; balance: number }> {
   return apiFetch('/api/v1/admin/credits/adjust', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function adminApproveTopup(payload: AdminTopupApprove): Promise<{
+  user_id: string
+  credits: number
+  price_usd: number
+  balance: number
+  correlation_id: string | null
+}> {
+  return apiFetch('/api/v1/admin/credits/topup', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function adminApproveRefund(payload: AdminRefundApprove): Promise<{
+  user_id: string
+  revoked_credits: number
+  status: string
+  correlation_id: string | null
+}> {
+  return apiFetch('/api/v1/admin/credits/refund', {
     method: 'POST',
     body: JSON.stringify(payload),
   })

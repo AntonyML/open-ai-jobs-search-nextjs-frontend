@@ -61,6 +61,8 @@ export interface CreditStatus {
   quota_day_limit: number
   quota_week_used: number
   quota_week_limit: number
+  /** When the quota windows reset (drives the weekly quota bar). */
+  next_reset_at: string | null
   features: string[]
   credits: CreditTransaction[]
   correlation_id: string | null
@@ -72,12 +74,45 @@ export interface CreditCosts {
   pipeline: number
 }
 
+export interface TopupPack {
+  price_usd: number
+  credits: number
+}
+
 export interface ProductCatalog {
   plans: Plan[]
   credit_costs: CreditCosts
+  topup_packs: TopupPack[]
   whatsapp_number: string
   currency: string
   last_updated: string | null
+}
+
+export interface TopupRequest {
+  pack_credits: number
+  method: 'sinpe' | 'whatsapp' | 'email'
+  phone?: string | null
+  note?: string | null
+}
+
+export interface TopupRequestOut {
+  ok: boolean
+  correlation_id: string
+  message: string
+  whatsapp_number: string
+  pack: TopupPack | null
+}
+
+/** Enriched 402/429 detail from enforce_action_gate (plan.md §4). */
+export interface GateDetail {
+  code: 'insufficient_credits' | 'quota_exceeded' | string
+  message?: string
+  balance?: number
+  next_reset_at?: string | null
+  quota_week_used?: number
+  quota_week_limit?: number
+  topup_packs?: TopupPack[]
+  correlation_id?: string | null
 }
 
 export interface PurchaseRequest {
@@ -106,7 +141,20 @@ export interface AdminSubscriptionCreate {
   plan_key: string
   billing_cycle: 'monthly' | 'yearly'
   auto_renew: boolean
+  /** What the user actually paid (e.g. the prorated amount of an upgrade). */
+  price_paid?: number
   note?: string | null
+}
+
+export interface AdminTopupApprove {
+  user_id: string
+  pack_credits: number
+  correlation_id?: string | null
+}
+
+export interface AdminRefundApprove {
+  user_id: string
+  correlation_id?: string | null
 }
 
 export interface SubscriptionAdmin {

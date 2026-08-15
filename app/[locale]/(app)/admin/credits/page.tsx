@@ -15,6 +15,8 @@ import {
   adminListSubscriptions,
   adminActivateSubscription,
   adminUserTransactions,
+  adminApproveTopup,
+  adminApproveRefund,
 } from '@/lib/billing'
 import { getBillingCatalog } from '@/lib/billing'
 import type { CreditTransaction, SubscriptionAdmin } from '@/types/billing'
@@ -60,6 +62,13 @@ function AdminCreditsInner() {
   const [quickCorrelation, setQuickCorrelation] = useState('')
   const [quickPending, setQuickPending] = useState(false)
 
+  // ── Pending approvals (deep-linked from the notification bell) ──
+  const [approveAction, setApproveAction] = useState<'topup' | 'refund' | null>(null)
+  const [approveCredits, setApproveCredits] = useState<number | null>(null)
+  const [approveCid, setApproveCid] = useState('')
+  const [upgradeAmount, setUpgradeAmount] = useState<number | null>(null)
+  const [approving, setApproving] = useState(false)
+
   useEffect(() => {
     if (!isLoggedIn()) { router.replace('/login'); return }
     if (!isAdmin()) { router.replace('/dashboard'); return }
@@ -84,6 +93,15 @@ function AdminCreditsInner() {
       if (searchParams.get('cycle') === 'yearly') setQuickCycle('yearly')
       setQuickCorrelation(searchParams.get('cid') || '')
     }
+    // Approval deep-links: ?approve=topup&credits=50 / ?approve=refund,
+    // plus the prorated amount for upgrades: ?plan=max&cycle=&amount=12.50.
+    const approve = searchParams.get('approve')
+    setApproveAction(approve === 'topup' || approve === 'refund' ? approve : null)
+    const credits = searchParams.get('credits')
+    setApproveCredits(credits ? parseInt(credits, 10) : null)
+    const amount = searchParams.get('amount')
+    setUpgradeAmount(amount ? parseFloat(amount) : null)
+    setApproveCid(searchParams.get('cid') || '')
   }, [searchParams])
 
   // Debounced user search
@@ -162,12 +180,16 @@ function AdminCreditsInner() {
         plan_key: quickPlan,
         billing_cycle: quickCycle,
         auto_renew: quickPlan === 'max',
+        // Upgrades pay the prorated amount (plan.md §5) — the deep-link
+        // carries it from the upgrade_prorate notification payload.
+        price_paid: upgradeAmount ?? undefined,
         note: quickCorrelation
           ? `${t('manualActivation')} — ${t('correlation')}: ${quickCorrelation}`
           : t('manualActivation'),
       })
       showSuccess(`${t('activated')} · ${quickPlan.toUpperCase()}`)
       setQuickCorrelation('')
+      setUpgradeAmount(null)
       await loadSubs()
       window.dispatchEvent(new Event('notifications:refresh'))
       // Clean the deep-link query so a refresh doesn't re-select the user.
@@ -176,6 +198,50 @@ function AdminCreditsInner() {
       showError(x instanceof Error ? x.message : t('activateError'))
     } finally {
       setQuickPending(false)
+    }
+  }
+
+  async function approveTopup() {
+    if (!selected || !approveCredits) return
+    setApproving(true)
+    try {
+      const res = await adminApproveTopup({
+        user_id: selected.id,
+        pack_credits: approveCredits,
+        correlation_id: approveCid || null,
+      })
+      showSuccess(`${t('topupApproved')} → +${res.credits} ${t('credits')} · ${t('balance')}: ${res.balance}`)
+      setApproveAction(null)
+      setApproveCredits(null)
+      setApproveCid('')
+      window.dispatchEvent(new Event('notifications:refresh'))
+      if (showTxns) await loadTxns(selected.id)
+      router.replace(`/${locale}/admin/credits`)
+    } catch (x) {
+      showError(x instanceof Error ? x.message : t('approveError'))
+    } finally {
+      setApproving(false)
+    }
+  }
+
+  async function approveRefund() {
+    if (!selected) return
+    setApproving(true)
+    try {
+      const res = await adminApproveRefund({
+        user_id: selected.id,
+        correlation_id: approveCid || null,
+      })
+      showSuccess(`${t('refundApproved')} · ${res.revoked_credits} ${t('credits')}`)
+      setApproveAction(null)
+      setApproveCid('')
+      window.dispatchEvent(new Event('notifications:refresh'))
+      await loadSubs()
+      router.replace(`/${locale}/admin/credits`)
+    } catch (x) {
+      showError(x instanceof Error ? x.message : t('approveError'))
+    } finally {
+      setApproving(false)
     }
   }
 
@@ -309,7 +375,50 @@ function AdminCreditsInner() {
               </div>
             )}
 
-            {/* ── Quick activation (pre-filled from purchase-request deep-link) ── */}
+            {/* ── Pending approvals (top-up / refund deep-links) ── */}
+            {(approveAction || approveCid) && (
+              <div className="mt-3 rounded-xl border border-amber-200/70 bg-amber-50/60 p-3">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-amber-600" />
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-amber-700">{t('pendingTitle')}</p>
+                  {approveCid && (
+                    <code className="truncate rounded-md bg-white px-2 py-1 text-[10px] text-[#474747] ring-1 ring-amber-200" title={approveCid}>
+                      {approveCid.slice(0, 16)}…
+                    </code>
+                  )}
+                </div>
+                <div className="mt-2.5 flex flex-col gap-2 sm:flex-row sm:items-center">
+                  {approveAction === 'topup' && approveCredits ? (
+                    <button
+                      onClick={approveTopup}
+                      disabled={approving}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-1.5 text-[11px] font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+                    >
+                      {approving ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Coins className="h-3.5 w-3.5" />}
+                      {t('approveTopup', { credits: approveCredits })}
+                    </button>
+                  ) : approveAction === 'refund' ? (
+                    <button
+                      onClick={approveRefund}
+                      disabled={approving}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-rose-500 to-red-500 px-4 py-1.5 text-[11px] font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+                    >
+                      {approving ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Minus className="h-3.5 w-3.5" />}
+                      {t('approveRefund')}
+                    </button>
+                  ) : null}
+                  <button
+                    onClick={() => { setApproveAction(null); setApproveCredits(null); setApproveCid('') }}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] bg-white px-4 py-1.5 text-[11px] font-medium text-[#474747] transition-all hover:bg-[#f5f5f7]"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    {t('dismiss')}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ── Quick activation (pre-filled from purchase/upgrade deep-link) ── */}
             <div className="mt-3 rounded-xl border border-emerald-200/70 bg-emerald-50/60 p-3">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-emerald-600" />
@@ -337,6 +446,12 @@ function AdminCreditsInner() {
                   <code className="truncate rounded-md bg-white px-2 py-1 text-[10px] text-[#474747] ring-1 ring-emerald-200" title={quickCorrelation}>
                     {quickCorrelation.slice(0, 16)}…
                   </code>
+                )}
+                {upgradeAmount !== null && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#f4f8fb] px-2.5 py-1 text-[10px] font-semibold text-[#0071e3] ring-1 ring-[#0071e3]/20">
+                    <Coins className="h-3 w-3" />
+                    {t('upgradeAmount')}: ${upgradeAmount.toFixed(2)}
+                  </span>
                 )}
                 <button
                   onClick={quickActivate}

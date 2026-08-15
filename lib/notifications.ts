@@ -28,6 +28,12 @@ export interface ServerNotification {
     plan_key?: string
     billing_cycle?: string
     correlation_id?: string
+    // topup_request
+    credits?: number
+    // upgrade_prorate
+    plan_from?: string
+    plan_to?: string
+    amount_due?: number
   } | null
 }
 

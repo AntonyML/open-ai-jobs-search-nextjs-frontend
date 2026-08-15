@@ -275,6 +275,7 @@ export default function BillingPage() {
                   label={t('dailyQuota')}
                   used={status!.quota_day_used}
                   limit={status!.quota_day_limit}
+                  nextResetAt={status!.next_reset_at}
                 />
               )}
               {status!.quota_week_limit > 0 && (
@@ -282,6 +283,7 @@ export default function BillingPage() {
                   label={t('weeklyQuota')}
                   used={status!.quota_week_used}
                   limit={status!.quota_week_limit}
+                  nextResetAt={status!.next_reset_at}
                 />
               )}
             </div>
@@ -385,9 +387,10 @@ export default function BillingPage() {
   )
 }
 
-function QuotaBar({ label, used, limit }: { label: string; used: number; limit: number }) {
+function QuotaBar({ label, used, limit, nextResetAt }: { label: string; used: number; limit: number; nextResetAt?: string | null }) {
   const pct = Math.min(100, (used / limit) * 100)
   const nearLimit = pct >= 80
+  const t = useTranslations('billingPage')
   return (
     <div>
       <div className="flex items-center justify-between text-[10px] text-[#707070]">
@@ -402,6 +405,12 @@ function QuotaBar({ label, used, limit }: { label: string; used: number; limit: 
           style={{ width: `${pct}%` }}
         />
       </div>
+      {nextResetAt && (
+        <p className="mt-1 flex items-center gap-1 text-[9px] text-[#a0a0a0]">
+          <RefreshCw className="h-2.5 w-2.5" />
+          {t('resetsOn', { date: new Date(nextResetAt).toLocaleDateString() })}
+        </p>
+      )}
     </div>
   )
 }

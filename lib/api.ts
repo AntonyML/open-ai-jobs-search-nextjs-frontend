@@ -22,9 +22,27 @@ export async function apiFetch<T = unknown>(path: string, init?: RequestInit): P
   const res = await fetch(`${API_BASE}${path}`, { ...init, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(init?.headers ?? {}) } })
   if (!res.ok) {
     const text = await res.text()
+    // Parse the error payload.  The enriched gate (402/429) sends a structured
+    // detail: { code: "insufficient_credits" | "quota_exceeded", message, balance, ... }.
+    // `msg` must stay a string — the UI feeds it to toasts and ApiError.
     let msg = text
     let code = ''
-    try { const j = JSON.parse(text); msg = j.message || j.detail || text; code = j.error || '' } catch {}
+    let payload: Record<string, unknown> | undefined
+    try {
+      const j = JSON.parse(text) as { message?: unknown; detail?: unknown; error?: unknown }
+      const detail = j.detail
+      if (detail !== null && typeof detail === 'object') {
+        const d = detail as Record<string, unknown>
+        msg = typeof d.message === 'string' ? d.message : (typeof j.message === 'string' ? j.message : text)
+        code = typeof d.code === 'string' ? d.code : (typeof j.error === 'string' ? j.error : '')
+        payload = d
+      } else {
+        msg = typeof j.message === 'string' ? j.message : (typeof detail === 'string' ? detail : text)
+        code = typeof j.error === 'string' ? j.error : ''
+      }
+    } catch {
+      // Non-JSON error body — keep the raw text.
+    }
     if (typeof window !== 'undefined') {
       if (res.status === 401) {
         // Sesión caducada o token inválido → cerrar la sesión local.
@@ -40,12 +58,14 @@ export async function apiFetch<T = unknown>(path: string, init?: RequestInit): P
           }
         }
       } else if (res.status === 402) {
-        // Out of credits / paywall → open the purchase modal.
-        window.dispatchEvent(new CustomEvent('purchase:required', { detail: { message: msg, status: res.status } }))
+        // Out of credits / paywall → open the purchase modal (frontend keys on `code`).
+        window.dispatchEvent(new CustomEvent('purchase:required', { detail: { message: msg, status: res.status, code, payload } }))
       } else if (res.status === 403 && /plan max|max\b/i.test(msg)) {
         // Pipeline gated to plan Max → open the purchase modal.
-        window.dispatchEvent(new CustomEvent('purchase:required', { detail: { message: msg, status: res.status } }))
+        window.dispatchEvent(new CustomEvent('purchase:required', { detail: { message: msg, status: res.status, code, payload } }))
       }
+      // 429 (quota) intentionally does NOT open the purchase modal: quotas are
+      // not monetizable — the billing page shows the weekly quota bar instead.
     }
     throw new ApiError(msg, res.status, code)
   }
