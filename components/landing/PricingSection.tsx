@@ -84,6 +84,7 @@ export default function PricingSection() {
   const t = useTranslations('marketing')
   const [billing, setBilling] = useState<Billing>('monthly')
   const reducedMotion = useReducedMotion()
+  const { ref: cardsRef, shown } = useInViewOnce<HTMLDivElement>(0.08)
   const { data: catalog, isPending, isError } = usePublicCatalog()
 
   if (isPending || isError || !catalog) {
@@ -117,8 +118,6 @@ export default function PricingSection() {
   // Savings badge: derived from the first paid plan (1 − yearly/(monthly×12)).
   const paid = plans.find((p) => p.price_monthly_usd > 0)
   const savingsPct = paid ? Math.max(0, Math.round((1 - paid.price_yearly_usd / (paid.price_monthly_usd * 12)) * 100)) : 0
-
-  const { ref: cardsRef, shown } = useInViewOnce<HTMLDivElement>(0.08)
 
   return (
     <section id="pricing" className="relative overflow-hidden border-t border-[#d2d2d7] bg-white">

@@ -1385,7 +1385,7 @@
       "growth": "Growth",
       "quality": "Quality"
     },
-    "costsExample": "Example: an adapted CV costs {n} credits; with 100 credits the user generates ~{m} adaptations.",
+    "costsExample": "Example: an adapted CV costs {n} credits; with the available balance the user generates ~{m} adaptations.",
     "saveCosts": "Save costs",
     "costsSaved": "Credit costs saved",
     "costsConflict": "Another admin changed these costs. Reloading the latest values…",

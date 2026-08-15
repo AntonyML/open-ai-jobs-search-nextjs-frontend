@@ -1385,7 +1385,7 @@
       "growth": "Crecimiento",
       "quality": "Calidad"
     },
-    "costsExample": "Ejemplo: un CV adaptado cuesta {n} créditos; con 100 créditos el usuario genera ~{m} adaptaciones.",
+    "costsExample": "Ejemplo: un CV adaptado cuesta {n} créditos; con el saldo disponible el usuario genera ~{m} adaptaciones.",
     "saveCosts": "Guardar costos",
     "costsSaved": "Costos de créditos guardados",
     "costsConflict": "Otro admin modificó estos costos. Recargando los valores más recientes…",

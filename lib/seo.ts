@@ -17,6 +17,14 @@ export const SITE_CONFIG = {
     'Job Search Engine',
     'Automated Resume Matcher',
     'AI Job Search',
+    'AI resume builder',
+    'ATS resume',
+    'generador de CV con IA',
+    'currículum ATS',
+    'adaptar CV a oferta',
+    'carta de presentación IA',
+    'buscar trabajo Costa Rica',
+    'generador de currículum gratis',
   ],
 }
 
@@ -99,6 +107,9 @@ export function constructMetadata({
       shortcut: '/favicon.svg',
     },
     manifest: '/manifest.json',
+    verification: {
+      google: 'qhyCjvpy_KAMB2neGSmuSeSxGJfBqaxkChRo-W6Joic',
+    },
     robots: {
       index: !noIndex,
       follow: !noIndex,
