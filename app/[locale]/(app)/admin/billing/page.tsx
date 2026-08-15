@@ -69,6 +69,13 @@ export default function AdminBillingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Filters re-query the subscription list as soon as they change.
+  useEffect(() => {
+    if (!isLoggedIn() || !isAdmin()) return
+    void loadSubs()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [planFilter, statusFilter])
+
   async function loadConfig() {
     try {
       setPacks(await adminGetTopupPacks())

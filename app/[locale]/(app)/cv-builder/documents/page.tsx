@@ -132,7 +132,7 @@ export default function CvDocumentsPage() {
 
   if (loading) {
     return (
-      <section className="mx-auto max-w-3xl">
+      <section className="mx-auto max-w-5xl">
         <PageHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} loading loadingLabel="Loading…" />
         <div className="mt-8 space-y-4">
           <div className="skeleton h-24 w-full rounded-2xl" />
@@ -143,7 +143,7 @@ export default function CvDocumentsPage() {
   }
 
   return (
-    <section className="mx-auto max-w-3xl">
+    <section className="mx-auto max-w-5xl">
       <PageHeader eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
 
       {/* ── Summary chips ─────────────────────────────────────── */}

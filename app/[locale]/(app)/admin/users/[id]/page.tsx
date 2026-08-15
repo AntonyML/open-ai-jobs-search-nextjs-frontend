@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
-import { useParams, useRouter, usePathname } from 'next/navigation'
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { useParams, useRouter, usePathname, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { isLoggedIn, isAdmin } from '@/lib/auth'
@@ -19,6 +19,7 @@ import {
   adminActivateSubscription,
   adminApproveTopup,
   adminApproveRefund,
+  adminGetTopupPacks,
   getBillingCatalog,
 } from '@/lib/billing'
 import { fetchNotifications, isRequestType, type ServerNotification } from '@/lib/notifications'
@@ -27,6 +28,7 @@ import type {
   CreditTransaction,
   Plan,
   SubscriptionAdmin,
+  TopupPack,
 } from '@/types/billing'
 
 const PAID_TIERS = ['pro', 'max']
@@ -38,6 +40,14 @@ const TIER_BADGES: Record<string, { icon: typeof Zap; cls: string }> = {
 }
 
 export default function AdminUserDetailPage() {
+  return (
+    <Suspense fallback={<div className="py-24 text-center text-sm text-[#858585]">…</div>}>
+      <AdminUserDetailInner />
+    </Suspense>
+  )
+}
+
+function AdminUserDetailInner() {
   const t = useTranslations('adminUserDetail')
   const ta = useTranslations('admin')
   const tc = useTranslations('adminCredits')
@@ -52,7 +62,9 @@ export default function AdminUserDetailPage() {
   const [txns, setTxns] = useState<CreditTransaction[]>([])
   const [pending, setPending] = useState<ServerNotification[]>([])
   const [plans, setPlans] = useState<Plan[]>([])
+  const [topupPacks, setTopupPacks] = useState<TopupPack[]>([])
   const [loading, setLoading] = useState(true)
+  const prefillApplied = useRef(false)
 
   // Activation form
   const [formPlan, setFormPlan] = useState('pro')
@@ -67,6 +79,8 @@ export default function AdminUserDetailPage() {
   const [delta, setDelta] = useState(10)
   const [reason, setReason] = useState('')
   const [confirmSupersede, setConfirmSupersede] = useState(false)
+  // Amount the admin confirms receiving per top-up request (plan.md §2.8).
+  const [topupAmounts, setTopupAmounts] = useState<Record<string, string>>({})
 
   const activeSub = subs.find((s) => s.status === 'active') ?? null
   const balance = txns.reduce((acc, tx) => acc + tx.credits_delta, 0)
@@ -102,6 +116,9 @@ export default function AdminUserDetailPage() {
     void load()
     getBillingCatalog()
       .then((c) => setPlans(c.plans.filter((p) => p.key !== 'free')))
+      .catch(() => {})
+    adminGetTopupPacks()
+      .then(setTopupPacks)
       .catch(() => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
@@ -187,11 +204,15 @@ export default function AdminUserDetailPage() {
   }
 
   async function approveTopup(n: ServerNotification) {
+    // plan.md §2.8 — the admin must confirm the amount actually received.
+    const price = parseFloat(topupAmounts[n.id] ?? '')
+    if (!price || price <= 0) { showError(t('approveError')); return }
     setBusy('topup')
     try {
       const res = await adminApproveTopup({
         user_id: userId,
         pack_credits: n.payload?.credits ?? 0,
+        price_paid: price,
         correlation_id: n.payload?.correlation_id ?? null,
       })
       showSuccess(`${t('topupApproved')} → +${res.credits} ${t('credits')} · ${t('balance')}: ${res.balance}`)
@@ -235,6 +256,44 @@ export default function AdminUserDetailPage() {
     }
     document.getElementById('activation-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
+
+  // Deep-link prefill (requestDeepLink): ?plan=&cycle=&amount=&cid= prefills
+  // the activation form; ?approve=topup|refund scrolls to the approvals.
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    if (prefillApplied.current || !user) return
+    prefillApplied.current = true
+    const plan = searchParams.get('plan')
+    if (plan) setFormPlan(plan)
+    if (searchParams.get('cycle') === 'yearly') setFormCycle('yearly')
+    const amount = searchParams.get('amount')
+    if (amount) setFormPrice(amount)
+    const cid = searchParams.get('cid')
+    if (cid) setFormCid(cid)
+    const approve = searchParams.get('approve')
+    if (plan || approve) {
+      setTimeout(() => {
+        const target = approve ? document.getElementById('approvals') : document.getElementById('activation-form')
+        target?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 150)
+    }
+  }, [user, searchParams])
+
+  // Prefill top-up amounts with the pack price once both are loaded.
+  useEffect(() => {
+    if (topupPacks.length === 0) return
+    setTopupAmounts((prev) => {
+      const next = { ...prev }
+      let changed = false
+      for (const n of pending) {
+        if (n.type === 'topup_request' && !next[n.id]) {
+          const price = topupPacks.find((p) => p.credits === n.payload?.credits)?.price_usd
+          if (price) { next[n.id] = String(price); changed = true }
+        }
+      }
+      return changed ? next : prev
+    })
+  }, [topupPacks, pending])
 
   if (loading && !user) {
     return (
@@ -520,7 +579,7 @@ export default function AdminUserDetailPage() {
       </section>
 
       {/* ── Pending approvals for this user ── */}
-      <section className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
+      <section id="approvals" className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
         <div className="mb-3 flex items-center gap-2">
           <Bell className="h-5 w-5 text-amber-500" />
           <h2 className="text-sm font-bold text-[#1d1d1f]">{t('pendingTitle')}</h2>
@@ -541,12 +600,27 @@ export default function AdminUserDetailPage() {
                   <p className="truncate text-xs text-[#1d1d1f]">{n.title}</p>
                   {n.body && n.body !== n.title && <p className="truncate text-[10px] text-[#707070]">{n.body}</p>}
                 </div>
-                <div className="flex shrink-0 gap-2">
+                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
                   {(n.type === 'topup_request' || n.type === 'refund_request') ? (
                     <>
+                      {n.type === 'topup_request' && (
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-[#858585]">$</span>
+                          <input
+                            type="number"
+                            min={0.01}
+                            step={0.01}
+                            value={topupAmounts[n.id] ?? ''}
+                            onChange={(e) => setTopupAmounts((prev) => ({ ...prev, [n.id]: e.target.value }))}
+                            placeholder="0.00"
+                            title={t('amountReceived')}
+                            className="w-20 rounded-lg border border-[#d2d2d7] bg-white px-2 py-1.5 text-[11px] outline-none transition-all focus:border-[#0071e3]"
+                          />
+                        </div>
+                      )}
                       <button
                         onClick={() => void (n.type === 'topup_request' ? approveTopup(n) : approveRefund(n))}
-                        disabled={busy === 'topup' || busy === 'refund'}
+                        disabled={busy === 'topup' || busy === 'refund' || (n.type === 'topup_request' && (!topupAmounts[n.id] || parseFloat(topupAmounts[n.id]) <= 0))}
                         className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50 ${
                           n.type === 'topup_request'
                             ? 'bg-gradient-to-r from-amber-500 to-orange-500'

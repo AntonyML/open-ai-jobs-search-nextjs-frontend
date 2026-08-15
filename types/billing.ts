@@ -154,6 +154,8 @@ export interface AdminSubscriptionCreate {
 export interface AdminTopupApprove {
   user_id: string
   pack_credits: number
+  /** Amount the user actually paid — required (plan.md §2.8). */
+  price_paid: number
   correlation_id?: string | null
 }
 

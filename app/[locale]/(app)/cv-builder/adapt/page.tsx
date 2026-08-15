@@ -137,7 +137,7 @@ export default function AdaptCvPage() {
 
   if (loading) {
     return (
-      <section className="mx-auto max-w-3xl">
+      <section className="mx-auto max-w-5xl">
         <PageHeader eyebrow={t('adaptEyebrow')} title={t('adaptTitle')} subtitle={t('adaptDesc')} loading loadingLabel="Loading…" />
         <div className="mt-8 space-y-4">
           <div className="skeleton h-12 w-full rounded-full" />
@@ -150,7 +150,7 @@ export default function AdaptCvPage() {
   // ── Locked state: base CV required (Regla 4) ──────────────────
   if (!baseCv) {
     return (
-      <section className="mx-auto max-w-3xl">
+      <section className="mx-auto max-w-5xl">
         <PageHeader eyebrow={t('adaptEyebrow')} title={t('adaptTitle')} subtitle={t('adaptDesc')} />
         <div className="mt-6 rounded-2xl border border-[#d2d2d7]/60 bg-white p-8 text-center">
           <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-[#f5f5f7]">
@@ -171,7 +171,7 @@ export default function AdaptCvPage() {
   }
 
   return (
-    <section className="mx-auto max-w-3xl">
+    <section className="mx-auto max-w-5xl">
       <PageHeader eyebrow={t('adaptEyebrow')} title={t('adaptTitle')} subtitle={t('adaptDesc')} />
 
       {error && (
@@ -304,7 +304,7 @@ export default function AdaptCvPage() {
             className="field mt-4 w-full resize-y text-sm leading-5"
           />
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[11px] text-[#858585]">{t('adaptTextHint')}</p>
+            <p className="min-w-0 text-[11px] text-[#858585]">{t('adaptTextHint')}</p>
             <AppleButton
               loading={adapting}
               disabled={adapting || text.trim().length < 50}
@@ -350,7 +350,7 @@ export default function AdaptCvPage() {
                     id="cv-offer-select"
                     value={selectedJobId}
                     onChange={(e) => setSelectedJobId(e.target.value)}
-                    className="field h-10 flex-1"
+                    className="field h-10 min-w-0 flex-1"
                   >
                     <option value="">{t('selectOfferPlaceholder')}</option>
                     {jobs.map((job) => (

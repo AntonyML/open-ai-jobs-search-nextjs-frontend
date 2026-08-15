@@ -68,7 +68,7 @@ export default function AdminPage() {
     { icon: Users, label: t('totalUsers'), value: stats.total, cls: 'bg-[#f4f8fb] text-[#0071e3]' },
     { icon: Shield, label: t('admins'), value: stats.admins, cls: 'bg-purple-50 text-purple-600' },
     { icon: Crown, label: t('activeSubs'), value: stats.active_subs, cls: 'bg-amber-50 text-amber-600' },
-    { icon: Bell, label: t('pendingRequestsTitle'), value: pending.length, cls: 'bg-emerald-50 text-emerald-600' },
+    { icon: Bell, label: tc('pendingRequestsTitle'), value: pending.length, cls: 'bg-emerald-50 text-emerald-600' },
   ]
 
   return (
