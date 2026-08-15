@@ -696,7 +696,7 @@ function StatusBadge({ s, t, locale }: { s: SubscriptionAdmin; t: (k: string) =>
     // is_expired comes from the backend (period_end in the past) — no Date.now() in render.
     return (
       <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600">
-        {!s.is_expired ? `${t('statusCancelledUntil')} ${formatDate(s.period_end, locale)}` : t('statusCancelled')}
+        {!s.is_expired ? t('statusCancelledUntil', { date: formatDate(s.period_end, locale) }) : t('statusCancelled')}
       </span>
     )
   }
