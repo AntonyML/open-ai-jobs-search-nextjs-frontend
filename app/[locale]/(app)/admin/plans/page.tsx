@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { isLoggedIn, isAdmin } from '@/lib/auth'
 import { showSuccess, showError } from '@/lib/toasts'
+import { ApiError } from '@/lib/api'
 import {
   CreditCard, Plus, Trash2, Save, RefreshCw, X, Coins, DollarSign,
   CalendarDays, Layers, ShieldCheck, Pencil, GripVertical,
 } from 'lucide-react'
 import { adminListPlans, adminUpsertPlan, adminDeletePlan, adminGetCreditCosts, adminSetCreditCosts } from '@/lib/billing'
-import type { PlanAdmin } from '@/types/billing'
+import type { CreditCostsOut, PlanAdmin } from '@/types/billing'
 import styles from './PlansAdmin.module.css'
 
 const EMPTY_PLAN: PlanAdmin = {
@@ -37,7 +38,9 @@ export default function AdminPlansPage() {
   const t = useTranslations('adminPlans')
   const router = useRouter()
   const [plans, setPlans] = useState<PlanAdmin[]>([])
-  const [costs, setCosts] = useState({ cv_base: 1, cv_adapted: 1, pipeline: 1 })
+  const [catalog, setCatalog] = useState<CreditCostsOut | null>(null)
+  const [costs, setCosts] = useState<Record<string, number>>({})
+  const [versions, setVersions] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
   const [savingCosts, setSavingCosts] = useState(false)
   const [editing, setEditing] = useState<PlanAdmin | 'new' | null>(null)
@@ -56,7 +59,10 @@ export default function AdminPlansPage() {
     try {
       const [p, c] = await Promise.all([adminListPlans(), adminGetCreditCosts()])
       setPlans([...p].sort((a, b) => a.sort_order - b.sort_order))
-      setCosts(c)
+      // Plan.md §8.2 — the UI renders from the API response, never hardcoded.
+      setCatalog(c)
+      setCosts(Object.fromEntries(c.actions.map((a) => [a.key, a.cost])))
+      setVersions(Object.fromEntries(c.actions.map((a) => [a.key, a.version])))
     } catch (x) {
       showError(x instanceof Error ? x.message : t('loadError'))
     } finally {
@@ -67,11 +73,19 @@ export default function AdminPlansPage() {
   async function saveCosts() {
     setSavingCosts(true)
     try {
-      const next = await adminSetCreditCosts(costs)
-      setCosts(next)
+      const next = await adminSetCreditCosts(costs, versions)
+      setCatalog(next)
+      setCosts(Object.fromEntries(next.actions.map((a) => [a.key, a.cost])))
+      setVersions(Object.fromEntries(next.actions.map((a) => [a.key, a.version])))
       showSuccess(t('costsSaved'))
     } catch (x) {
-      showError(x instanceof Error ? x.message : t('saveError'))
+      if (x instanceof ApiError && x.status === 409) {
+        // Another admin edited first — reload so we never save over their work.
+        showError(t('costsConflict'))
+        void load()
+      } else {
+        showError(x instanceof Error ? x.message : t('saveError'))
+      }
     } finally {
       setSavingCosts(false)
     }
@@ -148,26 +162,38 @@ export default function AdminPlansPage() {
               <h2 className="text-sm font-bold text-[#1d1d1f]">{t('costsTitle')}</h2>
             </div>
             <p className="mb-4 text-xs text-[#707070]">{t('costsDesc')}</p>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {(['cv_base', 'cv_adapted', 'pipeline'] as const).map((k) => (
-                <label key={k} className="block">
-                  <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[#707070]">
-                    {t(`cost.${k}`)}
-                  </span>
-                  <div className="relative">
-                    <Coins className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#858585]" />
-                    <input
-                      type="number"
-                      min={0}
-                      value={costs[k]}
-                      onChange={(e) => setCosts({ ...costs, [k]: Math.max(0, parseInt(e.target.value || '0', 10)) })}
-                      className="w-full rounded-xl border border-[#d2d2d7] bg-white py-2 pl-9 pr-3 text-sm font-medium text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
-                    />
+            {catalog?.groups.map((group) => {
+              const items = catalog.actions.filter((a) => a.group === group)
+              if (items.length === 0) return null
+              return (
+                <div key={group} className="mb-5">
+                  <h3 className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-[#1d1d1f]">
+                    <Coins className="h-3.5 w-3.5 text-amber-500" />
+                    {t(`costGroup.${group}`)}
+                  </h3>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    {items.map((a) => (
+                      <label key={a.key} className="block">
+                        <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[#707070]">
+                          {t(`cost.${a.key}`)}
+                        </span>
+                        <div className="relative">
+                          <Coins className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#858585]" />
+                          <input
+                            type="number"
+                            min={0}
+                            value={costs[a.key] ?? a.cost}
+                            onChange={(e) => setCosts({ ...costs, [a.key]: Math.max(0, parseInt(e.target.value || '0', 10)) })}
+                            className="w-full rounded-xl border border-[#d2d2d7] bg-white py-2 pl-9 pr-3 text-sm font-medium text-[#1d1d1f] outline-none transition-all focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
+                          />
+                        </div>
+                        <span className="mt-1.5 block text-[10px] leading-relaxed text-[#858585]">{t(`costHint.${a.key}`)}</span>
+                      </label>
+                    ))}
                   </div>
-                  <span className="mt-1.5 block text-[10px] leading-relaxed text-[#858585]">{t(`costHint.${k}`)}</span>
-                </label>
-              ))}
-            </div>
+                </div>
+              )
+            })}
             <p className="mt-4 rounded-xl bg-amber-50/70 px-3 py-2 text-[11px] leading-relaxed text-[#8a6d1f]">
               {t('costsExample', { n: costs.cv_adapted, m: costs.cv_adapted > 0 ? Math.floor(100 / costs.cv_adapted) : 0 })}
             </p>

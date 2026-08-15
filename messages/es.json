@@ -1354,20 +1354,37 @@
     "saveError": "No se pudo guardar",
     "deleteError": "No se pudo eliminar",
     "costsTitle": "Costos de créditos (calibración)",
-    "costsDesc": "Cuántos créditos consume cada acción de IA. Ajusta para calibrar tu margen.",
+    "costsDesc": "Cuántos créditos consume cada acción de IA. Ajusta para calibrar tu margen. Si un servicio no aparece aquí (ver ofertas, ver tus CVs) es porque no consume créditos.",
     "cost": {
-      "cv_base": "CV base",
-      "cv_adapted": "CV adaptado",
-      "pipeline": "Acción de búsqueda de empleo"
+      "cv_base": "Generar CV base",
+      "cv_adapted": "Adaptar CV a una oferta",
+      "rank": "Ranking",
+      "apply": "Postulación",
+      "interview": "Entrevista",
+      "expand": "Descubrir skills",
+      "upskill": "Plan de formación",
+      "verify": "Verificación de aplicación"
     },
     "costHint": {
-      "cv_base": "Se descuenta al generar el CV base.",
-      "cv_adapted": "Se descuenta al adaptar el CV a una oferta.",
-      "pipeline": "Se descuenta por cada acción de búsqueda y postulación (ranking, aplicación, entrevista)."
+      "cv_base": "Se descuenta al generar el CV base. 0 = gratis.",
+      "cv_adapted": "Se descuenta al adaptar el CV a una oferta. 0 = gratis.",
+      "rank": "Se descuenta por cada evaluación de compatibilidad. 0 = gratis.",
+      "apply": "Se descuenta por cada postulación enviada. 0 = gratis.",
+      "interview": "Se descuenta por cada preparación o turno de entrevista. 0 = gratis.",
+      "expand": "Se descuenta por cada escaneo de skills. 0 = gratis.",
+      "upskill": "Se descuenta por cada análisis del plan de formación. 0 = gratis.",
+      "verify": "Se descuenta por cada verificación de aplicación. 0 = gratis."
+    },
+    "costGroup": {
+      "cv": "CV",
+      "job_search": "Búsqueda de empleo",
+      "growth": "Crecimiento",
+      "quality": "Calidad"
     },
     "costsExample": "Ejemplo: un CV adaptado cuesta {n} créditos; con 100 créditos el usuario genera ~{m} adaptaciones.",
     "saveCosts": "Guardar costos",
     "costsSaved": "Costos de créditos guardados",
+    "costsConflict": "Otro admin modificó estos costos. Recargando los valores más recientes…",
     "newPlan": "Nuevo plan",
     "editPlan": "Editar plan",
     "refresh": "Actualizar",
@@ -1543,7 +1560,25 @@
     "supersedeTitle": "Reemplazar suscripción",
     "supersedeDesc": "Ya hay una suscripción activa ({from}). Al activar {to} se cancelará la anterior.",
     "supersedeConfirm": "Sí, reemplazar",
-    "credits": "créditos"
+    "credits": "créditos",
+    "ledger": {
+      "refill": "Recarga semanal",
+      "signup_bonus": "Bono de bienvenida",
+      "purchase": "Compra",
+      "admin_adjust": "Ajuste de admin",
+      "topup": "Top-up",
+      "upgrade_prorate": "Upgrade prorrateado",
+      "refund_revoke": "Reembolso",
+      "expiry": "Créditos expirados",
+      "cv_base": "CV base",
+      "cv_adapted": "CV adaptado",
+      "rank": "Ranking",
+      "apply": "Postulación",
+      "interview": "Entrevista",
+      "expand": "Descubrir skills",
+      "upskill": "Plan de formación",
+      "verify": "Verificación"
+    }
   },
   "adminTabs": {
     "label": "Navegación del panel de administración",
@@ -1596,7 +1631,9 @@
     "introBody": "Cada acción dentro de la plataforma consume créditos de tu plan. Un crédito se descuenta por cada documento o proceso que ejecutes:",
     "creditCvBase": "CV base — {cost, plural, one {1 crédito} other {# créditos}} por documento",
     "creditCvAdapted": "CV adaptado a una oferta — {cost, plural, one {1 crédito} other {# créditos}} por documento",
-    "creditPipeline": "Evaluación y postulación (ranking, aplicación, entrevista) — {cost, plural, one {1 crédito} other {# créditos}} por acción",
+    "creditRank": "Ranking de compatibilidad — {cost, plural, one {1 crédito} other {# créditos}} por evaluación",
+    "creditApply": "Postulación — {cost, plural, one {1 crédito} other {# créditos}} por envío",
+    "creditInterview": "Entrevista — {cost, plural, one {1 crédito} other {# créditos}} por preparación / turno",
     "plansTitle": "Límites por plan",
     "plansBody": "Cada plan incluye una asignación de créditos que se renueva de forma periódica, además de límites de uso diarios y semanales.",
     "tablePlan": "Plan",

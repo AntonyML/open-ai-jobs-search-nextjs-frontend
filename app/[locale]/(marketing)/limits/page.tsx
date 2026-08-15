@@ -57,7 +57,7 @@ const FALLBACK_CATALOG: ProductCatalog = {
       sort_order: 30,
     },
   ],
-  credit_costs: { cv_base: 1, cv_adapted: 1, pipeline: 1 },
+  credit_costs: { cv_base: 1, cv_adapted: 1, rank: 1, apply: 1, interview: 1, expand: 1, upskill: 1, verify: 1 },
   topup_packs: [
     { price_usd: 9.99, credits: 50 },
     { price_usd: 19.99, credits: 120 },
@@ -134,7 +134,9 @@ export default async function LimitsPage() {
           <ul>
             <li>{t('creditCvBase', { cost: catalog.credit_costs.cv_base })}</li>
             <li>{t('creditCvAdapted', { cost: catalog.credit_costs.cv_adapted })}</li>
-            <li>{t('creditPipeline', { cost: catalog.credit_costs.pipeline })}</li>
+            <li>{t('creditRank', { cost: catalog.credit_costs.rank })}</li>
+            <li>{t('creditApply', { cost: catalog.credit_costs.apply })}</li>
+            <li>{t('creditInterview', { cost: catalog.credit_costs.interview })}</li>
           </ul>
 
           <h2>{t('plansTitle')}</h2>

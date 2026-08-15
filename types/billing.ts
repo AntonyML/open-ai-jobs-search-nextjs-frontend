@@ -68,10 +68,32 @@ export interface CreditStatus {
   correlation_id: string | null
 }
 
+/** Flat effective costs (public/billing catalog — one entry per action). */
 export interface CreditCosts {
   cv_base: number
   cv_adapted: number
-  pipeline: number
+  rank: number
+  apply: number
+  interview: number
+  expand: number
+  upskill: number
+  verify: number
+}
+
+/** Admin view of one billable action (GET /admin/credit-costs). */
+export interface CreditCostOut {
+  key: string
+  group: string
+  cost: number
+  default_cost: number
+  feature_gate: string | null
+  version: number
+}
+
+/** Rich admin catalog — the plans page renders from this (no hardcoded lists). */
+export interface CreditCostsOut {
+  groups: string[]
+  actions: CreditCostOut[]
 }
 
 export interface TopupPack {

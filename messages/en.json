@@ -1354,20 +1354,37 @@
     "saveError": "Could not save",
     "deleteError": "Could not delete",
     "costsTitle": "Credit costs (calibration)",
-    "costsDesc": "How many credits each AI action consumes. Adjust to calibrate your margin.",
+    "costsDesc": "How many credits each AI action consumes. Adjust to calibrate your margin. If a service is not listed here (browsing offers, viewing your CVs) it does not consume credits.",
     "cost": {
-      "cv_base": "Base CV",
-      "cv_adapted": "Adapted CV",
-      "pipeline": "Job search action"
+      "cv_base": "Generate base CV",
+      "cv_adapted": "Adapt CV to an offer",
+      "rank": "Ranking",
+      "apply": "Application",
+      "interview": "Interview",
+      "expand": "Discover skills",
+      "upskill": "Training plan",
+      "verify": "Application verification"
     },
     "costHint": {
-      "cv_base": "Charged when generating the base CV.",
-      "cv_adapted": "Charged when adapting the CV to a job offer.",
-      "pipeline": "Charged per job-search & application action (ranking, apply, interview)."
+      "cv_base": "Charged when generating the base CV. 0 = free.",
+      "cv_adapted": "Charged when adapting the CV to a job offer. 0 = free.",
+      "rank": "Charged per compatibility ranking run. 0 = free.",
+      "apply": "Charged per application submitted. 0 = free.",
+      "interview": "Charged per interview prep / mock turn. 0 = free.",
+      "expand": "Charged per skill discovery scan. 0 = free.",
+      "upskill": "Charged per training-plan analysis. 0 = free.",
+      "verify": "Charged per application verification. 0 = free."
+    },
+    "costGroup": {
+      "cv": "CV",
+      "job_search": "Job search",
+      "growth": "Growth",
+      "quality": "Quality"
     },
     "costsExample": "Example: an adapted CV costs {n} credits; with 100 credits the user generates ~{m} adaptations.",
     "saveCosts": "Save costs",
     "costsSaved": "Credit costs saved",
+    "costsConflict": "Another admin changed these costs. Reloading the latest values…",
     "newPlan": "New plan",
     "editPlan": "Edit plan",
     "refresh": "Refresh",
@@ -1543,7 +1560,25 @@
     "supersedeTitle": "Replace subscription",
     "supersedeDesc": "There is an active subscription ({from}). Activating {to} will cancel the previous one.",
     "supersedeConfirm": "Yes, replace",
-    "credits": "credits"
+    "credits": "credits",
+    "ledger": {
+      "refill": "Weekly refill",
+      "signup_bonus": "Welcome bonus",
+      "purchase": "Purchase",
+      "admin_adjust": "Admin adjustment",
+      "topup": "Top-up",
+      "upgrade_prorate": "Prorated upgrade",
+      "refund_revoke": "Refund",
+      "expiry": "Credits expired",
+      "cv_base": "Base CV",
+      "cv_adapted": "Adapted CV",
+      "rank": "Ranking",
+      "apply": "Application",
+      "interview": "Interview",
+      "expand": "Skill discovery",
+      "upskill": "Training plan",
+      "verify": "Verification"
+    }
   },
   "adminTabs": {
     "label": "Admin section navigation",
@@ -1596,7 +1631,9 @@
     "introBody": "Every action in the platform consumes credits from your plan. One credit is deducted for each document or process you run:",
     "creditCvBase": "Base CV — {cost, plural, one {1 credit} other {# credits}} per document",
     "creditCvAdapted": "Tailored CV — {cost, plural, one {1 credit} other {# credits}} per document",
-    "creditPipeline": "Evaluation & applications (ranking, application, interview) — {cost, plural, one {1 credit} other {# credits}} per action",
+    "creditRank": "Compatibility ranking — {cost, plural, one {1 credit} other {# credits}} per evaluation",
+    "creditApply": "Application — {cost, plural, one {1 credit} other {# credits}} per submission",
+    "creditInterview": "Interview — {cost, plural, one {1 credit} other {# credits}} per prep / mock turn",
     "plansTitle": "Limits by plan",
     "plansBody": "Each plan includes a credit allowance that refills periodically, plus daily and weekly usage limits.",
     "tablePlan": "Plan",

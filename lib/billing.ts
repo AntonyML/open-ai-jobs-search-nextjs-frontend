@@ -8,6 +8,7 @@ import type {
   AdminTopupApprove,
   AdminUserSearchResult,
   BillingPolicy,
+  CreditCostsOut,
   CreditStatus,
   CreditTransaction,
   PlanAdmin,
@@ -69,16 +70,21 @@ export async function adminDeletePlan(planKey: string): Promise<{ message: strin
   })
 }
 
-export async function adminGetCreditCosts(): Promise<{ cv_base: number; cv_adapted: number; pipeline: number }> {
-  return apiFetch('/api/v1/admin/credit-costs')
+export async function adminGetCreditCosts(): Promise<CreditCostsOut> {
+  return apiFetch<CreditCostsOut>('/api/v1/admin/credit-costs')
 }
 
 export async function adminSetCreditCosts(
-  costs: { cv_base: number; cv_adapted: number; pipeline: number },
-): Promise<{ cv_base: number; cv_adapted: number; pipeline: number }> {
-  return apiFetch('/api/v1/admin/credit-costs', {
+  costs: Record<string, number>,
+  expectedVersions?: Record<string, number>,
+): Promise<CreditCostsOut> {
+  // Plan.md §8.2: strict PUT — unknown keys → 422, stale expected_versions → 409.
+  return apiFetch<CreditCostsOut>('/api/v1/admin/credit-costs', {
     method: 'PUT',
-    body: JSON.stringify(costs),
+    body: JSON.stringify({
+      costs,
+      expected_versions: expectedVersions ?? undefined,
+    }),
   })
 }
 

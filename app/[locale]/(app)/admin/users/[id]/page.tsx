@@ -564,7 +564,7 @@ function AdminUserDetailInner() {
           {txns.map((tx) => (
             <div key={tx.id} className="flex items-center justify-between rounded-lg px-2 py-1.5 text-xs hover:bg-white">
               <div className="min-w-0">
-                <span className="font-medium text-[#1d1d1f]">{tx.action}</span>
+                <span className="font-medium text-[#1d1d1f]">{ledgerLabel(t, tx.action)}</span>
                 {tx.description && <span className="ml-1.5 text-[#858585]">{tx.description}</span>}
               </div>
               <div className="flex shrink-0 items-center gap-2">
@@ -682,6 +682,14 @@ function AdminUserDetailInner() {
 }
 
 // ── Sub-components ──
+
+/** Human label for a ledger action (plan.md §8.2 F3) — falls back to the
+ * raw key when the i18n map has no entry (never a broken translation). */
+function ledgerLabel(t: (k: string) => string, action: string): string {
+  const key = `ledger.${action}`
+  const label = t(key)
+  return label === key ? action : label
+}
 
 function StatusBadge({ s, t, locale }: { s: SubscriptionAdmin; t: (k: string, values?: Record<string, string>) => string; locale: string }) {
   if (s.status === 'active') {

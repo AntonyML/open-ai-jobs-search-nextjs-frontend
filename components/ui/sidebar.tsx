@@ -73,6 +73,21 @@ function SidebarProvider({
   // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen)
   const open = openProp ?? _open
+
+  // Hydrate the persisted sidebar state from the cookie once, so that a hard
+  // reload (direct URL) and a client-side navigation always agree on width.
+  React.useEffect(() => {
+    if (typeof document === "undefined") return
+    const match = document.cookie
+      .split("; ")
+      .find((entry) => entry.startsWith(`${SIDEBAR_COOKIE_NAME}=`))
+    if (match) {
+      const cookieValue = match.split("=").pop()
+      if (cookieValue === "true" || cookieValue === "false") {
+        _setOpen(cookieValue === "true")
+      }
+    }
+  }, [])
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === "function" ? value(open) : value
