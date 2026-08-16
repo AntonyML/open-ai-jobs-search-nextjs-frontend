@@ -27,6 +27,8 @@ export interface CVResponse {
   job_description_text: string | null
   json_cv: Record<string, unknown>
   pdf_url: string | null
+  /** True once the PDF has been compiled in the background (pdf_url non-null). */
+  pdf_ready: boolean
   analysis: CVAnalysis | null
   created_at: string
 }

@@ -9,6 +9,7 @@ import {
   Briefcase,
   Check,
   ChevronDown,
+  Download,
   FileText,
   History,
   RefreshCw,
@@ -34,6 +35,9 @@ export default function CvDocumentsPage() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [confirmRecoverId, setConfirmRecoverId] = useState<string | null>(null)
   const [error, setError] = useState('')
+  // CAPA 4 — CVs whose PDF is still compiling in the background; after the
+  // 30s polling window they are shown as unavailable instead of generating.
+  const [timedOutPdf, setTimedOutPdf] = useState<Set<string>>(new Set())
 
   const load = useCallback(async () => {
     try {
@@ -49,6 +53,35 @@ export default function CvDocumentsPage() {
   useEffect(() => {
     load()
   }, [load])
+
+  const hasPendingPdf = cvs.some((c) => !c.pdf_ready)
+
+  // CAPA 4 — while any CV is still compiling its PDF (async Typst), poll the
+  // list every 4s so the download button appears as soon as it's ready. Stop
+  // polling and mark the stragglers unavailable after 30s so a dead worker
+  // never leaves a permanent "Generating…" state.
+  useEffect(() => {
+    if (!hasPendingPdf) {
+      setTimedOutPdf(new Set())
+      return
+    }
+    const deadline = Date.now() + 30000
+    const timer = window.setInterval(() => {
+      void load()
+      if (Date.now() >= deadline) {
+        window.clearInterval(timer)
+        setTimedOutPdf((prev) => {
+          const next = new Set(prev)
+          cvs.forEach((c) => {
+            if (!c.pdf_ready) next.add(c.cv_id)
+          })
+          return next
+        })
+      }
+    }, 4000)
+    return () => window.clearInterval(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasPendingPdf])
 
   const baseCv = cvs.find((c) => c.cv_type === 'base' && c.base_status === 'active') || null
   const previousBaseCv = cvs.find((c) => c.cv_type === 'base' && c.base_status === 'obsolete') || null
@@ -261,10 +294,20 @@ export default function CvDocumentsPage() {
                       <span className="size-1.5 rounded-full bg-[#b0b0b0]" />
                       {t('obsoleteLabel')}
                     </span>
-                  ) : (
+                  ) : cv.pdf_ready ? (
                     <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700 sm:self-center">
                       <span className="size-1.5 rounded-full bg-emerald-500" />
                       {t('statusReady')}
+                    </span>
+                  ) : timedOutPdf.has(cv.cv_id) ? (
+                    <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-rose-50 px-2.5 py-0.5 text-[11px] font-medium text-rose-600 sm:self-center">
+                      <span className="size-1.5 rounded-full bg-rose-400" />
+                      {t('pdfUnavailable')}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-medium text-amber-700 sm:self-center">
+                      <span className="size-1.5 rounded-full bg-amber-400" />
+                      {t('pdfGenerating')}
                     </span>
                   )}
 
@@ -363,7 +406,19 @@ export default function CvDocumentsPage() {
                 {/* PDF preview */}
                 {open && (
                   <div className="border-t border-[#e2e2e5] bg-[#fafafa] p-4">
-                    <CvPdfPreview cv={cv} />
+                    {cv.pdf_ready ? (
+                      <CvPdfPreview cv={cv} />
+                    ) : timedOutPdf.has(cv.cv_id) ? (
+                      <div className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-xl border border-[#d2d2d7]/60 bg-white text-center">
+                        <Download className="size-5 text-[#b0b0b0]" />
+                        <p className="text-sm text-[#707070]">{t('pdfUnavailable')}</p>
+                      </div>
+                    ) : (
+                      <div className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-xl border border-[#d2d2d7]/60 bg-white text-center">
+                        <RefreshCw className="size-5 animate-spin text-[#b0b0b0]" />
+                        <p className="text-sm text-[#707070]">{t('pdfGenerating')}</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

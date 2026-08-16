@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { User, FileText, Check, Lock, ArrowRight, Target } from 'lucide-react'
+import { User, FileText, Check, Lock, ArrowRight, Target, Download, RefreshCw } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { showError, showSuccess, showWarning } from '@/lib/toasts'
 import { cn } from '@/lib/utils'
@@ -69,6 +69,9 @@ export default function CvBuilderPage() {
   const [generating, setGenerating] = useState(false)
   const [confirmRegenerate, setConfirmRegenerate] = useState(false)
   const [error, setError] = useState('')
+  // CAPA 4 — the base CV's PDF compiles asynchronously; poll until pdf_ready
+  // (30s window) so the preview appears as soon as Typst finishes.
+  const [timedOutPdf, setTimedOutPdf] = useState<Set<string>>(new Set())
 
   const loadAll = useCallback(async () => {
     const [p, c] = await Promise.all([
@@ -84,6 +87,34 @@ export default function CvBuilderPage() {
   }, [loadAll])
 
   const baseCv = cvs.find((c) => c.cv_type === 'base' && c.base_status === 'active') || null
+  const hasPendingPdf = cvs.some((c) => !c.pdf_ready)
+
+  // CAPA 4 — while any CV is still compiling its PDF (async Typst), poll the
+  // list every 4s so the preview appears as soon as it's ready. Stop polling
+  // and mark the stragglers unavailable after 30s so a dead worker never
+  // leaves a permanent "Generating…" state.
+  useEffect(() => {
+    if (!hasPendingPdf) {
+      setTimedOutPdf(new Set())
+      return
+    }
+    const deadline = Date.now() + 30000
+    const timer = window.setInterval(() => {
+      void loadAll()
+      if (Date.now() >= deadline) {
+        window.clearInterval(timer)
+        setTimedOutPdf((prev) => {
+          const next = new Set(prev)
+          cvs.forEach((c) => {
+            if (!c.pdf_ready) next.add(c.cv_id)
+          })
+          return next
+        })
+      }
+    }, 4000)
+    return () => window.clearInterval(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasPendingPdf])
   const complete = isProfileComplete(profile)
 
   async function generateBase() {
@@ -222,12 +253,29 @@ export default function CvBuilderPage() {
         <div className={cn(styles.cvCard, 'mt-6')}>
           <div className="mb-4 flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2.5">
-              <span className={styles.readyBadge}>
-                <Check className="size-3.5" />
-              </span>
+              {baseCv.pdf_ready ? (
+                <span className={styles.readyBadge}>
+                  <Check className="size-3.5" />
+                </span>
+              ) : (
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-amber-50">
+                  <RefreshCw className={cn('size-3.5 text-amber-600', !timedOutPdf.has(baseCv.cv_id) && 'animate-spin')} />
+                </span>
+              )}
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-[#1d1d1f]">{t('baseReady')}</p>
-                <p className="mt-0.5 text-xs text-[#707070]">{t('baseReadyDesc')}</p>
+                {baseCv.pdf_ready ? (
+                  <>
+                    <p className="text-sm font-semibold text-[#1d1d1f]">{t('baseReady')}</p>
+                    <p className="mt-0.5 text-xs text-[#707070]">{t('baseReadyDesc')}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-semibold text-[#1d1d1f]">
+                      {timedOutPdf.has(baseCv.cv_id) ? t('pdfUnavailable') : t('pdfGenerating')}
+                    </p>
+                    <p className="mt-0.5 text-xs text-[#707070]">{t('baseReadyDesc')}</p>
+                  </>
+                )}
               </div>
             </div>
             <AppleButton
@@ -269,7 +317,19 @@ export default function CvBuilderPage() {
               </div>
             </div>
           )}
-          <CvPdfPreview cv={baseCv} />
+          {baseCv.pdf_ready ? (
+            <CvPdfPreview cv={baseCv} />
+          ) : timedOutPdf.has(baseCv.cv_id) ? (
+            <div className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-xl border border-[#d2d2d7]/60 bg-white text-center">
+              <Download className="size-5 text-[#b0b0b0]" />
+              <p className="text-sm text-[#707070]">{t('pdfUnavailable')}</p>
+            </div>
+          ) : (
+            <div className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-xl border border-[#d2d2d7]/60 bg-white text-center">
+              <RefreshCw className="size-5 animate-spin text-[#b0b0b0]" />
+              <p className="text-sm text-[#707070]">{t('pdfGenerating')}</p>
+            </div>
+          )}
         </div>
       )}
     </section>
