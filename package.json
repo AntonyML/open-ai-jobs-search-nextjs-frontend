@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:clean": "node scripts/clean-next.mjs && next dev",
+    "dev:clean": "node scripts/kill-next.mjs && node scripts/clean-next.mjs && next dev",
     "build": "next build",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
