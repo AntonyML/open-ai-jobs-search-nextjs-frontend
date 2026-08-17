@@ -22,6 +22,9 @@ interface SceneCanvasProps {
  *   hidden or the user prefers reduced motion (static scene, one frame).
  * - `pointer-events` are disabled: the canvas is a pure visual layer and the
  *   semantic HTML content sits above it.
+ * - `powerPreference` stays at the browser default: `high-performance` makes
+ *   Windows machines with dual GPUs request the discrete adapter, which can
+ *   fail on blocklisted drivers and leave the canvas silently blank.
  *
  * The parent container must give the canvas its size (e.g. `aspect-ratio`).
  */
@@ -42,7 +45,7 @@ export function SceneCanvas({
       dpr={[1, dpr]}
       frameloop={frameloop}
       gl={{
-        powerPreference: 'high-performance',
+        powerPreference: 'default',
         antialias: false,
         alpha: true,
       }}

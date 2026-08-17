@@ -35,7 +35,7 @@ export default function LanguageSwitcher() {
           type="button"
           onClick={() => switchLocale(loc)}
           disabled={isPending || loc === locale}
-          className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-all ${
+          className={`rounded-full px-3 py-2 text-[11px] font-medium transition-all md:px-2.5 md:py-1 ${
             loc === locale
               ? 'bg-[#0071e3] text-white shadow-sm'
               : 'text-[#707070] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]'

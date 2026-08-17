@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import AuthCTAButton from './AuthCTAButton'
 import { SceneDynamic } from '@/components/three/SceneDynamic'
 import { CtaAurora } from '@/components/three/CtaAurora'
+import { AmbientGlowFallback } from '@/components/three/WebGLFallback'
 import { useReducedMotion } from '@/components/three/useReducedMotion'
 import { useInViewOnce } from '@/hooks/use-in-view'
 
@@ -13,13 +14,13 @@ export function CTASection() {
   const { ref, shown } = useInViewOnce<HTMLDivElement>(0.2)
 
   return (
-    <section className="relative overflow-hidden border-t border-[#d2d2d7] bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe]">
+    <section id="cta" className="relative overflow-hidden border-t border-[#d2d2d7] bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe]">
       {/* Calibrated 3D background — same constellation language as pricing.
-          Transparent fallback: the blue gradient placeholder is for boxes. */}
+          Without WebGL a soft radial glow keeps the section looking intentional. */}
       <SceneDynamic
         className="pointer-events-none absolute inset-0 z-0"
         activeFrameloop="always"
-        fallback={<div aria-hidden="true" className="h-full w-full" />}
+        fallback={<AmbientGlowFallback />}
       >
         <CtaAurora />
       </SceneDynamic>

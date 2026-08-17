@@ -159,6 +159,7 @@
     "pricingDisclaimer": "Usage limits apply. Prices and plans are subject to change.",
     "pricingDisclaimerLink": "See usage limits",
     "pricingBillingLabel": "Billing period",
+    "pricingPlanLabel": "Select a plan",
     "pricingMonthly": "Monthly",
     "pricingAnnual": "Annual",
     "pricingWeekly": "week",
@@ -176,7 +177,9 @@
     "planProAnnualPrice": "$16.58",
     "planProAnnualNote": "Billed annually · $199/year",
     "planMaxAnnualPrice": "$49.92",
-    "planMaxAnnualNote": "Billed annually · $599/year"
+    "planMaxAnnualNote": "Billed annually · $599/year",
+    "mobileCtaLabel": "Start free",
+    "mobileCtaHint": "Free to start · No card required"
   },
   "about": {
     "label": "About",

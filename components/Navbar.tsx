@@ -61,7 +61,7 @@ function MobileNavLink({ href, children, className = '' }: { href: string; child
   return (
     <Link
       href={href}
-      className={`block rounded-lg px-3 py-2 text-sm transition-all text-[#707070] hover:bg-[#f5f5f7] hover:text-[#1d1d1f] ${className}`}
+      className={`block min-h-11 rounded-lg px-3 py-3 text-[15px] transition-all text-[#707070] hover:bg-[#f5f5f7] hover:text-[#1d1d1f] ${className}`}
     >
       {children}
     </Link>
@@ -182,10 +182,15 @@ function LoggedOutNav({ t }: { t: (key: string) => string }) {
 function LoggedOutMobile({ t }: { t: (key: string) => string }) {
   return (
     <>
+      <div className="px-3 pb-3 pt-1">
+        <Link
+          href="/register"
+          className="flex min-h-12 w-full items-center justify-center rounded-full bg-[#0071e3] px-5 text-[15px] font-medium text-white transition-colors hover:bg-[#0068d2]"
+        >
+          {t('nav.getStarted')}
+        </Link>
+      </div>
       <MobileNavLink href="/login">{t('nav.signIn')}</MobileNavLink>
-      <MobileNavLink href="/register" className="text-[#0071e3] font-medium hover:bg-[#f4f8fb]">
-        {t('nav.getStarted')}
-      </MobileNavLink>
     </>
   )
 }
@@ -262,16 +267,26 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Mobile hamburger */}
+          {/* Mobile hamburger — 44px touch target */}
           <button
             onClick={() => setMobileOpen((o) => !o)}
-            className="ml-1 rounded-full p-1.5 text-[#707070] transition-all hover:bg-[#f5f5f7] md:hidden"
+            className="ml-1 flex h-11 w-11 items-center justify-center rounded-full text-[#707070] transition-all hover:bg-[#f5f5f7] active:bg-[#e8e8ed] md:hidden"
             aria-label="Toggle menu"
+            aria-expanded={mobileOpen}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              {mobileOpen ? (
+                <>
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </>
+              ) : (
+                <>
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </>
+              )}
             </svg>
           </button>
         </div>
@@ -280,7 +295,7 @@ export default function Navbar() {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="border-t border-[#d2d2d7]/60 bg-white/95 backdrop-blur-xl md:hidden">
-          <div className="space-y-1 px-5 py-3">
+          <div className="space-y-1 px-4 py-3">
             {isMarketing && <MobileMarketingLinks t={t} />}
             {loggedIn ? <LoggedInMobile t={t} /> : <LoggedOutMobile t={t} />}
           </div>

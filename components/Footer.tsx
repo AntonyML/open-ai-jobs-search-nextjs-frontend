@@ -67,7 +67,7 @@ export default function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-[12px] text-[#707070] hover:text-[#1d1d1f] transition-colors"
+                      className="inline-block py-1.5 text-[12px] text-[#707070] transition-colors hover:text-[#1d1d1f] md:py-0"
                       {...(link.href.startsWith('http')
                         ? { target: '_blank', rel: 'noopener noreferrer' }
                         : {})}
