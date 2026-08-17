@@ -3,7 +3,7 @@ import { FeaturesSection } from '@/components/landing/FeaturesSection'
 import PricingSection from '@/components/landing/PricingSection'
 import { CTASection } from '@/components/landing/CTASection'
 import { FAQ, getFaqItems } from '@/components/landing/FAQ'
-import { MobileStickyCta } from '@/components/landing/MobileStickyCta'
+import { StickyCta } from '@/components/landing/StickyCta'
 import { constructMetadata } from '@/lib/seo'
 
 export async function generateMetadata({
@@ -42,7 +42,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <PricingSection />
       <CTASection />
       <FAQ locale={locale} />
-      <MobileStickyCta />
+      <StickyCta />
     </>
   )
 }

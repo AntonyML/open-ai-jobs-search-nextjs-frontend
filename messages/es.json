@@ -178,8 +178,8 @@
     "planProAnnualNote": "Facturado anualmente · $199/año",
     "planMaxAnnualPrice": "$49.92",
     "planMaxAnnualNote": "Facturado anualmente · $599/año",
-    "mobileCtaLabel": "Empieza gratis",
-    "mobileCtaHint": "Gratis para empezar · Sin tarjeta"
+    "stickyCtaLabel": "Empieza gratis",
+    "stickyCtaHint": "Gratis para empezar · Sin tarjeta"
   },
   "about": {
     "label": "Acerca de",

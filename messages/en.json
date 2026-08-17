@@ -178,8 +178,8 @@
     "planProAnnualNote": "Billed annually · $199/year",
     "planMaxAnnualPrice": "$49.92",
     "planMaxAnnualNote": "Billed annually · $599/year",
-    "mobileCtaLabel": "Start free",
-    "mobileCtaHint": "Free to start · No card required"
+    "stickyCtaLabel": "Start free",
+    "stickyCtaHint": "Free to start · No card required"
   },
   "about": {
     "label": "About",

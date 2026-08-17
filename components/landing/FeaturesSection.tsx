@@ -33,21 +33,31 @@ export async function FeaturesSection() {
           </h2>
         </div>
 
-        {/* Editorial numbered list — no cards, hairline rows (Linear/Stripe style) */}
+        {/* Editorial numbered list — no cards, hairline rows (Linear/Stripe style).
+            On small screens the number sits inline with the title (compact), on
+            md+ it becomes the left column and the arrow only appears on hover
+            (touch devices have no hover, so it stays visible there). */}
         <div className="mx-auto max-w-5xl">
           {features.map((feature, i) => (
             <div
               key={feature.title}
-              className="group grid gap-3 border-b border-[#d2d2d7]/60 py-7 transition-colors last:border-b-0 hover:bg-[#f4f8fb] md:grid-cols-[80px_1fr] md:items-baseline md:gap-6 md:px-4"
+              className="group grid gap-3 border-b border-[#d2d2d7]/60 py-6 transition-colors last:border-b-0 hover:bg-[#f4f8fb] md:grid-cols-[80px_1fr] md:items-baseline md:gap-6 md:px-4 md:py-7"
             >
+              {/* Number — own column on md+; inline with the title on mobile */}
               <span
                 aria-hidden="true"
-                className="text-[28px] font-light leading-none tracking-tight text-[#c8c8cc] transition-colors group-hover:text-[#0071e3]"
+                className="hidden text-[28px] font-light leading-none tracking-tight text-[#c8c8cc] transition-colors group-hover:text-[#0071e3] md:block"
               >
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <div>
+              <div className="md:col-start-2">
                 <div className="flex items-center gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="text-[22px] font-light leading-none tracking-tight text-[#c8c8cc] transition-colors group-hover:text-[#0071e3] md:hidden"
+                  >
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#f4f8fb] transition-colors group-hover:bg-[#e8f0fe]">
                     {feature.icon}
                   </span>
@@ -56,7 +66,7 @@ export async function FeaturesSection() {
                   </h3>
                   <svg
                     aria-hidden="true"
-                    className="ml-auto h-4 w-4 -translate-x-1 text-[#0071e3] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
+                    className="ml-auto h-4 w-4 shrink-0 text-[#0071e3] transition-all duration-300 md:-translate-x-1 md:opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
