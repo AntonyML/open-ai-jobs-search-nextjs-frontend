@@ -13,7 +13,7 @@
   },
   "vars": {
     "NEXT_PUBLIC_APP_URL": "https://cvmeld.tonyml.com",
-    "NEXT_PUBLIC_API_URL": "https://open-ai-jobs-search-fastapi.fly.dev",
+    "NEXT_PUBLIC_API_URL": "https://jobs.tonyml.com",
     "NEXT_PUBLIC_DEBUG_SLIDE_MENU": "false",
     "NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION": ""
   }
