@@ -14,6 +14,16 @@ import { platform } from 'node:os'
  */
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
+// maxRetries solo reintenta en EBUSY/EMFILE. Un handle retenido de forma
+// "suave" (sin EBUSY pero tampoco liberado) puede colgar el rm: se corta con
+// timeout y se cae al respaldo rd /s /q. Nota: el kill del race no cancela el
+// rm subyacente, solo deja de esperar; el fallback reintenta y verifica.
+const rmWithTimeout = (path, ms = 3000) =>
+  Promise.race([
+    rm(path, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 }),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms)),
+  ])
+
 function rdQuiet() {
   try {
     const r = spawnSync('cmd /d /c "rd /s /q .next"', { encoding: 'utf8', shell: true })
@@ -24,7 +34,7 @@ function rdQuiet() {
 }
 
 try {
-  await rm('.next', { recursive: true, force: true, maxRetries: 3, retryDelay: 200 })
+  await rmWithTimeout('.next', 3000)
 } catch {
   // fs.rm falló o se quedó enganchado: respaldo con cmd.
 }

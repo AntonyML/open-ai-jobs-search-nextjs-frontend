@@ -3,8 +3,8 @@ import { FeaturesSection } from '@/components/landing/FeaturesSection'
 import PricingSection from '@/components/landing/PricingSection'
 import { CTASection } from '@/components/landing/CTASection'
 import { FAQ, getFaqItems } from '@/components/landing/FAQ'
-import { StickyCta } from '@/components/landing/StickyCta'
 import { constructMetadata } from '@/lib/seo'
+import { StickyCtaDynamic as StickyCta } from '@/components/landing/StickyCtaDynamic'
 
 export async function generateMetadata({
   params,

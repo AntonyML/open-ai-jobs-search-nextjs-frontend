@@ -122,9 +122,6 @@ if (allPids.length === 0) {
 } else {
   killPids(allPids)
   // Da tiempo a Windows a liberar los handles de archivos antes de borrar .next.
-  spawnSync('powershell -NoProfile -NonInteractive -Command "Start-Sleep -Milliseconds 400"', {
-    encoding: 'utf8',
-    shell: true,
-  })
+  await new Promise((resolve) => setTimeout(resolve, 400))
   console.log(`[kill-next] ${allPids.length} proceso(s) terminado(s).`)
 }
