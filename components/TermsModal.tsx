@@ -267,7 +267,11 @@ export default function TermsModal({ onAccept, onDecline }: TermsModalProps) {
             className={`legal-scroll-hint${hasScrolledAtAll ? ' legal-scroll-hint-hidden' : ''}${nudge ? ' legal-scroll-hint-nudge' : ''}`}
             aria-hidden="true"
           >
-            <span className="legal-scroll-hint-arrow">↓</span>
+            <span className="legal-scroll-hint-arrow" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </span>
             <span>Desplázate hacia abajo para continuar</span>
           </div>
           <TermsContent />
@@ -456,31 +460,73 @@ export default function TermsModal({ onAccept, onDecline }: TermsModalProps) {
           line-height: 1.4;
           pointer-events: none;
           transition: opacity 0.25s ease, transform 0.25s ease;
+          animation: legalHintIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+          animation-delay: 0.1s;
         }
         .legal-scroll-hint-hidden {
           opacity: 0;
           transform: translateY(-6px);
         }
+        .legal-scroll-hint-hidden .legal-scroll-hint-arrow,
+        .legal-scroll-hint-hidden .legal-scroll-hint-arrow::before { animation: none; }
+        @keyframes legalHintIn {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         .legal-scroll-hint-arrow {
-          font-size: 18px;
-          font-weight: 700;
-          line-height: 1;
-          animation: legalBounce 1.1s ease-in-out 3;
-          animation-delay: 0.25s;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 26px;
+          height: 26px;
+          flex-shrink: 0;
+          border-radius: 999px;
+          background: #fff;
+          border: 1px solid #ffd9b3;
+          color: #b34000;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+          filter: drop-shadow(0 0 3px rgba(255, 107, 53, 0.2));
+          animation:
+            legalChipIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.35s backwards,
+            legalFloat 1.9s cubic-bezier(0.45, 0, 0.55, 1) 0.9s 2 backwards;
         }
+        .legal-scroll-hint-arrow::before {
+          content: '';
+          position: absolute;
+          inset: -5px;
+          border-radius: 999px;
+          background: radial-gradient(circle, rgba(255, 107, 53, 0.35), rgba(255, 107, 53, 0) 70%);
+          opacity: 0.15;
+          z-index: -1;
+          animation: legalGlowBreathe 1.9s cubic-bezier(0.45, 0, 0.55, 1) 0.9s 2 backwards;
+        }
+        .legal-scroll-hint-arrow svg { display: block; }
         .legal-scroll-hint-nudge .legal-scroll-hint-arrow {
-          animation: legalBounce 1.1s ease-in-out 1;
-          animation-delay: 0s;
+          animation: legalFloat 1.9s cubic-bezier(0.45, 0, 0.55, 1) 1;
         }
-        @keyframes legalBounce {
-          0%, 100% { transform: translateY(0); }
-          40% { transform: translateY(6px); }
-          65% { transform: translateY(2px); }
+        .legal-scroll-hint-nudge .legal-scroll-hint-arrow::before {
+          animation: legalGlowBreathe 1.9s cubic-bezier(0.45, 0, 0.55, 1) 1;
+        }
+        @keyframes legalChipIn {
+          from { opacity: 0; transform: scale(0.92); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes legalFloat {
+          0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 3px rgba(255, 107, 53, 0.2)); }
+          30%      { transform: translateY(3px); filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.4)); }
+          55%      { transform: translateY(6px); filter: drop-shadow(0 0 9px rgba(255, 107, 53, 0.5)); }
+          80%      { transform: translateY(3px); filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.4)); }
+        }
+        @keyframes legalGlowBreathe {
+          0%, 100% { opacity: 0.12; }
+          55%      { opacity: 0.3; }
         }
 
         @media (prefers-reduced-motion: reduce) {
           .legal-scroll-hint,
-          .legal-scroll-hint-arrow { animation: none; }
+          .legal-scroll-hint-arrow,
+          .legal-scroll-hint-arrow::before { animation: none; }
           .legal-scroll-hint { transition: none; }
         }
 
@@ -598,8 +644,10 @@ export default function TermsModal({ onAccept, onDecline }: TermsModalProps) {
           .legal-modal-actions { flex-direction: column-reverse; }
           .legal-btn-accept { flex: none; }
           .legal-progress-pct { font-size: 22px; }
-          .legal-scroll-hint { font-size: 14px; padding: 12px 14px; margin-bottom: 16px; }
-          .legal-scroll-hint-arrow { font-size: 20px; }
+          .legal-scroll-hint { font-size: 14px; padding: 12px 14px; margin-bottom: 16px; gap: 12px; }
+          .legal-scroll-hint-arrow { width: 30px; height: 30px; }
+          .legal-scroll-hint-arrow svg { width: 18px; height: 18px; }
+          .legal-scroll-hint-arrow::before { inset: -6px; }
         }
       `}</style>
     </div>
