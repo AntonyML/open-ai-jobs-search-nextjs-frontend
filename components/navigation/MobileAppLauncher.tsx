@@ -6,10 +6,10 @@ import { useTranslations } from 'next-intl'
 import { Dialog as SheetPrimitive } from '@base-ui/react/dialog'
 import { Lock, LogOut, X } from 'lucide-react'
 import { useResolvedNav } from './use-resolved-nav'
-import { useRouter } from '@/i18n/routing'
+import { usePathname, useRouter } from '@/i18n/routing'
 import { clearToken } from '@/lib/auth'
 import Logo from '@/components/Logo'
-import type { ResolvedItem } from './sidebar-config'
+import { isItemActive, stripLocale, type ResolvedItem } from './sidebar-config'
 import { cn } from '@/lib/utils'
 
 /**
@@ -49,9 +49,10 @@ export function MobileAppLauncher({
     el.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' })
   }, [open, sectionKey])
 
-  // El inicio ya vive en el tab Home de la Bottom Navigation: el launcher lista
-  // el resto de aplicaciones y herramientas del producto.
-  const gridSections = sections.filter((section) => section.labelKey !== 'principal')
+  // Mismo árbol que el Sidebar de escritorio: NAV_SECTIONS → useResolvedNav.
+  // El launcher lista TODAS las aplicaciones disponibles (la Bottom Navigation
+  // solo da acceso rápido a las áreas principales).
+  const gridSections = sections
 
   return (
     <SheetPrimitive.Root open={open} onOpenChange={(next) => !next && onClose()}>
@@ -116,9 +117,9 @@ export function MobileAppLauncher({
                       )}
                     </h3>
                   )}
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {section.items.map((item, ii) => (
-                      <AppTile key={item.href} item={item} delay={Math.min((si * 3 + ii) * 20, 240)} />
+                      <AppTile key={item.href} item={item} delay={Math.min((si * 2 + ii) * 20, 240)} />
                     ))}
                   </div>
                 </section>
@@ -136,13 +137,16 @@ export function MobileAppLauncher({
 }
 
 /**
- * Tile de aplicación. Bloqueado → respeta la lógica existente (onLockedClick,
- * badge Plan Max), solo cambia la presentación.
+ * Tarjeta de aplicación. Misma fuente de verdad que el Sidebar de escritorio:
+ * label/desc rizados por i18n, lock heredado de `useResolvedNav` (onLockedClick,
+ * badge Plan Max). Solo cambia la presentación (grid 2x, compacta).
  */
 function AppTile({ item, delay }: { item: ResolvedItem; delay: number }) {
   const t = useTranslations('appSidebar')
   const tn = useTranslations('appNav')
   const Icon = item.icon
+  const pathname = stripLocale(usePathname())
+  const active = !item.locked && isItemActive(item, pathname)
 
   if (item.locked) {
     return (
@@ -151,19 +155,21 @@ function AppTile({ item, delay }: { item: ResolvedItem; delay: number }) {
         onClick={item.onLockedClick}
         aria-label={`${t(item.labelKey)}, ${item.lockedTooltip}`}
         style={{ animationDelay: `${delay}ms` }}
-        className="animate-stagger flex min-h-[86px] flex-col items-center justify-center gap-1.5 rounded-2xl border border-[#e8e8ed] bg-[#fafafa] px-1.5 py-2 text-center transition-transform duration-150 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]"
+        className="animate-stagger flex min-h-[64px] items-center gap-2.5 rounded-2xl border border-[#e8e8ed] bg-[#fafafa] p-2.5 text-left transition-transform duration-150 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]"
       >
-        <span className="relative">
-          <span className="flex size-11 items-center justify-center rounded-[13px] bg-[#f5f5f7] ring-1 ring-[#e8e8ed]/70">
-            <Icon className="size-5 text-[#b0b0b0]" />
+        <span className="relative shrink-0">
+          <span className="flex size-10 items-center justify-center rounded-[12px] bg-[#f0f0f2] ring-1 ring-[#e8e8ed]/70">
+            <Icon className="size-[18px] text-[#b0b0b0]" />
           </span>
           <Lock aria-hidden="true" className="absolute -right-1 -top-1 size-3.5 rounded-full bg-[#fafafa] px-px text-[#858585]" />
         </span>
-        <span className="block w-full truncate text-[11px] font-medium leading-tight text-[#707070]">
-          {t(item.labelKey)}
-        </span>
-        <span className="inline-flex items-center rounded-full bg-[#f5f5f7] px-1.5 py-px text-[9px] font-semibold text-[#707070] ring-1 ring-[#e8e8ed]">
-          {tn('planRequired')}
+        <span className="min-w-0 flex-1">
+          <span className="block w-full truncate text-[13px] font-semibold leading-tight text-[#1d1d1f]">
+            {t(item.labelKey)}
+          </span>
+          <span className="mt-1 inline-flex items-center rounded-full bg-[#f5f5f7] px-2 py-px text-[10px] font-semibold text-[#707070] ring-1 ring-[#e8e8ed]">
+            {tn('planRequired')}
+          </span>
         </span>
       </button>
     )
@@ -173,16 +179,26 @@ function AppTile({ item, delay }: { item: ResolvedItem; delay: number }) {
     <Link
       href={item.href}
       style={{ animationDelay: `${delay}ms` }}
-      className="animate-stagger flex min-h-[86px] flex-col items-center justify-center gap-1.5 rounded-2xl border border-[#e8e8ed] bg-white px-1.5 py-2 text-center transition-[border-color,transform] duration-150 hover:border-[#2997ff]/40 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]"
+      className={cn(
+        'animate-stagger flex min-h-[64px] items-center gap-2.5 rounded-2xl border bg-white p-2.5 text-left transition-[border-color,transform] duration-150 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]',
+        active
+          ? 'border-[#0071e3]/40 bg-[#0071e3]/[0.05]'
+          : 'border-[#e8e8ed] hover:border-[#2997ff]/40',
+      )}
     >
-      <span className="flex size-11 items-center justify-center rounded-[13px] bg-[#0071e3]/10">
-        <Icon className="size-5 text-[#0071e3]" />
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-[#0071e3]/10">
+        <Icon className="size-[18px] text-[#0071e3]" />
       </span>
-      <span className="block w-full truncate text-[11px] font-medium leading-tight text-[#1d1d1f]">
-        {t(item.labelKey)}
+      <span className="min-w-0 flex-1">
+        <span className="block w-full truncate text-[13px] font-semibold leading-tight text-[#1d1d1f]">
+          {t(item.labelKey)}
+        </span>
+        {item.descKey && (
+          <span className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-[#707070]">
+            {t(item.descKey)}
+          </span>
+        )}
       </span>
-      {/* Reserva la altura del badge para tiles bloqueados (misma altura de grid) */}
-      <span className="block h-[15px]" aria-hidden="true" />
     </Link>
   )
 }
