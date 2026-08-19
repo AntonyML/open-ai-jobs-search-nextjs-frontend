@@ -39,14 +39,25 @@ export function MobileAppLauncher({
   const tn = useTranslations('appNav')
   const { sections } = useResolvedNav()
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   // La Bottom Navigation puede pedir abrir el launcher en una sección concreta.
+  // El scroll se difiere hasta que el panel termina la entrada (300ms) y el focus
+  // del Dialog se asienta; además se hace scrollTo directo al contenedor (no
+  // scrollIntoView) para que sea determinista, suave y con respiro superior.
   useEffect(() => {
     if (!open || !sectionKey) return
-    const el = sectionRefs.current[sectionKey]
-    if (!el) return
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    el.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' })
+    const timeout = window.setTimeout(() => {
+      const el = sectionRefs.current[sectionKey]
+      const container = scrollRef.current
+      if (!el || !container) return
+      container.scrollTo({
+        top: Math.max(el.offsetTop - container.offsetTop - 12, 0),
+        behavior: reduceMotion ? 'auto' : 'smooth',
+      })
+    }, reduceMotion ? 80 : 500)
+    return () => window.clearTimeout(timeout)
   }, [open, sectionKey])
 
   // Mismo árbol que el Sidebar de escritorio: NAV_SECTIONS → useResolvedNav.
@@ -90,7 +101,7 @@ export function MobileAppLauncher({
           </div>
 
           {/* Grid de aplicaciones */}
-          <div className="overflow-y-auto overscroll-contain px-4 pb-4 pt-4">
+          <div ref={scrollRef} className="overflow-y-auto overscroll-contain px-4 pb-4 pt-4">
             <h2 className="px-1 pb-3 text-[15px] font-semibold tracking-tight text-[#1d1d1f]">
               {tn('sections')}
             </h2>

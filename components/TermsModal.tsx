@@ -108,6 +108,8 @@ export default function TermsModal({ onAccept, onDecline }: TermsModalProps) {
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false)
   const [accepted, setAccepted] = useState(false)
   const [scrollPct, setScrollPct] = useState(0)
+  const [hasScrolledAtAll, setHasScrolledAtAll] = useState(false)
+  const [nudge, setNudge] = useState(false)
 
   // ── Inertia scroll effect ─────────────────────────────────────────────────
   const velocityRef = useRef(0)
@@ -192,6 +194,7 @@ export default function TermsModal({ onAccept, onDecline }: TermsModalProps) {
     const { scrollTop, scrollHeight, clientHeight } = el
     const pct = Math.min(100, (scrollTop / (scrollHeight - clientHeight)) * 100)
     setScrollPct(pct)
+    setHasScrolledAtAll((prev) => prev || scrollTop > 0)
     if (pct >= 95) setHasScrolledToBottom(true)
   }, [])
 
@@ -200,6 +203,13 @@ export default function TermsModal({ onAccept, onDecline }: TermsModalProps) {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
   }, [])
+
+  // ── Refuerzo sutil del aviso si el usuario todavía no ha desplazado ─────
+  useEffect(() => {
+    if (hasScrolledAtAll) return
+    const timeout = window.setTimeout(() => setNudge(true), 7000)
+    return () => window.clearTimeout(timeout)
+  }, [hasScrolledAtAll])
 
   const canAccept = hasScrolledToBottom && accepted
 
@@ -233,10 +243,17 @@ export default function TermsModal({ onAccept, onDecline }: TermsModalProps) {
           <div className="legal-progress-wrap">
             <div className="legal-progress-bar" style={{ width: `${scrollPct}%` }} />
           </div>
-          <div className="legal-progress-label">
-            {scrollPct < 95
-              ? `${Math.round(scrollPct)}% leído — desplázate hasta el final para aceptar`
-              : '✓ Has llegado al final'}
+          <div className="legal-progress-label" role="status">
+            {scrollPct < 95 ? (
+              <>
+                <span className="legal-progress-pct">
+                  <span aria-hidden="true">{Math.round(scrollPct)}% leído</span>
+                </span>
+                <span className="legal-progress-msg">Desplázate hasta el final para poder aceptar</span>
+              </>
+            ) : (
+              <span className="legal-progress-done">✓ Has llegado al final</span>
+            )}
           </div>
         </div>
 
@@ -246,6 +263,13 @@ export default function TermsModal({ onAccept, onDecline }: TermsModalProps) {
           onScroll={handleScroll}
           className="legal-modal-body"
         >
+          <div
+            className={`legal-scroll-hint${hasScrolledAtAll ? ' legal-scroll-hint-hidden' : ''}${nudge ? ' legal-scroll-hint-nudge' : ''}`}
+            aria-hidden="true"
+          >
+            <span className="legal-scroll-hint-arrow">↓</span>
+            <span>Desplázate hacia abajo para continuar</span>
+          </div>
           <TermsContent />
         </div>
 
@@ -392,9 +416,72 @@ export default function TermsModal({ onAccept, onDecline }: TermsModalProps) {
           transition: width 0.2s ease;
         }
         .legal-progress-label {
-          font-size: 11px;
-          color: #858585;
-          font-weight: 500;
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+        }
+        .legal-progress-pct {
+          font-size: 20px;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          line-height: 1.2;
+          color: #1d1d1f;
+        }
+        .legal-progress-msg {
+          font-size: 13px;
+          font-weight: 600;
+          line-height: 1.4;
+          color: #b34000;
+        }
+        .legal-progress-done {
+          font-size: 13px;
+          font-weight: 700;
+          line-height: 1.4;
+          color: #1a7f37;
+        }
+
+        .legal-scroll-hint {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          margin: 0 0 20px;
+          padding: 10px 14px;
+          border-radius: 12px;
+          background: #fff7ed;
+          border: 1px solid #ffd9b3;
+          color: #b34000;
+          font-size: 13px;
+          font-weight: 600;
+          line-height: 1.4;
+          pointer-events: none;
+          transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .legal-scroll-hint-hidden {
+          opacity: 0;
+          transform: translateY(-6px);
+        }
+        .legal-scroll-hint-arrow {
+          font-size: 18px;
+          font-weight: 700;
+          line-height: 1;
+          animation: legalBounce 1.1s ease-in-out 3;
+          animation-delay: 0.25s;
+        }
+        .legal-scroll-hint-nudge .legal-scroll-hint-arrow {
+          animation: legalBounce 1.1s ease-in-out 1;
+          animation-delay: 0s;
+        }
+        @keyframes legalBounce {
+          0%, 100% { transform: translateY(0); }
+          40% { transform: translateY(6px); }
+          65% { transform: translateY(2px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .legal-scroll-hint,
+          .legal-scroll-hint-arrow { animation: none; }
+          .legal-scroll-hint { transition: none; }
         }
 
         .legal-modal-body {
@@ -510,6 +597,9 @@ export default function TermsModal({ onAccept, onDecline }: TermsModalProps) {
           .legal-modal-footer { padding: 14px 18px; }
           .legal-modal-actions { flex-direction: column-reverse; }
           .legal-btn-accept { flex: none; }
+          .legal-progress-pct { font-size: 22px; }
+          .legal-scroll-hint { font-size: 14px; padding: 12px 14px; margin-bottom: 16px; }
+          .legal-scroll-hint-arrow { font-size: 20px; }
         }
       `}</style>
     </div>

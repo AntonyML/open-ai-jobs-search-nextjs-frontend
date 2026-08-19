@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import AuthCTAButton from './AuthCTAButton'
+import HeroSignInLink from './HeroSignInLink'
 import HeroMockCv from './HeroMockCv'
 import { StatsStrip } from './StatsStrip'
 import { SceneDynamic } from '@/components/three/SceneDynamic'
@@ -61,6 +62,9 @@ export async function HeroSection() {
               {t('heroCtaSecondary')}
             </Link>
           </div>
+
+          {/* Returning-user path: visible only to logged-out visitors */}
+          <HeroSignInLink />
 
         </div>
 
