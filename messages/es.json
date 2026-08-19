@@ -51,7 +51,9 @@
     "quickSearch": "Buscar empleos",
     "quickAdapt": "Adaptar CV",
     "quickInterview": "Entrevistas",
-    "planRequired": "Plan Max"
+    "planRequired": "Plan Max",
+    "bottomNav": "Navegación inferior",
+    "openApps": "Abrir aplicaciones"
   },
   "auth": {
     "loginTitle": "Bienvenido de nuevo",
@@ -855,6 +857,17 @@
     "validationError": "Por favor revisa tu entrada",
     "profileRequired": "Por favor configura tu perfil primero",
     "noProviders": "Por favor configura al menos un proveedor de IA",
+    "aiGeneric": "Ocurrió un error con el servicio de IA. Por favor intenta más tarde.",
+    "aiAuth": "Error de autenticación con el servicio de IA. Por favor contacta soporte.",
+    "aiRateLimit": "El servicio de IA está ocupado temporalmente. Por favor intenta en un momento.",
+    "aiModelNotFound": "El modelo de IA solicitado no está disponible. Por favor intenta más tarde.",
+    "aiContextLength": "La entrada es demasiado larga para que la IA la procese.",
+    "aiQuota": "Cuota de IA agotada. Por favor intenta más tarde o contacta soporte.",
+    "aiServerError": "El servicio de IA no está disponible temporalmente. Por favor intenta más tarde.",
+    "aiTimeout": "El servicio de IA tardó demasiado en responder. Por favor intenta de nuevo.",
+    "aiWebSearchUnavailable": "La búsqueda web no está disponible temporalmente.",
+    "aiProviderUnavailable": "El proveedor de IA no está disponible temporalmente. Por favor intenta más tarde.",
+    "unexpected": "Ocurrió un error inesperado. Por favor intenta más tarde.",
     "backend": {
       "rate_limit": "{provider} alcanzó el límite de velocidad. Enfriando.",
       "timeout": "{provider} tardó demasiado. Cambiando automáticamente.",

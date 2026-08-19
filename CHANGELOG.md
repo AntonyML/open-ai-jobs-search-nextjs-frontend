@@ -5,6 +5,13 @@ All notable changes to the CVMeld frontend project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Bottom Navigation Bar móvil**: nueva `MobileBottomNavigation` (inspirada conceptualmente en `rn-wave-bottom-bar`, sin copiar código ni dependencias) que pasa a ser la navegación primaria del layout autenticado en mobile: barra flotante estilo app nativa con 4 destinos (Panel, Ofertas, CV, Perfil) derivados de la misma `NAV_SECTIONS`/`useResolvedNav` (labels, locks y planes compartidos, sin duplicar lógica) y un indicador "wave" animado que se desliza entre columnas y se eleva sobre la barra en el destino activo (solo transform/opacity).
+- **Botón central de aplicaciones**: FAB flotante en el centro de la barra que abre/cierra el `MobileAppLauncher` existente (misma instancia y estado del provider), con icono que se transforma (grid ⇄ X), `aria-expanded`/`aria-haspopup` y target ≥44px.
+- **Safe areas**: `viewport-fit=cover` en el viewport raíz y `env(safe-area-inset-bottom)` como padding inferior de la barra (iPhone Home Indicator / Android gestual); clearance (`bottom-[calc(env(safe-area-inset-bottom)+80px)]`) para las barras sticky de `/search` y `/candidate` y padding inferior del contenido autenticado para que nada quede oculto.
+- **Render móvil**: la barra se monta solo dentro del layout autenticado (vía `MobileNavigationProvider`) y es `md:hidden` (desktop y marketing intactos); el menú hamburguesa queda como navegación secundaria/fallback.
+- **Config de la ola**: keyframes `wave-morph` en `globals.css` (morfing sutil del blob activo), respetado por el `prefers-reduced-motion` global existente.
+
+### Added
 - **Mobile App Launcher**: nuevo launcher móvil (`components/navigation/MobileAppLauncher.tsx`) que reemplaza el menú legacy en el contexto autenticado: Sheet a pantalla completa con cabecera contextual (logo ⇄ carpeta), carpetas por sección configurada desde `NAV_SECTIONS` (Documentos, Búsqueda de empleo, Cuenta, Admin), card destacada al Dashboard, badge "Plan Max" en ítems bloqueados y cierre de sesión.
 - **MobileNavigationProvider**: contexto global `{ available, launcherOpen, openLauncher, closeLauncher }` montado en el layout autenticado; cierra el launcher al navegar.
 - **useResolvedNav**: hook central (`components/navigation/use-resolved-nav.ts`) que resuelve `NAV_SECTIONS` aplicando locking/tier/adminOnly — fuente única compartida por sidebar, launcher y QuickActions.

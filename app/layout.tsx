@@ -10,6 +10,8 @@ export const viewport: Viewport = {
   themeColor: '#0071e3',
   width: 'device-width',
   initialScale: 1,
+  // Necesario para que env(safe-area-inset-bottom) funcione en móvil (Home Indicator).
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({

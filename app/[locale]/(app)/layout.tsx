@@ -27,7 +27,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <SidebarProvider defaultOpen={true}>
           <div className="min-w-0 flex-1 pt-12 md:flex">
             <AppSidebar />
-            <SidebarInset className="min-w-0 flex-1 px-5 py-8 md:px-12 md:py-14">
+            <SidebarInset className="min-w-0 flex-1 px-5 pb-44 pt-8 md:px-12 md:py-14">
               <RouteGuard>{children}</RouteGuard>
             </SidebarInset>
           </div>

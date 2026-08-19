@@ -51,7 +51,9 @@
     "quickSearch": "Find jobs",
     "quickAdapt": "Adapt CV",
     "quickInterview": "Interviews",
-    "planRequired": "Max plan"
+    "planRequired": "Max plan",
+    "bottomNav": "Bottom navigation",
+    "openApps": "Open apps"
   },
   "auth": {
     "loginTitle": "Welcome back",
@@ -855,6 +857,17 @@
     "validationError": "Please check your input",
     "profileRequired": "Please set up your profile first",
     "noProviders": "Please configure at least one AI provider",
+    "aiGeneric": "An error occurred with the AI service. Please try again later.",
+    "aiAuth": "AI service authentication failed. Please contact support.",
+    "aiRateLimit": "AI service is temporarily busy. Please try again in a moment.",
+    "aiModelNotFound": "The requested AI model is unavailable. Please try again later.",
+    "aiContextLength": "The input is too long for the AI to process.",
+    "aiQuota": "AI quota exhausted. Please try again later or contact support.",
+    "aiServerError": "AI service is temporarily unavailable. Please try again later.",
+    "aiTimeout": "The AI service took too long to respond. Please try again.",
+    "aiWebSearchUnavailable": "Web search is temporarily unavailable.",
+    "aiProviderUnavailable": "AI provider is temporarily unavailable. Please try again later.",
+    "unexpected": "An unexpected error occurred. Please try again later.",
     "backend": {
       "rate_limit": "{provider} reached rate limit. Cooling down.",
       "timeout": "{provider} timed out. Automatically switching.",

@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { usePathname } from 'next/navigation'
 import { MobileAppLauncher } from './MobileAppLauncher'
+import { MobileBottomNavigation } from './MobileBottomNavigation'
 
 interface MobileNavigationContextValue {
   /** True cuando el provider está montado (dentro del layout autenticado). */
@@ -59,6 +60,7 @@ export function MobileNavigationProvider({ children }: { children: React.ReactNo
     <MobileNavigationContext.Provider value={value}>
       {children}
       <MobileAppLauncher open={launcherOpen} onClose={() => setLauncherOpen(false)} />
+      <MobileBottomNavigation />
     </MobileNavigationContext.Provider>
   )
 }

@@ -427,7 +427,7 @@ export default function Setup() {
       </form>
 
       {/* ── Sticky action panel ───────────────────────────── */}
-      <div className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-[#d2d2d7] bg-white/95 px-4 py-4 backdrop-blur sm:-mx-0 sm:rounded-t-xl sm:border sm:border-b-0 sm:px-5 sm:py-4 sm:shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+      <div className="sticky bottom-[calc(env(safe-area-inset-bottom)+80px)] z-10 -mx-4 mt-8 border-t border-[#d2d2d7] bg-white/95 px-4 py-4 backdrop-blur sm:-mx-0 sm:rounded-t-xl sm:border sm:border-b-0 sm:px-5 sm:py-4 sm:shadow-[0_-4px_20px_rgba(0,0,0,0.06)] md:bottom-0">
         {confirmDelete ? (
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-[#1d1d1f]">{t('deleteProfileConfirm')}</p>
