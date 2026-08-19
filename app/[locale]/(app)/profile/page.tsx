@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { apiFetch } from '@/lib/api'
-import { clearCompletedSteps, clearToken } from '@/lib/auth'
+import { clearCompletedSteps, clearToken, isAdmin } from '@/lib/auth'
 import { showError, showSuccess } from '@/lib/toasts'
 import { ProfileEditor } from '@/components/profile/ProfileEditor'
 
@@ -154,10 +154,17 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {noProvider && (
+      {noProvider && isAdmin() && (
         <div className="mb-6 animate-fade-in-up rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
           <span className="font-medium">{t('noProviderAdminTitle')}</span>{' '}
           {t('noProviderAdminDesc')}
+        </div>
+      )}
+
+      {noProvider && !isAdmin() && (
+        <div className="mb-6 animate-fade-in-up rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          <span className="font-medium">{t('noProviderUserTitle')}</span>{' '}
+          {t('noProviderUserDesc')}
         </div>
       )}
 

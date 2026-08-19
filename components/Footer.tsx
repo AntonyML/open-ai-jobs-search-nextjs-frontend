@@ -23,23 +23,23 @@ export default function Footer() {
       links: [
         {
           label: t('github'),
-          href: 'https://github.com/AntonyML/open-ai-jobs-search-nextjs-frontend',
+          href: 'https://github.com/AntonyML/cvmeld-frontend',
         },
         {
           label: t('docs'),
-          href: 'https://github.com/AntonyML/open-ai-jobs-search-nextjs-frontend#readme',
+          href: 'https://github.com/AntonyML/cvmeld-frontend#readme',
         },
         {
           label: t('backend'),
-          href: 'https://github.com/AntonyML/open-ai-jobs-search-FastAPI-backend',
+          href: 'https://github.com/AntonyML/cvmeld-fastapi-backend',
         },
         {
           label: t('searchService'),
-          href: 'https://github.com/AntonyML/open-ai-jobs-search-microservice-searchjobs-backend',
+          href: 'https://github.com/AntonyML/cvmeld-searchjobs-backend',
         },
         {
           label: t('rankService'),
-          href: 'https://github.com/AntonyML/open-ai-jobs-search-microservice-rankjobs-backend',
+          href: 'https://github.com/AntonyML/cvmeld-rankjobs-backend',
         },
       ],
     },
@@ -88,7 +88,7 @@ export default function Footer() {
             </div>
 
             <p className="text-[11px] text-[#858585]">
-              {t('allRightsReserved', { year }).replace('Open Ai Jobs Search', 'CVMeld')}
+              {t('allRightsReserved', { year })}
             </p>
 
             <div className="flex items-center gap-3">

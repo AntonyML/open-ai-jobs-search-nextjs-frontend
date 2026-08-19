@@ -7,14 +7,28 @@ import { useEffect, useRef, useState } from 'react'
  * viewport, then stops observing. Used by landing sections to trigger
  * scroll-reveal animations (fade / rise / blur) exactly once.
  *
+ * Uses a state-backed callback ref so the IntersectionObserver is created
+ * (or re-created) whenever the DOM element changes — this fixes a race
+ * where the effect ran while the element was absent (e.g. during a
+ * loading skeleton) and never re-ran.
+ *
  * SSR-safe: without IntersectionObserver the element is treated as shown.
  */
 export function useInViewOnce<T extends HTMLElement>(threshold = 0.15) {
-  const ref = useRef<T>(null)
+  // Store the element via state so the effect re-runs when it changes.
+  const [el, setEl] = useState<T | null>(null)
+  const elRef = useRef<T | null>(null)
   const [shown, setShown] = useState(false)
 
+  // Callback ref: keeps the ref object stable while updating state.
+  const ref: React.RefCallback<T> = (node) => {
+    if (elRef.current !== node) {
+      elRef.current = node
+      setEl(node)
+    }
+  }
+
   useEffect(() => {
-    const el = ref.current
     if (!el) return
     if (typeof IntersectionObserver === 'undefined') {
       setShown(true)
@@ -31,7 +45,7 @@ export function useInViewOnce<T extends HTMLElement>(threshold = 0.15) {
     )
     io.observe(el)
     return () => io.disconnect()
-  }, [threshold])
+  }, [el, threshold])
 
   return { ref, shown }
 }

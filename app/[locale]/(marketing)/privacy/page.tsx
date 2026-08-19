@@ -13,7 +13,7 @@ export default function PrivacyPage() {
             Política de Privacidad
           </h1>
           <p className="mt-3 text-[15px] text-[#707070]">
-            Última actualización: 15 de julio de 2025 · República de Costa Rica · Ley N.° 8968
+            Última actualización: 19 de agosto de 2026 · República de Costa Rica · Ley N.° 8968
           </p>
           <div className="mt-6 flex gap-3">
             <Link
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
 
           <h2>1. Introducción</h2>
           <p>
-            Open Ai Jobs Search se compromete a proteger su privacidad. La presente Política de Privacidad describe qué datos personales recopilamos, cómo los usamos, con quién los compartimos y cuáles son sus derechos como titular de esos datos.
+            CVMeld se compromete a proteger su privacidad. La presente Política de Privacidad describe qué datos personales recopilamos, cómo los usamos, con quién los compartimos y cuáles son sus derechos como titular de esos datos.
           </p>
           <p>
             Esta política está redactada en cumplimiento de la <strong>Ley N.° 8968 — Ley de Protección de la Persona frente al Tratamiento de sus Datos Personales</strong> de la República de Costa Rica y sus reglamentos, así como las mejores prácticas internacionales en materia de privacidad.
@@ -42,10 +42,10 @@ export default function PrivacyPage() {
           <div className="data-table">
             <table>
               <tbody>
-                <tr><td><strong>Nombre</strong></td><td>Open Ai Jobs Search</td></tr>
+                <tr><td><strong>Nombre</strong></td><td>CVMeld</td></tr>
                 <tr><td><strong>País</strong></td><td>República de Costa Rica</td></tr>
-                <tr><td><strong>Correo de contacto</strong></td><td>privacy.ai-jobs@tonyml.com</td></tr>
-                <tr><td><strong>Categoría</strong></td><td>Plataforma SaaS de búsqueda de empleo</td></tr>
+                <tr><td><strong>Correo de contacto</strong></td><td>privacy@cvmeld.tonyml.com</td></tr>
+                <tr><td><strong>Categoría</strong></td><td>Plataforma SaaS de búsqueda de empleo y generación de CV</td></tr>
               </tbody>
             </table>
           </div>
@@ -80,6 +80,7 @@ export default function PrivacyPage() {
 
           <h3>3.3 Datos de terceros</h3>
           <p>Recopilamos datos de portales de empleo públicos (LinkedIn, Jobbank, Jobindex, etc.) en nombre del Usuario para prestar el Servicio de descubrimiento de empleos. Estos datos se procesan como parte del servicio contratado y <strong>no se venden a terceros</strong>.</p>
+          <p><strong>Principio de minimización:</strong> Solo recopilamos los datos estrictamente necesarios para prestar el Servicio y nunca los utilizamos con fines distintos a los aquí descritos.</p>
 
           <h2>4. Finalidades del Tratamiento</h2>
           <div className="data-table">
@@ -111,9 +112,10 @@ export default function PrivacyPage() {
             <li>Registros de auditoría (<em>audit logs</em>).</li>
             <li>Monitoreo continuo de anomalías.</li>
             <li>Procedimientos de respuesta ante incidentes de seguridad.</li>
+            <li>Revisión periódica de accesos y permisos.</li>
           </ul>
           <h3>5.3 Retención</h3>
-          <p>Conservamos sus datos mientras su cuenta esté activa y durante el período necesario para cumplir obligaciones legales. Tras la eliminación de su cuenta, sus datos son eliminados o anonimizados en un plazo máximo de <strong>90 días</strong>, salvo que la ley requiera una retención mayor.</p>
+          <p>Conservamos sus datos mientras su cuenta esté activa y durante el período necesario para cumplir obligaciones legales, fiscales o contables. Tras la eliminación de su cuenta, sus datos son eliminados o anonimizados en un plazo máximo de <strong>90 días</strong>, salvo que la ley requiera una retención mayor.</p>
 
           <h2>6. Compartición de Datos con Terceros</h2>
           <p>No vendemos, alquilamos ni compartimos sus datos personales con terceros para fines comerciales ajenos al Servicio. Podemos compartir datos en las siguientes circunstancias limitadas:</p>
@@ -123,10 +125,15 @@ export default function PrivacyPage() {
               <tbody>
                 <tr><td>Proveedores de IA (OpenAI, Anthropic, NVIDIA, OpenRouter)</td><td>Generación de contenido</td><td>Fragmentos de perfil y descripciones de empleo</td></tr>
                 <tr><td>Infraestructura cloud (Fly.io)</td><td>Hospedaje y almacenamiento</td><td>Datos cifrados</td></tr>
+                <tr><td>Procesadores de pago</td><td>Suscripciones y pagos</td><td>Datos de facturación (no almacenamos datos de tarjetas)</td></tr>
                 <tr><td>Autoridades competentes</td><td>Cumplimiento de órdenes judiciales</td><td>Solo lo estrictamente requerido</td></tr>
               </tbody>
             </table>
           </div>
+          <p>Todos los proveedores de terceros están sujetos a acuerdos contractuales de confidencialidad y protección de datos (incluidas cláusulas de transferencia internacional cuando corresponda).</p>
+
+          <h3>Enlaces a terceros</h3>
+          <p>La Plataforma puede contener enlaces a sitios web o portales de empleo de terceros. No somos responsables de las prácticas de privacidad de dichos sitios y le recomendamos revisar sus respectivas políticas.</p>
 
           <h2>7. Cookies y Tecnologías Similares</h2>
           <div className="data-table">
@@ -156,21 +163,29 @@ export default function PrivacyPage() {
               </tbody>
             </table>
           </div>
-          <p>Para ejercer cualquiera de estos derechos, escriba a: <a href="mailto:privacy.ai-jobs@tonyml.com">privacy.ai-jobs@tonyml.com</a>. Responderemos su solicitud en un plazo máximo de <strong>10 días hábiles</strong>.</p>
+          <p>Para ejercer cualquiera de estos derechos, escriba a: <a href="mailto:privacy@cvmeld.tonyml.com">privacy@cvmeld.tonyml.com</a>. Responderemos su solicitud en un plazo máximo de <strong>10 días hábiles</strong>. Podremos solicitar verificación de identidad para procesar su solicitud.</p>
 
-          <h2>9. Menores de Edad</h2>
+          <h2>9. Usuarios Fuera de Costa Rica</h2>
+          <p>Si usted reside en la Unión Europea, Reino Unido, Suiza o el Estado de California (EE. UU.), podrá tener derechos adicionales conforme a normativas como el <strong>RGPD</strong>, la <strong>Ley de Privacidad del Consumidor de California (CCPA/CPRA)</strong> o la <strong>Ley de Privacidad de Datos del Reino Unido</strong>, en la medida que resulten aplicables. Esto incluye derechos de acceso, rectificación, eliminación, portabilidad, limitación del tratamiento y, en el caso de CCPA/CPRA, la opción de excluirse de cualquier venta o uso compartido de datos (que no realizamos). Puede ejercer estos derechos mediante el correo indicado en la sección 15.</p>
+
+          <h2>10. Menores de Edad</h2>
           <p>La Plataforma no está dirigida a personas menores de 18 años. No recopilamos intencionalmente datos de menores de edad.</p>
 
-          <h2>10. Transferencias Internacionales de Datos</h2>
-          <p>Al utilizar proveedores de IA internacionales (como OpenAI, Anthropic, NVIDIA — todos con sede en EE. UU.), parte de sus datos pueden ser procesados fuera de Costa Rica. Cuando esto ocurre, mantenemos acuerdos contractuales con dichos proveedores que exigen estándares de protección equiparables a los de la legislación costarricense.</p>
+          <h2>11. Transferencias Internacionales de Datos</h2>
+          <p>Al utilizar proveedores de IA internacionales (como OpenAI, Anthropic, NVIDIA — todos con sede en EE. UU.), parte de sus datos pueden ser procesados fuera de Costa Rica. Cuando esto ocurre:</p>
+          <ul>
+            <li>Los datos enviados se limitan a los fragmentos estrictamente necesarios para completar la tarea.</li>
+            <li>Mantenemos acuerdos contractuales con dichos proveedores que exigen estándares de protección equiparables, incluidas cláusulas contractuales estándar cuando corresponda.</li>
+            <li>Usted puede optar por no utilizar estas funciones de IA si así lo prefiere.</li>
+          </ul>
 
-          <h2>11. Notificación de Brechas de Seguridad</h2>
-          <p>En caso de una brecha de seguridad que afecte sus datos personales, le notificaremos a través del correo electrónico registrado en su cuenta, en el menor tiempo posible y dentro de los plazos establecidos por la legislación costarricense.</p>
+          <h2>12. Notificación de Brechas de Seguridad</h2>
+          <p>En caso de una brecha de seguridad que afecte sus datos personales, le notificaremos a través del correo electrónico registrado en su cuenta, en el menor tiempo posible y dentro de los plazos establecidos por la legislación costarricense, incluyendo la naturaleza de la brecha, los datos afectados y las medidas adoptadas. Notificaremos a las autoridades competentes (PRODHAB) cuando la normativa lo exija.</p>
 
-          <h2>12. Cambios a esta Política</h2>
-          <p>Podemos actualizar esta Política periódicamente. Le notificaremos los cambios materiales mediante publicación en la Plataforma y notificación por correo electrónico. El uso continuado de la Plataforma tras la publicación de cambios constituye aceptación de la nueva Política.</p>
+          <h2>13. Cambios a esta Política</h2>
+          <p>Podemos actualizar esta Política periódicamente. Le notificaremos los cambios materiales mediante publicación en la Plataforma y notificación por correo electrónico. El uso continuado de la Plataforma tras la publicación de cambios constituye aceptación de la nueva Política. Si el Usuario no acepta los cambios, debe dejar de utilizar la Plataforma.</p>
 
-          <h2>13. Autoridad de Control</h2>
+          <h2>14. Autoridad de Control</h2>
           <p>
             La entidad competente para la protección de datos personales en Costa Rica es la <strong>Agencia de Protección de Datos de los Habitantes (Prodhab)</strong>.
           </p>
@@ -180,10 +195,10 @@ export default function PrivacyPage() {
             <li>Dirección: San José, Costa Rica</li>
           </ul>
 
-          <h2>14. Contacto</h2>
+          <h2>15. Contacto</h2>
           <p>
-            <strong>Open Ai Jobs Search — Oficial de Protección de Datos</strong><br />
-            Correo electrónico: <a href="mailto:privacy.ai-jobs@tonyml.com">privacy.ai-jobs@tonyml.com</a><br />
+            <strong>CVMeld — Oficial de Protección de Datos</strong><br />
+            Correo electrónico: <a href="mailto:privacy@cvmeld.tonyml.com">privacy@cvmeld.tonyml.com</a><br />
             República de Costa Rica
           </p>
         </div>

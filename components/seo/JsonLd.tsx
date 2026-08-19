@@ -21,7 +21,7 @@ export function OrganizationJsonLd({
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer support',
-      email: 'legal.ai-jobs@tonyml.com',
+      email: 'legal@cvmeld.tonyml.com',
       availableLanguage: ['English', 'Spanish'],
     },
   }

@@ -104,7 +104,7 @@ jobs:
 
             **Entorno:** ${{ github.event.inputs.environment }}
 
-            Haz clic para ver: https://open-ai-jobs-search.tonyml.com/es
+            Haz clic para ver: https://cvmeld.tonyml.com/es
 
             **Desplegado por:** @${{ github.actor }}
           target_commitish: ${{ github.sha }}

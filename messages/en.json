@@ -41,7 +41,7 @@
   },
   "auth": {
     "loginTitle": "Welcome back",
-    "loginSubtitle": "Sign in to your Open Ai Jobs Search account",
+    "loginSubtitle": "Sign in to your CVMeld account",
     "registerTitle": "Create your account",
     "emailCorrelationNotice": "This email serves as the unique identifier for your account and application processing, so it cannot be changed once registered. Make sure to use the email you will use for job applications.",
     "registerSubtitle": "Start your AI-powered job search",
@@ -184,7 +184,7 @@
   "about": {
     "label": "About",
     "heroHeading": "From profile to offer, with AI that adapts to you",
-    "heroDesc": "Open Ai Jobs Search builds your base CV once, then adapts it to every opening. Ranked offers, tailored applications, interview prep and learning plans in one guided flow, from the free plan up.",
+    "heroDesc": "CVMeld builds your base CV once, then adapts it to every opening. Ranked offers, tailored applications, interview prep and learning plans in one guided flow, from the free plan up.",
     "problemHeading": "The problem",
     "problemP1": "Applying for jobs should not be a second job. Tailoring a CV for every opening, writing cover letters, tracking applications and preparing for interviews can burn you out before you land anything.",
     "problemP2": "Generic templates waste your time, and most AI tools fail when their single provider hits a limit. Your search stops at the worst moment.",
@@ -752,7 +752,7 @@
       "soundEffects": "Sound effects",
       "soundEffectDesc": "Play sounds when ranking, scraping, and other processes finish",
       "marketingEmails": "Marketing emails",
-      "marketingDesc": "Tips and updates about Open Ai Jobs Search"
+      "marketingDesc": "Tips and updates about CVMeld"
     },
     "language": {
       "interfaceLanguage": "Interface language",
@@ -870,7 +870,7 @@
     "rankService": "Rank Service",
     "privacy": "Privacy",
     "terms": "Terms",
-    "allRightsReserved": "© {year} Open Ai Jobs Search. All rights reserved.",
+    "allRightsReserved": "© {year} CVMeld. All rights reserved.",
     "limits": "Usage limits",
     "pricing": "Pricing",
     "home": "Home",
@@ -962,7 +962,9 @@
     "providerRequired": "Please configure an AI provider first",
     "deleteSuccess": "Account deleted. We're sorry to see you go.",
     "noProviderAdminTitle": "No provider configured",
-    "noProviderAdminDesc": "The administrator has not configured an AI provider yet. Contact the administrator to enable document generation."
+    "noProviderAdminDesc": "The administrator has not configured an AI provider yet. Contact the administrator to enable document generation.",
+    "noProviderUserTitle": "AI features unavailable",
+    "noProviderUserDesc": "Some AI features are temporarily unavailable. Please contact the administrator for more information."
   },
   "admin": {
     "title": "Admin Panel",

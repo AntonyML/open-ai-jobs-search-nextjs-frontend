@@ -11,7 +11,7 @@ interface LogoProps extends React.SVGProps<SVGSVGElement> {
 export function Logo({
   size = 32,
   className = '',
-  alt = 'Open AI Jobs Search',
+  alt = 'CVMeld',
   showIconOnly = true,
   showBackground = false,
   ...props
@@ -60,7 +60,7 @@ export function Logo({
       </svg>
       {!showIconOnly && (
         <span className="font-semibold tracking-tight text-foreground text-sm md:text-base">
-          Open AI Jobs
+          CVMeld
         </span>
       )}
     </span>

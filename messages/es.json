@@ -41,7 +41,7 @@
   },
   "auth": {
     "loginTitle": "Bienvenido de nuevo",
-    "loginSubtitle": "Inicia sesión en tu cuenta de Open Ai Jobs Search",
+    "loginSubtitle": "Inicia sesión en tu cuenta de CVMeld",
     "registerTitle": "Crea tu cuenta",
     "emailCorrelationNotice": "Este correo funciona como el identificador único de tu cuenta y del procesamiento de tus postulaciones, por lo que no es posible cambiarlo una vez registrado. Asegúrate de utilizar el correo que usarás para buscar empleo.",
     "registerSubtitle": "Comienza tu búsqueda de empleo con IA",
@@ -184,7 +184,7 @@
   "about": {
     "label": "Acerca de",
     "heroHeading": "Del perfil a la oferta, con IA que se adapta a ti",
-    "heroDesc": "Open Ai Jobs Search construye tu CV base una vez y lo adapta a cada vacante. Ofertas rankeadas, postulaciones a medida, prep de entrevistas y planes de aprendizaje en un flujo guiado, desde el plan gratuito.",
+    "heroDesc": "CVMeld construye tu CV base una vez y lo adapta a cada vacante. Ofertas rankeadas, postulaciones a medida, prep de entrevistas y planes de aprendizaje en un flujo guiado, desde el plan gratuito.",
     "problemHeading": "El problema",
     "problemP1": "Postularse a empleos no debería ser un segundo trabajo. Personalizar un CV para cada vacante, escribir cartas, rastrear postulaciones y preparar entrevistas puede agotarte antes de conseguir algo.",
     "problemP2": "Las plantillas genéricas hacen perder tiempo, y muchas herramientas con IA fallan cuando su único proveedor alcanza un límite. Tu búsqueda se detiene en el peor momento.",
@@ -752,7 +752,7 @@
       "soundEffects": "Efectos de sonido",
       "soundEffectDesc": "Reproduce sonidos al completar ranking, scraping y otros procesos",
       "marketingEmails": "Correos promocionales",
-      "marketingDesc": "Consejos y actualizaciones sobre Open Ai Jobs Search"
+      "marketingDesc": "Consejos y actualizaciones sobre CVMeld"
     },
     "language": {
       "interfaceLanguage": "Idioma de la interfaz",
@@ -870,7 +870,7 @@
     "rankService": "Servicio de Ranking",
     "privacy": "Privacidad",
     "terms": "Términos",
-    "allRightsReserved": "© {year} Open Ai Jobs Search. Todos los derechos reservados.",
+    "allRightsReserved": "© {year} CVMeld. Todos los derechos reservados.",
     "limits": "Límites de uso",
     "pricing": "Precios",
     "home": "Inicio",
@@ -962,7 +962,9 @@
     "providerRequired": "Primero configura un proveedor de IA",
     "deleteSuccess": "Cuenta eliminada. Lamentamos verte ir.",
     "noProviderAdminTitle": "Sin proveedor configurado",
-    "noProviderAdminDesc": "El administrador aún no ha configurado un proveedor de IA. Contacta al administrador para habilitar la generación de documentos."
+    "noProviderAdminDesc": "El administrador aún no ha configurado un proveedor de IA. Contacta al administrador para habilitar la generación de documentos.",
+    "noProviderUserTitle": "Funcionalidades de IA no disponibles",
+    "noProviderUserDesc": "Algunas funciones de inteligencia artificial temporalmente no están disponibles. Por favor contacta al administrador para más información."
   },
   "admin": {
     "title": "Panel de Administración",

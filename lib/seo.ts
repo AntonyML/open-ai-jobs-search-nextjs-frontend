@@ -11,7 +11,6 @@ export const SITE_CONFIG = {
   keywords: [
     'AI Jobs',
     'Machine Learning Jobs',
-    'OpenAI Jobs',
     'AI Engineering',
     'Tech Careers',
     'Job Search Engine',
@@ -49,7 +48,7 @@ export function constructMetadata({
 }: GenerateMetadataOptions = {}): Metadata {
   const brand = SITE_CONFIG.name
   const fullTitle = title
-    ? (title.includes('Open AI Jobs')
+    ? (title.includes('CVMeld')
         ? title
         : `${title} | ${brand}`)
     : brand
