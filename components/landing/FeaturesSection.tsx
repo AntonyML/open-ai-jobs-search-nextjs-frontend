@@ -28,7 +28,7 @@ export async function FeaturesSection() {
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[#0071e3]">
             {t('featuresLabel')}
           </p>
-          <h2 className="text-[36px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[48px]">
+          <h2 className="text-balance text-[36px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[48px]">
             {t('featuresHeading')}
           </h2>
         </div>
@@ -78,7 +78,7 @@ export async function FeaturesSection() {
                     <polyline points="12 5 19 12 12 19" />
                   </svg>
                 </div>
-                <p className="mt-2.5 max-w-2xl text-[15px] font-light leading-relaxed text-[#707070]">
+                <p className="mt-2.5 max-w-2xl text-pretty text-[15px] font-light leading-relaxed text-[#707070]">
                   {feature.description}
                 </p>
               </div>

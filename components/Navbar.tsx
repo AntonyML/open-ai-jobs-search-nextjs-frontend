@@ -291,6 +291,7 @@ export default function Navbar() {
             className="ml-1 flex h-11 w-11 items-center justify-center rounded-full text-[#707070] transition-all hover:bg-[#f5f5f7] active:bg-[#e8e8ed] md:hidden"
             aria-label={useLauncher ? t('nav.appMenu') : 'Toggle menu'}
             aria-expanded={menuOpen}
+            aria-controls={useLauncher ? undefined : 'mobile-menu'}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               {menuOpen ? (
@@ -312,7 +313,7 @@ export default function Navbar() {
 
       {/* Mobile menu (solo marketing / sin sesión — la app usa el App Launcher) */}
       {mobileOpen && !useLauncher && (
-        <div className="border-t border-[#d2d2d7]/60 bg-white/95 backdrop-blur-xl md:hidden">
+        <div id="mobile-menu" className="border-t border-[#d2d2d7]/60 bg-white/95 backdrop-blur-xl md:hidden">
           <div className="space-y-1 px-4 py-3">
             {isMarketing && <MobileMarketingLinks t={t} />}
             {loggedIn ? <LoggedInMobile t={t} /> : <LoggedOutMobile t={t} />}

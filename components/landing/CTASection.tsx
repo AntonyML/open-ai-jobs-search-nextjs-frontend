@@ -35,21 +35,21 @@ export function CTASection() {
             {t('ctaLabel')}
           </p>
           <h2
-            className={`text-[36px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[48px] transition-all duration-700 ${
+            className={`text-balance text-[36px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[48px] transition-all duration-700 ${
               shown && !reducedMotion ? 'cta-reveal cta-reveal-2' : ''
             }`}
           >
             {t('ctaHeading')}
           </h2>
           <p
-            className={`mt-4 text-[17px] font-light text-[#707070] transition-all duration-700 ${
+            className={`mt-4 text-pretty text-[17px] font-light text-[#707070] transition-all duration-700 ${
               shown && !reducedMotion ? 'cta-reveal cta-reveal-3' : ''
             }`}
           >
             {t('ctaSubheading')}
           </p>
           <div
-            className={`mt-10 flex items-center justify-center gap-3 transition-all duration-700 ${
+            className={`mt-8 flex items-center justify-center gap-3 transition-all duration-700 md:mt-10 ${
               shown && !reducedMotion ? 'cta-reveal cta-reveal-4' : ''
             }`}
           >

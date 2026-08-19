@@ -130,7 +130,7 @@ function PlanCard({ plan, billing, currency, idx, reveal, reducedMotion }: PlanC
         // delay, so hover stays instant.
         animationDelay: reveal ? `${idx * 110}ms` : '0ms',
       }}
-      className={`group relative flex flex-col rounded-2xl p-7 transition-[transform,box-shadow,border-color] duration-300 ${
+      className={`group relative flex flex-col rounded-2xl p-6 transition-[transform,box-shadow,border-color] duration-300 sm:p-7 ${
         reveal ? 'pricing-card-reveal' : ''
       } ${
         isMax
@@ -181,7 +181,7 @@ function PlanCard({ plan, billing, currency, idx, reveal, reducedMotion }: PlanC
         {!isFree && <span className="text-[14px] font-light text-[#707070]">{t(`${prefix}Period`)}</span>}
       </div>
       {!isFree && (
-        <p className="mt-1.5 text-[11.5px] font-light text-[#858585]">
+        <p className="mt-1.5 text-[11.5px] font-light text-[#707070]">
           {isAnnual
             ? t('pricingAnnualNote', { amount: yearlyTotalUsd })
             : t('pricingYearlyNote', { amount: yearlyTotalUsd })}
@@ -217,7 +217,7 @@ function PlanCard({ plan, billing, currency, idx, reveal, reducedMotion }: PlanC
         ) : (
           <PlanCta ctaKey="planCtaPro" />
         )}
-        <p className="mt-2.5 text-center text-[11px] text-[#858585]">{t(`${prefix}Note`)}</p>
+        <p className="mt-2.5 text-center text-[11px] text-[#707070]">{t(`${prefix}Note`)}</p>
       </div>
     </div>
   )
@@ -306,7 +306,7 @@ export default function PricingSection() {
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[#0071e3]">
             {t('pricingLabel')}
           </p>
-          <h2 className="text-[34px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[42px]">
+          <h2 className="text-balance text-[34px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[42px]">
             {t('pricingHeading')}
           </h2>
         </div>
@@ -343,7 +343,7 @@ export default function PricingSection() {
             <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
               {t('pricingAnnualSave', { pct: savingsPct })}
             </span>
-            <span className="text-[12px] font-light text-[#858585]">{t('pricingSubheading')}</span>
+            <span className="text-[12px] font-light text-[#707070]">{t('pricingSubheading')}</span>
           </div>
         </div>
 
@@ -418,7 +418,7 @@ export default function PricingSection() {
         </div>
 
         {/* Disclaimer — like Anthropic's pricing footer: honest, links to details */}
-        <p className="mx-auto mt-10 max-w-3xl text-center text-[12px] font-light leading-relaxed text-[#858585]">
+        <p className="mx-auto mt-10 max-w-3xl text-pretty text-center text-[12px] font-light leading-relaxed text-[#707070]">
           {t('pricingDisclaimer')}{' '}
           <Link
             href="/limits"

@@ -26,7 +26,7 @@ export async function HeroSection() {
         <HeroParticles />
       </SceneDynamic>
 
-      <div className="relative z-10 mx-auto grid w-full max-w-[1440px] flex-1 items-center gap-10 px-5 pt-14 pb-10 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pt-16 lg:pb-8">
+      <div className="relative z-10 mx-auto grid w-full max-w-[1440px] flex-1 items-center gap-8 px-5 pt-12 pb-8 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pt-16 lg:pb-8">
         {/* Copy */}
         <div className="text-center lg:text-left">
           {/* Badge */}
@@ -36,7 +36,7 @@ export async function HeroSection() {
           </div>
 
           {/* Heading */}
-          <h1 className="mx-auto max-w-2xl text-[38px] font-semibold leading-[1.06] tracking-tight text-[#1d1d1f] md:text-[46px] lg:mx-0">
+          <h1 className="mx-auto max-w-2xl text-balance text-[32px] font-semibold leading-[1.08] tracking-tight text-[#1d1d1f] sm:text-[38px] md:text-[46px] lg:mx-0">
             {t('heroTitle1')}{' '}
             <span className="bg-gradient-to-r from-[#0071e3] to-[#0a84ff] bg-clip-text text-transparent">
               {t('heroTitle2')}
@@ -44,12 +44,12 @@ export async function HeroSection() {
           </h1>
 
           {/* Subheading */}
-          <p className="mx-auto mt-4 max-w-xl text-[17px] font-light leading-snug text-[#707070] md:text-[20px] lg:mx-0">
+          <p className="mx-auto mt-4 max-w-xl text-pretty text-[17px] font-light leading-snug text-[#707070] md:text-[20px] lg:mx-0">
             {t('heroSubtitle')}
           </p>
 
           {/* CTAs */}
-          <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
+          <div className="mt-6 flex flex-col items-center gap-3 sm:mt-7 sm:flex-row sm:justify-center lg:justify-start">
             <AuthCTAButton
               loggedInKey="ctaDashboard"
               loggedOutKey="ctaTryFree"
