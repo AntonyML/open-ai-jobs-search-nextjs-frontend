@@ -205,9 +205,9 @@ export default function OutcomePage() {
               try {
                 const r = await apiFetch<CalibrationReport>('/api/v1/outcome/calibration')
                 setReport(r)
-                showSuccess('Calibration refreshed')
+                showSuccess(tc('done'))
               } catch {
-                showError('Not enough data yet')
+                showError(tc('error'))
               }
             }}
             className="btn-secondary w-full"

@@ -144,7 +144,7 @@ const EXTRA_ROUTE_REQUIREMENTS: Record<string, RouteRequirement> = {
 }
 
 /** Quita el prefijo de locale (/es/search → /search) si usePathname lo incluye. */
-function stripLocale(pathname: string): string {
+export function stripLocale(pathname: string): string {
   return pathname.replace(/^\/(en|es)(?=\/|$)/, '') || '/'
 }
 

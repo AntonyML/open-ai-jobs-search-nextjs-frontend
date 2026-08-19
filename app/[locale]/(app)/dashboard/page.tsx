@@ -38,6 +38,7 @@ import { CountUp } from '@/components/dashboard/CountUp'
 import { FunnelLineChart } from '@/components/dashboard/FunnelLineChart'
 import { TrendSparkline } from '@/components/dashboard/TrendSparkline'
 import { ActivityChart } from '@/components/dashboard/ActivityChart'
+import { QuickActions } from '@/components/dashboard/QuickActions'
 
 /* ── Static config ──────────────────────────────────────────────── */
 
@@ -178,9 +179,12 @@ export default function Dashboard() {
 
   /* ── Render ─────────────────────────────────────────────────── */
 
+  // En móvil el dashboard actúa como Home con una composición propia (misma
+  // data, distinto orden): resumen → acciones rápidas → embudo → CV →
+  // progreso → actividad. En desktop se conserva el orden original vía md:order-*.
   return (
-    <div className="mx-auto max-w-5xl space-y-6 md:space-y-8">
-      {/* Header */}
+    <div className="mx-auto flex max-w-5xl flex-col gap-6 md:gap-8">
+      {/* Header (saludo) */}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f]">
@@ -198,22 +202,9 @@ export default function Dashboard() {
         <DashboardSkeleton />
       ) : (
         <>
-          {/* Documents hero — the core value of the app */}
-          <DocumentsHero
-            t={t}
-            baseReady={stats.base_cv_ready}
-            adaptedCount={stats.adapted_cv_count}
-            totalCvs={stats.total_cvs}
-          />
-
-          {/* Insights — profile strength, plan/credits and accessibility */}
-          <InsightsGrid t={t} profile={profile} billing={billingStatus} access={access} />
-
-          {!hasData ? (
-            <EmptyState t={t} />
-          ) : (
-            <>
-              {/* KPI cards — sparkline + weekly delta */}
+          {/* Resumen principal — KPIs (2 columnas en móvil) */}
+          {!hasData ? null : (
+            <div className="order-1 md:order-3">
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
                 {kpis.map((kpi, i) => (
                   <div
@@ -255,45 +246,52 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
 
-              {/* Funnel + success */}
+          {/* Acciones rápidas — solo móvil */}
+          <div className="order-2 md:hidden">
+            <QuickActions />
+          </div>
+
+          {/* Aplicaciones / empleos — funnel + éxito */}
+          {hasData && chartData.length > 0 && (
+            <div className="order-3 md:order-4">
               <div className="grid gap-4 lg:grid-cols-5">
                 {/* Conversion funnel — secondary now that documents are the focus */}
-                {chartData.length > 0 && (
-                  <section className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5 lg:col-span-2">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('conversionFunnel')}</h2>
-                        <p className="mt-0.5 text-xs text-[#707070]">{t('fromScrapedToHired')}</p>
-                      </div>
-                      <span className="hidden rounded-full bg-[#f4f8fb] px-2.5 py-1 text-[10px] font-semibold text-[#0071e3] ring-1 ring-[#2997ff]/20 sm:inline-flex">
-                        {t('conversionFunnelTag')}
-                      </span>
+                <section className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5 lg:col-span-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('conversionFunnel')}</h2>
+                      <p className="mt-0.5 text-xs text-[#707070]">{t('fromScrapedToHired')}</p>
                     </div>
-                    <div className="mt-4">
-                      <FunnelLineChart data={chartData} jobsLabel={t('jobs')} />
+                    <span className="hidden rounded-full bg-[#f4f8fb] px-2.5 py-1 text-[10px] font-semibold text-[#0071e3] ring-1 ring-[#2997ff]/20 sm:inline-flex">
+                      {t('conversionFunnelTag')}
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <FunnelLineChart data={chartData} jobsLabel={t('jobs')} />
+                  </div>
+                  {/* Conversion chips */}
+                  {conversions.length > 0 && (
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                      {conversions.map((c, i) => (
+                        <span
+                          key={`${c.from}-${c.to}`}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-[#e8e8ed] bg-[#fafafa] px-2.5 py-1 text-[10px] font-medium text-[#707070]"
+                        >
+                          <span className="capitalize">{c.from}</span>
+                          <ArrowRight className="size-2.5 text-[#b0b0b0]" />
+                          <span className="capitalize">{c.to}</span>
+                          <span className="font-semibold text-[#0071e3] tabular-nums">{c.pct}%</span>
+                          {i < conversions.length - 1 && (
+                            <span className="ml-1 h-3 w-px bg-[#e8e8ed]" />
+                          )}
+                        </span>
+                      ))}
                     </div>
-                    {/* Conversion chips */}
-                    {conversions.length > 0 && (
-                      <div className="mt-4 flex flex-wrap items-center gap-2">
-                        {conversions.map((c, i) => (
-                          <span
-                            key={`${c.from}-${c.to}`}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-[#e8e8ed] bg-[#fafafa] px-2.5 py-1 text-[10px] font-medium text-[#707070]"
-                          >
-                            <span className="capitalize">{c.from}</span>
-                            <ArrowRight className="size-2.5 text-[#b0b0b0]" />
-                            <span className="capitalize">{c.to}</span>
-                            <span className="font-semibold text-[#0071e3] tabular-nums">{c.pct}%</span>
-                            {i < conversions.length - 1 && (
-                              <span className="ml-1 h-3 w-px bg-[#e8e8ed]" />
-                            )}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </section>
-                )}
+                  )}
+                </section>
 
                 {/* Success panel */}
                 <section className="flex flex-col rounded-2xl border border-[#d2d2d7]/60 bg-white p-5 lg:col-span-3">
@@ -335,37 +333,60 @@ export default function Dashboard() {
                   </div>
                 </section>
               </div>
+            </div>
+          )}
 
-              {/* Recent activity */}
-              {activityData.some((d) => d.applications > 0 || d.interviews > 0) && (
-                <section className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('activityTitle')}</h2>
-                      <p className="mt-0.5 text-xs text-[#707070]">{t('activitySubtitle')}</p>
-                    </div>
-                    <div className="flex items-center gap-3 text-[10px] font-medium text-[#707070]">
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="size-2 rounded-full bg-[#0071e3]" />
-                        {t('activityApplications')}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="size-2 rounded-full bg-[#5856d6]" />
-                        {t('activityInterviews')}
-                      </span>
-                    </div>
+          {/* CV — el corazón de la app */}
+          <div className="order-4 md:order-1">
+            <DocumentsHero
+              t={t}
+              baseReady={stats.base_cv_ready}
+              adaptedCount={stats.adapted_cv_count}
+              totalCvs={stats.total_cvs}
+            />
+          </div>
+
+          {/* Progreso — perfil, plan y accesibilidad */}
+          <div className="order-5 md:order-2">
+            <InsightsGrid t={t} profile={profile} billing={billingStatus} access={access} />
+          </div>
+
+          {!hasData && (
+            <div className="order-3 md:order-3">
+              <EmptyState t={t} />
+            </div>
+          )}
+
+          {/* Actividad reciente */}
+          {hasData && activityData.some((d) => d.applications > 0 || d.interviews > 0) && (
+            <div className="order-6 md:order-5">
+              <section className="rounded-2xl border border-[#d2d2d7]/60 bg-white p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-sm font-semibold text-[#1d1d1f]">{t('activityTitle')}</h2>
+                    <p className="mt-0.5 text-xs text-[#707070]">{t('activitySubtitle')}</p>
                   </div>
-                  <div className="mt-4">
-                    <ActivityChart
-                      data={activityData}
-                      appsLabel={t('activityApplications')}
-                      interviewsLabel={t('activityInterviews')}
-                      locale={locale}
-                    />
+                  <div className="flex items-center gap-3 text-[10px] font-medium text-[#707070]">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="size-2 rounded-full bg-[#0071e3]" />
+                      {t('activityApplications')}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="size-2 rounded-full bg-[#5856d6]" />
+                      {t('activityInterviews')}
+                    </span>
                   </div>
-                </section>
-              )}
-            </>
+                </div>
+                <div className="mt-4">
+                  <ActivityChart
+                    data={activityData}
+                    appsLabel={t('activityApplications')}
+                    interviewsLabel={t('activityInterviews')}
+                    locale={locale}
+                  />
+                </div>
+              </section>
+            </div>
           )}
         </>
       )}

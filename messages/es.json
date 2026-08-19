@@ -73,7 +73,8 @@
     "brandRegisterSubtitle": "Sin tarjeta de crédito. Conecta tu proveedor IA preferido y empieza a rankear empleos inmediatamente.",
     "loginSubtitleAlt": "Inicia sesión para continuar tu búsqueda de empleo.",
     "registerSubtitleAlt": "Comienza tu búsqueda de empleo con IA.",
-    "account_deleted": "Cuenta eliminada permanentemente. Todos tus datos han sido borrados."
+    "account_deleted": "Cuenta eliminada permanentemente. Todos tus datos han sido borrados.",
+    "registerSuccess": "¡Cuenta creada! Inicia sesión para continuar."
   },
   "marketing": {
     "heroBadge": "CV Builder: adapta tu CV a cada oferta",

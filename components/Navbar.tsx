@@ -9,6 +9,7 @@ import { isLoggedIn, clearToken, isAdmin, AUTH_CHANGED } from '@/lib/auth'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { useBillingStatus } from '@/hooks/useBilling'
 import Logo from '@/components/Logo'
+import { useMobileNavigation } from '@/components/navigation/MobileNavigationProvider'
 
 const NotificationBell = dynamic(
   () => import('@/components/NotificationBell'),
@@ -205,6 +206,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [loggedIn, setLoggedIn] = useState(false)
   const pathname = usePathname()
+  const mobileNav = useMobileNavigation()
 
   useEffect(() => {
     setLoggedIn(isLoggedIn())
@@ -221,9 +223,25 @@ export default function Navbar() {
   // Close mobile menu on route change
   useEffect(() => { setMobileOpen(false) }, [pathname])
 
+  // If the launcher opens, drop the legacy dropdown.
+  useEffect(() => {
+    if (mobileNav.launcherOpen) setMobileOpen(false)
+  }, [mobileNav.launcherOpen])
+
   // Routes that render the marketing navbar (product links) instead of the app one
   const MARKETING_ROUTES = ['/', '/about', '/limits', '/terms', '/privacy', '/blog']
   const isMarketing = MARKETING_ROUTES.includes(pathname)
+
+  // Dentro del layout autenticado la hamburguesa abre el App Launcher móvil.
+  const useLauncher = !isMarketing && loggedIn && mobileNav.available
+  const menuOpen = useLauncher ? mobileNav.launcherOpen : mobileOpen
+  const toggleMenu = () => {
+    if (useLauncher) {
+      mobileNav.openLauncher()
+    } else {
+      setMobileOpen((o) => !o)
+    }
+  }
 
   return (
     <header
@@ -269,13 +287,13 @@ export default function Navbar() {
 
           {/* Mobile hamburger — 44px touch target */}
           <button
-            onClick={() => setMobileOpen((o) => !o)}
+            onClick={toggleMenu}
             className="ml-1 flex h-11 w-11 items-center justify-center rounded-full text-[#707070] transition-all hover:bg-[#f5f5f7] active:bg-[#e8e8ed] md:hidden"
-            aria-label="Toggle menu"
-            aria-expanded={mobileOpen}
+            aria-label={useLauncher ? t('nav.appMenu') : 'Toggle menu'}
+            aria-expanded={menuOpen}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              {mobileOpen ? (
+              {menuOpen ? (
                 <>
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
@@ -292,8 +310,8 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {mobileOpen && (
+      {/* Mobile menu (solo marketing / sin sesión — la app usa el App Launcher) */}
+      {mobileOpen && !useLauncher && (
         <div className="border-t border-[#d2d2d7]/60 bg-white/95 backdrop-blur-xl md:hidden">
           <div className="space-y-1 px-4 py-3">
             {isMarketing && <MobileMarketingLinks t={t} />}

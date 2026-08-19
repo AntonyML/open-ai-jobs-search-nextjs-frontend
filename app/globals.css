@@ -369,4 +369,25 @@ html.access-font-sans-serif {
   }
 }
 
+/* ── Accessibility: native prefers-reduced-motion ─────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Mobile App Launcher ──────────────────────────────────────── */
+
+@keyframes launcher-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-launcher-enter {
+  animation: launcher-fade-in 0.22s ease-out;
+}
+
 

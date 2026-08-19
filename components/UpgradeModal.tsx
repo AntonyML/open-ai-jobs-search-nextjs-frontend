@@ -125,7 +125,7 @@ export default function UpgradeModal({ open, onClose }: UpgradeModalProps) {
     if (tab === 'donate') {
       const num = parseFloat(amount)
       if (!amount.trim() || isNaN(num) || num <= 0) {
-        showWarning('Please enter a valid amount')
+        showWarning(t('upgrade.amount') + ' — ' + t('upgrade.amountPlaceholder'))
         setLoading(false)
         return
       }

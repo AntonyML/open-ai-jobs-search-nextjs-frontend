@@ -112,8 +112,7 @@ export default function InterviewPage() {
       if (Array.isArray(p)) setPreps(p)
 
       playActionSound('interview')
-      showSuccess('Interview prep generated!')
-      addNotification({ action: 'interview', description: `Prep pack generated for ${form.stage} stage`, status: 'success' })
+      showSuccess(t('prepGenerated'))
     } catch (x) {
       const msg = x instanceof Error ? x.message : 'Failed to generate prep'
       playErrorSound()
@@ -131,7 +130,7 @@ export default function InterviewPage() {
       setActiveTab('prep')
       setMockState(null)
     } catch {
-      showError('Failed to load prep')
+      showError(tc('error'))
     }
   }
 
@@ -146,7 +145,7 @@ export default function InterviewPage() {
       setMockState(result)
       setActiveTab('mock')
     } catch (x) {
-      showError(x instanceof Error ? x.message : 'Failed to start mock interview')
+      showError(x instanceof Error ? x.message : tc('error'))
     } finally {
       setMockLoading(false)
     }
@@ -163,14 +162,13 @@ export default function InterviewPage() {
       )
       if (result.is_complete) {
         playActionSound('interview')
-        addNotification({ action: 'interview', description: `Mock interview complete — ${result.total_questions} questions answered`, status: 'success' })
+        showSuccess(t('mockComplete'), t('mockCompleteDesc'))
       }
       setMockState(result)
       setMockAnswer('')
     } catch (x) {
-      const msg = x instanceof Error ? x.message : 'Failed to submit answer'
+      const msg = x instanceof Error ? x.message : tc('error')
       playErrorSound()
-      addNotification({ action: 'interview', description: msg, status: 'error' })
       showError(msg)
     } finally {
       setMockLoading(false)

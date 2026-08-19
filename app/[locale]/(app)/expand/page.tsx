@@ -145,6 +145,7 @@ function HistoryItem({ exp }: { exp: ExpansionSummary }) {
 
 export default function ExpandPage() {
   const t = useTranslations('expand')
+  const tc = useTranslations('common')
   const [showUpgrade, setShowUpgrade] = useState(false)
   const premium = useBilling().isPremium
   const [running, setRunning] = useState(false)
@@ -174,17 +175,11 @@ export default function ExpandPage() {
           setHistory(Array.isArray(h) ? h : [])
           if (exp.status === 'completed') {
             playActionSound('expand')
-            showSuccess(`Expansion complete — ${exp.proposed_additions.length} skills discovered`)
-            addNotification({
-              action: 'expand',
-              description: `Discovered ${exp.proposed_additions.length} skills across ${exp.enriched_competencies.length} competencies`,
-              status: 'success',
-            })
+            showSuccess(t('complete', { count: exp.proposed_additions.length }))
           } else {
             playErrorSound()
-            const errMsg = exp.error_message || 'Expansion failed'
+            const errMsg = exp.error_message || t('failed')
             showError(errMsg)
-            addNotification({ action: 'expand', description: errMsg, status: 'error' })
           }
         }
       } catch {
@@ -216,10 +211,9 @@ export default function ExpandPage() {
       setPollId(exp.id)
     } catch (x) {
       setRunning(false)
-      const msg = x instanceof Error ? x.message : 'Request failed'
+      const msg = x instanceof Error ? x.message : tc('error')
       playErrorSound()
       showError(msg)
-      addNotification({ action: 'expand', description: msg, status: 'error' })
       setError(msg)
     }
   }
@@ -246,7 +240,7 @@ export default function ExpandPage() {
     if (!current?.proposed_additions) return
     const toApply = current.proposed_additions.filter((_, i) => accepted.has(i))
     if (toApply.length === 0) {
-      showError('No skills selected to apply')
+      showError(t('noSkillsFound'))
       return
     }
     try {
@@ -279,11 +273,11 @@ export default function ExpandPage() {
           skills: { programming_ml: programmingMl, domain_expertise: domainExpertise, software_tools: softwareTools },
         }),
       })
-      showSuccess(`${toApply.length} skills added to your profile`)
+      showSuccess(t('applySelected', { count: toApply.length }))
       setAccepted(new Set())
       setRejected(new Set())
     } catch (x) {
-      showError(x instanceof Error ? x.message : 'Failed to apply skills')
+      showError(x instanceof Error ? x.message : tc('error'))
     }
   }
 

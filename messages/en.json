@@ -73,7 +73,8 @@
     "brandRegisterSubtitle": "No credit card required. Connect your preferred AI provider and start ranking jobs immediately.",
     "loginSubtitleAlt": "Sign in to continue your job search.",
     "registerSubtitleAlt": "Start your AI-powered job search.",
-    "account_deleted": "Account permanently deleted. All your data has been removed."
+    "account_deleted": "Account permanently deleted. All your data has been removed.",
+    "registerSuccess": "Account created! Sign in to continue."
   },
   "marketing": {
     "heroBadge": "CV Builder: tailor your CV to each offer",

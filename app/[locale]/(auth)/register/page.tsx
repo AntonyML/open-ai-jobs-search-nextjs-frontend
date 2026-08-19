@@ -40,10 +40,10 @@ export default function Register() {
         method: 'POST',
         body: JSON.stringify(form),
       })
-      showSuccess('Account created! Sign in to continue.')
+      showSuccess(t('registerSuccess'))
       router.push('/login')
     } catch (x) {
-      const msg = x instanceof Error ? x.message : 'Registration failed'; setError(msg); showError(msg)
+      const msg = x instanceof Error ? x.message : t('registerError'); setError(msg); showError(msg)
     } finally {
       setLoading(false)
     }

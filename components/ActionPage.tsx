@@ -133,7 +133,7 @@ export default function ActionPage({
     const a = getCompletedSteps()
     if (!a.includes(step)) {
       setCompletedSteps([...a, step])
-      showSuccess('Completed!')
+      showSuccess('Step completed successfully')
     }
   }
 

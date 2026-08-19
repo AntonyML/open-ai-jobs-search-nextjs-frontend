@@ -15,14 +15,8 @@ import { LogOut } from 'lucide-react'
 import Logo from '@/components/Logo'
 import { useRouter } from '@/i18n/routing'
 import { clearToken } from '@/lib/auth'
-import { showWarning } from '@/lib/toasts'
-import {
-  NAV_SECTIONS,
-  isItemLocked,
-  type NavItem,
-  type ResolvedItem,
-} from '@/components/navigation/sidebar-config'
-import { useSidebarState } from '@/components/navigation/sidebar-state'
+import { stripLocale } from '@/components/navigation/sidebar-config'
+import { useResolvedNav } from '@/components/navigation/use-resolved-nav'
 import { SidebarGroupSection } from '@/components/navigation/SidebarGroupSection'
 import CreditWidget from '@/components/CreditWidget'
 
@@ -48,27 +42,8 @@ function SignOutButton() {
 
 export default function AppSidebar() {
   const t = useTranslations('appSidebar')
-  const pathname = usePathname()
-  const state = useSidebarState()
-
-  const resolveItem = (item: NavItem): ResolvedItem => {
-    if (!isItemLocked(item, state)) return { ...item, locked: false }
-    if (item.requiredTier) {
-      return {
-        ...item,
-        locked: true,
-        lockedTooltip: t('maxLockedTooltip'),
-        onLockedClick: () =>
-          window.dispatchEvent(new CustomEvent('purchase:required', { detail: { status: 403 } })),
-      }
-    }
-    return {
-      ...item,
-      locked: true,
-      lockedTooltip: item.lockedTooltipKey ? t(item.lockedTooltipKey) : t(item.labelKey),
-      onLockedClick: item.lockedToastKey ? () => showWarning(t(item.lockedToastKey!)) : undefined,
-    }
-  }
+  const pathname = stripLocale(usePathname())
+  const { sections } = useResolvedNav()
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
@@ -83,21 +58,15 @@ export default function AppSidebar() {
 
       <SidebarContent>
         <CreditWidget />
-        {NAV_SECTIONS.map((section) => {
-          const items = section.items
-            .filter((item) => !item.adminOnly || state.isAdminUser)
-            .map(resolveItem)
-          if (items.length === 0) return null
-          return (
-            <SidebarGroupSection
-              key={section.labelKey ?? section.items[0].href}
-              labelKey={section.labelKey}
-              items={items}
-              pathname={pathname}
-              separatorBefore={section.separatorBefore}
-            />
-          )
-        })}
+        {sections.map((section) => (
+          <SidebarGroupSection
+            key={section.labelKey ?? section.items[0].href}
+            labelKey={section.labelKey}
+            items={section.items}
+            pathname={pathname}
+            separatorBefore={section.separatorBefore}
+          />
+        ))}
       </SidebarContent>
 
       <SidebarFooter className="p-2">

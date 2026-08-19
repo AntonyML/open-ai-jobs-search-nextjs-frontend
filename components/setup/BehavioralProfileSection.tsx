@@ -57,9 +57,9 @@ export function BehavioralProfileSection({ initial }: { initial: BehavioralProfi
         method: 'PUT',
         body: JSON.stringify(bp),
       })
-      showSuccess('Behavioral profile saved')
+      showSuccess(t('saved'))
     } catch (x) {
-      showError(x instanceof Error ? x.message : 'Failed to save')
+      showError(x instanceof Error ? x.message : tc('error'))
     } finally {
       setSaving(false)
     }

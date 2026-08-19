@@ -216,6 +216,7 @@ function HistoryCard({
 
 export default function UpskillPage() {
   const t = useTranslations('upskill')
+  const tc = useTranslations('common')
   const [showUpgrade, setShowUpgrade] = useState(false)
   const premium = useBilling().isPremium
   const [running, setRunning] = useState(false)
@@ -245,18 +246,12 @@ export default function UpskillPage() {
           if (result.status === 'completed') {
             playActionSound('upskill')
             showSuccess(
-              `Upskill complete — ${result.gap_heatmap.length} gaps identified, ${result.learning_plan.length} learning items`
+              t('complete', { gaps: result.gap_heatmap.length, plan: result.learning_plan.length })
             )
-            addNotification({
-              action: 'upskill',
-              description: `Identified ${result.gap_heatmap.length} skill gaps with ${result.learning_plan.length} learning plan items`,
-              status: 'success',
-            })
           } else {
             playErrorSound()
-            const errMsg = result.error_message || 'Upskill analysis failed'
+            const errMsg = result.error_message || t('failed')
             showError(errMsg)
-            addNotification({ action: 'upskill', description: errMsg, status: 'error' })
           }
         }
       } catch {
@@ -279,10 +274,9 @@ export default function UpskillPage() {
       setPollId(result.id)
     } catch (x) {
       setRunning(false)
-      const msg = x instanceof Error ? x.message : 'Request failed'
+      const msg = x instanceof Error ? x.message : tc('error')
       playErrorSound()
       showError(msg)
-      addNotification({ action: 'upskill', description: msg, status: 'error' })
       setError(msg)
     }
   }

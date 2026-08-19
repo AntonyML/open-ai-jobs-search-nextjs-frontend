@@ -23,6 +23,7 @@ interface StarExamplesSectionProps {
 
 export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
   const t = useTranslations('setup')
+  const tc = useTranslations('common')
   const [isOpen, setIsOpen] = useState(false)
   const [stars, setStars] = useState<StarExample[]>(initial)
 
@@ -67,7 +68,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
       })
       showSuccess(t('starCreated'))
     } catch (x) {
-      showError(x instanceof Error ? x.message : 'Failed to create')
+      showError(x instanceof Error ? x.message : tc('error'))
     }
   }
 
@@ -77,7 +78,7 @@ export function StarExamplesSection({ initial }: StarExamplesSectionProps) {
       setStars((prev) => prev.filter((s) => s.id !== id))
       showSuccess(t('starDeleted'))
     } catch (x) {
-      showError(x instanceof Error ? x.message : 'Failed to delete')
+      showError(x instanceof Error ? x.message : tc('error'))
     }
   }
 
