@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils'
  * La lógica NO cambia: mismo estado del provider, mismas secciones resueltas por
  * `useResolvedNav`, mismos locks/upgrade, mismo cierre por navegación.
  * El botón central de la barra y este panel comparten vocabulario visual
- * (misma curva 28px, misma paleta) para sentirse un único sistema.
+ * (misma curva 32px, misma paleta y easing expo) para sentirse un único sistema.
  */
 
 export function MobileAppLauncher({
@@ -61,10 +61,10 @@ export function MobileAppLauncher({
 
         <SheetPrimitive.Popup
           className={cn(
-            'fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+140px)] z-50 mx-auto flex max-h-[min(62vh,560px)] w-[calc(100%-24px)] max-w-md flex-col overflow-hidden rounded-[28px] border border-[#d2d2d7]/70 bg-white shadow-[0_24px_64px_rgba(0,0,0,0.28)]',
-            'transition-[opacity,transform] duration-200 ease-out',
-            'data-starting-style:translate-y-8 data-starting-style:scale-[0.98] data-starting-style:opacity-0',
-            'data-ending-style:translate-y-8 data-ending-style:scale-[0.98] data-ending-style:opacity-0',
+            'fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+140px)] z-50 mx-auto flex max-h-[min(62vh,560px)] w-[calc(100%-24px)] max-w-md origin-bottom flex-col overflow-hidden rounded-[32px] border border-white/60 bg-[rgba(255,255,255,0.78)] shadow-[0_24px_64px_rgba(0,0,0,0.28)] backdrop-blur-2xl backdrop-saturate-150',
+            'transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
+            'data-starting-style:translate-y-10 data-starting-style:scale-[0.94] data-starting-style:opacity-0',
+            'data-ending-style:translate-y-10 data-ending-style:scale-[0.94] data-ending-style:opacity-0',
           )}
         >
           <SheetPrimitive.Title className="sr-only">{tn('title')}</SheetPrimitive.Title>
@@ -119,7 +119,7 @@ export function MobileAppLauncher({
                   )}
                   <div className="grid grid-cols-2 gap-2">
                     {section.items.map((item, ii) => (
-                      <AppTile key={item.href} item={item} delay={Math.min((si * 2 + ii) * 20, 240)} />
+                      <AppTile key={item.href} item={item} delay={Math.min((ii * 2 + si) * 20, 240)} />
                     ))}
                   </div>
                 </section>
@@ -155,10 +155,10 @@ function AppTile({ item, delay }: { item: ResolvedItem; delay: number }) {
         onClick={item.onLockedClick}
         aria-label={`${t(item.labelKey)}, ${item.lockedTooltip}`}
         style={{ animationDelay: `${delay}ms` }}
-        className="animate-stagger flex min-h-[64px] items-center gap-2.5 rounded-2xl border border-[#e8e8ed] bg-[#fafafa] p-2.5 text-left transition-transform duration-150 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]"
+        className="animate-stagger flex min-h-[64px] items-center gap-2.5 rounded-2xl border border-[#d2d2d7]/50 bg-[rgba(250,250,250,0.8)] p-2.5 text-left shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-[transform,box-shadow] duration-200 ease-out active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]"
       >
         <span className="relative shrink-0">
-          <span className="flex size-10 items-center justify-center rounded-[12px] bg-[#f0f0f2] ring-1 ring-[#e8e8ed]/70">
+          <span className="flex size-10 items-center justify-center rounded-[12px] bg-[#f0f0f2]/90 ring-1 ring-[#e8e8ed]/70">
             <Icon className="size-[18px] text-[#b0b0b0]" />
           </span>
           <Lock aria-hidden="true" className="absolute -right-1 -top-1 size-3.5 rounded-full bg-[#fafafa] px-px text-[#858585]" />
@@ -167,7 +167,7 @@ function AppTile({ item, delay }: { item: ResolvedItem; delay: number }) {
           <span className="block w-full truncate text-[13px] font-semibold leading-tight text-[#1d1d1f]">
             {t(item.labelKey)}
           </span>
-          <span className="mt-1 inline-flex items-center rounded-full bg-[#f5f5f7] px-2 py-px text-[10px] font-semibold text-[#707070] ring-1 ring-[#e8e8ed]">
+          <span className="mt-1 inline-flex items-center rounded-full bg-[#f5f5f7]/90 px-2 py-px text-[10px] font-semibold text-[#707070] ring-1 ring-[#e8e8ed]">
             {tn('planRequired')}
           </span>
         </span>
@@ -180,10 +180,10 @@ function AppTile({ item, delay }: { item: ResolvedItem; delay: number }) {
       href={item.href}
       style={{ animationDelay: `${delay}ms` }}
       className={cn(
-        'animate-stagger flex min-h-[64px] items-center gap-2.5 rounded-2xl border bg-white p-2.5 text-left transition-[border-color,transform] duration-150 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]',
+        'animate-stagger flex min-h-[64px] items-center gap-2.5 rounded-2xl border bg-white/90 p-2.5 text-left shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-[border-color,transform,box-shadow] duration-200 ease-out active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]',
         active
           ? 'border-[#0071e3]/40 bg-[#0071e3]/[0.05]'
-          : 'border-[#e8e8ed] hover:border-[#2997ff]/40',
+          : 'border-[#d2d2d7]/50 hover:-translate-y-0.5 hover:border-[#2997ff]/40 hover:shadow-[0_4px_14px_rgba(0,0,0,0.08)]',
       )}
     >
       <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-[#0071e3]/10">

@@ -102,9 +102,11 @@ export function MobileBottomNavigation() {
       className="fixed inset-x-0 bottom-0 z-40 md:hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="relative mx-3 mb-2 flex h-16 items-stretch rounded-[26px] border border-[#d2d2d7]/70 bg-white/85 shadow-[0_12px_40px_rgba(0,0,0,0.12)] backdrop-blur-xl">
-        {/* Ola del tab activo: se desliza entre celdas y se eleva sobre la barra */}
+      <div className="relative mx-3 mb-2 flex h-16 items-stretch rounded-[28px] border border-white/50 bg-[rgba(255,255,255,0.72)] shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_12px_40px_rgba(0,0,0,0.12)] backdrop-blur-2xl backdrop-saturate-150">
+        {/* Ola del tab activo: se desliza entre celdas con spring-like. Al llegar
+            a la celda re-remonta (key) el morph de llegada (wave-arrive). */}
         <div
+          key={activeCell}
           aria-hidden="true"
           className={cn(
             'pointer-events-none absolute -top-3 bottom-0 left-0 w-1/6 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
@@ -112,7 +114,9 @@ export function MobileBottomNavigation() {
           )}
           style={{ transform: `translateX(${Math.max(activeCell, 0) * 100}%)` }}
         >
-          <div className="wave-blob mx-1 h-full bg-gradient-to-b from-[#0071e3]/16 to-[#2997ff]/[0.06] shadow-[0_10px_28px_rgba(0,113,227,0.22)]" />
+          <div className="wave-arrive mx-1 h-full">
+            <div className="wave-blob h-full bg-gradient-to-b from-[#0071e3]/16 to-[#2997ff]/[0.06] shadow-[0_10px_28px_rgba(0,113,227,0.22)]" />
+          </div>
         </div>
 
         <Tab
@@ -135,12 +139,20 @@ export function MobileBottomNavigation() {
             aria-haspopup="dialog"
             aria-label={tn('openApps')}
             className={cn(
-              'absolute -top-5 flex size-14 items-center justify-center rounded-full bg-gradient-to-b from-[#0071e3] to-[#0057c2] text-white ring-4 ring-[#f5f5f7] transition-[transform,box-shadow] duration-300 ease-out hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]',
+              'absolute -top-6 isolate flex size-14 items-center justify-center rounded-full bg-gradient-to-b from-[#0071e3] to-[#0057c2] text-white ring-4 ring-white/80 transition-[transform,box-shadow] duration-300 ease-out hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]',
               launcherOpen
-                ? 'shadow-[0_16px_36px_rgba(0,113,227,0.55)]'
+                ? 'shadow-[0_18px_40px_rgba(0,113,227,0.6)]'
                 : 'shadow-[0_10px_24px_rgba(0,113,227,0.35)]',
             )}
           >
+            {/* Halo del FAB: pulso del launcher abierto (continuidad visual FAB → launcher) */}
+            <span
+              aria-hidden="true"
+              className={cn(
+                'absolute -inset-1.5 -z-10 rounded-full bg-[#0071e3]/35 blur-xl transition-opacity duration-300 ease-out',
+                launcherOpen ? 'opacity-100' : 'opacity-0',
+              )}
+            />
             <span className="relative size-6">
               <LayoutGrid
                 aria-hidden="true"
@@ -206,15 +218,15 @@ function Tab({ config, active, locked = false, render, onSignOut }: TabProps) {
   const iconClass = cn(
     'size-[22px] transition-[transform,filter,color] duration-300 ease-out',
     active
-      ? '-translate-y-1 text-[#0071e3] drop-shadow-[0_2px_6px_rgba(0,113,227,0.35)]'
-      : 'text-[#707070]',
+      ? '-translate-y-1 scale-110 text-[#0071e3] drop-shadow-[0_2px_6px_rgba(0,113,227,0.4)]'
+      : 'text-[#8e8e93]',
     locked && 'text-[#b0b0b0]',
-    render === 'signout' && 'text-[#858585]',
+    render === 'signout' && 'text-[#8e8e93]',
   )
   const labelClass = cn(
     'block max-w-full truncate text-[10px] leading-none transition-colors duration-300',
-    active ? 'font-semibold text-[#0071e3]' : 'font-medium text-[#707070]',
-    render === 'signout' && 'text-[#858585]',
+    active ? 'font-semibold text-[#0071e3]' : 'font-medium text-[#8e8e93]',
+    render === 'signout' && 'text-[#8e8e93]',
   )
 
   if (render === 'link') {

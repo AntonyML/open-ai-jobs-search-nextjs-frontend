@@ -409,6 +409,19 @@ html.access-font-sans-serif {
   animation: wave-morph 2.6s ease-in-out infinite;
 }
 
+/* Llegada de la ola a la celda activa: se estira y se asienta con un
+   spring-like (durante el viaje el contenedor solo traduce con el easing
+   expo de la barra; al re-montar aquí se reproduce el asentamiento). */
+@keyframes wave-arrive {
+  0%   { transform: scaleY(1.16) scaleX(0.9); opacity: 0.5; }
+  55%  { transform: scaleY(1.04) scaleX(1.03); opacity: 0.95; }
+  100% { transform: scaleY(1) scaleX(1); opacity: 1; }
+}
+.wave-arrive {
+  transform: scaleY(1);
+  animation: wave-arrive 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
 /* ── Mobile Toast Refinement ─────────────────────────────────── */
 /* Desktop is completely untouched — all overrides are inside
    @media (max-width: 767px) which matches Tailwind's md breakpoint.
