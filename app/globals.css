@@ -423,43 +423,50 @@ html.access-font-sans-serif {
    because the toast already sits above the bar by a safe margin. */
 
 @media (max-width: 767px) {
-  /* ── Container: lift above bottom nav + safe area ── */
+  /* ── Container: lift above bottom nav + safe area ──
+     react-hot-toast sets inline styles:
+       position:fixed, bottom:16px, left:50%,
+       transform:translateX(-50%), z-index:9999
+     We must override ALL of them on mobile. */
   .toast-container {
-    /* Override react-hot-toast's inline bottom:16px */
     bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
     left: 12px !important;
     right: 12px !important;
     width: auto !important;
+    /* Kill the desktop centering transform */
+    transform: none !important;
     display: flex !important;
     flex-direction: column-reverse !important;
     align-items: stretch !important;
     pointer-events: none !important;
   }
 
-  /* ── Individual toast card ── */
+  /* ── Individual toast card ──
+     react-hot-toast sets inline background, color, fontSize,
+     padding, maxWidth, width, boxShadow, borderRadius on each toast.
+     !important overrides inline styles. */
   .toast-container > div {
-    /* Let the toast fill the container width instead of maxWidth:440px */
     max-width: 100% !important;
     width: 100% !important;
-    /* Tighter horizontal padding for small screens */
     padding: 12px 14px !important;
     border-radius: 12px !important;
     box-shadow: 0 6px 24px rgba(0,0,0,0.18) !important;
     pointer-events: auto !important;
+    /* Ensure individual toast transform (animation) is not affected
+       by the container transform:none above — each toast still
+       animates its own translateY via the class below. */
   }
 
-  /* Typography: keep legible but compact */
+  /* Typography: compact but legible */
   .toast-container [style*="fontSize"] {
     font-size: 13px !important;
     line-height: 1.4 !important;
   }
-
-  /* Subtitle line inside toast (admin context) */
   .toast-container p {
     font-size: 11px !important;
   }
 
-  /* Entry/exit animation: shorter travel for small viewport */
+  /* Entry/exit: shorter travel for small viewport */
   .toast-container .animate-fade-in-up {
     animation-name: toast-mobile-in !important;
     animation-duration: 0.35s !important;

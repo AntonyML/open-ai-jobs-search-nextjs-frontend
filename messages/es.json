@@ -53,7 +53,9 @@
     "quickInterview": "Entrevistas",
     "planRequired": "Plan Max",
     "bottomNav": "Navegación inferior",
-    "openApps": "Abrir aplicaciones"
+    "openApps": "Abrir aplicaciones",
+    "openSection": "Abrir {section}",
+    "signOutTab": "Salir"
   },
   "auth": {
     "loginTitle": "Bienvenido de nuevo",
@@ -1073,6 +1075,7 @@
     "title": "Navegación",
     "principal": "Principal",
     "documents": "Documentos",
+    "jobsShort": "Empleos",
     "jobSearch": "Búsqueda de empleo",
     "account": "Cuenta",
     "admin": "Panel Admin",

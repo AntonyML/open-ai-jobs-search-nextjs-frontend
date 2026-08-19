@@ -16,6 +16,8 @@ interface MobileNavigationContextValue {
   available: boolean
   launcherOpen: boolean
   openLauncher: () => void
+  /** Abre el launcher posicionado en una sección concreta (p. ej. 'jobSearch'). */
+  openLauncherSection: (sectionKey: string) => void
   closeLauncher: () => void
 }
 
@@ -23,6 +25,7 @@ const NOOP: MobileNavigationContextValue = {
   available: false,
   launcherOpen: false,
   openLauncher: () => {},
+  openLauncherSection: () => {},
   closeLauncher: () => {},
 }
 
@@ -40,18 +43,30 @@ export function useMobileNavigation(): MobileNavigationContextValue {
  */
 export function MobileNavigationProvider({ children }: { children: React.ReactNode }) {
   const [launcherOpen, setLauncherOpen] = useState(false)
+  const [launcherSection, setLauncherSection] = useState<string | null>(null)
   const pathname = usePathname()
 
   useEffect(() => {
     setLauncherOpen(false)
+    setLauncherSection(null)
   }, [pathname])
 
   const value = useMemo<MobileNavigationContextValue>(
     () => ({
       available: true,
       launcherOpen,
-      openLauncher: () => setLauncherOpen(true),
-      closeLauncher: () => setLauncherOpen(false),
+      openLauncher: () => {
+        setLauncherSection(null)
+        setLauncherOpen(true)
+      },
+      openLauncherSection: (sectionKey: string) => {
+        setLauncherSection(sectionKey)
+        setLauncherOpen(true)
+      },
+      closeLauncher: () => {
+        setLauncherOpen(false)
+        setLauncherSection(null)
+      },
     }),
     [launcherOpen],
   )
@@ -59,7 +74,14 @@ export function MobileNavigationProvider({ children }: { children: React.ReactNo
   return (
     <MobileNavigationContext.Provider value={value}>
       {children}
-      <MobileAppLauncher open={launcherOpen} onClose={() => setLauncherOpen(false)} />
+      <MobileAppLauncher
+        open={launcherOpen}
+        sectionKey={launcherSection}
+        onClose={() => {
+          setLauncherOpen(false)
+          setLauncherSection(null)
+        }}
+      />
       <MobileBottomNavigation />
     </MobileNavigationContext.Provider>
   )

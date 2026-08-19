@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { Dialog as SheetPrimitive } from '@base-ui/react/dialog'
 import { Lock, LogOut, X } from 'lucide-react'
@@ -24,10 +25,29 @@ import { cn } from '@/lib/utils'
  * (misma curva 28px, misma paleta) para sentirse un único sistema.
  */
 
-export function MobileAppLauncher({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function MobileAppLauncher({
+  open,
+  sectionKey,
+  onClose,
+}: {
+  open: boolean
+  /** Sección solicitada desde la Bottom Navigation (scroll directo al grupo). */
+  sectionKey?: string | null
+  onClose: () => void
+}) {
   const t = useTranslations('appSidebar')
   const tn = useTranslations('appNav')
   const { sections } = useResolvedNav()
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
+
+  // La Bottom Navigation puede pedir abrir el launcher en una sección concreta.
+  useEffect(() => {
+    if (!open || !sectionKey) return
+    const el = sectionRefs.current[sectionKey]
+    if (!el) return
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    el.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' })
+  }, [open, sectionKey])
 
   // El inicio ya vive en el tab Home de la Bottom Navigation: el launcher lista
   // el resto de aplicaciones y herramientas del producto.
@@ -78,11 +98,22 @@ export function MobileAppLauncher({ open, onClose }: { open: boolean; onClose: (
               {gridSections.map((section, si) => (
                 <section
                   key={section.labelKey ?? si}
+                  ref={(node) => {
+                    sectionRefs.current[section.labelKey ?? ''] = node
+                  }}
                   aria-label={section.labelKey ? t(section.labelKey) : undefined}
                 >
                   {section.labelKey && (
-                    <h3 className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8e8e93]">
+                    <h3
+                      className={cn(
+                        'mb-2 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-[0.12em]',
+                        section.labelKey === sectionKey ? 'text-[#0071e3]' : 'text-[#8e8e93]',
+                      )}
+                    >
                       {t(section.labelKey)}
+                      {section.labelKey === sectionKey && (
+                        <span className="inline-block size-1.5 rounded-full bg-[#0071e3]" aria-hidden="true" />
+                      )}
                     </h3>
                   )}
                   <div className="grid grid-cols-3 gap-2">
