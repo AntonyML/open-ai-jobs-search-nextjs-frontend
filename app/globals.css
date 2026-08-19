@@ -378,6 +378,8 @@ html.access-font-sans-serif {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  /* El stagger no debe retrasar la visibilidad con animaciones reducidas. */
+  .animate-stagger { animation-delay: 0ms !important; }
 }
 
 /* ── Mobile App Launcher ──────────────────────────────────────── */
@@ -390,6 +392,12 @@ html.access-font-sans-serif {
   animation: launcher-fade-in 0.22s ease-out;
 }
 
+/* Entrada escalonada de los tiles del App Launcher (fill backwards:
+   el delay mantiene el estado opacity 0 antes de que empiece cada tile). */
+.animate-stagger {
+  animation: launcher-fade-in 0.22s ease-out backwards;
+}
+
 /* Ola del destino activo de la Bottom Navigation: lente morfing sutil */
 @keyframes wave-morph {
   0%, 100% { border-radius: 46% 54% 52% 48% / 62% 58% 42% 44%; }
@@ -399,6 +407,92 @@ html.access-font-sans-serif {
 .wave-blob {
   border-radius: 46% 54% 52% 48% / 62% 58% 42% 44%;
   animation: wave-morph 2.6s ease-in-out infinite;
+}
+
+/* ── Mobile Toast Refinement ─────────────────────────────────── */
+/* Desktop is completely untouched — all overrides are inside
+   @media (max-width: 767px) which matches Tailwind's md breakpoint.
+
+   Height math:
+     MobileBottomNavigation inner bar  = h-16 (64px)
+     + mb-2                             =  8px
+     + toast gap                        = 12px
+     ─────────────────────────────────────────
+     total                              = 84px + safe-area-inset-bottom
+   The FAB extends 20px above the bar but does not overlap the toast
+   because the toast already sits above the bar by a safe margin. */
+
+@media (max-width: 767px) {
+  /* ── Container: lift above bottom nav + safe area ── */
+  .toast-container {
+    /* Override react-hot-toast's inline bottom:16px */
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    align-items: stretch !important;
+    pointer-events: none !important;
+  }
+
+  /* ── Individual toast card ── */
+  .toast-container > div {
+    /* Let the toast fill the container width instead of maxWidth:440px */
+    max-width: 100% !important;
+    width: 100% !important;
+    /* Tighter horizontal padding for small screens */
+    padding: 12px 14px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.18) !important;
+    pointer-events: auto !important;
+  }
+
+  /* Typography: keep legible but compact */
+  .toast-container [style*="fontSize"] {
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Subtitle line inside toast (admin context) */
+  .toast-container p {
+    font-size: 11px !important;
+  }
+
+  /* Entry/exit animation: shorter travel for small viewport */
+  .toast-container .animate-fade-in-up {
+    animation-name: toast-mobile-in !important;
+    animation-duration: 0.35s !important;
+  }
+  .toast-container .animate-fade-out-down {
+    animation-name: toast-mobile-out !important;
+    animation-duration: 0.22s !important;
+  }
+
+  @keyframes toast-mobile-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes toast-mobile-out {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(6px); }
+  }
+}
+
+/* Landscape: slightly more generous side margins */
+@media (max-width: 767px) and (orientation: landscape) {
+  .toast-container {
+    left: 24px !important;
+    right: 24px !important;
+  }
+}
+
+/* Reduced motion: disable the override animations too */
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .toast-container .animate-fade-in-up,
+  .toast-container .animate-fade-out-down {
+    animation: none !important;
+  }
 }
 
 

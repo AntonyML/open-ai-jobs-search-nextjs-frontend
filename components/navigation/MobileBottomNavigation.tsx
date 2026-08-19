@@ -55,7 +55,7 @@ export function MobileBottomNavigation() {
       className="fixed inset-x-0 bottom-0 z-40 md:hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="relative mx-3 mb-2 h-16 rounded-[26px] border border-[#d2d2d7]/60 bg-white/85 shadow-[0_8px_32px_rgba(0,0,0,0.10)] backdrop-blur-xl">
+      <div className="relative mx-3 mb-2 h-16 rounded-[26px] border border-[#d2d2d7]/70 bg-white/85 shadow-[0_12px_40px_rgba(0,0,0,0.12)] backdrop-blur-xl">
         {/* Ola del destino activo: se desliza entre columnas y se eleva sobre la barra */}
         <div
           aria-hidden="true"
@@ -65,7 +65,7 @@ export function MobileBottomNavigation() {
           )}
           style={{ transform: `translateX(${Math.max(activeSlot, 0) * 100}%)` }}
         >
-          <div className="wave-blob mx-1.5 h-full bg-gradient-to-b from-[#0071e3]/12 to-[#2997ff]/[0.06]" />
+          <div className="wave-blob mx-1.5 h-full bg-gradient-to-b from-[#0071e3]/16 to-[#2997ff]/[0.06] shadow-[0_10px_28px_rgba(0,113,227,0.22)]" />
         </div>
 
         {[0, 1, 3, 4].map((slot, i) => {
@@ -88,7 +88,12 @@ export function MobileBottomNavigation() {
           aria-expanded={launcherOpen}
           aria-haspopup="dialog"
           aria-label={tn('openApps')}
-          className="absolute -top-5 left-1/2 z-20 flex size-14 -translate-x-1/2 items-center justify-center rounded-full bg-gradient-to-b from-[#0071e3] to-[#0057c2] text-white shadow-[0_10px_24px_rgba(0,113,227,0.35)] ring-4 ring-[#f5f5f7] transition-transform duration-300 ease-out hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]"
+          className={cn(
+            'absolute -top-5 left-1/2 z-20 flex size-14 -translate-x-1/2 items-center justify-center rounded-full bg-gradient-to-b from-[#0071e3] to-[#0057c2] text-white ring-4 ring-[#f5f5f7] transition-[transform,box-shadow] duration-300 ease-out hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]',
+            launcherOpen
+              ? 'shadow-[0_16px_36px_rgba(0,113,227,0.55)]'
+              : 'shadow-[0_10px_24px_rgba(0,113,227,0.35)]',
+          )}
         >
           <span className="relative size-6">
             <LayoutGrid
@@ -119,15 +124,15 @@ function Slot({ item, href, active }: { item: ResolvedItem; href: string; active
   const label = t(item.labelKey)
 
   const iconClass = cn(
-    'size-[22px] transition-[transform,color] duration-300 ease-out',
+    'size-[22px] transition-[transform,filter,color] duration-300 ease-out',
     active
-      ? '-translate-y-0.5 text-[#0071e3]'
+      ? '-translate-y-1 text-[#0071e3] drop-shadow-[0_2px_6px_rgba(0,113,227,0.35)]'
       : 'text-[#707070]',
     item.locked && 'text-[#b0b0b0]',
   )
   const labelClass = cn(
-    'block max-w-full truncate text-[10px] font-medium leading-none transition-colors duration-300',
-    active ? 'text-[#0071e3]' : item.locked ? 'text-[#a0a0a0]' : 'text-[#707070]',
+    'block max-w-full truncate text-[10px] leading-none transition-colors duration-300',
+    active ? 'font-semibold text-[#0071e3]' : item.locked ? 'font-medium text-[#a0a0a0]' : 'font-medium text-[#707070]',
   )
 
   if (item.locked) {

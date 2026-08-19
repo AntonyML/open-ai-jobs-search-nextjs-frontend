@@ -31,6 +31,7 @@ export default function RootLayout({
         <Toaster
           position="bottom-center"
           gutter={10}
+          containerClassName="toast-container"
           toastOptions={{
             duration: 4000,
             style: {

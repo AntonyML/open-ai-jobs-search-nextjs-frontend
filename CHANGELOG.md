@@ -4,6 +4,11 @@ All notable changes to the CVMeld frontend project are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **App Launcher → Floating App Grid**: el launcher ya no se abre como panel lateral. Ahora es un panel flotante centrado (misma curva 28px y paleta que la Bottom Bar) que emerge desde la barra hacia arriba (scale 0.98 + translateY + fade, 200ms), con backdrop `black/30 + blur` y cierre por backdrop tap / Escape / X. Las carpetas se reemplazan por un **grid 3 columnas de tiles tipo app** agrupados por sección con entrada escalonada (stagger 20ms, `fill: backwards`); los tiles bloqueados conservan candado + badge "Plan Max" + `onLockedClick`. La card destacada de Dashboard se retira (el tab Home de la barra ya cubre esa función); jerarquía: barra = destinos principales, FAB = todas las aplicaciones.
+- **Bottom Navigation refinada**: la ola activa gana profundidad (gradiente + shadow azul), el icono activo se eleva 4px con glow sutil y el label pasa a semibold azul; barra con mayor elevación y borde; el FAB intensifica su sombra en estado abierto (grid ⇄ X).
+- **Motion**: nueva utilidad `.animate-stagger` (entrada escalonada con `animation-fill-mode: backwards`); en `prefers-reduced-motion` se anula también el `animation-delay` para que los tiles aparezcan al instante.
+
 ### Added
 - **Bottom Navigation Bar móvil**: nueva `MobileBottomNavigation` (inspirada conceptualmente en `rn-wave-bottom-bar`, sin copiar código ni dependencias) que pasa a ser la navegación primaria del layout autenticado en mobile: barra flotante estilo app nativa con 4 destinos (Panel, Ofertas, CV, Perfil) derivados de la misma `NAV_SECTIONS`/`useResolvedNav` (labels, locks y planes compartidos, sin duplicar lógica) y un indicador "wave" animado que se desliza entre columnas y se eleva sobre la barra en el destino activo (solo transform/opacity).
 - **Botón central de aplicaciones**: FAB flotante en el centro de la barra que abre/cierra el `MobileAppLauncher` existente (misma instancia y estado del provider), con icono que se transforma (grid ⇄ X), `aria-expanded`/`aria-haspopup` y target ≥44px.
