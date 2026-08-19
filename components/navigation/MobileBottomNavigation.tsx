@@ -10,6 +10,7 @@ import {
   LayoutGrid,
   LogOut,
   Lock,
+  Store,
   UserRound,
   X,
   type LucideIcon,
@@ -23,11 +24,12 @@ import { cn } from '@/lib/utils'
 /**
  * Bottom Navigation Bar — navegación primaria móvil del layout autenticado.
  *
- * 6 celdas fijas (robustas, no dependen del estado resuelto para existir):
+ * 7 celdas fijas (robustas, no dependen del estado resuelto para existir):
  *
- *   Panel | Documentos | [● Apps] | Empleos | Cuenta | Salir
+ *   Panel | Tienda | Documentos | [● Apps] | Empleos | Cuenta | Salir
  *
  * - Panel navega al dashboard.
+ * - Tienda navega a /billing (planes y créditos).
  * - Documentos / Empleos / Cuenta abren el App Launcher POSICIONADO en su
  *   sección (el launcher sigue siendo la casa de todas las aplicaciones).
  * - El botón central abre el launcher general.
@@ -35,12 +37,12 @@ import { cn } from '@/lib/utils'
  *
  * Los rangos de "activo" derivan de las mismas secciones de NAV_SECTIONS
  * (no se duplican rutas: son prefijos de las secciones existentes) y la ola
- * se desliza a la celda actual, incluso en rutas sin tab propio (p. ej.
- * /billing se ilumina en Cuenta). Desktop y marketing no la ven (md:hidden,
- * provider solo montado en el layout autenticado).
+ * se desliza a la celda actual, incluso en rutas sin tab propio. Desktop y
+ * marketing no la ven (md:hidden, provider solo montado en el layout
+ * autenticado).
  */
 
-type TabKey = 'dashboard' | 'documents' | 'jobSearch' | 'account' | 'signout'
+type TabKey = 'dashboard' | 'store' | 'documents' | 'jobSearch' | 'account' | 'signout'
 
 interface TabConfig {
   key: TabKey
@@ -48,11 +50,17 @@ interface TabConfig {
   /** Namespace i18n del label (appSidebar reusa los labels de sección). */
   ns: 'appSidebar' | 'appNav'
   icon: LucideIcon
+  /** Para tabs de tipo "link": ruta destino. */
+  href?: string
 }
 
-/** Celdas de la barra en orden visual (la celda central 2 es el FAB). */
+/**
+ * Celdas de la barra en orden visual (la celda central 3 es el FAB).
+ * 6 celdas de tabs + 1 FAB = 7 celdas totales.
+ */
 const TABS: TabConfig[] = [
-  { key: 'dashboard', labelKey: 'dashboard', ns: 'appSidebar', icon: LayoutDashboard },
+  { key: 'dashboard', labelKey: 'dashboard', ns: 'appSidebar', icon: LayoutDashboard, href: '/dashboard' },
+  { key: 'store', labelKey: 'store', ns: 'appSidebar', icon: Store, href: '/billing' },
   { key: 'documents', labelKey: 'documents', ns: 'appSidebar', icon: FolderOpen },
   { key: 'jobSearch', labelKey: 'jobsShort', ns: 'appSidebar', icon: Briefcase },
   { key: 'account', labelKey: 'account', ns: 'appSidebar', icon: UserRound },
@@ -69,9 +77,10 @@ const SECTION_KEYS: Partial<Record<TabKey, string>> = {
 /** Prefijos de ruta (de NAV_SECTIONS) que marcan cada tab como activo. */
 const ACTIVE_PREFIXES: Record<TabKey, string[]> = {
   dashboard: ['/dashboard'],
+  store: ['/billing'],
   documents: ['/cv-builder'],
   jobSearch: ['/search', '/rank', '/apply', '/interview', '/expand', '/upskill', '/analytics', '/outcome'],
-  account: ['/profile', '/billing', '/settings'],
+  account: ['/profile', '/settings'],
   signout: [],
 }
 
@@ -86,9 +95,12 @@ export function MobileBottomNavigation() {
   const { launcherOpen, openLauncher, closeLauncher } = useMobileNavigation()
   const pathname = stripLocale(usePathname())
 
-  // Celda visual (0..5; la celda 2 es el FAB) del tab activo, o -1.
+  // Índice del FAB en el orden visual: 3 (después de dashboard, tienda, documents).
+  const FAB_INDEX = 3
+
+  // Celda visual (0..6; la celda 3 es el FAB) del tab activo, o -1.
   const activeIndex = TABS.findIndex((tab) => isTabActive(tab.key, pathname))
-  const activeCell = activeIndex >= 0 ? (activeIndex < 2 ? activeIndex : activeIndex + 1) : -1
+  const activeCell = activeIndex >= 0 ? (activeIndex < FAB_INDEX ? activeIndex : activeIndex + 1) : -1
 
   // Señal visual de la sección Empleos cuando está bloqueada por plan
   // (el tab sigue abriendo el launcher: los locks viven ahí).
@@ -109,7 +121,7 @@ export function MobileBottomNavigation() {
           key={activeCell}
           aria-hidden="true"
           className={cn(
-            'pointer-events-none absolute -top-3 bottom-0 left-0 w-1/6 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
+            'pointer-events-none absolute -top-3 bottom-0 left-0 w-1/7 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
             activeCell === -1 && 'opacity-0',
           )}
           style={{ transform: `translateX(${Math.max(activeCell, 0) * 100}%)` }}
@@ -126,12 +138,17 @@ export function MobileBottomNavigation() {
         />
         <Tab
           config={TABS[1]}
+          active={isTabActive('store', pathname)}
+          render="link"
+        />
+        <Tab
+          config={TABS[2]}
           active={isTabActive('documents', pathname)}
           render="section"
         />
 
         {/* Celda central: botón de aplicaciones */}
-        <div className="relative z-10 flex w-1/6 items-center justify-center">
+        <div className="relative z-10 flex w-1/7 items-center justify-center">
           <button
             type="button"
             onClick={launcherOpen ? closeLauncher : openLauncher}
@@ -173,18 +190,18 @@ export function MobileBottomNavigation() {
         </div>
 
         <Tab
-          config={TABS[2]}
+          config={TABS[3]}
           active={isTabActive('jobSearch', pathname)}
           locked={jobSearchLocked}
           render="section"
         />
         <Tab
-          config={TABS[3]}
+          config={TABS[4]}
           active={isTabActive('account', pathname)}
           render="section"
         />
         <Tab
-          config={TABS[4]}
+          config={TABS[5]}
           active={false}
           render="signout"
           onSignOut={() => {
@@ -214,7 +231,7 @@ function Tab({ config, active, locked = false, render, onSignOut }: TabProps) {
   const Icon = config.icon
 
   const cellClass =
-    'relative z-10 flex w-1/6 flex-col items-center justify-center gap-1 py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]'
+    'relative z-10 flex w-1/7 flex-col items-center justify-center gap-1 py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]'
   const iconClass = cn(
     'size-[22px] transition-[transform,filter,color] duration-300 ease-out',
     active
@@ -232,7 +249,7 @@ function Tab({ config, active, locked = false, render, onSignOut }: TabProps) {
   if (render === 'link') {
     return (
       <Link
-        href="/dashboard"
+        href={config.href ?? '/dashboard'}
         aria-current={active ? 'page' : undefined}
         className={cn(cellClass, 'transition-transform duration-150 active:scale-90')}
       >
