@@ -30,7 +30,7 @@ export function SidebarLinkItem({ item, isActive }: SidebarLinkItemProps) {
           <div className="flex min-w-0 flex-col leading-tight">
             <span className="truncate text-sm">{t(item.labelKey)}</span>
             {item.descKey && (
-              <span className="truncate text-[10px] text-muted-foreground">{t(item.descKey)}</span>
+              <span className="truncate text-xs text-muted-foreground">{t(item.descKey)}</span>
             )}
           </div>
           {item.locked && (

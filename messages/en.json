@@ -37,7 +37,21 @@
     "manageSubscriptions": "Manage subscriptions",
     "activatePurchase": "Activate",
     "notificationsMarkAllError": "Could not update notifications",
-    "notificationsClearError": "Could not clear notifications"
+    "notificationsClearError": "Could not clear notifications",
+    "appMenu": "Open apps menu"
+  },
+  "appNav": {
+    "title": "CVMeld",
+    "greeting": "Welcome back",
+    "closeLauncher": "Close menu",
+    "sections": "Apps",
+    "itemCount": "{count, plural, =0 {No items} one {# item} other {# items}}",
+    "quickActions": "Quick actions",
+    "quickResume": "Create CV",
+    "quickSearch": "Find jobs",
+    "quickAdapt": "Adapt CV",
+    "quickInterview": "Interviews",
+    "planRequired": "Max plan"
   },
   "auth": {
     "loginTitle": "Welcome back",

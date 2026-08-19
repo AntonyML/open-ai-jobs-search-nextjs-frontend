@@ -2,6 +2,52 @@ import { clearToken } from '@/lib/auth'
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
+// ── Error sanitization ─────────────────────────────────────────
+// Raw provider errors (LiteLLM, Anthropic, OpenAI) must never reach
+// the user.  This map turns known internal codes into friendly text.
+const FRIENDLY_ERRORS: Record<string, string> = {
+  authentication_error: 'AI service authentication failed. Please contact support.',
+  rate_limit_exceeded: 'AI service is temporarily busy. Please try again in a moment.',
+  model_not_found: 'The requested AI model is unavailable. Please try again later.',
+  context_length_exceeded: 'The input is too long for the AI to process.',
+  insufficient_quota: 'AI quota exhausted. Please try again later or contact support.',
+  server_error: 'AI service is temporarily unavailable. Please try again later.',
+  timeout: 'The AI service took too long to respond. Please try again.',
+  web_search_unavailable: 'Web search is temporarily unavailable.',
+  provider_unavailable: 'AI provider is temporarily unavailable. Please try again later.',
+}
+
+/**
+ * Strip provider internals from error messages.
+ * Returns a user-safe string — never raw LiteLLM/Anthropic/OpenAI text.
+ */
+function sanitizeError(raw: string): string {
+  // If the message contains known provider fingerprints, use a generic fallback.
+  const lower = raw.toLowerCase()
+  if (
+    lower.includes('litellm') ||
+    lower.includes('anthropicexception') ||
+    lower.includes('openaiexception') ||
+    lower.includes('x-api-key') ||
+    lower.includes('api_key') ||
+    lower.includes(' authentication_error') ||
+    /"type"\s*:\s*"error"/.test(raw) ||
+    /request_id\s*[:=]/.test(lower)
+  ) {
+    // Try to extract a typed error code from the embedded JSON.
+    try {
+      const embedded = raw.match(/\{[\s\S]*"type"\s*:\s*"error"[\s\S]*\}/)
+      if (embedded) {
+        const parsed = JSON.parse(embedded[0]) as { error?: { type?: string; message?: string } }
+        const code = parsed.error?.type
+        if (code && FRIENDLY_ERRORS[code]) return FRIENDLY_ERRORS[code]
+      }
+    } catch { /* ignore parse errors */ }
+    return 'An error occurred with the AI service. Please try again later.'
+  }
+  return raw
+}
+
 // Guard against several parallel requests 401-ing at once (e.g. on app mount).
 let redirectingToLogin = false
 
@@ -41,8 +87,19 @@ export async function apiFetch<T = unknown>(path: string, init?: RequestInit): P
         code = typeof j.error === 'string' ? j.error : ''
       }
     } catch {
-      // Non-JSON error body — keep the raw text.
+      // Non-JSON error body (traceback, HTML error page, etc.) — never
+      // expose raw text to the user.
+      if (res.status >= 500) {
+        msg = 'An unexpected error occurred. Please try again later.'
+      }
     }
+    // Sanitize the message so provider internals never reach the UI.
+    msg = sanitizeError(msg)
+    // Final guard: 5xx errors should never show raw backend text.
+    if (res.status >= 500 && (msg.length > 200 || /traceback|exception|error/i.test(msg))) {
+      msg = 'An unexpected error occurred. Please try again later.'
+    }
+
     if (typeof window !== 'undefined') {
       if (res.status === 401) {
         // Sesión caducada o token inválido → cerrar la sesión local.

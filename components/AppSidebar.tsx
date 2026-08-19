@@ -41,7 +41,6 @@ function SignOutButton() {
 }
 
 export default function AppSidebar() {
-  const t = useTranslations('appSidebar')
   const pathname = stripLocale(usePathname())
   const { sections } = useResolvedNav()
 
