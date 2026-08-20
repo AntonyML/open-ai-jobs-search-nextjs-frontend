@@ -1,6 +1,10 @@
 import { clearToken } from '@/lib/auth'
+import { isNetworkError, reportAlive, reportNetworkFailure } from '@/lib/reconnect'
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+
+/** Hard cap per request — a backend asleep on Render hangs instead of refusing. */
+const REQUEST_TIMEOUT_MS = 30_000
 
 // ── Bilingual error messages ──────────────────────────────────
 // Keys match the `errors.*` namespace in messages/{en,es}.json.
@@ -91,7 +95,21 @@ export class ApiError extends Error {
 
 export async function apiFetch<T = unknown>(path: string, init?: RequestInit): Promise<T> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
-  const res = await fetch(`${API_BASE}${path}`, { ...init, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(init?.headers ?? {}) } })
+  let res: Response
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      ...init,
+      signal: init?.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(init?.headers ?? {}) },
+    })
+  } catch (e) {
+    // Case B — network failure / timeout: the backend may be asleep.
+    // Any error thrown here has NO status, so it can't be an HTTP response.
+    if (isNetworkError(e)) reportNetworkFailure()
+    throw e
+  }
+  // Case A — the API responded (any status: 200/401/403/404/500…): it is alive.
+  reportAlive()
   if (!res.ok) {
     const text = await res.text()
     // Parse the error payload.  The enriched gate (402/429) sends a structured

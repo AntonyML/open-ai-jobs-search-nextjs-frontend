@@ -1766,5 +1766,20 @@
     "actions": "actions",
     "backToPricing": "← View pricing",
     "createAccount": "Create free account"
+  },
+  "reconnect": {
+    "connecting": "Reconnecting…",
+    "connectingSub": "We're preparing your session…",
+    "preparing": "Preparing your session…",
+    "preparingSub": "This may take a moment.",
+    "waking": "Waking up the server…",
+    "wakingSub": "This may take a few seconds.",
+    "slow": "This is taking a little longer than usual…",
+    "slowSub": "We're still trying — no need to do anything.",
+    "errorTitle": "The server is taking longer than usual.",
+    "errorSub": "You can keep waiting or retry manually.",
+    "retry": "Retry",
+    "leave": "Sign out",
+    "restored": "Connection restored"
   }
 }

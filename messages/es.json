@@ -1766,5 +1766,20 @@
     "actions": "acciones",
     "backToPricing": "← Ver precios",
     "createAccount": "Crear cuenta gratis"
+  },
+  "reconnect": {
+    "connecting": "Reconectando…",
+    "connectingSub": "Estamos preparando tu sesión…",
+    "preparing": "Preparando tu sesión…",
+    "preparingSub": "Esto puede tomar unos momentos.",
+    "waking": "Despertando el servidor…",
+    "wakingSub": "Esto puede tardar unos segundos.",
+    "slow": "Está tardando un poco más de lo habitual…",
+    "slowSub": "Seguimos intentando: no hace falta que hagas nada.",
+    "errorTitle": "El servidor está tardando más de lo habitual.",
+    "errorSub": "Puedes seguir esperando o reintentar manualmente.",
+    "retry": "Reintentar",
+    "leave": "Salir",
+    "restored": "Conexión restablecida"
   }
 }
