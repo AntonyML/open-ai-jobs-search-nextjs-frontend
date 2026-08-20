@@ -340,19 +340,28 @@ export function AdminProviderConfig() {
             <label className={styles.formLabel}>
               {t('providerConfigModel')}
               <div className={styles.modelRow}>
-                <select
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                  className={`field h-10 min-w-0 truncate px-3 py-2 text-[13px] leading-5 ${styles.modelSelect}`}
-                >
-                  {(models.length > 0 ? models : [model]).map((m) => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
-                </select>
+                {provider === 'custom' ? (
+                  <input
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    placeholder="e.g. gpt-4o, claude-sonnet-4-20250514, ..."
+                    className={`field h-10 min-w-0 px-3 py-2 text-[13px] leading-5 ${styles.modelSelect}`}
+                  />
+                ) : (
+                  <select
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    className={`field h-10 min-w-0 truncate px-3 py-2 text-[13px] leading-5 ${styles.modelSelect}`}
+                  >
+                    {(models.length > 0 ? models : [model]).map((m) => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
+                )}
                 <button
                   type="button"
                   onClick={() => loadModels(provider, true)}
-                  disabled={loadingModels || !provider}
+                  disabled={loadingModels || !provider || provider === 'custom'}
                   className={styles.loadModelsBtn}
                 >
                   {loadingModels ? (
