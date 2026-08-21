@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { X } from 'lucide-react'
+import { Target, Sparkles } from 'lucide-react'
 import { TagInput } from '@/components/ui/TagInput'
 
 export interface JobTarget {
@@ -22,7 +22,7 @@ export interface JobTarget {
   relocation_willing: boolean | null
 }
 
-const DEFAULT_JOB_TARGET: JobTarget = {
+export const DEFAULT_JOB_TARGET: JobTarget = {
   target_titles: [],
   seniority: null,
   work_mode: [],
@@ -40,351 +40,95 @@ const DEFAULT_JOB_TARGET: JobTarget = {
   relocation_willing: null,
 }
 
+const POPULAR_ROLES_SUGGESTIONS = [
+  'Software Engineer',
+  'Chef / Cocinero',
+  'Asistente Administrativo',
+  'Médico General',
+  'Diseñador UX/UI',
+  'Ejecutivo de Ventas',
+  'Profesor / Docente',
+  'Project Manager',
+  'Recepcionista',
+  'Técnico Electricista',
+]
+
 interface Props {
   value: JobTarget
   onChange: (value: JobTarget) => void
 }
 
-const SENIORITY_OPTIONS = [
-  'junior', 'mid', 'senior', 'lead', 'manager', 'director', 'executive',
-] as const
-
-const WORK_MODE_OPTIONS = ['remote', 'hybrid', 'onsite'] as const
-
-const EMPLOYMENT_TYPE_OPTIONS = [
-  'full-time', 'part-time', 'contract', 'freelance', 'internship',
-] as const
-
-const AVAILABILITY_OPTIONS = ['immediate', 'within_month', 'exploring'] as const
-
-type TagField = 'target_titles' | 'search_locations'
-
 export function JobTargetSection({ value, onChange }: Props) {
   const t = useTranslations('setup')
 
-  function update<K extends keyof JobTarget>(key: K, val: JobTarget[K]) {
-    onChange({ ...value, [key]: val })
-  }
-
-  function toggleListItem(field: 'work_mode' | 'employment_types', item: string) {
-    const list = value[field] as string[]
-    if (list.includes(item)) {
-      update(field, list.filter((x) => x !== item) as any)
-    } else {
-      update(field, [...list, item] as any)
+  function handleAddRole(role: string) {
+    if (!value.target_titles.includes(role)) {
+      onChange({
+        ...value,
+        target_titles: [...value.target_titles, role],
+      })
     }
   }
 
-  function addTag(field: TagField) {
-    update(field, [...value[field], ''] as any)
-  }
-
-  function updateTag(field: TagField, idx: number, text: string) {
-    const list = [...value[field]]
-    list[idx] = text
-    update(field, list as any)
-  }
-
-  function removeTag(field: TagField, idx: number) {
-    update(field, value[field].filter((_, i) => i !== idx) as any)
-  }
-
-  function renderTagList(field: TagField, placeholder: string, hint: string) {
-    const items = value[field]
-    return (
-      <div className="space-y-1.5">
-        {items.map((item, i) => (
-          <div key={i} className="flex items-center gap-1.5">
-            <input
-              className="field flex-1 text-sm"
-              placeholder={t(placeholder)}
-              value={item}
-              onChange={(e) => updateTag(field, i, e.target.value)}
-            />
-            <button
-              type="button"
-              onClick={() => removeTag(field, i)}
-              className="shrink-0 text-[#858585] hover:text-rose-500 transition-colors"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={() => addTag(field)}
-          className="text-[11px] font-medium text-[#0066cc] hover:underline"
-        >
-          + {hint}
-        </button>
-      </div>
-    )
-  }
-
-  function renderChipGroup(
-    field: 'work_mode' | 'employment_types',
-    options: readonly string[],
-    labelKey: string,
-  ) {
-    return (
-      <div className="flex flex-wrap gap-1.5">
-        {options.map((opt) => {
-          const selected = (value[field] as string[]).includes(opt)
-          return (
-            <button
-              key={opt}
-              type="button"
-              onClick={() => toggleListItem(field, opt)}
-              className={`rounded-full border px-3 py-1 text-[11px] font-medium transition-all ${
-                selected
-                  ? 'border-[#0071e3] bg-[#0071e3]/10 text-[#0071e3]'
-                  : 'border-[#d2d2d7] text-[#707070] hover:border-[#0071e3] hover:text-[#0071e3]'
-              }`}
-            >
-              {t(labelKey + opt.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(''))}
-            </button>
-          )
-        })}
-      </div>
-    )
-  }
-
   return (
-    <div id="section-job-target" className="card space-y-5">
+    <div id="section-job-target" className="card space-y-4">
+      {/* Header */}
       <div className="flex items-start gap-2.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 6v6l4 2" />
-          </svg>
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0071e3]/10 text-[#0071e3]">
+          <Target className="h-4 w-4" aria-hidden="true" />
         </div>
-        <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#1d1d1f]">{t('jobTarget')}</p>
-          <p className="mt-0.5 text-[11px] text-[#707070] leading-relaxed">{t('jobTargetDesc')}</p>
+        <div>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-[#1d1d1f]">
+            {t('jobTarget')}
+          </h2>
+          <p className="mt-0.5 text-[11px] text-[#5f6368] leading-relaxed">
+            {t('jobTargetUniversalDesc')}
+          </p>
         </div>
       </div>
 
-      <div className="rounded-lg border border-amber-200 bg-amber-50/50 px-3.5 py-2.5">
-        <p className="text-[11px] text-amber-800 leading-relaxed">
-          {t('jobTargetRequired')}
-        </p>
+      {/* Target Titles Input */}
+      <div className="space-y-2">
+        <label htmlFor="target-titles-input" className="block text-xs font-semibold text-[#1d1d1f]">
+          {t('targetTitles')} <span className="text-[#5f6368] font-normal">({t('optional')})</span>
+        </label>
+        
+        <TagInput
+          tags={value.target_titles}
+          onChange={(titles) => onChange({ ...value, target_titles: titles })}
+          placeholder={t('targetTitlePlaceholder')}
+          color="blue"
+          ariaLabel={t('targetTitles')}
+        />
+
+        {/* Quick Suggestion Chips */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-1" role="group" aria-label={t('quickSuggestions')}>
+          <span className="text-[10px] text-[#5f6368] flex items-center gap-1">
+            <Sparkles className="h-3 w-3 text-[#0071e3]" aria-hidden="true" />
+            {t('quickSuggestions')}:
+          </span>
+          {POPULAR_ROLES_SUGGESTIONS.map((role) => {
+            const hasIt = value.target_titles.includes(role)
+            if (hasIt) return null
+            return (
+              <button
+                key={role}
+                type="button"
+                onClick={() => handleAddRole(role)}
+                className="rounded-md border border-[#d2d2d7] bg-white px-2 py-0.5 text-[10px] text-[#1d1d1f] transition-colors hover:border-[#0066cc] hover:bg-[#f4f8fb] hover:text-[#0066cc] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0066cc]"
+                aria-label={`Agregar puesto ${role}`}
+              >
+                + {role}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="sm:col-span-2">
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('targetTitles')} <span className="text-rose-400">*</span>
-            <span className="ml-1 text-[11px] text-[#858585]">{t('targetTitlesHint')}</span>
-          </label>
-          {renderTagList('target_titles', 'targetTitlesPlaceholder', t('targetTitles'))}
-        </div>
-
-        <div>
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('seniority')} <span className="text-rose-400">*</span>
-          </label>
-          <select
-            className="field mt-1.5 text-sm"
-            value={value.seniority ?? ''}
-            onChange={(e) => update('seniority', e.target.value || null)}
-          >
-            <option value="">--</option>
-            {SENIORITY_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>{t('seniority' + opt.charAt(0).toUpperCase() + opt.slice(1))}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('industry')}
-          </label>
-          <div className="mt-1.5">
-            <TagInput
-              tags={value.industry}
-              onChange={(tags) => update('industry', tags)}
-              placeholder={t('industryPlaceholder')}
-              color="blue"
-            />
-          </div>
-        </div>
-
-        <div className="sm:col-span-2">
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('workMode')} <span className="text-rose-400">*</span>
-          </label>
-          <div className="mt-1.5">
-            {renderChipGroup('work_mode', WORK_MODE_OPTIONS, 'workMode')}
-          </div>
-        </div>
-
-        <div className="sm:col-span-2">
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('searchLocations')} <span className="text-rose-400">*</span>
-            <span className="ml-1 text-[11px] text-[#858585]">{t('searchLocationsHint')}</span>
-          </label>
-          {renderTagList('search_locations', 'searchLocationsPlaceholder', t('searchLocations'))}
-        </div>
-
-        <div>
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('searchRadius')}
-          </label>
-          <input
-            type="number"
-            min="0"
-            className="field mt-1.5 text-sm"
-            placeholder="80"
-            value={value.search_radius_km ?? ''}
-            onChange={(e) => update('search_radius_km', e.target.value ? parseInt(e.target.value) : null)}
-          />
-        </div>
-
-        <div className="sm:col-span-2">
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('employmentTypes')} <span className="text-rose-400">*</span>
-          </label>
-          <div className="mt-1.5">
-            {renderChipGroup('employment_types', EMPLOYMENT_TYPE_OPTIONS, 'employmentType')}
-          </div>
-        </div>
-
-        <div className="sm:col-span-2">
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('keywords')}
-          </label>
-          <div className="mt-1.5">
-            <TagInput
-              tags={value.keywords}
-              onChange={(tags) => update('keywords', tags)}
-              placeholder={t('keywordsPlaceholder')}
-              color="blue"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('excludeKeywords')}
-          </label>
-          <div className="mt-1.5">
-            <TagInput
-              tags={value.exclude_keywords}
-              onChange={(tags) => update('exclude_keywords', tags)}
-              placeholder={t('excludeKeywordsPlaceholder')}
-              color="rose"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('excludeCompanies')}
-          </label>
-          <div className="mt-1.5">
-            <TagInput
-              tags={value.exclude_companies}
-              onChange={(tags) => update('exclude_companies', tags)}
-              placeholder={t('excludeCompaniesPlaceholder')}
-              color="rose"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('salaryRange')}
-          </label>
-          <div className="mt-1.5 flex items-center gap-2">
-            <input
-              type="number"
-              min="0"
-              className="field flex-1 text-sm"
-              placeholder={t('salaryMin')}
-              value={value.salary_min ?? ''}
-              onChange={(e) => update('salary_min', e.target.value ? parseInt(e.target.value) : null)}
-            />
-            <span className="text-xs text-[#858585]">—</span>
-            <input
-              type="number"
-              min="0"
-              className="field flex-1 text-sm"
-              placeholder={t('salaryMax')}
-              value={value.salary_max ?? ''}
-              onChange={(e) => update('salary_max', e.target.value ? parseInt(e.target.value) : null)}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('availability')}
-          </label>
-          <select
-            className="field mt-1.5 text-sm"
-            value={value.availability ?? ''}
-            onChange={(e) => update('availability', e.target.value || null)}
-          >
-            <option value="">--</option>
-            {AVAILABILITY_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>{t('availability' + opt.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(''))}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('visaNeeded')}
-          </label>
-          <div className="mt-1.5 flex gap-2">
-            {([
-              ['yes', true],
-              ['no', false],
-              ['notSure', null],
-            ] as const).map(([key, val]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => update('visa_needed', val)}
-                className={`rounded-full border px-3 py-1 text-[11px] font-medium transition-all ${
-                  value.visa_needed === val
-                    ? 'border-[#0071e3] bg-[#0071e3]/10 text-[#0071e3]'
-                    : 'border-[#d2d2d7] text-[#707070] hover:border-[#0071e3]'
-                }`}
-              >
-                {t('visaNeeded' + key.charAt(0).toUpperCase() + key.slice(1))}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm text-[#1d1d1f]">
-            {t('relocationWilling')}
-          </label>
-          <div className="mt-1.5 flex gap-2">
-            {[
-              ['yes', true] as const,
-              ['no', false] as const,
-            ].map(([key, val]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => update('relocation_willing', val as boolean | null)}
-                className={`rounded-full border px-3 py-1 text-[11px] font-medium transition-all ${
-                  value.relocation_willing === val
-                    ? 'border-[#0071e3] bg-[#0071e3]/10 text-[#0071e3]'
-                    : 'border-[#d2d2d7] text-[#707070] hover:border-[#0071e3]'
-                }`}
-              >
-                {t('relocationWilling' + key.charAt(0).toUpperCase() + key.slice(1))}
-              </button>
-            ))}
-          </div>
-        </div>
+      <div className="rounded-[8px] bg-[#f4f8fb] border border-[#0066cc]/15 p-2.5 text-[11px] text-[#0066cc] leading-normal flex items-start gap-2">
+        <Sparkles className="h-3.5 w-3.5 mt-0.5 shrink-0" aria-hidden="true" />
+        <span>{t('jobTargetUniversalHint')}</span>
       </div>
     </div>
   )
 }
-
-export { DEFAULT_JOB_TARGET }

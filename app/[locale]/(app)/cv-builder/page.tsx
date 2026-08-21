@@ -13,20 +13,24 @@ import { CvPdfPreview } from '@/components/cv-builder/CvPdfPreview'
 import type { CVResponse } from '@/lib/cv'
 import styles from './page.module.css'
 
-/** Minimum data required to generate a CV from the profile (Regla 1). */
+/** Minimum data required to generate a CV from the profile. */
 function isProfileComplete(profile: any): boolean {
   if (!profile) return false
   const hasName = !!(profile.full_name || '').trim()
   const hasEmail = !!(profile.email || '').trim()
   const hasLocation = !!(profile.location || '').trim()
-  const hasExperience = Array.isArray(profile.experience) && profile.experience.length > 0
+  const hasExperience = Array.isArray(profile.experience) && profile.experience.some((e: any) => (e.title || '').trim())
+  const hasEducation = Array.isArray(profile.education) && profile.education.some((e: any) => (e.degree || '').trim())
   const skills = profile.skills || {}
   const hasSkills =
     (Array.isArray(skills.software_tools) && skills.software_tools.length > 0) ||
-    (Array.isArray(skills.programming_ml) && skills.programming_ml.length > 0)
-  const hasTarget =
-    Array.isArray(profile.job_target?.target_titles) && profile.job_target.target_titles.length > 0
-  return hasName && hasEmail && hasLocation && hasExperience && hasSkills && hasTarget
+    (Array.isArray(skills.programming_ml) && skills.programming_ml.length > 0) ||
+    (Array.isArray(skills.domain_expertise) && skills.domain_expertise.length > 0) ||
+    (Array.isArray(skills.databases) && skills.databases.length > 0) ||
+    (Array.isArray(skills.architecture) && skills.architecture.length > 0) ||
+    (Array.isArray(skills.methodologies) && skills.methodologies.length > 0) ||
+    (Array.isArray(skills.custom_skills) && skills.custom_skills.length > 0)
+  return hasName && hasEmail && hasLocation && (hasExperience || hasEducation) && hasSkills
 }
 
 /** Compact one-line status for each step of the flow (Perfil → CV base). */

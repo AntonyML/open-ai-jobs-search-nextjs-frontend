@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { TagInput } from '@/components/ui/TagInput'
+import { Sparkles, Wrench, Briefcase, Award } from 'lucide-react'
 
 export interface CategorizedSkills {
   languages: string[]
@@ -23,44 +24,72 @@ interface Props {
   onFieldChange: (name: string, value: any) => void
 }
 
-const SKILL_SUGGESTIONS: Record<keyof CategorizedSkills, { labelKey: string; color: 'blue' | 'violet' | 'amber' | 'rose'; placeholder: string; items: string[] }> = {
-  languages: {
-    labelKey: 'skillsLanguages',
+const UNIVERSAL_CATEGORIES: {
+  key: keyof CategorizedSkills
+  labelKey: string
+  descKey: string
+  icon: typeof Award
+  color: 'blue' | 'violet' | 'amber'
+  placeholder: string
+  suggestions: string[]
+}[] = [
+  {
+    key: 'languages',
+    labelKey: 'skillsTechnicalTitle',
+    descKey: 'skillsTechnicalDesc',
+    icon: Award,
     color: 'blue',
-    placeholder: 'e.g. C#, TypeScript, Java, Python...',
-    items: ['C#', 'TypeScript', 'Java', 'Python', 'Kotlin', 'Go', 'PHP', 'JavaScript', 'C++', 'Rust', 'SQL'],
+    placeholder: 'ej. Cocina italiana, Diagnóstico clínico, C#, Ventas consultivas...',
+    suggestions: [
+      'Cocina y gastronomía',
+      'Atención al paciente',
+      'C# / .NET',
+      'TypeScript / React',
+      'Contabilidad financiera',
+      'Python',
+      'Diagnóstico mecánico',
+      'Diseño UX/UI',
+      'Enseñanza y pedagogía',
+    ],
   },
-  frameworks: {
-    labelKey: 'skillsFrameworks',
-    color: 'violet',
-    placeholder: 'e.g. .NET, NestJS, React, Next.js...',
-    items: ['.NET', 'NestJS', 'React', 'Next.js', 'Spring Boot', 'Flutter', 'Electron', 'Astro', 'FastAPI', 'Node.js', 'Vue.js'],
-  },
-  databases: {
-    labelKey: 'skillsDatabases',
+  {
+    key: 'tools_db',
+    labelKey: 'skillsToolsTitle',
+    descKey: 'skillsToolsDesc',
+    icon: Wrench,
     color: 'amber',
-    placeholder: 'e.g. PostgreSQL, SQL Server, Supabase...',
-    items: ['PostgreSQL', 'SQL Server', 'MySQL', 'Oracle', 'D1 Cloudflare', 'Supabase', 'MongoDB', 'Redis', 'SQLite'],
+    placeholder: 'ej. Excel, SAP, Figma, Docker, Terminal POS, Git, Maquinaria...',
+    suggestions: [
+      'Excel avanzado',
+      'SAP / ERP',
+      'Figma',
+      'Git / GitHub',
+      'Docker',
+      'PostgreSQL / SQL',
+      'Sistema POS / Caja',
+      'Photoshop',
+      'Google Workspace',
+    ],
   },
-  architecture: {
-    labelKey: 'skillsArchitecture',
-    color: 'rose',
-    placeholder: 'e.g. Microservicios, Clean Architecture...',
-    items: ['Microservicios', 'Clean Architecture', 'Hexagonal', 'Event-Driven', 'SOLID', 'Domain-Driven Design (DDD)', 'CQRS', 'RESTful APIs'],
-  },
-  tools_db: {
-    labelKey: 'skillsDevOps',
-    color: 'amber',
-    placeholder: 'e.g. Git, Docker, Cloudflare, Linux...',
-    items: ['Git', 'GitHub', 'Jenkins CI/CD', 'Docker', 'Cloudflare', 'Linux', 'JMeter', 'Kubernetes', 'AWS', 'Azure', 'Postman'],
-  },
-  methodologies: {
-    labelKey: 'skillsMethodologies',
+  {
+    key: 'methodologies',
+    labelKey: 'skillsProfessionalTitle',
+    descKey: 'skillsProfessionalDesc',
+    icon: Briefcase,
     color: 'violet',
-    placeholder: 'e.g. Scrum, PMBOK, Taiga...',
-    items: ['Scrum', 'PMBOK', 'Gestión en Taiga', 'Kanban', 'Agile', 'Jira', 'Trello', 'CI/CD Workflows'],
+    placeholder: 'ej. Atención al cliente, Liderazgo, Manipulación de alimentos, Scrum...',
+    suggestions: [
+      'Atención al cliente',
+      'Manipulación de alimentos',
+      'Liderazgo de equipos',
+      'Control de inventario',
+      'Scrum / Metodologías Ágiles',
+      'Resolución de conflictos',
+      'Gestión de compras',
+      'Primeros auxilios',
+    ],
   },
-}
+]
 
 export function SkillsSection({ form, onFieldChange }: Props) {
   const t = useTranslations('setup')
@@ -78,7 +107,6 @@ export function SkillsSection({ form, onFieldChange }: Props) {
   function handleCatChange(key: keyof CategorizedSkills, tags: string[]) {
     const updated = { ...cat, [key]: tags }
     onFieldChange('skills_categorized', updated)
-    // keep skills_raw in sync for backward compatibility
     const all = [
       ...updated.languages,
       ...updated.frameworks,
@@ -98,46 +126,57 @@ export function SkillsSection({ form, onFieldChange }: Props) {
 
   return (
     <div id="section-skills" className="card space-y-5">
+      {/* Header */}
       <div className="flex items-start gap-2.5">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-          </svg>
+          <Sparkles className="h-4 w-4" aria-hidden="true" />
         </div>
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#1d1d1f]">{t('skillsAndSummary')}</p>
-          <p className="mt-0.5 text-[11px] text-[#707070] leading-relaxed">
-            {t('skillsCategorizedDesc')}
+          <h2 className="text-xs font-bold uppercase tracking-widest text-[#1d1d1f]">{t('skillsAndSummary')}</h2>
+          <p className="mt-0.5 text-[11px] text-[#5f6368] leading-relaxed">
+            {t('skillsUniversalDesc')}
           </p>
         </div>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
-        {(Object.keys(SKILL_SUGGESTIONS) as (keyof CategorizedSkills)[]).map((key) => {
-          const config = SKILL_SUGGESTIONS[key]
+      {/* 3 Universal Categories */}
+      <div className="space-y-4">
+        {UNIVERSAL_CATEGORIES.map((catConfig) => {
+          const key = catConfig.key
           const currentValues = cat[key]
+          const Icon = catConfig.icon
 
           return (
-            <div key={key} className="rounded-xl border border-[#e5e5ea] bg-[#fbfbfd] p-3.5 space-y-2.5">
+            <div key={key} className="rounded-[12px] border border-[#d2d2d7] bg-[#fbfbfd] p-4 space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#1d1d1f]">
-                  {t(config.labelKey)}
-                </span>
-                <span className="text-[10px] text-[#707070]">
-                  {currentValues.length} seleccionada(s)
+                <div className="flex items-center gap-2">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-[#1d1d1f] shadow-2xs">
+                    <Icon className="h-3.5 w-3.5 text-[#0071e3]" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-[#1d1d1f]">
+                      {t(catConfig.labelKey)}
+                    </span>
+                    <p className="text-[10px] text-[#5f6368]">{t(catConfig.descKey)}</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-medium text-[#5f6368] bg-white px-2 py-0.5 rounded-full border border-[#e5e5ea]">
+                  {currentValues.length} {tc('added') || 'agregada(s)'}
                 </span>
               </div>
 
               <TagInput
                 tags={currentValues}
                 onChange={(tags) => handleCatChange(key, tags)}
-                placeholder={config.placeholder}
-                color={config.color}
+                placeholder={catConfig.placeholder}
+                color={catConfig.color}
+                ariaLabel={t(catConfig.labelKey)}
               />
 
               {/* Quick suggestion chips */}
-              <div className="flex flex-wrap items-center gap-1 pt-1">
-                {config.items.map((item) => {
+              <div className="flex flex-wrap items-center gap-1 pt-1" role="group" aria-label={t('quickSuggestions')}>
+                <span className="text-[10px] text-[#5f6368] mr-1">{t('quickSuggestions')}:</span>
+                {catConfig.suggestions.map((item) => {
                   const isSelected = currentValues.includes(item)
                   if (isSelected) return null
                   return (
@@ -145,7 +184,8 @@ export function SkillsSection({ form, onFieldChange }: Props) {
                       key={item}
                       type="button"
                       onClick={() => addSuggestion(key, item)}
-                      className="rounded-md border border-[#d2d2d7] bg-white px-2 py-0.5 text-[10px] text-[#404040] transition-colors hover:border-[#0066cc] hover:bg-[#f4f8fb] hover:text-[#0066cc]"
+                      className="rounded-md border border-[#d2d2d7] bg-white px-2 py-0.5 text-[10px] text-[#1d1d1f] transition-colors hover:border-[#0066cc] hover:bg-[#f4f8fb] hover:text-[#0066cc] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0066cc]"
+                      aria-label={`Agregar habilidad ${item}`}
                     >
                       + {item}
                     </button>
@@ -157,26 +197,23 @@ export function SkillsSection({ form, onFieldChange }: Props) {
         })}
       </div>
 
+      {/* Profile Statement */}
       <div className="pt-2">
         <label htmlFor="skills-profile-statement" className="block text-xs font-semibold text-[#1d1d1f] mb-1.5">
-          {t('profileStatement')} <span className="text-[#707070] font-normal">({tc('optional')} — {t('twoThreeSentences')})</span>
+          {t('profileStatement')} <span className="text-[#5f6368] font-normal">({tc('optional')} — {t('twoThreeSentences')})</span>
         </label>
         <textarea
           id="skills-profile-statement"
           name="profile_statement"
           aria-describedby="skills-summary-hint"
           className="field h-24 resize-none"
-          placeholder={t('profileStatementPlaceholder')}
+          placeholder={t('profileStatementUniversalPlaceholder')}
           value={form.profile_statement}
           onChange={(e) => onFieldChange('profile_statement', e.target.value)}
         />
         <p id="skills-summary-hint" className="mt-1.5 flex items-center gap-2 text-[11px] text-[#5f6368]">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="16" x2="12" y2="12" />
-            <line x1="12" y1="8" x2="12.01" y2="8" />
-          </svg>
-          <span>{t('summaryHint')}</span>
+          <Sparkles className="h-3.5 w-3.5 text-[#0071e3] shrink-0" aria-hidden="true" />
+          <span>{t('summaryUniversalHint')}</span>
         </p>
       </div>
     </div>

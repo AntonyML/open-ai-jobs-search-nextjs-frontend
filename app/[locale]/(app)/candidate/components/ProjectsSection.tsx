@@ -19,16 +19,15 @@ export interface ProjectEntry {
 }
 
 const POPULAR_PROJECT_TECHS = [
-  'React',
-  'TypeScript',
-  'Next.js',
-  'Python',
-  'C#',
-  '.NET',
-  'FastAPI',
-  'PostgreSQL',
-  'Docker',
-  'Tailwind CSS',
+  'Gestión de proyectos',
+  'Catering y eventos',
+  'React / TypeScript',
+  'Campaña comunitaria',
+  'Excel avanzado',
+  'Python / Backend',
+  'Atención y servicio',
+  'Diseño gráfico / UX',
+  'Capacitación de personal',
 ]
 
 interface Props {
