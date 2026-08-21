@@ -3,27 +3,39 @@
 import { useTranslations } from 'next-intl'
 import { TagInput } from '@/components/ui/TagInput'
 
+export interface CategorizedSkills {
+  languages: string[]
+  frameworks: string[]
+  tools_db: string[]
+}
+
 interface SkillsForm {
+  skills_categorized?: CategorizedSkills
   skills_raw: string
   profile_statement: string
 }
 
 interface Props {
   form: SkillsForm
-  onFieldChange: (name: string, value: string) => void
+  onFieldChange: (name: string, value: any) => void
 }
 
 export function SkillsSection({ form, onFieldChange }: Props) {
   const t = useTranslations('setup')
   const tc = useTranslations('common')
 
-  const tags = form.skills_raw
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean)
+  const cat = form.skills_categorized || {
+    languages: [],
+    frameworks: [],
+    tools_db: form.skills_raw ? form.skills_raw.split(',').map((s) => s.trim()).filter(Boolean) : [],
+  }
 
-  function handleTagsChange(newTags: string[]) {
-    onFieldChange('skills_raw', newTags.join(', '))
+  function handleCatChange(key: keyof CategorizedSkills, tags: string[]) {
+    const updated = { ...cat, [key]: tags }
+    onFieldChange('skills_categorized', updated)
+    // keep skills_raw in sync for backward compatibility
+    const all = [...updated.languages, ...updated.frameworks, ...updated.tools_db]
+    onFieldChange('skills_raw', all.join(', '))
   }
 
   return (
@@ -36,22 +48,49 @@ export function SkillsSection({ form, onFieldChange }: Props) {
         </div>
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-widest text-[#1d1d1f]">{t('skillsAndSummary')}</p>
-          <p className="mt-0.5 text-[11px] text-[#707070] leading-relaxed">{t('skillsAndSummaryDesc')}</p>
+          <p className="mt-0.5 text-[11px] text-[#707070] leading-relaxed">
+            Categorize your technical skills to help ATS parsers and recruiters evaluate your profile instantly.
+          </p>
         </div>
       </div>
 
-      <label className="block text-sm text-[#1d1d1f]">
-        {t('skills')}
-        <div className="mt-1.5">
-          <TagInput
-            tags={tags}
-            onChange={handleTagsChange}
-            placeholder={t('skillsPlaceholder')}
-            color="amber"
-          />
-        </div>
-        <p className="mt-1 text-[11px] text-[#858585]">{t('skillsHint')}</p>
-      </label>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <label className="block text-sm text-[#1d1d1f]">
+          <span className="font-semibold">Programming Languages</span>
+          <div className="mt-1.5">
+            <TagInput
+              tags={cat.languages}
+              onChange={(tags) => handleCatChange('languages', tags)}
+              placeholder="e.g. C#, Java, Python, TypeScript"
+              color="blue"
+            />
+          </div>
+        </label>
+
+        <label className="block text-sm text-[#1d1d1f]">
+          <span className="font-semibold">Frameworks & Libraries</span>
+          <div className="mt-1.5">
+            <TagInput
+              tags={cat.frameworks}
+              onChange={(tags) => handleCatChange('frameworks', tags)}
+              placeholder="e.g. .NET, React, Next.js, FastAPI"
+              color="violet"
+            />
+          </div>
+        </label>
+
+        <label className="block text-sm text-[#1d1d1f]">
+          <span className="font-semibold">Databases & DevOps Tools</span>
+          <div className="mt-1.5">
+            <TagInput
+              tags={cat.tools_db}
+              onChange={(tags) => handleCatChange('tools_db', tags)}
+              placeholder="e.g. PostgreSQL, Docker, Git, Linux"
+              color="amber"
+            />
+          </div>
+        </label>
+      </div>
 
       <label className="block text-sm text-[#1d1d1f]">
         {t('profileStatement')} <span className="text-[#858585]">{tc('optional')} — {t('twoThreeSentences')}</span>

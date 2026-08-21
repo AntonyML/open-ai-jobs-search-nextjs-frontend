@@ -11,6 +11,8 @@ export interface ExperienceEntry {
   start_date: string
   end_date: string
   location: string
+  client_context?: string
+  technologies?: string[]
   bullets: string[]
 }
 
@@ -20,6 +22,7 @@ interface Props {
   onToggle: (id: string) => void
   onUpdate: (id: string, key: keyof ExperienceEntry, value: any) => void
   onUpdateBullets: (id: string, bullets: string[]) => void
+  onUpdateTechnologies?: (id: string, technologies: string[]) => void
   onAdd: () => void
   onRemove: (id: string) => void
 }
@@ -30,10 +33,12 @@ export function ExperienceSection({
   onToggle,
   onUpdate,
   onUpdateBullets,
+  onUpdateTechnologies,
   onAdd,
   onRemove,
 }: Props) {
   const t = useTranslations('setup')
+  const tc = useTranslations('common')
 
   const filled = experiences.filter((e) => e.title.trim())
 
@@ -108,7 +113,7 @@ export function ExperienceSection({
                 onChange={(e) => onUpdate(exp._id, 'end_date', e.target.value)}
               />
             </label>
-            <label className="block text-sm text-[#1d1d1f] sm:col-span-2">
+            <label className="block text-sm text-[#1d1d1f]">
               {t('location')} <span className="text-rose-400">*</span>
               <input
                 required
@@ -118,7 +123,32 @@ export function ExperienceSection({
                 onChange={(e) => onUpdate(exp._id, 'location', e.target.value)}
               />
             </label>
+            <label className="block text-sm text-[#1d1d1f]">
+              Context / Client / Project <span className="text-[#858585]">{tc('optional')}</span>
+              <input
+                className="field mt-1.5"
+                placeholder="e.g. International Client (Dominican Rep.)"
+                value={exp.client_context || ''}
+                onChange={(e) => onUpdate(exp._id, 'client_context', e.target.value)}
+              />
+            </label>
           </div>
+
+          <label className="block text-sm text-[#1d1d1f] sm:col-span-2">
+            Technologies Used in this Role <span className="text-[#858585]">{tc('optional')} — press Enter after each tag</span>
+            <div className="mt-1.5">
+              <TagInput
+                tags={exp.technologies || []}
+                onChange={(tags) => {
+                  if (onUpdateTechnologies) onUpdateTechnologies(exp._id, tags)
+                  else onUpdate(exp._id, 'technologies', tags)
+                }}
+                placeholder="e.g. C#, .NET, PostgreSQL"
+                color="violet"
+              />
+            </div>
+          </label>
+
           <label className="block text-sm text-[#1d1d1f] sm:col-span-2">
             {t('achievements')} <span className="text-[#858585]">{t('onePerLine')}</span>
             <div className="mt-1.5">

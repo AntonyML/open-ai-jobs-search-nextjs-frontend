@@ -3,8 +3,8 @@ import { isBrowserOffline, isNetworkError, reportAlive, reportNetworkFailure } f
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
-/** Hard cap per request — a backend asleep on Render hangs instead of refusing. */
-const REQUEST_TIMEOUT_MS = 30_000
+/** Hard cap per request — Render free tier cold starts can take ~50s when spinning up from sleep. */
+const REQUEST_TIMEOUT_MS = 65_000
 
 // ── Bilingual error messages ──────────────────────────────────
 // Keys match the `errors.*` namespace in messages/{en,es}.json.

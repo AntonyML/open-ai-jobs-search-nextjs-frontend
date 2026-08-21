@@ -8,11 +8,24 @@ interface Props {
   email: string
   phone: string
   location: string
+  linkedin_url?: string
+  github_url?: string
+  portfolio_url?: string
   onChange: (name: string, value: string) => void
   locale: string
 }
 
-export function BasicInfoSection({ full_name, email, phone, location, onChange, locale }: Props) {
+export function BasicInfoSection({
+  full_name,
+  email,
+  phone,
+  location,
+  linkedin_url = '',
+  github_url = '',
+  portfolio_url = '',
+  onChange,
+  locale,
+}: Props) {
   const t = useTranslations('setup')
   const tc = useTranslations('common')
 
@@ -93,6 +106,36 @@ export function BasicInfoSection({ full_name, email, phone, location, onChange, 
             placeholder={t('basicLocationPlaceholder')}
             value={location}
             onChange={(e) => onChange('location', e.target.value)}
+          />
+        </label>
+
+        <label className="block text-sm text-[#1d1d1f]">
+          LinkedIn <span className="text-[#858585]">{tc('optional')}</span>
+          <input
+            className="field mt-1.5"
+            placeholder="https://linkedin.com/in/username"
+            value={linkedin_url}
+            onChange={(e) => onChange('linkedin_url', e.target.value)}
+          />
+        </label>
+
+        <label className="block text-sm text-[#1d1d1f]">
+          GitHub <span className="text-[#858585]">{tc('optional')}</span>
+          <input
+            className="field mt-1.5"
+            placeholder="https://github.com/username"
+            value={github_url}
+            onChange={(e) => onChange('github_url', e.target.value)}
+          />
+        </label>
+
+        <label className="block text-sm text-[#1d1d1f] sm:col-span-2">
+          Portfolio / Website <span className="text-[#858585]">{tc('optional')}</span>
+          <input
+            className="field mt-1.5"
+            placeholder="https://yourwebsite.com"
+            value={portfolio_url}
+            onChange={(e) => onChange('portfolio_url', e.target.value)}
           />
         </label>
       </div>

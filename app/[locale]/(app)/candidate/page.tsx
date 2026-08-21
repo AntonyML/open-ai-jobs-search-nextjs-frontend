@@ -23,7 +23,19 @@ import {
   ProjectsSection,
   type ProjectEntry,
 } from '@/app/[locale]/(app)/candidate/components/ProjectsSection'
-import { SkillsSection } from '@/app/[locale]/(app)/candidate/components/SkillsSection'
+import {
+  CertificationsSection,
+  type CertificationEntry,
+} from '@/app/[locale]/(app)/candidate/components/CertificationsSection'
+import {
+  LanguagesSection,
+  type LanguageEntry,
+} from '@/app/[locale]/(app)/candidate/components/LanguagesSection'
+import {
+  SkillsSection,
+  type CategorizedSkills,
+} from '@/app/[locale]/(app)/candidate/components/SkillsSection'
+import { ProfileQualityIndicator } from '@/app/[locale]/(app)/candidate/components/ProfileQualityIndicator'
 import {
   JobTargetSection,
   DEFAULT_JOB_TARGET,
@@ -35,6 +47,10 @@ interface FormState {
   email: string
   phone: string
   location: string
+  linkedin_url: string
+  github_url: string
+  portfolio_url: string
+  skills_categorized?: CategorizedSkills
   skills_raw: string
   profile_statement: string
 }
@@ -50,6 +66,8 @@ const emptyExperience = (): ExperienceEntry => ({
   start_date: '',
   end_date: '',
   location: '',
+  client_context: '',
+  technologies: [],
   bullets: [],
 })
 
@@ -68,6 +86,20 @@ const emptyProject = (): ProjectEntry => ({
   description: '',
 })
 
+const emptyCertification = (): CertificationEntry => ({
+  _id: generateId(),
+  name: '',
+  issuer: '',
+  issue_date: '',
+  credential_url: '',
+})
+
+const emptyLanguage = (): LanguageEntry => ({
+  _id: generateId(),
+  language: '',
+  proficiency: 'Native',
+})
+
 export default function Setup() {
   const { locale } = useParams()
   const router = useRouter()
@@ -84,6 +116,9 @@ export default function Setup() {
     email: '',
     phone: '',
     location: '',
+    linkedin_url: '',
+    github_url: '',
+    portfolio_url: '',
     skills_raw: '',
     profile_statement: '',
   })
@@ -91,11 +126,15 @@ export default function Setup() {
   const [projects, setProjects] = useState<ProjectEntry[]>([emptyProject()])
   const [educations, setEducations] = useState<EducationEntry[]>([emptyEducation()])
   const [experiences, setExperiences] = useState<ExperienceEntry[]>([emptyExperience()])
+  const [certifications, setCertifications] = useState<CertificationEntry[]>([])
+  const [languages, setLanguages] = useState<LanguageEntry[]>([])
   const [jobTarget, setJobTarget] = useState<JobTarget>(DEFAULT_JOB_TARGET)
 
   const [openExpCards, setOpenExpCards] = useState<Set<string>>(new Set())
   const [openEduCards, setOpenEduCards] = useState<Set<string>>(new Set())
   const [openProjectCards, setOpenProjectCards] = useState<Set<string>>(new Set())
+  const [openCertCards, setOpenCertCards] = useState<Set<string>>(new Set())
+  const [openLangCards, setOpenLangCards] = useState<Set<string>>(new Set())
 
   // Load full profile on mount
   useEffect(() => {
@@ -106,13 +145,27 @@ export default function Setup() {
       setHasProfile(!!profile)
       if (!profile && !user) return
 
+      const initialCat: CategorizedSkills = {
+        languages: (profile?.skills?.programming_ml || []).map((p: any) => p.language || p).filter(Boolean),
+        frameworks: profile?.skills?.domain_expertise || [],
+        tools_db: profile?.skills?.software_tools || [],
+      }
+
       setForm((prev) => ({
         ...prev,
         full_name: profile?.full_name || user?.full_name || prev.full_name,
         email: profile?.email || user?.email || prev.email,
         phone: profile?.phone || prev.phone,
         location: profile?.location || prev.location,
-        skills_raw: profile?.skills?.software_tools?.join(', ') || prev.skills_raw,
+        linkedin_url: profile?.linkedin_url || prev.linkedin_url,
+        github_url: profile?.github_url || prev.github_url,
+        portfolio_url: profile?.portfolio_url || prev.portfolio_url,
+        skills_categorized: initialCat,
+        skills_raw: [
+          ...initialCat.languages,
+          ...initialCat.frameworks,
+          ...initialCat.tools_db,
+        ].join(', '),
         profile_statement: profile?.profile_statement || prev.profile_statement,
       }))
 
@@ -125,6 +178,8 @@ export default function Setup() {
             start_date: exp.start_date || '',
             end_date: exp.end_date || '',
             location: exp.location || '',
+            client_context: exp.client_context || '',
+            technologies: exp.technologies || [],
             bullets: exp.bullets || [],
           }))
         )
@@ -141,6 +196,28 @@ export default function Setup() {
             key_topics: edu.key_topics
               ? String(edu.key_topics).split(',').map((s: string) => s.trim()).filter(Boolean)
               : [],
+          }))
+        )
+      }
+
+      if (profile?.certifications?.length) {
+        setCertifications(
+          profile.certifications.map((c: any) => ({
+            _id: generateId(),
+            name: c.name || '',
+            issuer: c.issuer || '',
+            issue_date: c.issue_date || c.year || '',
+            credential_url: c.credential_url || c.url || '',
+          }))
+        )
+      }
+
+      if (profile?.languages?.length) {
+        setLanguages(
+          profile.languages.map((l: any) => ({
+            _id: generateId(),
+            language: l.language || '',
+            proficiency: l.proficiency || 'Native',
           }))
         )
       }
@@ -201,7 +278,7 @@ export default function Setup() {
     })
   }
 
-  function f(name: string, value: string) {
+  function f(name: string, value: any) {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
@@ -219,6 +296,45 @@ export default function Setup() {
     )
   }
 
+  // P2: Auto-sync technologies from experience into skills
+  function updateTechnologies(id: string, technologies: string[]) {
+    setExperiences((prev) =>
+      prev.map((e) => (e._id === id ? { ...e, technologies } : e))
+    )
+
+    // Automatically sync new technologies into tools_db if not present
+    setForm((prev) => {
+      const currentTools = new Set(prev.skills_categorized?.tools_db || [])
+      const currentLangs = new Set(prev.skills_categorized?.languages || [])
+      const currentFws = new Set(prev.skills_categorized?.frameworks || [])
+      
+      let modified = false
+      const newTools = [...(prev.skills_categorized?.tools_db || [])]
+
+      technologies.forEach((t) => {
+        const trimmed = t.trim()
+        if (trimmed && !currentTools.has(trimmed) && !currentLangs.has(trimmed) && !currentFws.has(trimmed)) {
+          newTools.push(trimmed)
+          currentTools.add(trimmed)
+          modified = true
+        }
+      })
+
+      if (!modified) return prev
+
+      const updatedCat = {
+        languages: prev.skills_categorized?.languages || [],
+        frameworks: prev.skills_categorized?.frameworks || [],
+        tools_db: newTools,
+      }
+      return {
+        ...prev,
+        skills_categorized: updatedCat,
+        skills_raw: [...updatedCat.languages, ...updatedCat.frameworks, ...updatedCat.tools_db].join(', '),
+      }
+    })
+  }
+
   function updateEdu(id: string, key: keyof EducationEntry, value: any) {
     setEducations((prev) =>
       prev.map((e) => (e._id === id ? { ...e, [key]: value } : e))
@@ -231,12 +347,19 @@ export default function Setup() {
     )
   }
 
-  function buildPayload() {
-    const skillsList = form.skills_raw
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
+  function updateCert(id: string, key: keyof CertificationEntry, value: string) {
+    setCertifications((prev) =>
+      prev.map((c) => (c._id === id ? { ...c, [key]: value } : c))
+    )
+  }
 
+  function updateLang(id: string, key: keyof LanguageEntry, value: string) {
+    setLanguages((prev) =>
+      prev.map((l) => (l._id === id ? { ...l, [key]: value } : l))
+    )
+  }
+
+  function buildPayload() {
     const experiencePayload = experiences
       .filter((e) => e.title.trim())
       .map((e) => ({
@@ -245,6 +368,8 @@ export default function Setup() {
         start_date: e.start_date || undefined,
         end_date: e.end_date || undefined,
         location: e.location.trim() || undefined,
+        client_context: e.client_context?.trim() || undefined,
+        technologies: e.technologies?.filter((t: string) => t.trim()) || [],
         bullets: e.bullets.filter((b: string) => b.trim()),
       }))
 
@@ -253,7 +378,28 @@ export default function Setup() {
     if (form.email) payload.email = form.email
     if (form.phone) payload.phone = form.phone
     if (form.location) payload.location = form.location
+    if (form.linkedin_url) payload.linkedin_url = form.linkedin_url
+    if (form.github_url) payload.github_url = form.github_url
+    if (form.portfolio_url) payload.portfolio_url = form.portfolio_url
     if (experiencePayload.length) payload.experience = experiencePayload
+
+    const certPayload = certifications
+      .filter((c) => c.name.trim())
+      .map((c) => ({
+        name: c.name.trim(),
+        issuer: c.issuer.trim(),
+        issue_date: c.issue_date.trim() || undefined,
+        credential_url: c.credential_url.trim() || undefined,
+      }))
+    if (certPayload.length) payload.certifications = certPayload
+
+    const langPayload = languages
+      .filter((l) => l.language.trim())
+      .map((l) => ({
+        language: l.language.trim(),
+        proficiency: l.proficiency || 'Native',
+      }))
+    if (langPayload.length) payload.languages = langPayload
 
     const projectPayload = projects
       .filter((p) => p.name.trim())
@@ -273,12 +419,28 @@ export default function Setup() {
         key_topics: e.key_topics.filter(Boolean).join(', ') || undefined,
       }))
     if (educationPayload.length) payload.education = educationPayload
-    if (skillsList.length)
+
+    const cat = form.skills_categorized
+    if (cat) {
       payload.skills = {
-        software_tools: skillsList,
-        programming_ml: [],
-        domain_expertise: [],
+        programming_ml: cat.languages.map((l) => ({ language: l, proficiency: 'Proficient' })),
+        domain_expertise: cat.frameworks,
+        software_tools: cat.tools_db,
       }
+    } else {
+      const skillsList = form.skills_raw
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+      if (skillsList.length) {
+        payload.skills = {
+          software_tools: skillsList,
+          programming_ml: [],
+          domain_expertise: [],
+        }
+      }
+    }
+
     if (form.profile_statement) payload.profile_statement = form.profile_statement
     const hasJobTarget = jobTarget.target_titles.length > 0
     if (hasJobTarget) {
@@ -329,9 +491,21 @@ export default function Setup() {
     setDeleting(true)
     try {
       await apiFetch('/api/v1/setup/profile', { method: 'DELETE' })
-      setForm({ full_name: '', email: '', phone: '', location: '', skills_raw: '', profile_statement: '' })
+      setForm({
+        full_name: '',
+        email: '',
+        phone: '',
+        location: '',
+        linkedin_url: '',
+        github_url: '',
+        portfolio_url: '',
+        skills_raw: '',
+        profile_statement: '',
+      })
       setExperiences([emptyExperience()])
       setEducations([emptyEducation()])
+      setCertifications([])
+      setLanguages([])
       setProjects([emptyProject()])
       setJobTarget(DEFAULT_JOB_TARGET)
       setSaved(false)
@@ -366,12 +540,24 @@ export default function Setup() {
         {t('backToProviders')}
       </a>
 
-      <form onSubmit={submit} className="space-y-6" id="setup-form">
+      <ProfileQualityIndicator
+        hasBasicInfo={!!(form.full_name && form.email && form.location)}
+        hasExperience={experiences.some((e) => e.title.trim().length > 0)}
+        hasEducation={educations.some((e) => e.degree.trim().length > 0)}
+        hasSkills={!!(form.skills_raw && form.skills_raw.trim().length > 0)}
+        hasCertifications={certifications.some((c) => c.name.trim().length > 0)}
+        hasLanguages={languages.some((l) => l.language.trim().length > 0)}
+      />
+
+      <form onSubmit={submit} className="space-y-6 mt-6" id="setup-form">
         <BasicInfoSection
           full_name={form.full_name}
           email={form.email}
           phone={form.phone}
           location={form.location}
+          linkedin_url={form.linkedin_url}
+          github_url={form.github_url}
+          portfolio_url={form.portfolio_url}
           onChange={f}
           locale={locale as string}
         />
@@ -384,6 +570,7 @@ export default function Setup() {
           onToggle={(id) => toggleCards(setOpenExpCards, id)}
           onUpdate={updateExp}
           onUpdateBullets={updateBullets}
+          onUpdateTechnologies={updateTechnologies}
           onAdd={() => setExperiences((prev) => [...prev, emptyExperience()])}
           onRemove={(id) =>
             setExperiences((prev) => prev.filter((e) => e._id !== id))
@@ -398,6 +585,28 @@ export default function Setup() {
           onAdd={() => setEducations((prev) => [...prev, emptyEducation()])}
           onRemove={(id) =>
             setEducations((prev) => prev.filter((e) => e._id !== id))
+          }
+        />
+
+        <CertificationsSection
+          certifications={certifications}
+          openCards={openCertCards}
+          onToggle={(id) => toggleCards(setOpenCertCards, id)}
+          onUpdate={updateCert}
+          onAdd={() => setCertifications((prev) => [...prev, emptyCertification()])}
+          onRemove={(id) =>
+            setCertifications((prev) => prev.filter((c) => c._id !== id))
+          }
+        />
+
+        <LanguagesSection
+          languages={languages}
+          openCards={openLangCards}
+          onToggle={(id) => toggleCards(setOpenLangCards, id)}
+          onUpdate={updateLang}
+          onAdd={() => setLanguages((prev) => [...prev, emptyLanguage()])}
+          onRemove={(id) =>
+            setLanguages((prev) => prev.filter((l) => l._id !== id))
           }
         />
 
