@@ -44,6 +44,12 @@ export interface JobOption {
   rank_verdict: string | null
 }
 
+/** Check whether the given URL points directly to an external presigned storage (e.g. Cloudflare R2 / S3). */
+export function isPresignedStorageUrl(url: string | null | undefined): boolean {
+  if (!url) return false
+  return (url.startsWith('http://') || url.startsWith('https://')) && !url.includes('/api/v1/')
+}
+
 /** Build the authenticated download URL for a CV's PDF. */
 export function cvPdfUrl(cvId: string, pdfUrl?: string | null): string {
   if (pdfUrl) return pdfUrl
@@ -51,10 +57,16 @@ export function cvPdfUrl(cvId: string, pdfUrl?: string | null): string {
 }
 
 /**
- * Fetch a CV PDF as an object URL, sending the auth token so the
- * download endpoint accepts the request (same origin policy otherwise).
+ * Fetch a CV PDF as an object URL.
+ * When the URL is an external presigned storage URL (Cloudflare R2), it is returned
+ * directly without custom headers to avoid triggering CORS preflight rejections.
+ * When pointing to the backend download endpoint, it sends the Bearer token.
  */
 export async function fetchCvPdfObjectUrl(pdfUrl: string): Promise<string> {
+  if (isPresignedStorageUrl(pdfUrl)) {
+    return pdfUrl
+  }
+
   const token = getToken()
   const res = await fetch(pdfUrl, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},

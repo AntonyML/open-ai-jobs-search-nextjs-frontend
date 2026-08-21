@@ -71,6 +71,27 @@ export default function AdaptCvPage() {
 
   const baseCv = cvs.find((c) => c.cv_type === 'base' && c.base_status === 'active') || null
   const adaptedCvs = cvs.filter((c) => c.cv_type === 'personalized')
+  const hasPendingPdf = cvs.some((c) => !c.pdf_ready) || (lastAdapted && !lastAdapted.pdf_ready)
+
+  // Poll while any adapted CV's PDF is still compiling in background
+  useEffect(() => {
+    if (!hasPendingPdf) return
+    const deadline = Date.now() + 30000
+    const timer = window.setInterval(async () => {
+      const c = await apiFetch<CVResponse[]>('/api/v1/cv/').catch(() => [])
+      if (Array.isArray(c)) {
+        setCvs(c)
+        if (lastAdapted) {
+          const fresh = c.find((x) => x.cv_id === lastAdapted.cv_id)
+          if (fresh) setLastAdapted(fresh)
+        }
+      }
+      if (Date.now() >= deadline) {
+        window.clearInterval(timer)
+      }
+    }, 3000)
+    return () => window.clearInterval(timer)
+  }, [hasPendingPdf, lastAdapted])
 
   async function adaptFromUrl() {
     if (!baseCv || !url.trim()) return

@@ -20,8 +20,8 @@ export function TrendSparkline({
   const chartData = data.map((v, i) => ({ i, v }))
 
   return (
-    <div className="h-10 w-full">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="h-10 w-full min-w-0">
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 100, height: 40 }}>
         <AreaChart data={chartData} margin={{ top: 4, right: 2, left: 2, bottom: 0 }}>
           <defs>
             <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">

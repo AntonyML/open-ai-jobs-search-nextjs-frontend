@@ -45,8 +45,14 @@ export function ActivityChart({
   }))
 
   return (
-    <div className="h-64 w-full">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="h-64 w-full min-w-0">
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+        minWidth={0}
+        minHeight={0}
+        initialDimension={{ width: 320, height: 256 }}
+      >
         <BarChart data={chartData} margin={{ top: 12, right: 8, left: 0, bottom: 0 }} barGap={3}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e8e8ed" vertical={false} />
           <XAxis

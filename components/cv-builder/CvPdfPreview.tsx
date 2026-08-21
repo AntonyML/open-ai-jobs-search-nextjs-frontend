@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Download, Expand, X } from 'lucide-react'
 import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import type { CVResponse } from '@/lib/cv'
-import { cvPdfUrl, fetchCvPdfObjectUrl } from '@/lib/cv'
+import { cvPdfUrl, fetchCvPdfObjectUrl, isPresignedStorageUrl } from '@/lib/cv'
 
 /** Build a human-readable download filename (front-only; the backend keeps its UUID internally). */
 function safeSegment(value: string | null | undefined): string {
@@ -37,10 +37,19 @@ export function CvPdfPreview({ cv, expandable = true }: { cv: CVResponse; expand
   useEffect(() => {
     let revokeUrl: string | null = null
     const pdfUrl = cvPdfUrl(cv.cv_id, cv.pdf_url)
+
+    if (isPresignedStorageUrl(pdfUrl)) {
+      setObjectUrl(pdfUrl)
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
     fetchCvPdfObjectUrl(pdfUrl)
       .then((url) => {
-        revokeUrl = url
+        if (url.startsWith('blob:')) {
+          revokeUrl = url
+        }
         setObjectUrl(url)
       })
       .catch(() => setObjectUrl(null))
