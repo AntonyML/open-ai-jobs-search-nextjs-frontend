@@ -90,9 +90,12 @@
     "brandRegisterTitle": "Comienza tu viaje en segundos",
     "brandRegisterSubtitle": "Sin tarjeta de crédito. Conecta tu proveedor IA preferido y empieza a rankear empleos inmediatamente.",
     "loginSubtitleAlt": "Inicia sesión para continuar tu búsqueda de empleo.",
-    "registerSubtitleAlt": "Comienza tu búsqueda de empleo con IA.",
     "account_deleted": "Cuenta eliminada permanentemente. Todos tus datos han sido borrados.",
-    "registerSuccess": "¡Cuenta creada! Inicia sesión para continuar."
+    "registerSuccess": "¡Cuenta creada! Inicia sesión para continuar.",
+    "waitingForBackend": "Estamos preparando los servicios. Tu solicitud se procesará automáticamente en unos momentos…",
+    "serviceDelayed": "El servicio está tardando más de lo habitual en responder. Tus datos están a salvo; puedes reintentar.",
+    "invalidCredentials": "Correo electrónico o contraseña incorrectos.",
+    "retryButton": "Reintentar"
   },
   "marketing": {
     "heroBadge": "CV Builder: adapta tu CV a cada oferta",

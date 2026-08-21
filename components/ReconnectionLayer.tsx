@@ -53,6 +53,7 @@ export default function ReconnectionLayer() {
 
   // Wall-clock since the current phase began, for the staged copy + fade-out.
   useEffect(() => {
+    if (isMarketing || isAuth) return
     if (state === 'reconnecting' && startedAtRef.current === null) {
       startedAtRef.current = Date.now()
       restoredAtRef.current = null
@@ -75,11 +76,11 @@ export default function ReconnectionLayer() {
       }
     }, 200)
     return () => clearInterval(id)
-  }, [state])
+  }, [state, isMarketing, isAuth])
 
-  // Automatic probe loop with exponential backoff (only while reconnecting).
+  // Automatic probe loop with exponential backoff (only while reconnecting on protected app pages).
   useEffect(() => {
-    if (state !== 'reconnecting') return
+    if (state !== 'reconnecting' || isMarketing || isAuth) return
     let cancelled = false
     let timer: ReturnType<typeof setTimeout> | null = null
     attemptsRef.current = 0

@@ -92,7 +92,11 @@
     "loginSubtitleAlt": "Sign in to continue your job search.",
     "registerSubtitleAlt": "Start your AI-powered job search.",
     "account_deleted": "Account permanently deleted. All your data has been removed.",
-    "registerSuccess": "Account created! Sign in to continue."
+    "registerSuccess": "Account created! Sign in to continue.",
+    "waitingForBackend": "We are preparing the services. Your request will process automatically in a few moments…",
+    "serviceDelayed": "The service is taking longer than usual to respond. Your information is safe; feel free to retry.",
+    "invalidCredentials": "Incorrect email or password.",
+    "retryButton": "Retry"
   },
   "marketing": {
     "heroBadge": "CV Builder: tailor your CV to each offer",
