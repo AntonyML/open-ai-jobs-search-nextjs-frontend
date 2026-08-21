@@ -3,7 +3,7 @@ import { FormEvent, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { apiFetch } from '@/lib/api'
+import { apiFetch, ApiError } from '@/lib/api'
 import { setToken } from '@/lib/auth'
 import Logo from '@/components/Logo'
 

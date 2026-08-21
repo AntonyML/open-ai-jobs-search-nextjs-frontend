@@ -112,7 +112,7 @@ export default function ReconnectionLayer() {
       cancelled = true
       if (timer) clearTimeout(timer)
     }
-  }, [state])
+  }, [state, isMarketing, isAuth])
 
   if (isMarketing) {
     return <WakingPill />
