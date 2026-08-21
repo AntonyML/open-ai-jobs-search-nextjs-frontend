@@ -21,7 +21,8 @@
     "done": "Completado",
     "error": "Error",
     "refresh": "Actualizar",
-    "remove": "Eliminar"
+    "remove": "Eliminar",
+    "added": "agregada(s)"
   },
   "nav": {
     "dashboard": "Panel",
@@ -438,6 +439,9 @@
     "techTagPlaceholder": "ej. C#, .NET, PostgreSQL",
     "requiredFieldsLegend": "Los campos marcados con * son obligatorios",
     "required": "obligatorio",
+    "optional": "opcional",
+    "targetTitles": "Puestos o roles de interés",
+    "quickSuggestions": "Sugerencias rápidas",
     "jobTargetUniversalDesc": "Roles o puestos de interés que orientan la redacción de tu perfil (opcional)",
     "jobTargetUniversalHint": "No necesitas configurar filtros complejos. Al adaptar tu CV a una oferta laboral, CVMeld identificará automáticamente las evidencias más relevantes de tu perfil.",
     "targetTitlePlaceholder": "ej. Chef, Médico, Asistente Administrativo, Desarrollador...",

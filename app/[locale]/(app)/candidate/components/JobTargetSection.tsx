@@ -60,6 +60,7 @@ interface Props {
 
 export function JobTargetSection({ value, onChange }: Props) {
   const t = useTranslations('setup')
+  const tc = useTranslations('common')
 
   function handleAddRole(role: string) {
     if (!value.target_titles.includes(role)) {
@@ -90,7 +91,7 @@ export function JobTargetSection({ value, onChange }: Props) {
       {/* Target Titles Input */}
       <div className="space-y-2">
         <label htmlFor="target-titles-input" className="block text-xs font-semibold text-[#1d1d1f]">
-          {t('targetTitles')} <span className="text-[#5f6368] font-normal">({t('optional')})</span>
+          {t('targetTitles')} <span className="text-[#5f6368] font-normal">({tc('optional')})</span>
         </label>
         
         <TagInput
