@@ -39,7 +39,7 @@ export function SkillsSection({ form, onFieldChange }: Props) {
   }
 
   return (
-    <div className="card space-y-5">
+    <div id="section-skills" className="card space-y-5">
       <div className="flex items-start gap-2.5">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -49,14 +49,14 @@ export function SkillsSection({ form, onFieldChange }: Props) {
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-widest text-[#1d1d1f]">{t('skillsAndSummary')}</p>
           <p className="mt-0.5 text-[11px] text-[#707070] leading-relaxed">
-            Categorize your technical skills to help ATS parsers and recruiters evaluate your profile instantly.
+            {t('skillsCategorizedDesc')}
           </p>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <label className="block text-sm text-[#1d1d1f]">
-          <span className="font-semibold">Programming Languages</span>
+          <span className="font-semibold">{t('skillsLanguages')}</span>
           <div className="mt-1.5">
             <TagInput
               tags={cat.languages}
@@ -68,7 +68,7 @@ export function SkillsSection({ form, onFieldChange }: Props) {
         </label>
 
         <label className="block text-sm text-[#1d1d1f]">
-          <span className="font-semibold">Frameworks & Libraries</span>
+          <span className="font-semibold">{t('skillsFrameworks')}</span>
           <div className="mt-1.5">
             <TagInput
               tags={cat.frameworks}
@@ -80,7 +80,7 @@ export function SkillsSection({ form, onFieldChange }: Props) {
         </label>
 
         <label className="block text-sm text-[#1d1d1f]">
-          <span className="font-semibold">Databases & DevOps Tools</span>
+          <span className="font-semibold">{t('skillsToolsDb')}</span>
           <div className="mt-1.5">
             <TagInput
               tags={cat.tools_db}

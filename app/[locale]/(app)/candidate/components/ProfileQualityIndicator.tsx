@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface Props {
   hasBasicInfo: boolean
@@ -19,45 +20,44 @@ export function ProfileQualityIndicator({
   hasCertifications,
   hasLanguages,
 }: Props) {
+  const t = useTranslations('setup')
+
   const { score, tips } = useMemo(() => {
     let s = 0
-    const t: string[] = []
+    const tipsList: string[] = []
 
     if (hasBasicInfo) s += 25
-    else t.push('Complete basic contact info & location')
+    else tipsList.push(t('tipBasicInfo'))
 
     if (hasExperience) s += 25
-    else t.push('Add your work experience and technologies used')
+    else tipsList.push(t('tipExperience'))
 
     if (hasEducation) s += 15
-    else t.push('Add your education history')
+    else tipsList.push(t('tipEducation'))
 
     if (hasSkills) s += 15
-    else t.push('Categorize your core technical skills')
+    else tipsList.push(t('tipSkills'))
 
     if (hasCertifications) s += 10
-    else t.push('Add certifications to boost credibility')
+    else tipsList.push(t('tipCertifications'))
 
     if (hasLanguages) s += 10
-    else t.push('Add spoken languages and proficiency')
+    else tipsList.push(t('tipLanguages'))
 
-    return { score: s, tips: t }
-  }, [hasBasicInfo, hasExperience, hasEducation, hasSkills, hasCertifications, hasLanguages])
-
-  const colorClass =
-    score >= 80 ? 'bg-emerald-500 text-emerald-700' : score >= 50 ? 'bg-amber-500 text-amber-700' : 'bg-rose-500 text-rose-700'
+    return { score: s, tips: tipsList }
+  }, [hasBasicInfo, hasExperience, hasEducation, hasSkills, hasCertifications, hasLanguages, t])
 
   return (
     <div className="card space-y-3 bg-gradient-to-r from-[#fbfbfd] to-[#f5f5f7] border border-[#e5e5ea]">
       <div className="flex items-center justify-between">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#1d1d1f]">Profile Strength</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-[#1d1d1f]">{t('profileStrength')}</span>
           <p className="text-xs text-[#707070]">
             {score >= 90
-              ? 'Excellent! Your profile contains comprehensive data for optimal CV generation.'
+              ? t('profileStrengthExcellent')
               : score >= 60
-              ? 'Good progress. Adding certifications and languages will enrich your CVs.'
-              : 'Add more details to ensure the AI generates high-impact CVs.'}
+              ? t('profileStrengthGood')
+              : t('profileStrengthLow')}
           </p>
         </div>
         <div className="text-right">

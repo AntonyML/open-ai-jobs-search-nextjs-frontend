@@ -36,7 +36,8 @@ export function EducationSection({
   const filled = educations.filter((e) => e.degree.trim())
 
   return (
-    <CollapsibleCardListWrapper
+    <div id="section-education">
+      <CollapsibleCardListWrapper
       title={t('education')}
       countLabel={t('degreesAdded', { count: filled.length })}
       icon={
@@ -120,6 +121,7 @@ export function EducationSection({
           </label>
         </CollapsibleCard>
       ))}
-    </CollapsibleCardListWrapper>
+      </CollapsibleCardListWrapper>
+    </div>
   )
 }

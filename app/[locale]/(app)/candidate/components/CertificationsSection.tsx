@@ -34,9 +34,10 @@ export function CertificationsSection({
   const filled = certifications.filter((c) => c.name.trim())
 
   return (
-    <CollapsibleCardListWrapper
-      title="Certifications & Licenses"
-      countLabel={`${filled.length} added`}
+    <div id="section-certifications">
+      <CollapsibleCardListWrapper
+      title={t('certifications')}
+      countLabel={t('certificationsAdded', { count: filled.length })}
       icon={
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-600">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -46,8 +47,8 @@ export function CertificationsSection({
         </div>
       }
       count={filled.length}
-      emptyMessage="No certifications added yet"
-      addLabel="Add Certification"
+      emptyMessage={t('noCertifications')}
+      addLabel={t('addCertification')}
       onAdd={onAdd}
       isEmpty={certifications.length === 0}
     >
@@ -56,7 +57,7 @@ export function CertificationsSection({
           key={cert._id}
           id={cert._id}
           index={idx}
-          title={cert.name || `Certification #${idx + 1}`}
+          title={cert.name || t('certFallback', { n: idx + 1 })}
           isFilled={!!cert.name.trim()}
           isOpen={openCards.has(cert._id)}
           onToggle={onToggle}
@@ -67,7 +68,7 @@ export function CertificationsSection({
         >
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block text-sm text-[#1d1d1f]">
-              Name <span className="text-rose-400">*</span>
+              {t('certName')} <span className="text-rose-400">*</span>
               <input
                 required
                 className="field mt-1.5"
@@ -77,7 +78,7 @@ export function CertificationsSection({
               />
             </label>
             <label className="block text-sm text-[#1d1d1f]">
-              Issuing Organization <span className="text-rose-400">*</span>
+              {t('certIssuer')} <span className="text-rose-400">*</span>
               <input
                 required
                 className="field mt-1.5"
@@ -87,7 +88,7 @@ export function CertificationsSection({
               />
             </label>
             <label className="block text-sm text-[#1d1d1f]">
-              Year / Date <span className="text-[#858585]">{tc('optional')}</span>
+              {t('certYear')} <span className="text-[#858585]">{tc('optional')}</span>
               <input
                 className="field mt-1.5"
                 placeholder="e.g. 2023 or 2023-06"
@@ -96,7 +97,7 @@ export function CertificationsSection({
               />
             </label>
             <label className="block text-sm text-[#1d1d1f]">
-              Verification URL <span className="text-[#858585]">{tc('optional')}</span>
+              {t('certUrl')} <span className="text-[#858585]">{tc('optional')}</span>
               <input
                 type="url"
                 className="field mt-1.5"
@@ -108,6 +109,7 @@ export function CertificationsSection({
           </div>
         </CollapsibleCard>
       ))}
-    </CollapsibleCardListWrapper>
+      </CollapsibleCardListWrapper>
+    </div>
   )
 }

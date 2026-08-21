@@ -30,7 +30,7 @@ export function BasicInfoSection({
   const tc = useTranslations('common')
 
   return (
-    <div className="card space-y-5">
+    <div id="section-basic-info" className="card space-y-5">
       <div className="flex items-start gap-2.5">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0071e3]/10 text-[#0071e3]">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -110,7 +110,7 @@ export function BasicInfoSection({
         </label>
 
         <label className="block text-sm text-[#1d1d1f]">
-          LinkedIn <span className="text-[#858585]">{tc('optional')}</span>
+          {t('linkedin')} <span className="text-[#858585]">{tc('optional')}</span>
           <input
             className="field mt-1.5"
             placeholder="https://linkedin.com/in/username"
@@ -120,7 +120,7 @@ export function BasicInfoSection({
         </label>
 
         <label className="block text-sm text-[#1d1d1f]">
-          GitHub <span className="text-[#858585]">{tc('optional')}</span>
+          {t('github')} <span className="text-[#858585]">{tc('optional')}</span>
           <input
             className="field mt-1.5"
             placeholder="https://github.com/username"
@@ -130,7 +130,7 @@ export function BasicInfoSection({
         </label>
 
         <label className="block text-sm text-[#1d1d1f] sm:col-span-2">
-          Portfolio / Website <span className="text-[#858585]">{tc('optional')}</span>
+          {t('portfolio')} <span className="text-[#858585]">{tc('optional')}</span>
           <input
             className="field mt-1.5"
             placeholder="https://yourwebsite.com"

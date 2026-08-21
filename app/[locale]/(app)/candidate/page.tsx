@@ -36,6 +36,7 @@ import {
   type CategorizedSkills,
 } from '@/app/[locale]/(app)/candidate/components/SkillsSection'
 import { ProfileQualityIndicator } from '@/app/[locale]/(app)/candidate/components/ProfileQualityIndicator'
+import { ProfileSectionNav } from '@/components/setup/ProfileSectionNav'
 import {
   JobTargetSection,
   DEFAULT_JOB_TARGET,
@@ -84,6 +85,13 @@ const emptyProject = (): ProjectEntry => ({
   _id: generateId(),
   name: '',
   description: '',
+  role: '',
+  client: '',
+  start_date: '',
+  end_date: '',
+  is_ongoing: false,
+  url: '',
+  technologies: [],
 })
 
 const emptyCertification = (): CertificationEntry => ({
@@ -170,66 +178,75 @@ export default function Setup() {
       }))
 
       if (profile?.experience?.length) {
-        setExperiences(
-          profile.experience.map((exp: any) => ({
-            _id: generateId(),
-            title: exp.title || '',
-            company: exp.company || '',
-            start_date: exp.start_date || '',
-            end_date: exp.end_date || '',
-            location: exp.location || '',
-            client_context: exp.client_context || '',
-            technologies: exp.technologies || [],
-            bullets: exp.bullets || [],
-          }))
-        )
+        const exps = profile.experience.map((exp: any) => ({
+          _id: generateId(),
+          title: exp.title || '',
+          company: exp.company || '',
+          start_date: exp.start_date || '',
+          end_date: exp.end_date || '',
+          is_current: !exp.end_date && !!exp.start_date,
+          location: exp.location || '',
+          work_mode: exp.work_mode || undefined,
+          client_context: exp.client_context || '',
+          technologies: exp.technologies || [],
+          bullets: exp.bullets || [],
+        }))
+        setExperiences(exps)
+        setOpenExpCards(new Set(exps.map((e: any) => e._id)))
       }
 
       if (profile?.education?.length) {
-        setEducations(
-          profile.education.map((edu: any) => ({
-            _id: generateId(),
-            degree: edu.degree || '',
-            institution: edu.institution || '',
-            start_date: edu.start_date || '',
-            end_date: edu.end_date || '',
-            key_topics: edu.key_topics
-              ? String(edu.key_topics).split(',').map((s: string) => s.trim()).filter(Boolean)
-              : [],
-          }))
-        )
+        const edus = profile.education.map((edu: any) => ({
+          _id: generateId(),
+          degree: edu.degree || '',
+          institution: edu.institution || '',
+          start_date: edu.start_date || '',
+          end_date: edu.end_date || '',
+          key_topics: edu.key_topics
+            ? String(edu.key_topics).split(',').map((s: string) => s.trim()).filter(Boolean)
+            : [],
+        }))
+        setEducations(edus)
+        setOpenEduCards(new Set(edus.map((e: any) => e._id)))
       }
 
       if (profile?.certifications?.length) {
-        setCertifications(
-          profile.certifications.map((c: any) => ({
-            _id: generateId(),
-            name: c.name || '',
-            issuer: c.issuer || '',
-            issue_date: c.issue_date || c.year || '',
-            credential_url: c.credential_url || c.url || '',
-          }))
-        )
+        const certs = profile.certifications.map((c: any) => ({
+          _id: generateId(),
+          name: c.name || '',
+          issuer: c.issuer || '',
+          issue_date: c.issue_date || c.year || '',
+          credential_url: c.credential_url || c.url || '',
+        }))
+        setCertifications(certs)
+        setOpenCertCards(new Set(certs.map((c: any) => c._id)))
       }
 
       if (profile?.languages?.length) {
-        setLanguages(
-          profile.languages.map((l: any) => ({
-            _id: generateId(),
-            language: l.language || '',
-            proficiency: l.proficiency || 'Native',
-          }))
-        )
+        const langs = profile.languages.map((l: any) => ({
+          _id: generateId(),
+          language: l.language || '',
+          proficiency: l.proficiency || 'Native',
+        }))
+        setLanguages(langs)
+        setOpenLangCards(new Set(langs.map((l: any) => l._id)))
       }
 
       if (profile?.projects?.length) {
-        setProjects(
-          profile.projects.map((proj: any) => ({
-            _id: generateId(),
-            name: proj.name || '',
-            description: proj.description || '',
-          }))
-        )
+        const projs = profile.projects.map((proj: any) => ({
+          _id: generateId(),
+          name: proj.name || '',
+          description: proj.description || '',
+          role: proj.role || '',
+          client: proj.client || '',
+          start_date: proj.start_date || '',
+          end_date: proj.end_date || '',
+          is_ongoing: !proj.end_date && !!proj.start_date,
+          url: proj.url || '',
+          technologies: proj.technologies || [],
+        }))
+        setProjects(projs)
+        setOpenProjectCards(new Set(projs.map((p: any) => p._id)))
       }
 
       // If profile exists with required fields, show saved state and mark step complete
@@ -347,6 +364,36 @@ export default function Setup() {
     )
   }
 
+  function handleAddExperience() {
+    const entry = emptyExperience()
+    setExperiences((prev) => [...prev, entry])
+    setOpenExpCards((prev) => new Set(prev).add(entry._id))
+  }
+
+  function handleAddEducation() {
+    const entry = emptyEducation()
+    setEducations((prev) => [...prev, entry])
+    setOpenEduCards((prev) => new Set(prev).add(entry._id))
+  }
+
+  function handleAddCertification() {
+    const entry = emptyCertification()
+    setCertifications((prev) => [...prev, entry])
+    setOpenCertCards((prev) => new Set(prev).add(entry._id))
+  }
+
+  function handleAddLanguage() {
+    const entry = emptyLanguage()
+    setLanguages((prev) => [...prev, entry])
+    setOpenLangCards((prev) => new Set(prev).add(entry._id))
+  }
+
+  function handleAddProject() {
+    const entry = emptyProject()
+    setProjects((prev) => [...prev, entry])
+    setOpenProjectCards((prev) => new Set(prev).add(entry._id))
+  }
+
   function updateCert(id: string, key: keyof CertificationEntry, value: string) {
     setCertifications((prev) =>
       prev.map((c) => (c._id === id ? { ...c, [key]: value } : c))
@@ -368,6 +415,7 @@ export default function Setup() {
         start_date: e.start_date || undefined,
         end_date: e.end_date || undefined,
         location: e.location.trim() || undefined,
+        work_mode: e.work_mode || undefined,
         client_context: e.client_context?.trim() || undefined,
         technologies: e.technologies?.filter((t: string) => t.trim()) || [],
         bullets: e.bullets.filter((b: string) => b.trim()),
@@ -406,6 +454,12 @@ export default function Setup() {
       .map((p) => ({
         name: p.name.trim(),
         description: p.description.trim() || undefined,
+        role: p.role?.trim() || undefined,
+        client: p.client?.trim() || undefined,
+        start_date: p.start_date || undefined,
+        end_date: p.end_date || undefined,
+        url: p.url?.trim() || undefined,
+        technologies: p.technologies?.filter(Boolean) || [],
       }))
     if (projectPayload.length) payload.projects = projectPayload
 
@@ -549,6 +603,19 @@ export default function Setup() {
         hasLanguages={languages.some((l) => l.language.trim().length > 0)}
       />
 
+      <ProfileSectionNav
+        sections={[
+          { id: 'section-basic-info', labelKey: 'sectionBasicInfo', isComplete: !!(form.full_name && form.email && form.location) },
+          { id: 'section-job-target', labelKey: 'sectionJobTarget', isComplete: jobTarget.target_titles.length > 0 },
+          { id: 'section-experience', labelKey: 'sectionExperience', isComplete: experiences.some((e) => e.title.trim().length > 0), count: experiences.filter((e) => e.title.trim()).length },
+          { id: 'section-education', labelKey: 'sectionEducation', isComplete: educations.some((e) => e.degree.trim().length > 0), count: educations.filter((e) => e.degree.trim()).length },
+          { id: 'section-certifications', labelKey: 'sectionCertifications', isComplete: certifications.some((c) => c.name.trim().length > 0), count: certifications.filter((c) => c.name.trim()).length },
+          { id: 'section-languages', labelKey: 'sectionLanguages', isComplete: languages.some((l) => l.language.trim().length > 0), count: languages.filter((l) => l.language.trim()).length },
+          { id: 'section-projects', labelKey: 'sectionProjects', isComplete: projects.some((p) => p.name.trim().length > 0), count: projects.filter((p) => p.name.trim()).length },
+          { id: 'section-skills', labelKey: 'sectionSkills', isComplete: !!(form.skills_raw && form.skills_raw.trim().length > 0) },
+        ]}
+      />
+
       <form onSubmit={submit} className="space-y-6 mt-6" id="setup-form">
         <BasicInfoSection
           full_name={form.full_name}
@@ -571,7 +638,7 @@ export default function Setup() {
           onUpdate={updateExp}
           onUpdateBullets={updateBullets}
           onUpdateTechnologies={updateTechnologies}
-          onAdd={() => setExperiences((prev) => [...prev, emptyExperience()])}
+          onAdd={handleAddExperience}
           onRemove={(id) =>
             setExperiences((prev) => prev.filter((e) => e._id !== id))
           }
@@ -582,7 +649,7 @@ export default function Setup() {
           openCards={openEduCards}
           onToggle={(id) => toggleCards(setOpenEduCards, id)}
           onUpdate={updateEdu}
-          onAdd={() => setEducations((prev) => [...prev, emptyEducation()])}
+          onAdd={handleAddEducation}
           onRemove={(id) =>
             setEducations((prev) => prev.filter((e) => e._id !== id))
           }
@@ -593,7 +660,7 @@ export default function Setup() {
           openCards={openCertCards}
           onToggle={(id) => toggleCards(setOpenCertCards, id)}
           onUpdate={updateCert}
-          onAdd={() => setCertifications((prev) => [...prev, emptyCertification()])}
+          onAdd={handleAddCertification}
           onRemove={(id) =>
             setCertifications((prev) => prev.filter((c) => c._id !== id))
           }
@@ -604,7 +671,7 @@ export default function Setup() {
           openCards={openLangCards}
           onToggle={(id) => toggleCards(setOpenLangCards, id)}
           onUpdate={updateLang}
-          onAdd={() => setLanguages((prev) => [...prev, emptyLanguage()])}
+          onAdd={handleAddLanguage}
           onRemove={(id) =>
             setLanguages((prev) => prev.filter((l) => l._id !== id))
           }
@@ -615,7 +682,7 @@ export default function Setup() {
           openCards={openProjectCards}
           onToggle={(id) => toggleCards(setOpenProjectCards, id)}
           onUpdate={updateProject}
-          onAdd={() => setProjects((prev) => [...prev, emptyProject()])}
+          onAdd={handleAddProject}
           onRemove={(id) =>
             setProjects((prev) => prev.filter((p) => p._id !== id))
           }

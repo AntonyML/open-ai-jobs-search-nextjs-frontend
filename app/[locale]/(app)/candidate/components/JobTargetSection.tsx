@@ -150,7 +150,7 @@ export function JobTargetSection({ value, onChange }: Props) {
   }
 
   return (
-    <div className="card space-y-5">
+    <div id="section-job-target" className="card space-y-5">
       <div className="flex items-start gap-2.5">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
