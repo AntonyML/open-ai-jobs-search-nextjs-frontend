@@ -2,73 +2,111 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* ── Design Tokens (Apple-inspired, from Style Reference v2) ─────── */
+/* ── Design System Contract v1 Tokens ────────────────────────────── */
 
 :root {
-  /* Blues — three distinct roles, never mixed */
-  --color-apple-blue:  #0071e3;  /* filled action only */
-  --color-link-blue:   #0066cc;  /* outlined action, links */
-  --color-signal-blue: #2997ff;  /* decorative borders only */
+  /* Action & Brand */
+  --color-action-primary:       #0071e3;
+  --color-action-primary-hover: #0068d2;
+  --color-action-link:          #0066cc;
+  --color-action-subtle:        #f4f8fb;
+  --color-apple-blue:           #0071e3;
+  --color-link-blue:            #0066cc;
+  --color-signal-blue:          #2997ff;
 
-  /* Neutrals */
-  --color-carbon:   #1d1d1f;  /* primary text */
-  --color-smoke:    #333333;  /* secondary text, borders */
-  --color-graphite: #474747;  /* nav text */
-  --color-ash:      #707070;  /* footer text, list borders */
-  --color-mist:     #858585;  /* hairline rules */
-  --color-pebble:   #e2e2e5;  /* button bg, disabled */
+  /* Neutrals & Typography */
+  --color-carbon:               #1d1d1f;
+  --color-smoke:                #333333;
+  --color-graphite:             #474747;
+  --color-ash:                  #5f6368;
+  --color-mist:                 #858585;
+  --color-pebble:               #e2e2e5;
+  --color-text-primary:         #1d1d1f;
+  --color-text-secondary:       #333333;
+  --color-text-muted:           #5f6368;
+
+  /* Borders & Dividers */
+  --border:                     #d2d2d7;
+  --color-border-subtle:        #e5e5ea;
+  --color-border-default:       #d2d2d7;
+  --color-border-strong:        #707070;
 
   /* Surfaces */
-  --color-frost: #f5f5f7;  /* page canvas */
-  --color-ice:   #f4f8fb;  /* elevated wash */
-  --color-onyx:  #000000;  /* max contrast */
+  --color-frost:                #f5f5f7;
+  --color-ice:                  #f4f8fb;
+  --color-onyx:                 #000000;
+  --color-surface-card:         #ffffff;
+  --color-surface-canvas:       #f5f5f7;
+  --color-surface-elevated:     #fbfbfd;
+  --color-surface-sunken:       #e2e2e5;
 
-  /* Radius — non-negotiable */
-  --radius-button: 980px;
-  --radius-card:   8px;
+  /* Semantics */
+  --color-success:              #107c41;
+  --color-success-bg:           #e9f9ef;
+  --color-success-border:       #34c759;
+  --color-warning:              #b45309;
+  --color-warning-bg:           #fffbeb;
+  --color-warning-border:       #f59e0b;
+  --color-danger:               #e11d48;
+  --color-danger-bg:            #fff1f2;
+  --color-danger-border:        #fda4af;
+  --destructive:                #e11d48;
+  --destructive-foreground:     #ffffff;
 
-  /* Shadcn compat */
-  --background: var(--color-frost);
-  --foreground: var(--color-carbon);
-  --border: #d2d2d7;
-  --radius: 8px;
-  --popover: var(--color-frost);
-  --popover-foreground: var(--color-carbon);
-  --muted: #f0f0f2;
-  --muted-foreground: var(--color-mist);
-  --accent: #f0f0f2;
-  --accent-foreground: var(--color-carbon);
-  --ring: var(--color-apple-blue);
-  --input: var(--border);
-  --destructive: #e53e3e;
-  --destructive-foreground: #ffffff;
+  /* Radius Scale */
+  --radius-pill:                980px;
+  --radius-sm:                  6px;
+  --radius-md:                  8px;
+  --radius-lg:                  12px;
+  --radius-xl:                  16px;
+  --radius-card:                12px;
+  --radius-button:              980px;
+  --radius:                     8px;
 
-  /* Typography Scale — multiplied by --access-font-size */
-  --text-caption: 12px;
-  --text-body-sm: 14px;
-  --text-body: 17px;
-  --text-subheading: 21px;
-  --text-heading-sm: 28px;
-  --text-heading: 40px;
-  --text-heading-lg: 44px;
-  --text-display: 56px;
+  /* Elevation & Shadows */
+  --elevation-flat:             none;
+  --elevation-hover:            0 2px 8px rgba(0, 0, 0, 0.04);
+  --elevation-menu:             0 4px 16px rgba(0, 0, 0, 0.08);
+  --elevation-modal:            0 16px 48px rgba(0, 0, 0, 0.16);
 
-  /* Accessibility CSS Variables (set by AccessibilityProvider) */
-  --access-font-size: 1;
-  --access-line-height: 1.6;
-  --access-letter-spacing: 0em;
+  /* Shadcn compat mappings */
+  --background:                 var(--color-frost);
+  --foreground:                 var(--color-carbon);
+  --popover:                    var(--color-surface-card);
+  --popover-foreground:         var(--color-carbon);
+  --muted:                      var(--color-surface-elevated);
+  --muted-foreground:           var(--color-text-muted);
+  --accent:                     var(--color-action-subtle);
+  --accent-foreground:          var(--color-action-link);
+  --ring:                       var(--color-action-link);
+  --input:                      var(--border);
+
+  /* Typography Scale */
+  --text-caption:               11px;
+  --text-body-sm:               13px;
+  --text-body:                  14px;
+  --text-title-sm:              17px;
+  --text-title-md:              22px;
+  --text-title-lg:              28px;
+  --text-display:               36px;
+
+  /* Accessibility CSS Variables */
+  --access-font-size:           1;
+  --access-line-height:         1.6;
+  --access-letter-spacing:      0em;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --color-primary: var(--color-apple-blue);
+  --color-primary: var(--color-action-primary);
   --color-border: var(--border);
-  --radius-lg: 8px;
-  --radius-xl: 8px;
-  --radius-2xl: 8px;
-  --radius-3xl: 8px;
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-pill);
 }
 
 /* ── Base Reset with Accessibility Scaling ───────────────────────── */
