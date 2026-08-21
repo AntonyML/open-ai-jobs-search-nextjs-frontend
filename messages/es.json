@@ -1780,6 +1780,10 @@
     "errorSub": "Puedes seguir esperando o reintentar manualmente.",
     "retry": "Reintentar",
     "leave": "Salir",
-    "restored": "Conexión restablecida"
+    "restored": "Conexión restablecida",
+    "pillWaking": "Preparando servicios…",
+    "pillRestored": "Servicios listos",
+    "pillOffline": "Sin conexión a internet",
+    "authWaking": "El servidor está iniciando tras un periodo de inactividad. Tu solicitud se completará automáticamente en unos momentos."
   }
 }

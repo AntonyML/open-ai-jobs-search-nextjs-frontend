@@ -15,9 +15,15 @@ import {
 import { clearToken } from '@/lib/auth'
 import { useReducedMotion } from '@/components/three/useReducedMotion'
 
+import { usePathname } from '@/i18n/routing'
+import WakingPill from '@/components/WakingPill'
+
 /** Probe schedule (ms) until automatic retries are exhausted (~25 s total). */
 const BACKOFF = [1000, 2000, 4000, 5000, 5000, 5000]
 const PROBE_TIMEOUT_MS = 10_000
+
+const MARKETING_ROUTES = ['/', '/about', '/limits', '/terms', '/privacy', '/blog']
+const AUTH_ROUTES = ['/login', '/register']
 
 const COPY_STAGES = [
   { min: 0, key: 'connecting', sub: 'connectingSub' },
@@ -29,6 +35,7 @@ const COPY_STAGES = [
 export default function ReconnectionLayer() {
   const t = useTranslations('reconnect')
   const reduced = useReducedMotion()
+  const pathname = usePathname()
 
   const [state, setState] = useState<ReconnectState>(() => getReconnectState())
   const [elapsed, setElapsed] = useState(0)
@@ -39,6 +46,10 @@ export default function ReconnectionLayer() {
   const attemptsRef = useRef(0)
 
   useEffect(() => subscribeReconnect(() => setState(getReconnectState())), [])
+
+  // If on marketing routes, delegate to WakingPill (non-intrusive).
+  const isMarketing = MARKETING_ROUTES.includes(pathname)
+  const isAuth = AUTH_ROUTES.includes(pathname)
 
   // Wall-clock since the current phase began, for the staged copy + fade-out.
   useEffect(() => {
@@ -102,7 +113,13 @@ export default function ReconnectionLayer() {
     }
   }, [state])
 
-  if (state === 'idle') return null
+  if (isMarketing) {
+    return <WakingPill />
+  }
+
+  if (isAuth || state === 'idle') {
+    return null
+  }
 
   const fading = state === 'restored' && restoredElapsed > 600
   const stage =

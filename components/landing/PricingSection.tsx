@@ -12,6 +12,7 @@ import { AmbientGlowFallback } from '@/components/three/WebGLFallback'
 import { useReducedMotion } from '@/components/three/useReducedMotion'
 import { useInViewOnce } from '@/hooks/use-in-view'
 import { usePublicCatalog } from '@/hooks/useBilling'
+import { DEFAULT_CATALOG } from '@/lib/constants/default-catalog'
 
 type Billing = 'monthly' | 'annual'
 
@@ -227,28 +228,20 @@ export default function PricingSection() {
   const t = useTranslations('marketing')
   const [billing, setBilling] = useState<Billing>('monthly')
   // Active plan on mobile (segmented selector). `null` = never switched, so
+  // Active plan on mobile (segmented selector). `null` = never switched, so
   // the reveal animation plays once and tab switches don't replay it.
   const [activeKey, setActiveKey] = useState<string | null>(null)
   const reducedMotion = useReducedMotion()
   const { ref: cardsRef, shown } = useInViewOnce<HTMLDivElement>(0.08)
-  const { data: catalog, isPending, isError } = usePublicCatalog()
+  const { data: rawCatalog } = usePublicCatalog()
+  const catalog = rawCatalog ?? DEFAULT_CATALOG
 
-  if (isPending || isError || !catalog) {
-    return (
-      <section id="pricing" className="border-t border-[#d2d2d7] bg-white">
-        <div className="mx-auto max-w-[720px] px-5 py-16 text-center md:py-24">
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[#0071e3]">{t('pricingLabel')}</p>
-          <h2 className="text-[34px] font-semibold leading-tight tracking-tight text-[#1d1d1f]">{t('pricingUnavailableTitle')}</h2>
-          <p className="mt-3 text-[15px] text-[#707070]">{t('pricingUnavailableBody')}</p>
-        </div>
-      </section>
-    )
-  }
+  const currency = catalog.currency ?? 'USD'
 
-  const currency = catalog?.currency ?? 'USD'
+  const activePlans = catalog.plans.filter((p) => p.is_active)
+  const sourcePlans = activePlans.length > 0 ? activePlans : DEFAULT_CATALOG.plans
 
-  const plans: PricingPlan[] = catalog.plans
-    .filter((p) => p.is_active)
+  const plans: PricingPlan[] = sourcePlans
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((p) => ({
       key: p.key,
@@ -260,19 +253,6 @@ export default function PricingSection() {
       weekly_quota: p.weekly_quota,
       sort_order: p.sort_order,
     }))
-
-  // Nothing active in the catalog → same fallback as a failed fetch.
-  if (plans.length === 0) {
-    return (
-      <section id="pricing" className="border-t border-[#d2d2d7] bg-white">
-        <div className="mx-auto max-w-[720px] px-5 py-16 text-center md:py-24">
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[#0071e3]">{t('pricingLabel')}</p>
-          <h2 className="text-[34px] font-semibold leading-tight tracking-tight text-[#1d1d1f]">{t('pricingUnavailableTitle')}</h2>
-          <p className="mt-3 text-[15px] text-[#707070]">{t('pricingUnavailableBody')}</p>
-        </div>
-      </section>
-    )
-  }
 
   // Mobile selector defaults to the "Popular" plan (max); falls back to the
   // first active plan if the catalog doesn't include one named `max`.

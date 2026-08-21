@@ -1780,6 +1780,10 @@
     "errorSub": "You can keep waiting or retry manually.",
     "retry": "Retry",
     "leave": "Sign out",
-    "restored": "Connection restored"
+    "restored": "Connection restored",
+    "pillWaking": "Preparing services…",
+    "pillRestored": "Services ready",
+    "pillOffline": "No internet connection",
+    "authWaking": "The server is waking up after inactivity. Your request will finish automatically in a few moments."
   }
 }

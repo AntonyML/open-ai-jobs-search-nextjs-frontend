@@ -113,6 +113,7 @@ export interface ProductCatalog {
   whatsapp_number: string
   currency: string
   last_updated: string | null
+  version?: number
 }
 
 export interface TopupRequest {

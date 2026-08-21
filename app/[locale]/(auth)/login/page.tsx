@@ -10,28 +10,35 @@ import Logo from '@/components/Logo'
 
 export default function Login() {
   const t = useTranslations('auth')
+  const tReconnect = useTranslations('reconnect')
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [isWaking, setIsWaking] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
   async function submit(e: FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setIsWaking(false)
+    const wakingTimer = setTimeout(() => setIsWaking(true), 2500)
     try {
       const data = await apiFetch<{ access_token: string }>('/api/v1/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       })
       setToken(data.access_token)
-      router.push('/dashboard')      } catch (x) {
+      router.push('/dashboard')
+    } catch (x) {
       const msg = x instanceof Error ? x.message : 'Unable to sign in'
       setError(msg)
       showError(msg)
     } finally {
+      clearTimeout(wakingTimer)
+      setIsWaking(false)
       setLoading(false)
     }
   }
@@ -126,6 +133,13 @@ export default function Login() {
             {error && (
               <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
                 {error}
+              </div>
+            )}
+
+            {loading && isWaking && (
+              <div className="flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50/80 px-3.5 py-2.5 text-[12px] text-[#0066cc] animate-in fade-in-0 duration-300">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#0071e3] animate-pulse" />
+                <span>{tReconnect('authWaking')}</span>
               </div>
             )}
 

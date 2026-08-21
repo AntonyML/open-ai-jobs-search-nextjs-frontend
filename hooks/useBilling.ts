@@ -10,6 +10,7 @@ import {
 } from '@/lib/billing'
 import { billingKeys } from '@/lib/query-keys'
 import type { CreditStatus, CreditTransaction, ProductCatalog } from '@/types/billing'
+import { DEFAULT_CATALOG, resolveLatestCatalog } from '@/lib/constants/default-catalog'
 
 /**
  * Fuente única de verdad de billing basada en TanStack Query.
@@ -43,12 +44,25 @@ export function useBillingCatalog() {
   })
 }
 
-/** Public catalog for the landing / limits — no auth, safe for visitors. */
+/** Public catalog for the landing / limits — no auth, guaranteed zero latency via baseline. */
 export function usePublicCatalog() {
   return useQuery<ProductCatalog>({
     queryKey: billingKeys.publicCatalog(),
-    queryFn: () => getPublicCatalog(),
-    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      try {
+        const incoming = await getPublicCatalog()
+        return resolveLatestCatalog(DEFAULT_CATALOG, incoming)
+      } catch {
+        return DEFAULT_CATALOG
+      }
+    },
+    initialData: DEFAULT_CATALOG,
+    initialDataUpdatedAt: (DEFAULT_CATALOG.version ?? 1724000000) * 1000,
+    staleTime: 10 * 60_000,
+    gcTime: 60 * 60_000,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     ...browserOnly,
   })
 }

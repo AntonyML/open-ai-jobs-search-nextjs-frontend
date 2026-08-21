@@ -93,19 +93,33 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiFetch<T = unknown>(path: string, init?: RequestInit): Promise<T> {
+export interface ApiFetchOptions {
+  /** When true, network failures or timeouts will NOT trigger the global ReconnectionLayer (e.g. background polling / public catalog). */
+  isBackground?: boolean
+  /** Custom timeout in ms (defaults to 30,000 ms). */
+  timeoutMs?: number
+}
+
+export async function apiFetch<T = unknown>(
+  path: string,
+  init?: RequestInit,
+  options?: ApiFetchOptions
+): Promise<T> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
+  const timeoutMs = options?.timeoutMs ?? REQUEST_TIMEOUT_MS
   let res: Response
   try {
     res = await fetch(`${API_BASE}${path}`, {
       ...init,
-      signal: init?.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      signal: init?.signal ?? AbortSignal.timeout(timeoutMs),
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(init?.headers ?? {}) },
     })
   } catch (e) {
     // Case B — network failure / timeout: the backend may be asleep.
-    // Any error thrown here has NO status, so it can't be an HTTP response.
-    if (isNetworkError(e)) reportNetworkFailure()
+    // Background / non-critical requests must NOT trigger the global ReconnectionLayer.
+    if (isNetworkError(e) && !options?.isBackground) {
+      reportNetworkFailure()
+    }
     throw e
   }
   // Case A — the API responded (any status: 200/401/403/404/500…): it is alive.

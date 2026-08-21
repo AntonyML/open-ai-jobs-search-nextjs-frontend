@@ -7,14 +7,19 @@
  * without unmounting the page behind it.
  */
 
-export type ReconnectState = 'idle' | 'reconnecting' | 'restored' | 'error'
+export type ReconnectState = 'idle' | 'reconnecting' | 'restored' | 'error' | 'offline'
 
 /** Milliseconds the "✓ Conexión restablecida" message stays visible before fading out. */
-export const RESTORED_VISIBLE_MS = 700
+export const RESTORED_VISIBLE_MS = 1000
 
 let state: ReconnectState = 'idle'
 const listeners = new Set<() => void>()
 let idleTimer: ReturnType<typeof setTimeout> | null = null
+
+/** Check if the browser is currently offline. */
+export function isBrowserOffline(): boolean {
+  return typeof navigator !== 'undefined' && !navigator.onLine
+}
 
 /**
  * Classify thrown fetch errors: only network-level failures (fetch failed,
@@ -25,11 +30,14 @@ let idleTimer: ReturnType<typeof setTimeout> | null = null
 export function isNetworkError(e: unknown): boolean {
   if (e instanceof TypeError) return true
   if (e instanceof DOMException && e.name === 'AbortError') return true
-  if (e instanceof Error && /fetch failed|networkerror|connection (refused|reset)|timed out/i.test(e.message)) return true
+  if (e instanceof Error && /fetch failed|networkerror|connection (refused|reset)|timed out|failed to fetch/i.test(e.message)) return true
   return false
 }
 
 export function getReconnectState(): ReconnectState {
+  if (isBrowserOffline() && state !== 'idle') {
+    return 'offline'
+  }
   return state
 }
 
@@ -46,14 +54,14 @@ function set(next: ReconnectState) {
   listeners.forEach((fn) => fn())
 }
 
-/** A network-level request failed → show the reconnection overlay. */
+/** A network-level request failed → trigger reconnection / waking state. */
 export function reportNetworkFailure() {
   if (state === 'reconnecting') return // keep the current attempt going
   if (idleTimer) {
     clearTimeout(idleTimer)
     idleTimer = null
   }
-  set('reconnecting')
+  set(isBrowserOffline() ? 'offline' : 'reconnecting')
 }
 
 /** Any HTTP response (even 4xx/5xx) proves the API is alive. */
@@ -71,5 +79,5 @@ export function exhaustReconnectRetries() {
 
 /** User clicked "Reintentar" → restart the automatic attempt loop. */
 export function retryReconnect() {
-  if (state === 'error') set('reconnecting')
+  if (state === 'error' || state === 'offline') set('reconnecting')
 }

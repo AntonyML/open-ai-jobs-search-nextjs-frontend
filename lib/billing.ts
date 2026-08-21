@@ -30,7 +30,7 @@ export async function getBillingCatalog(): Promise<ProductCatalog> {
 }
 
 export async function getPublicCatalog(): Promise<ProductCatalog> {
-  return apiFetch<ProductCatalog>('/api/v1/public/catalog')
+  return apiFetch<ProductCatalog>('/api/v1/public/catalog', undefined, { isBackground: true, timeoutMs: 15_000 })
 }
 
 export async function getCreditTransactions(): Promise<CreditTransaction[]> {
