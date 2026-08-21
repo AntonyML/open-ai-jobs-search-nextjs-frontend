@@ -19,35 +19,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <html lang="en" data-scroll-behavior="smooth">
-      <head>
-        <meta name="google" content="notranslate" />
-        <OrganizationJsonLd />
-        <WebSiteJsonLd />
-      </head>
-      <body>
-        {children}
-        <Toaster
-          position="bottom-center"
-          gutter={10}
-          containerClassName="toast-container"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              borderRadius: '14px',
-              background: '#1d1d1f',
-              color: '#f5f5f7',
-              fontSize: '14px',
-              padding: '14px 18px',
-              maxWidth: '440px',
-              width: '100%',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.16)',
-            },
-          }}
-        />
-      </body>
-    </html>
-  )
+  return children
 }
 

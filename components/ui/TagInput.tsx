@@ -9,23 +9,24 @@ interface Props {
   placeholder?: string
   color?: 'blue' | 'rose' | 'amber' | 'violet'
   max?: number
+  ariaLabel?: string
 }
 
 const COLOR_MAP = {
-  blue: 'border-[#0071e3] bg-[#0071e3]/10 text-[#0071e3]',
-  rose: 'border-rose-300 bg-rose-50 text-rose-600',
-  amber: 'border-amber-300 bg-amber-50 text-amber-700',
+  blue: 'border-[#0066cc]/30 bg-[#0066cc]/10 text-[#0066cc]',
+  rose: 'border-rose-300 bg-rose-50 text-rose-700',
+  amber: 'border-amber-300 bg-amber-50 text-amber-800',
   violet: 'border-violet-300 bg-violet-50 text-violet-700',
 }
 
 const BTN_MAP = {
-  blue: 'hover:bg-[#0071e3]/20',
-  rose: 'hover:bg-rose-100',
-  amber: 'hover:bg-amber-100',
-  violet: 'hover:bg-violet-100',
+  blue: 'hover:bg-[#0066cc]/20 focus-visible:ring-[#0066cc]',
+  rose: 'hover:bg-rose-100 focus-visible:ring-rose-500',
+  amber: 'hover:bg-amber-100 focus-visible:ring-amber-500',
+  violet: 'hover:bg-violet-100 focus-visible:ring-violet-500',
 }
 
-export function TagInput({ tags, onChange, placeholder = '', color = 'blue', max }: Props) {
+export function TagInput({ tags, onChange, placeholder = '', color = 'blue', max, ariaLabel }: Props) {
   const [input, setInput] = useState('')
 
   function add(value: string) {
@@ -67,29 +68,31 @@ export function TagInput({ tags, onChange, placeholder = '', color = 'blue', max
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-[#d2d2d7] bg-white px-3 py-2 focus-within:border-[#0071e3] focus-within:shadow-[0_0_0_3px_rgba(0,113,227,0.15)] transition-all">
+    <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-[#d2d2d7] bg-white px-3 py-2 transition-all focus-within:border-[#0066cc] focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-[#0066cc] focus-within:shadow-[0_0_0_3px_rgba(0,102,204,0.15)]">
       {tags.map((tag, i) => (
         <span
           key={i}
           className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${COLOR_MAP[color]}`}
         >
-          {tag}
+          <span>{tag}</span>
           <button
             type="button"
             onClick={() => remove(i)}
-            className={`rounded-full p-0.5 transition-colors ${BTN_MAP[color]}`}
+            className={`rounded-full p-0.5 transition-colors focus:outline-none focus-visible:ring-2 ${BTN_MAP[color]}`}
+            aria-label={`Eliminar ${tag}`}
           >
-            <X className="h-2.5 w-2.5" />
+            <X className="h-2.5 w-2.5" aria-hidden="true" />
           </button>
         </span>
       ))}
       <input
-        className="min-w-[80px] flex-1 border-0 bg-transparent text-sm outline-none placeholder:text-[#858585]"
+        className="min-w-[80px] flex-1 border-0 bg-transparent text-sm text-[#1d1d1f] outline-none placeholder:text-[#5f6368]"
         placeholder={tags.length === 0 ? placeholder : ''}
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKey}
         onPaste={handlePaste}
+        aria-label={ariaLabel || placeholder || 'Agregar elemento'}
       />
     </div>
   )

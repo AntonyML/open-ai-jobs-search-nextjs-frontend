@@ -232,15 +232,21 @@ html.access-font-sans-serif {
 /* ── Components ──────────────────────────────────────────────────── */
 
 @layer components {
-  /* Form fields — Apple-inspired */
+  /* Form fields — Apple-inspired with accessible WCAG 2.1 Focus Ring */
   .field {
-    @apply w-full rounded-[8px] border bg-white px-4 py-3 text-sm text-[#1d1d1f] outline-none placeholder:text-[#858585] transition-all;
+    @apply w-full rounded-[8px] border bg-white px-4 py-3 text-sm text-[#1d1d1f] placeholder:text-[#5f6368] transition-all;
     border-color: #d2d2d7;
     letter-spacing: -0.017em;
   }
   .field:focus {
-    border-color: var(--color-apple-blue);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-apple-blue) 20%, transparent);
+    outline: 2px solid var(--color-link-blue) !important;
+    outline-offset: 1px !important;
+    border-color: var(--color-link-blue);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.18);
+  }
+  .field:focus-visible {
+    outline: 2px solid var(--color-link-blue) !important;
+    outline-offset: 1px !important;
   }
 
   /* Primary filled pill button — #0071e3 only */

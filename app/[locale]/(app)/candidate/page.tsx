@@ -156,7 +156,10 @@ export default function Setup() {
       const initialCat: CategorizedSkills = {
         languages: (profile?.skills?.programming_ml || []).map((p: any) => p.language || p).filter(Boolean),
         frameworks: profile?.skills?.domain_expertise || [],
+        databases: profile?.skills?.databases || [],
+        architecture: profile?.skills?.architecture || [],
         tools_db: profile?.skills?.software_tools || [],
+        methodologies: profile?.skills?.methodologies || [],
       }
 
       setForm((prev) => ({
@@ -172,7 +175,10 @@ export default function Setup() {
         skills_raw: [
           ...initialCat.languages,
           ...initialCat.frameworks,
+          ...initialCat.databases,
+          ...initialCat.architecture,
           ...initialCat.tools_db,
+          ...initialCat.methodologies,
         ].join(', '),
         profile_statement: profile?.profile_statement || prev.profile_statement,
       }))
@@ -337,17 +343,25 @@ export default function Setup() {
         }
       })
 
-      if (!modified) return prev
-
-      const updatedCat = {
+      const updatedCat: CategorizedSkills = {
         languages: prev.skills_categorized?.languages || [],
         frameworks: prev.skills_categorized?.frameworks || [],
+        databases: prev.skills_categorized?.databases || [],
+        architecture: prev.skills_categorized?.architecture || [],
         tools_db: newTools,
+        methodologies: prev.skills_categorized?.methodologies || [],
       }
       return {
         ...prev,
         skills_categorized: updatedCat,
-        skills_raw: [...updatedCat.languages, ...updatedCat.frameworks, ...updatedCat.tools_db].join(', '),
+        skills_raw: [
+          ...updatedCat.languages,
+          ...updatedCat.frameworks,
+          ...updatedCat.databases,
+          ...updatedCat.architecture,
+          ...updatedCat.tools_db,
+          ...updatedCat.methodologies,
+        ].join(', '),
       }
     })
   }
@@ -479,7 +493,10 @@ export default function Setup() {
       payload.skills = {
         programming_ml: cat.languages.map((l) => ({ language: l, proficiency: 'Proficient' })),
         domain_expertise: cat.frameworks,
+        databases: cat.databases,
+        architecture: cat.architecture,
         software_tools: cat.tools_db,
+        methodologies: cat.methodologies,
       }
     } else {
       const skillsList = form.skills_raw

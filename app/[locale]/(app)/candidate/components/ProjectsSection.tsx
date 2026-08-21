@@ -50,17 +50,22 @@ export function ProjectsSection({
 }: Props) {
   const t = useTranslations('setup')
   const tc = useTranslations('common')
-  const [expandedDetails, setExpandedDetails] = useState<Set<string>>(new Set())
+  const [expandedMap, setExpandedMap] = useState<Record<string, boolean>>({})
 
   const filled = projects.filter((p) => p.name.trim())
 
-  function toggleDetails(id: string) {
-    setExpandedDetails((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+  function checkDetailsOpen(proj: ProjectEntry): boolean {
+    if (expandedMap[proj._id] !== undefined) {
+      return expandedMap[proj._id]
+    }
+    return false
+  }
+
+  function toggleDetails(id: string, currentOpen: boolean) {
+    setExpandedMap((prev) => ({
+      ...prev,
+      [id]: !currentOpen,
+    }))
   }
 
   function handleAddTech(id: string, currentTechs: string[], tech: string) {
@@ -76,7 +81,7 @@ export function ProjectsSection({
         countLabel={t('projectsAdded', { count: filled.length })}
         icon={
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-sky-600">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <polyline points="16 18 22 12 16 6" />
               <polyline points="8 6 2 12 8 18" />
             </svg>
@@ -89,9 +94,16 @@ export function ProjectsSection({
         isEmpty={projects.length === 0}
       >
         {projects.map((proj, idx) => {
-          const isDetailsOpen =
-            expandedDetails.has(proj._id) ||
-            !!(proj.role || proj.client || proj.url || (proj.technologies && proj.technologies.length > 0))
+          const isDetailsOpen = checkDetailsOpen(proj)
+          const nameId = `proj-name-${proj._id}`
+          const startId = `proj-start-${proj._id}`
+          const endId = `proj-end-${proj._id}`
+          const descId = `proj-desc-${proj._id}`
+          const roleId = `proj-role-${proj._id}`
+          const clientId = `proj-client-${proj._id}`
+          const urlId = `proj-url-${proj._id}`
+          const ongoingId = `proj-ongoing-${proj._id}`
+          const detailsContainerId = `proj-details-${proj._id}`
 
           return (
             <CollapsibleCard
@@ -109,26 +121,34 @@ export function ProjectsSection({
             >
               {/* Essential Tier 1 Fields */}
               <div className="space-y-4">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="block text-sm text-[#1d1d1f]">
-                    {t('projectName')} <span className="text-rose-400">*</span>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {/* Project Name */}
+                  <div>
+                    <label htmlFor={nameId} className="block text-xs font-semibold text-[#1d1d1f] mb-1.5">
+                      {t('projectName')} <span className="text-rose-500 font-bold" aria-hidden="true">*</span>
+                      <span className="sr-only"> ({t('required')})</span>
+                    </label>
                     <input
+                      id={nameId}
+                      name={`projectName_${proj._id}`}
                       required
-                      className="field mt-1.5"
+                      aria-required="true"
+                      className="field"
                       placeholder={t('projectNamePlaceholder')}
                       value={proj.name}
                       onChange={(e) => onUpdate(proj._id, 'name', e.target.value)}
                     />
-                  </label>
+                  </div>
 
                   {/* Dates & Period with Ongoing toggle */}
                   <div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-[#1d1d1f]">
-                        {t('projectPeriod')} <span className="text-[#858585]">{tc('optional')}</span>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-semibold text-[#1d1d1f]">
+                        {t('projectPeriod')} <span className="text-[#707070] font-normal">({tc('optional')})</span>
                       </span>
-                      <label className="inline-flex items-center gap-1.5 text-xs text-[#505050] cursor-pointer">
+                      <label htmlFor={ongoingId} className="inline-flex items-center gap-1.5 text-xs text-[#505050] cursor-pointer">
                         <input
+                          id={ongoingId}
                           type="checkbox"
                           checked={!!proj.is_ongoing}
                           onChange={(e) => {
@@ -142,42 +162,57 @@ export function ProjectsSection({
                       </label>
                     </div>
 
-                    <div className="mt-1.5 grid grid-cols-2 gap-2">
-                      <input
-                        type="month"
-                        className="field text-xs"
-                        placeholder="AAAA-MM"
-                        value={proj.start_date || ''}
-                        onChange={(e) => onUpdate(proj._id, 'start_date', e.target.value)}
-                      />
-                      <input
-                        type="month"
-                        disabled={!!proj.is_ongoing}
-                        className="field text-xs disabled:bg-[#f2f2f7] disabled:text-[#858585]"
-                        placeholder={proj.is_ongoing ? t('present') : 'AAAA-MM'}
-                        value={proj.is_ongoing ? '' : proj.end_date || ''}
-                        onChange={(e) => onUpdate(proj._id, 'end_date', e.target.value)}
-                      />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label htmlFor={startId} className="sr-only">{t('startDate')}</label>
+                        <input
+                          id={startId}
+                          type="month"
+                          className="field text-xs"
+                          aria-label={t('startDate')}
+                          value={proj.start_date || ''}
+                          onChange={(e) => onUpdate(proj._id, 'start_date', e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor={endId} className="sr-only">{t('endDate')}</label>
+                        <input
+                          id={endId}
+                          type="month"
+                          disabled={!!proj.is_ongoing}
+                          className="field text-xs disabled:bg-[#f2f2f7] disabled:text-[#858585]"
+                          aria-label={t('endDate')}
+                          placeholder={proj.is_ongoing ? t('present') : 'AAAA-MM'}
+                          value={proj.is_ongoing ? '' : proj.end_date || ''}
+                          onChange={(e) => onUpdate(proj._id, 'end_date', e.target.value)}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <label className="block text-sm text-[#1d1d1f]">
-                  {t('description')} <span className="text-[#858585]">{tc('optional')}</span>
+                {/* Description */}
+                <div>
+                  <label htmlFor={descId} className="block text-xs font-semibold text-[#1d1d1f] mb-1.5">
+                    {t('description')} <span className="text-[#707070] font-normal">({tc('optional')})</span>
+                  </label>
                   <textarea
-                    className="field mt-1.5 h-20 resize-none"
+                    id={descId}
+                    className="field h-20 resize-none"
                     placeholder={t('projectDescPlaceholder')}
                     value={proj.description}
                     onChange={(e) => onUpdate(proj._id, 'description', e.target.value)}
                   />
-                </label>
+                </div>
 
                 {/* Progressive Disclosure Toggle */}
                 <div className="border-t border-[#f0f0f4] pt-2">
                   <button
                     type="button"
-                    onClick={() => toggleDetails(proj._id)}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0066cc] hover:text-[#0055b3] transition-colors"
+                    aria-expanded={isDetailsOpen}
+                    aria-controls={detailsContainerId}
+                    onClick={() => toggleDetails(proj._id, isDetailsOpen)}
+                    className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-[#0066cc] hover:bg-[#f4f8fb] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0066cc] transition-colors"
                   >
                     <svg
                       className={`h-3.5 w-3.5 transition-transform duration-200 ${isDetailsOpen ? 'rotate-180' : ''}`}
@@ -185,6 +220,7 @@ export function ProjectsSection({
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                       strokeWidth="2.5"
+                      aria-hidden="true"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
@@ -194,56 +230,66 @@ export function ProjectsSection({
 
                 {/* Tier 2: Additional Details (Role, URL, Client, Technologies) */}
                 {isDetailsOpen && (
-                  <div className="space-y-4 rounded-xl bg-[#fbfbfd] p-3.5 border border-[#e5e5ea] animate-fade-in-up">
+                  <div
+                    id={detailsContainerId}
+                    className="space-y-4 rounded-xl bg-[#fbfbfd] p-3.5 border border-[#e5e5ea] animate-fade-in-up"
+                  >
                     <div className="grid gap-3 sm:grid-cols-2">
-                      <label className="block text-xs font-medium text-[#1d1d1f]">
-                        {t('projectRole')} <span className="text-[#858585]">{tc('optional')}</span>
+                      <div>
+                        <label htmlFor={roleId} className="block text-xs font-semibold text-[#1d1d1f] mb-1">
+                          {t('projectRole')} <span className="text-[#707070] font-normal">({tc('optional')})</span>
+                        </label>
                         <input
-                          className="field mt-1 text-xs"
+                          id={roleId}
+                          className="field text-xs"
                           placeholder={t('projectRolePlaceholder')}
                           value={proj.role || ''}
                           onChange={(e) => onUpdate(proj._id, 'role', e.target.value)}
                         />
-                      </label>
+                      </div>
 
-                      <label className="block text-xs font-medium text-[#1d1d1f]">
-                        {t('projectClient')} <span className="text-[#858585]">{tc('optional')}</span>
+                      <div>
+                        <label htmlFor={clientId} className="block text-xs font-semibold text-[#1d1d1f] mb-1">
+                          {t('projectClient')} <span className="text-[#707070] font-normal">({tc('optional')})</span>
+                        </label>
                         <input
-                          className="field mt-1 text-xs"
+                          id={clientId}
+                          className="field text-xs"
                           placeholder={t('projectClientPlaceholder')}
                           value={proj.client || ''}
                           onChange={(e) => onUpdate(proj._id, 'client', e.target.value)}
                         />
-                      </label>
+                      </div>
                     </div>
 
-                    <label className="block text-xs font-medium text-[#1d1d1f]">
-                      {t('projectUrl')} <span className="text-[#858585]">{tc('optional')}</span>
+                    <div>
+                      <label htmlFor={urlId} className="block text-xs font-semibold text-[#1d1d1f] mb-1">
+                        {t('projectUrl')} <span className="text-[#707070] font-normal">({tc('optional')})</span>
+                      </label>
                       <input
+                        id={urlId}
                         type="url"
-                        className="field mt-1 text-xs"
+                        className="field text-xs"
                         placeholder={t('projectUrlPlaceholder')}
                         value={proj.url || ''}
                         onChange={(e) => onUpdate(proj._id, 'url', e.target.value)}
                       />
-                    </label>
+                    </div>
 
                     {/* Technologies TagInput & Quick Suggestions */}
                     <div>
-                      <label className="block text-xs font-medium text-[#1d1d1f]">
-                        {t('projectTechnologies')} <span className="text-[#858585]">{tc('optional')}</span>
-                      </label>
-                      <div className="mt-1">
-                        <TagInput
-                          tags={proj.technologies || []}
-                          onChange={(tags) => onUpdate(proj._id, 'technologies', tags)}
-                          placeholder="e.g. React, Next.js, Python..."
-                          color="blue"
-                        />
-                      </div>
+                      <span className="block text-xs font-semibold text-[#1d1d1f] mb-1">
+                        {t('projectTechnologies')} <span className="text-[#707070] font-normal">({tc('optional')})</span>
+                      </span>
+                      <TagInput
+                        tags={proj.technologies || []}
+                        onChange={(tags) => onUpdate(proj._id, 'technologies', tags)}
+                        placeholder="e.g. React, Next.js, Python..."
+                        color="blue"
+                      />
 
                       {/* Quick Chips */}
-                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5" role="group" aria-label={t('quickSuggestions')}>
                         <span className="text-[10px] text-[#707070]">{t('quickSuggestions')}:</span>
                         {POPULAR_PROJECT_TECHS.map((tech) => {
                           const hasIt = (proj.technologies || []).includes(tech)
@@ -253,7 +299,8 @@ export function ProjectsSection({
                               key={tech}
                               type="button"
                               onClick={() => handleAddTech(proj._id, proj.technologies || [], tech)}
-                              className="rounded-md border border-[#d2d2d7] bg-white px-2 py-0.5 text-[10px] text-[#404040] transition-colors hover:border-[#0066cc] hover:bg-[#f4f8fb] hover:text-[#0066cc]"
+                              className="rounded-md border border-[#d2d2d7] bg-white px-2 py-0.5 text-[10px] text-[#404040] transition-colors hover:border-[#0066cc] hover:bg-[#f4f8fb] hover:text-[#0066cc] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0066cc]"
+                              aria-label={`Agregar tecnología ${tech}`}
                             >
                               + {tech}
                             </button>
