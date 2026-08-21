@@ -1,9 +1,10 @@
 'use client'
 
+import { useParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { Briefcase, Lock, ArrowRight, Link2, Globe, Crown, FileText } from 'lucide-react'
+import { Briefcase, Lock, ArrowRight, Link2, Globe, Crown, FileText, Languages } from 'lucide-react'
 import { apiFetch, ApiError } from '@/lib/api'
 import { showError, showSuccess } from '@/lib/toasts'
 import { cn } from '@/lib/utils'
@@ -28,6 +29,7 @@ import type { CVResponse, JobOption } from '@/lib/cv'
  * shows a locked state with a CTA back to the generator.
  */
 export default function AdaptCvPage() {
+  const { locale } = useParams()
   const t = useTranslations('cvBuilder')
   const { isMax } = useBilling()
   const [loading, setLoading] = useState(true)
@@ -38,6 +40,7 @@ export default function AdaptCvPage() {
   const [method, setMethod] = useState<'url' | 'offers' | 'text'>('url')
   const [url, setUrl] = useState('')
   const [text, setText] = useState('')
+  const [cvLanguage, setCvLanguage] = useState<'es' | 'en'>(locale === 'en' ? 'en' : 'es')
   const [lastAdapted, setLastAdapted] = useState<CVResponse | null>(null)
   const [error, setError] = useState('')
   const [jobsLoaded, setJobsLoaded] = useState(false)
@@ -100,7 +103,11 @@ export default function AdaptCvPage() {
     try {
       const res = await apiFetch<CVResponse>('/api/v1/cv/adapt-url', {
         method: 'POST',
-        body: JSON.stringify({ base_cv_id: baseCv.cv_id, url: url.trim() }),
+        body: JSON.stringify({
+          base_cv_id: baseCv.cv_id,
+          url: url.trim(),
+          language: cvLanguage,
+        }),
       })
       setLastAdapted(res)
       setCvs((prev) => [res, ...prev])
@@ -121,7 +128,11 @@ export default function AdaptCvPage() {
     try {
       const res = await apiFetch<CVResponse>('/api/v1/cv/personalize-job', {
         method: 'POST',
-        body: JSON.stringify({ base_cv_id: baseCv.cv_id, job_posting_id: selectedJobId }),
+        body: JSON.stringify({
+          base_cv_id: baseCv.cv_id,
+          job_posting_id: selectedJobId,
+          language: cvLanguage,
+        }),
       })
       setLastAdapted(res)
       setCvs((prev) => [res, ...prev])
@@ -142,7 +153,10 @@ export default function AdaptCvPage() {
     try {
       const res = await apiFetch<CVResponse>('/api/v1/cv/personalize', {
         method: 'POST',
-        body: JSON.stringify({ job_description_text: text.trim() }),
+        body: JSON.stringify({
+          job_description_text: text.trim(),
+          language: cvLanguage,
+        }),
       })
       setLastAdapted(res)
       setCvs((prev) => [res, ...prev])
@@ -206,8 +220,34 @@ export default function AdaptCvPage() {
         </div>
       )}
 
-      {/* ── Method selector ──────────────────────────────────── */}
-      <div className="mt-6 flex rounded-full border border-[#d2d2d7]/60 bg-[#f5f5f7] p-1">
+      {/* ── Language & Method selector ───────────────────────── */}
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] bg-[#f5f5f7] p-1 self-start">
+          <Languages className="size-3.5 text-[#5f6368] ml-2" aria-hidden="true" />
+          <button
+            type="button"
+            onClick={() => setCvLanguage('es')}
+            className={cn(
+              'rounded-full px-3 py-1 text-xs font-semibold transition-all',
+              cvLanguage === 'es' ? 'bg-white text-[#0071e3] shadow-xs' : 'text-[#5f6368] hover:text-[#1d1d1f]'
+            )}
+          >
+            🇪🇸 Español
+          </button>
+          <button
+            type="button"
+            onClick={() => setCvLanguage('en')}
+            className={cn(
+              'rounded-full px-3 py-1 text-xs font-semibold transition-all',
+              cvLanguage === 'en' ? 'bg-white text-[#0071e3] shadow-xs' : 'text-[#5f6368] hover:text-[#1d1d1f]'
+            )}
+          >
+            🇺🇸 English
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-3 flex rounded-full border border-[#d2d2d7]/60 bg-[#f5f5f7] p-1">
         <button
           type="button"
           onClick={() => setMethod('url')}

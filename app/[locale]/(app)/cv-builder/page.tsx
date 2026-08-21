@@ -1,9 +1,10 @@
 'use client'
 
+import { useParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { User, FileText, Check, Lock, ArrowRight, Target, Download, RefreshCw } from 'lucide-react'
+import { User, FileText, Check, Lock, ArrowRight, Target, Download, RefreshCw, Languages } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { showError, showSuccess, showWarning } from '@/lib/toasts'
 import { cn } from '@/lib/utils'
@@ -65,6 +66,7 @@ function StatusStep({
 }
 
 export default function CvBuilderPage() {
+  const { locale } = useParams()
   const t = useTranslations('cvBuilder')
   const tSidebar = useTranslations('appSidebar')
   const [loading, setLoading] = useState(true)
@@ -72,6 +74,7 @@ export default function CvBuilderPage() {
   const [cvs, setCvs] = useState<CVResponse[]>([])
   const [generating, setGenerating] = useState(false)
   const [confirmRegenerate, setConfirmRegenerate] = useState(false)
+  const [cvLanguage, setCvLanguage] = useState<'es' | 'en'>(locale === 'en' ? 'en' : 'es')
   const [error, setError] = useState('')
   // CAPA 4 — the base CV's PDF compiles asynchronously; poll until pdf_ready
   // (30s window) so the preview appears as soon as Typst finishes.
@@ -93,10 +96,6 @@ export default function CvBuilderPage() {
   const baseCv = cvs.find((c) => c.cv_type === 'base' && c.base_status === 'active') || null
   const hasPendingPdf = cvs.some((c) => !c.pdf_ready)
 
-  // CAPA 4 — while any CV is still compiling its PDF (async Typst), poll the
-  // list every 4s so the preview appears as soon as it's ready. Stop polling
-  // and mark the stragglers unavailable after 30s so a dead worker never
-  // leaves a permanent "Generating…" state.
   useEffect(() => {
     if (!hasPendingPdf) {
       setTimedOutPdf(new Set())
@@ -117,8 +116,7 @@ export default function CvBuilderPage() {
       }
     }, 4000)
     return () => window.clearInterval(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasPendingPdf])
+  }, [hasPendingPdf, loadAll, cvs])
   const complete = isProfileComplete(profile)
 
   async function generateBase() {
@@ -127,7 +125,7 @@ export default function CvBuilderPage() {
     try {
       const res = await apiFetch<CVResponse>('/api/v1/cv/base', {
         method: 'POST',
-        body: JSON.stringify({}),
+        body: JSON.stringify({ language: cvLanguage }),
       })
       setCvs((prev) => [res, ...prev.filter((c) => c.cv_type !== 'base')])
       // Unlock the sidebar "Adapt CV" entry immediately (AppSidebar listens).
@@ -244,7 +242,32 @@ export default function CvBuilderPage() {
           </span>
           <h3 className="mt-3 text-[15px] font-semibold text-[#1d1d1f]">{t('baseInfoTitle')}</h3>
           <p className="mt-1 max-w-md text-[13px] leading-5 text-[#707070]">{t('baseInfoSubtitle')}</p>
-          <div className="mt-4">
+
+          <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d2d2d7] bg-[#f5f5f7] p-1">
+              <Languages className="size-3.5 text-[#5f6368] ml-2" aria-hidden="true" />
+              <button
+                type="button"
+                onClick={() => setCvLanguage('es')}
+                className={cn(
+                  'rounded-full px-3 py-1 text-xs font-semibold transition-all',
+                  cvLanguage === 'es' ? 'bg-white text-[#0071e3] shadow-xs' : 'text-[#5f6368] hover:text-[#1d1d1f]'
+                )}
+              >
+                🇪🇸 Español
+              </button>
+              <button
+                type="button"
+                onClick={() => setCvLanguage('en')}
+                className={cn(
+                  'rounded-full px-3 py-1 text-xs font-semibold transition-all',
+                  cvLanguage === 'en' ? 'bg-white text-[#0071e3] shadow-xs' : 'text-[#5f6368] hover:text-[#1d1d1f]'
+                )}
+              >
+                🇺🇸 English
+              </button>
+            </div>
+
             <AppleButton loading={generating} disabled={generating} onClick={generateBase}>
               {generating ? t('baseGenerating') : t('baseGenerate')}
             </AppleButton>
@@ -294,10 +317,35 @@ export default function CvBuilderPage() {
             </AppleButton>
           </div>
 
-          {/* Regenerate confirmation — only one base CV exists and each run consumes credits */}
+          {/* Regenerate confirmation with Language choice */}
           {confirmRegenerate && (
             <div className="mb-4 flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm font-medium text-[#1d1d1f]">{t('regenerateConfirm')}</p>
+              <div>
+                <p className="text-sm font-medium text-[#1d1d1f]">{t('regenerateConfirm')}</p>
+                <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-white/80 p-0.5">
+                  <Languages className="size-3 text-amber-800 ml-1.5" aria-hidden="true" />
+                  <button
+                    type="button"
+                    onClick={() => setCvLanguage('es')}
+                    className={cn(
+                      'rounded-full px-2.5 py-0.5 text-[11px] font-semibold transition-all',
+                      cvLanguage === 'es' ? 'bg-[#0071e3] text-white shadow-2xs' : 'text-[#5f6368] hover:text-[#1d1d1f]'
+                    )}
+                  >
+                    🇪🇸 Español
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCvLanguage('en')}
+                    className={cn(
+                      'rounded-full px-2.5 py-0.5 text-[11px] font-semibold transition-all',
+                      cvLanguage === 'en' ? 'bg-[#0071e3] text-white shadow-2xs' : 'text-[#5f6368] hover:text-[#1d1d1f]'
+                    )}
+                  >
+                    🇺🇸 English
+                  </button>
+                </div>
+              </div>
               <div className="flex shrink-0 gap-2">
                 <button
                   type="button"
