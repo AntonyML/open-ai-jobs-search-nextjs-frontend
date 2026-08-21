@@ -50,17 +50,17 @@ export function StickyCta() {
 
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#d2d2d7]/70 bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_30px_-18px_rgba(0,0,0,0.25)] backdrop-blur-xl lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#d2d2d7]/70 bg-white/95 px-3.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-2 sm:px-4 sm:pt-3 shadow-[0_-8px_30px_-18px_rgba(0,0,0,0.25)] backdrop-blur-xl lg:hidden"
       role="complementary"
       aria-label={t('stickyCtaLabel')}
     >
       {/* Centered content: full-width on phones, a compact pill on tablets. */}
       <div className="mx-auto w-full max-w-md">
-        <p className="mb-2 text-center text-[11px] font-light text-[#707070]">{t('stickyCtaHint')}</p>
-        <div className="flex items-center gap-2.5">
+        <p className="mb-1.5 text-center text-[10.5px] font-light text-[#707070] sm:mb-2 sm:text-[11px]">{t('stickyCtaHint')}</p>
+        <div className="flex items-center gap-2 sm:gap-2.5">
           <Link
             href="/register"
-            className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-full bg-[#0071e3] px-5 text-[15px] font-medium text-white transition-colors hover:bg-[#0068d2] active:bg-[#005fc0]"
+            className="flex h-10 sm:h-12 flex-1 items-center justify-center gap-1.5 rounded-full bg-[#0071e3] px-4 sm:px-5 text-[14px] sm:text-[15px] font-medium text-white transition-colors hover:bg-[#0068d2] active:bg-[#005fc0]"
           >
             {t('ctaTryFree')}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -69,7 +69,7 @@ export function StickyCta() {
             type="button"
             onClick={() => setDismissed(true)}
             aria-label={tCommon('close')}
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#d2d2d7] text-[#707070] transition-colors hover:bg-[#f5f5f7] active:bg-[#e8e8ed]"
+            className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full border border-[#d2d2d7] text-[#707070] transition-colors hover:bg-[#f5f5f7] active:bg-[#e8e8ed]"
           >
             <X className="h-4 w-4" aria-hidden="true" />
           </button>

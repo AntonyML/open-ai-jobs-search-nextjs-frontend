@@ -20,23 +20,23 @@ export async function HeroSection() {
   const t = await getTranslations('marketing')
 
   return (
-    <section className="relative flex min-h-[calc(100dvh-3rem)] flex-col overflow-hidden bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe]">
+    <section className="relative flex flex-col overflow-hidden bg-gradient-to-br from-[#f4f8fb] to-[#e8f0fe] lg:min-h-[calc(100dvh-3rem)]">
       {/* 3D background layer */}
       <SceneDynamic className="absolute inset-0" activeFrameloop="always">
         <HeroParticles />
       </SceneDynamic>
 
-      <div className="relative z-10 mx-auto grid w-full max-w-[1440px] flex-1 items-center gap-8 px-5 pt-12 pb-8 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pt-16 lg:pb-8">
+      <div className="relative z-10 mx-auto grid w-full max-w-[1440px] flex-1 items-center gap-5 px-4 pt-3 pb-5 sm:gap-8 sm:px-6 sm:pt-6 sm:pb-6 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pt-14 lg:pb-8">
         {/* Copy */}
         <div className="text-center lg:text-left">
           {/* Badge */}
-          <div className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] bg-white/70 px-3 py-1 text-[11px] font-medium text-[#707070] backdrop-blur">
+          <div className="mb-3.5 sm:mb-5 inline-flex items-center gap-1.5 rounded-full border border-[#d2d2d7] bg-white/70 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10.5px] sm:text-[11px] font-medium text-[#707070] backdrop-blur">
             <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-emerald-400" />
             {t('heroBadge')}
           </div>
 
           {/* Heading */}
-          <h1 className="mx-auto max-w-2xl text-balance text-[32px] font-semibold leading-[1.08] tracking-tight text-[#1d1d1f] sm:text-[38px] md:text-[46px] lg:mx-0">
+          <h1 className="mx-auto max-w-2xl text-balance text-[26px] font-semibold leading-[1.12] tracking-tight text-[#1d1d1f] sm:text-[34px] sm:leading-[1.08] md:text-[44px] lg:mx-0 lg:text-[48px]">
             {t('heroTitle1')}{' '}
             <span className="bg-gradient-to-r from-[#0071e3] to-[#0a84ff] bg-clip-text text-transparent">
               {t('heroTitle2')}
@@ -44,20 +44,20 @@ export async function HeroSection() {
           </h1>
 
           {/* Subheading */}
-          <p className="mx-auto mt-4 max-w-xl text-pretty text-[17px] font-light leading-snug text-[#707070] md:text-[20px] lg:mx-0">
+          <p className="mx-auto mt-3 max-w-xl text-pretty text-[14.5px] font-light leading-snug text-[#707070] sm:mt-4 sm:text-[16px] md:text-[19px] lg:mx-0">
             {t('heroSubtitle')}
           </p>
 
           {/* CTAs */}
-          <div className="mt-6 flex flex-col items-center gap-3 sm:mt-7 sm:flex-row sm:justify-center lg:justify-start">
+          <div className="mt-5 flex flex-col items-center gap-2.5 sm:mt-7 sm:flex-row sm:justify-center lg:justify-start">
             <AuthCTAButton
               loggedInKey="ctaDashboard"
               loggedOutKey="ctaTryFree"
-              className="inline-flex w-full items-center justify-center rounded-full bg-[#0071e3] px-7 py-3 text-[15px] font-medium text-white shadow-sm transition-all hover:bg-[#0068d2] sm:w-auto"
+              className="inline-flex w-full items-center justify-center rounded-full bg-[#0071e3] px-6 py-2.5 sm:px-7 sm:py-3 text-[14px] sm:text-[15px] font-medium text-white shadow-sm transition-all hover:bg-[#0068d2] sm:w-auto"
             />
             <Link
               href="/#features"
-              className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-[#0066cc] px-6 py-3 text-[15px] font-medium text-[#0066cc] transition-colors hover:bg-[#e8f0fe] sm:w-auto"
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-[#0066cc] px-5 py-2.5 sm:px-6 sm:py-3 text-[14px] sm:text-[15px] font-medium text-[#0066cc] transition-colors hover:bg-[#e8f0fe] sm:w-auto"
             >
               {t('heroCtaSecondary')}
             </Link>

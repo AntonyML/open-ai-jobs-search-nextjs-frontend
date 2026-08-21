@@ -25,38 +25,38 @@ export function CTASection() {
         <CtaAurora />
       </SceneDynamic>
 
-      <div ref={ref} className="relative z-10 mx-auto max-w-[1440px] px-5 py-20 text-center md:px-8 md:py-28">
+      <div ref={ref} className="relative z-10 mx-auto max-w-[1440px] px-4 py-10 text-center sm:px-6 sm:py-14 md:px-8 md:py-28">
         <div className="mx-auto max-w-2xl">
           <p
-            className={`mb-4 text-[11px] font-semibold uppercase tracking-widest text-[#0071e3] transition-all duration-700 ${
+            className={`mb-2 text-[10.5px] font-semibold uppercase tracking-widest text-[#0071e3] transition-all duration-700 sm:mb-4 sm:text-[11px] ${
               shown && !reducedMotion ? 'cta-reveal cta-reveal-1' : ''
             }`}
           >
             {t('ctaLabel')}
           </p>
           <h2
-            className={`text-balance text-[36px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[48px] transition-all duration-700 ${
+            className={`text-balance text-[24px] font-semibold leading-[1.12] tracking-tight text-[#1d1d1f] sm:text-[32px] sm:leading-[1.08] md:text-[40px] lg:text-[48px] transition-all duration-700 ${
               shown && !reducedMotion ? 'cta-reveal cta-reveal-2' : ''
             }`}
           >
             {t('ctaHeading')}
           </h2>
           <p
-            className={`mt-4 text-pretty text-[17px] font-light text-[#707070] transition-all duration-700 ${
+            className={`mt-2.5 max-w-xl mx-auto text-pretty text-[14px] font-light text-[#707070] transition-all duration-700 sm:mt-4 sm:text-[16px] md:text-[17px] ${
               shown && !reducedMotion ? 'cta-reveal cta-reveal-3' : ''
             }`}
           >
             {t('ctaSubheading')}
           </p>
           <div
-            className={`mt-8 flex items-center justify-center gap-3 transition-all duration-700 md:mt-10 ${
+            className={`mt-6 flex items-center justify-center gap-3 transition-all duration-700 sm:mt-8 md:mt-10 ${
               shown && !reducedMotion ? 'cta-reveal cta-reveal-4' : ''
             }`}
           >
             <AuthCTAButton
               loggedInKey="ctaOpenDashboard"
               loggedOutKey="ctaGetStarted"
-              className="inline-flex items-center rounded-full bg-[#0071e3] px-7 py-3.5 text-[15px] font-medium text-white shadow-[0_10px_30px_-12px_rgba(0,113,227,0.6)] transition-all hover:-translate-y-0.5 hover:bg-[#0068d2] hover:shadow-[0_14px_36px_-12px_rgba(0,113,227,0.7)]"
+              className="inline-flex items-center rounded-full bg-[#0071e3] px-6 py-2.5 sm:px-7 sm:py-3.5 text-[14px] sm:text-[15px] font-medium text-white shadow-[0_10px_30px_-12px_rgba(0,113,227,0.6)] transition-all hover:-translate-y-0.5 hover:bg-[#0068d2] hover:shadow-[0_14px_36px_-12px_rgba(0,113,227,0.7)]"
             />
           </div>
         </div>

@@ -25,5 +25,25 @@ export function getFaqItems(locale: string): FaqItem[] {
 
 export function FAQ({ locale = 'es' }: { locale?: string }): ReactNode {
   const items = getFaqItems(locale)
-  return <section id="faq" aria-labelledby="faq-heading" className="border-t border-[#d2d2d7] bg-white px-5 py-16 md:py-24"><div className="mx-auto max-w-[720px]"><h2 id="faq-heading" className="text-balance text-center text-[30px] font-semibold tracking-tight text-[#1d1d1f] md:text-[34px]">{locale === 'en' ? 'Frequently asked questions' : 'Preguntas frecuentes'}</h2><div className="mt-8 divide-y divide-[#d2d2d7]">{items.map((item) => <details key={item.question} className="py-5"><summary className="cursor-pointer list-none pr-8 text-[15px] font-medium text-[#1d1d1f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0071e3]">{item.question}</summary><p className="mt-3 text-pretty text-[14px] leading-6 text-[#707070]">{item.answer}</p></details>)}</div></div></section>
+  return (
+    <section id="faq" aria-labelledby="faq-heading" className="border-t border-[#d2d2d7] bg-white px-4 py-10 sm:px-6 sm:py-14 md:py-24">
+      <div className="mx-auto max-w-[720px]">
+        <h2 id="faq-heading" className="text-balance text-center text-[22px] font-semibold leading-tight tracking-tight text-[#1d1d1f] sm:text-[28px] md:text-[34px]">
+          {locale === 'en' ? 'Frequently asked questions' : 'Preguntas frecuentes'}
+        </h2>
+        <div className="mt-5 divide-y divide-[#d2d2d7] sm:mt-8">
+          {items.map((item) => (
+            <details key={item.question} className="group py-3 sm:py-4 md:py-5">
+              <summary className="cursor-pointer list-none pr-6 text-[14px] font-medium text-[#1d1d1f] transition-colors hover:text-[#0071e3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0071e3] sm:pr-8 sm:text-[15px]">
+                {item.question}
+              </summary>
+              <p className="mt-2 text-pretty text-[13px] leading-relaxed text-[#707070] sm:mt-3 sm:text-[14px] sm:leading-6">
+                {item.answer}
+              </p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
 }

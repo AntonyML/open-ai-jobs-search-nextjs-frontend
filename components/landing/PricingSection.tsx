@@ -130,7 +130,7 @@ function PlanCard({ plan, billing, currency, idx, reveal, reducedMotion }: PlanC
         // delay, so hover stays instant.
         animationDelay: reveal ? `${idx * 110}ms` : '0ms',
       }}
-      className={`group relative flex flex-col rounded-2xl p-6 transition-[transform,box-shadow,border-color] duration-300 sm:p-7 ${
+      className={`group relative flex flex-col rounded-xl p-4 sm:rounded-2xl sm:p-6 lg:p-7 transition-[transform,box-shadow,border-color] duration-300 ${
         reveal ? 'pricing-card-reveal' : ''
       } ${
         isMax
@@ -139,64 +139,64 @@ function PlanCard({ plan, billing, currency, idx, reveal, reducedMotion }: PlanC
       } ${hover}`}
     >
       {isMax && (
-        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#0071e3] px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-[0_4px_14px_-4px_rgba(0,113,227,0.7)]">
+        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#0071e3] px-2.5 py-0.5 sm:px-3 sm:py-1 text-[9.5px] sm:text-[10px] font-semibold uppercase tracking-wide text-white shadow-[0_4px_14px_-4px_rgba(0,113,227,0.7)]">
           {t('planPopularBadge')}
         </div>
       )}
       {isMax && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl"
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl sm:rounded-2xl"
         >
           <div className="pricing-shimmer absolute inset-y-0 -left-full w-1/2 bg-gradient-to-r from-transparent via-white/50 to-transparent" />
         </div>
       )}
 
       {/* Name */}
-      <h3 className="text-[16px] font-semibold text-[#1d1d1f]">{t(`${prefix}Name`)}</h3>
-      <p className="mt-1 text-[12.5px] font-light text-[#707070]">{t(`${prefix}Desc`)}</p>
-      <p className="mt-3 text-[13px] font-medium text-[#1d1d1f]">
+      <h3 className="text-[15px] font-semibold text-[#1d1d1f] sm:text-[16px]">{t(`${prefix}Name`)}</h3>
+      <p className="mt-0.5 text-[12px] font-light text-[#707070] sm:mt-1 sm:text-[12.5px]">{t(`${prefix}Desc`)}</p>
+      <p className="mt-2 text-[12.5px] font-medium text-[#1d1d1f] sm:mt-3 sm:text-[13px]">
         {t('planCredits', { credits: plan.credits_per_period, cadence: key === 'free' ? t('pricingWeekly') : t('pricingMonthlyCadence') })}
       </p>
-      <p className="mt-1 text-[11.5px] leading-5 text-[#5f6368]">
+      <p className="mt-0.5 text-[11px] leading-snug text-[#5f6368] sm:mt-1 sm:text-[11.5px] sm:leading-5">
         {isMax
           ? t('planPipelineQuota', { daily: plan.daily_quota, weekly: plan.weekly_quota })
           : t('planCreditBasedQuota')}
       </p>
 
-      <p className="mt-5 text-[11px] font-semibold uppercase tracking-widest text-[#5f6368]">{t('pricingPriceLabel')}</p>
+      <p className="mt-4 text-[10.5px] font-semibold uppercase tracking-widest text-[#5f6368] sm:mt-5 sm:text-[11px]">{t('pricingPriceLabel')}</p>
       {/* Price — key forces a crossfade when the billing changes */}
-      <div className="mt-5 flex items-baseline gap-1.5">
+      <div className="mt-2 flex items-baseline gap-1.5 sm:mt-4">
         {!isFree && isAnnual && (
-          <s className="text-[19px] font-light text-[#c8c8cc]">{monthlyUsd}</s>
+          <s className="text-[16px] font-light text-[#c8c8cc] sm:text-[19px]">{monthlyUsd}</s>
         )}
         <span
           key={`${key}-${billing}`}
-          className={`animate-price-in text-[40px] font-semibold leading-none tracking-tight ${
+          className={`animate-price-in text-[30px] font-semibold leading-none tracking-tight sm:text-[36px] md:text-[40px] ${
             isMax ? 'text-[#0071e3]' : 'text-[#1d1d1f]'
           }`}
         >
           {isFree ? monthlyUsd : isAnnual ? annualPerMonthUsd : monthlyUsd}
         </span>
-        {!isFree && <span className="text-[14px] font-light text-[#707070]">{t(`${prefix}Period`)}</span>}
+        {!isFree && <span className="text-[13px] font-light text-[#707070] sm:text-[14px]">{t(`${prefix}Period`)}</span>}
       </div>
       {!isFree && (
-        <p className="mt-1.5 text-[11.5px] font-light text-[#707070]">
+        <p className="mt-1 text-[11px] font-light text-[#707070] sm:mt-1.5 sm:text-[11.5px]">
           {isAnnual
             ? t('pricingAnnualNote', { amount: yearlyTotalUsd })
             : t('pricingYearlyNote', { amount: yearlyTotalUsd })}
         </p>
       )}
 
-      <p className="mt-7 text-[11px] font-semibold uppercase tracking-widest text-[#5f6368]">{t('pricingFeaturesLabel')}</p>
+      <p className="mt-4 text-[10.5px] font-semibold uppercase tracking-widest text-[#5f6368] sm:mt-6 sm:text-[11px]">{t('pricingFeaturesLabel')}</p>
       {/* Features */}
-      <ul className="mt-6 flex-1 space-y-2.5">
+      <ul className="mt-3 flex-1 space-y-2 sm:mt-5 sm:space-y-2.5">
         {(planBenefitKeys[key] ?? plan.features.map((_, i) => `${prefix}Feature${i + 1}`)).filter((benefitKey) => t.has(benefitKey)).map((benefitKey) => (
           <li
             key={benefitKey}
-            className="flex items-start gap-2.5 text-[13.5px] text-[#474747] transition-colors duration-200 group-hover:text-[#3a3a3c]"
+            className="flex items-start gap-2 text-[12.5px] text-[#474747] transition-colors duration-200 group-hover:text-[#3a3a3c] sm:gap-2.5 sm:text-[13.5px]"
           >
-            <span className={`mt-0.5 transition-transform duration-200 group-hover:scale-110 ${isFree ? 'text-emerald-500' : 'text-[#0071e3]'}`}>
+            <span className={`mt-0.5 shrink-0 transition-transform duration-200 group-hover:scale-110 ${isFree ? 'text-emerald-500' : 'text-[#0071e3]'}`}>
               <CheckIcon />
             </span>
             <span>{t(benefitKey)}</span>
@@ -205,7 +205,7 @@ function PlanCard({ plan, billing, currency, idx, reveal, reducedMotion }: PlanC
       </ul>
 
       {/* CTA */}
-      <div className="mt-7">
+      <div className="mt-5 sm:mt-7">
         {isFree ? (
           <AuthCTAButton
             loggedInKey="ctaDashboard"
@@ -217,7 +217,7 @@ function PlanCard({ plan, billing, currency, idx, reveal, reducedMotion }: PlanC
         ) : (
           <PlanCta ctaKey="planCtaPro" />
         )}
-        <p className="mt-2.5 text-center text-[11px] text-[#707070]">{t(`${prefix}Note`)}</p>
+        <p className="mt-2 text-center text-[10.5px] text-[#707070] sm:mt-2.5 sm:text-[11px]">{t(`${prefix}Note`)}</p>
       </div>
     </div>
   )
@@ -296,23 +296,23 @@ export default function PricingSection() {
         <PricingGlow />
       </SceneDynamic>
 
-      <div className="relative z-10 mx-auto max-w-[1440px] px-5 py-16 md:px-8 md:py-24">
+      <div className="relative z-10 mx-auto max-w-[1440px] px-4 py-10 sm:px-6 sm:py-14 md:px-8 md:py-24">
         {/* Header — label + heading only; the subheading moved beside the toggle */}
         <div
-          className={`mx-auto mb-10 max-w-2xl text-center transition-all duration-700 ${
+          className={`mx-auto mb-6 max-w-2xl text-center transition-all duration-700 sm:mb-10 ${
             shown ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
           }`}
         >
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[#0071e3]">
+          <p className="mb-2 text-[10.5px] font-semibold uppercase tracking-widest text-[#0071e3] sm:mb-3 sm:text-[11px]">
             {t('pricingLabel')}
           </p>
-          <h2 className="text-balance text-[34px] font-semibold leading-[1.07] tracking-tight text-[#1d1d1f] md:text-[42px]">
+          <h2 className="text-balance text-[24px] font-semibold leading-[1.12] tracking-tight text-[#1d1d1f] sm:text-[32px] sm:leading-[1.08] md:text-[36px] lg:text-[42px]">
             {t('pricingHeading')}
           </h2>
         </div>
 
         {/* Billing toggle — sliding thumb */}
-        <div className="mb-9 flex flex-col items-center gap-2.5">
+        <div className="mb-6 flex flex-col items-center gap-2 sm:mb-9 sm:gap-2.5">
           <div
             role="group"
             aria-label={t('pricingBillingLabel')}
@@ -331,7 +331,7 @@ export default function PricingSection() {
                 type="button"
                 aria-pressed={billing === option}
                 onClick={() => setBilling(option)}
-                className={`relative z-10 rounded-full px-5 py-1.5 text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3]/40 ${
+                className={`relative z-10 rounded-full px-4 py-1 text-[12px] sm:px-5 sm:py-1.5 sm:text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3]/40 ${
                   billing === option ? 'text-[#1d1d1f]' : 'text-[#707070] hover:text-[#1d1d1f]'
                 }`}
               >
@@ -339,11 +339,11 @@ export default function PricingSection() {
               </button>
             ))}
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+          <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 sm:gap-x-3">
+            <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10.5px] font-semibold text-emerald-700 sm:px-3 sm:py-1 sm:text-[11px]">
               {t('pricingAnnualSave', { pct: savingsPct })}
             </span>
-            <span className="text-[12px] font-light text-[#707070]">{t('pricingSubheading')}</span>
+            <span className="text-[11.5px] font-light text-[#707070] sm:text-[12px]">{t('pricingSubheading')}</span>
           </div>
         </div>
 
