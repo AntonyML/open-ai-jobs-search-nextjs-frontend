@@ -217,12 +217,6 @@ export default function Register() {
                 </div>
               </div>
 
-              {error && (
-                <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
-                  {error}
-                </div>
-              )}
-
               {/* Terms notice */}
               <div className="rounded-xl border border-[#e2e2e5] bg-[#fafafa] px-4 py-3 text-[12px] text-[#707070] leading-relaxed">
                 <span className="font-semibold text-[#474747]">Al crear tu cuenta</span>, deberás leer y aceptar nuestros{' '}

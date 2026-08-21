@@ -61,7 +61,7 @@ const PROVIDER_CODE_MAP: Record<string, keyof typeof ERROR_MSGS> = {
 function sanitizeError(raw: string): string {
   if (/litellm\./i.test(raw) || /anthropic\./i.test(raw) || /openai\./i.test(raw)) {
     try {
-      const embedded = raw.match(/\{.*\}/s)
+      const embedded = raw.match(/\{[\s\S]*\}/)
       if (embedded) {
         const parsed = JSON.parse(embedded[0]) as { error?: { type?: string; message?: string } }
         const code = parsed.error?.type
